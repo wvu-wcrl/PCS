@@ -19,7 +19,7 @@ public class Test {
 		/* Modulators */
 		BPSK bpskMod = new BPSK();
 		QPSK qpskMod = new QPSK();
-		Modulator mod;
+		Modulator mod; //ijhguhj
 		
 		/* Random number generators */
 		Random rand = new Random();
