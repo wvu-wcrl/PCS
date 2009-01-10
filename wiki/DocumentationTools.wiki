@@ -1,0 +1,12 @@
+=Source Code API Generators=
+http://java.sun.com/j2se/javadoc/ - Sun's documentation tool for Java.
+
+http://sphinx.pocoo.org/ - Documentation generator for Python.
+
+http://www.stack.nl/~dimitri/doxygen/ - Generator for several languages, including C, C++ and Java.
+
+=General Purpose Documentation=
+http://www.docbook.org/ - General purpose documentation tool suited for computer hardware and software literature.  Used by the Linux Documentation Project http://tldp.org/
+
+http://www.cse.ohio-state.edu/~gurari/TeX4ht/ Generate HTML and XML from LaTeX.
+
