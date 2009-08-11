@@ -283,6 +283,6 @@ void mexFunction(
     /* function is now initialized and can allow a single input argument */
     initialized = 1;
     
-    /* all done */
+    /* all done, return */
 	return;
 }
