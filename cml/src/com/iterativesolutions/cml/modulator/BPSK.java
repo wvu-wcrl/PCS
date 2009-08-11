@@ -5,7 +5,7 @@ import com.iterativesolutions.cml.util.Complex;
 /**
  * Implementation of a BPSK modulator, inherited from base class "Modulator"
  * @author Terry
- *
+ * touched by MCV on Aug. 10, 2009
  */
 
 
