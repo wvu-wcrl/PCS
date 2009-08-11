@@ -456,6 +456,7 @@ static void Viterbi(
     if ( number_symbols != last_number_symbols ) {
         free( metric_c );
     	metric_c = calloc( number_symbols, sizeof(float) );
+		last_number_symbols = number_symbols;
     }
 	
 	/* initialize trellis */
