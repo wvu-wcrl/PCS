@@ -25,7 +25,7 @@
 
    Copyright (C) 2005-2009, Matthew C. Valenti
 
-   Last updated on Aug. 10, 2009
+   Last updated on Aug. 17, 2009
 
    Function ViterbiDecode is part of the Iterative Solutions 
    Coded Modulation Library. The Iterative Solutions Coded Modulation 
