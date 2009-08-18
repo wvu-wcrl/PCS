@@ -4,19 +4,19 @@
 
    The calling syntax is:
 
-      [output_u] = ViterbiDecode( input_c, [g_encoder], [code_type], [depth] )
+      [output_u] = ViterbiDecode( input_c, {g_encoder}, [code_type], [depth] )
 
       output_u = hard decisions on the data bits (0 or 1)
 
       Required inputs:
 	  input_c = LLR of the code bits (based on channel observations)
  
- 	  Optional inputs:
+ 	  Static inputs:
  	  g_encoder = generator matrix for convolutional code
 	              (If RSC, then feedback polynomial is first)
-                  If not given, then use the previous g and code_type
 	  
-	  code_type = 0 for recursive systematic convolutional (RSC) code (default if not initialized)
+      Optional inputs:
+	  code_type = 0 for recursive systematic convolutional (RSC) code (default)
 	            = 1 for non-systematic convolutional (NSC) code
 				= 2 for tail-biting NSC code      
              
@@ -80,9 +80,8 @@ void mexFunction(
     int     this_depth_KK = 6;  
     
     /* other local variables */
-    int      i, j, index, depth_states, this_g_row;
+    int      i, j, index, depth_states, max_states, this_g_row;
     int      subs[] = {1,1};
-	int		 max_states;
 	double   elm;  
     
     /* static variables */
@@ -107,7 +106,7 @@ void mexFunction(
 
 	/* Check for proper number of arguments */
     if ((nrhs < 1 )||(nlhs  > 1)) 
-        mexErrMsgTxt("Usage: [output_u] = ViterbiDecode( input_c, [g_encoder], [code_type], [depth] )");
+        mexErrMsgTxt("Usage: [output_u] = ViterbiDecode( input_c, {g_encoder}, [code_type], [depth] )");
     
     /* A check for 1 argument before it is initialized */
 	if ( (nrhs < 2 )&&(!initialized) ) 
@@ -119,8 +118,7 @@ void mexFunction(
     
     /* if new input length, then need new array */
     if ( this_CodeLength != CodeLength ) {
-        /* this code runs if not initialized, since default CodeLength == -1 */
-		/* need to destroy old input array */
+        /* need to destroy old input array (if it exists) */
         free( input_c_float );               
 		
 		/* create new input array */
@@ -179,7 +177,7 @@ void mexFunction(
             }
         }
         
-        /* if new g, need to destroy old arrays */
+        /* if new g, need to destroy old arrays and create new ones */
         if (changed_code) {
             #ifdef DEBUG
             mexPrintf( "Destroying old arrays\n" );
@@ -190,10 +188,7 @@ void mexFunction(
             free( out1 );
             free( state0 );
             free( state1 );           
-        }		
 
-		/* create new g */
-		if ( changed_code ) {
             #ifdef DEBUG
             mexPrintf( "Creating g_encoder\n" );
             #endif
@@ -255,7 +250,7 @@ void mexFunction(
    
     /* Calculate the length of the output */
     if ( code_type < 2 ) {
-        this_DataLength = (CodeLength/nn)-KK-1;
+        this_DataLength = (CodeLength/nn)-KK+1;
     } else {
         this_DataLength = CodeLength/nn;            
 
