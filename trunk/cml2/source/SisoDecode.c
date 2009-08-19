@@ -114,7 +114,7 @@ const mxArray *prhs[] )
     static int initialized = 0;
     
     /* Check for proper number of arguments */
-    if ((nrhs < 1 )||(nlhs  > 1))
+    if ((nrhs < 1 )||(nlhs  > 2))
         mexErrMsgTxt("Usage: [output_u, output_c] = SisoDecode(input_c, {input_u}, {g_encoder}, [code_type], [dec_type] )");
     
     /* A check for 1 or 2 arguments before it is initialized */
