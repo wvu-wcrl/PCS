@@ -66,31 +66,25 @@ void mexFunction(
 				 const mxArray *prhs[] )
 {
 	/* input and output arrays */
-	double	*input, *g_array;
-	double	*output_p;
+	int     *g_input;
+    int     *input;
+    int	    *output;
 
 	/* local variables determined from input */
-	int		this_nn, this_KK, this_g_row;
-	int		this_DataLength, this_CodeLength;
-	int		this_code_type;
+	int		this_code_type, this_nn;
 
 	/* other local variables */
-	int      i, j, index;
-	int      subs[] = {1,1};
-	int		 max_states;
-	double   elm;
+	int      i, j, k;
+	int		 max_states, g_temp;
+    int      DataLength, CodeLength; 
     
     /* static variables */
-	static int		nn = -1;
-    static int      KK = -1;
-	static int		DataLength = -1;
-	static int      CodeLength = -1;
+    static int		nn, KK;
 	static int      code_type = 0;  /* default is RSC code */
 
 	/* static arrays */
 	static int     *g_encoder;
 	static int     *out0, *out1, *state0, *state1, *tail;
-	static int		*input_int, *output_int;
 
 	/* flag indicating a change in the code specificiation */
 	int		changed_code = 0;
@@ -108,55 +102,27 @@ void mexFunction(
 	
 	/* first input is the data word */
 	input = mxGetPr(INPUT);	
-	this_DataLength = mxGetN(INPUT); /* number of data bits */
-
-    /* if new input length, then need new array */
-	if ( this_DataLength!=DataLength ) {
-        /* this code runs if not initialized, since default DataLength == -1 */
-		/* need to destroy old input array */
-        free( input_int );
-		
-		/* create new input array */
-        #ifdef DEBUG
-        mexPrintf( "Creating new input array\n" );
-        #endif        
-        DataLength = this_DataLength;
-		input_int = calloc( DataLength, sizeof(int) );        
-	}
-
-	/* cast the input into an array of integers */
-	for (i=0;i<DataLength;i++)
-		input_int[i] = (int) input[i];
+	DataLength = mxGetN(INPUT); /* number of data bits */
 	
 	/* if there is a second argument, then get the code polynomial */
 	if (nrhs >= 2) {        
 		/* second input specifies the code polynomial */
-		g_array = mxGetPr(GENENCODER);
+		g_input = mxGetPr(GENENCODER);
 		this_nn = mxGetM(GENENCODER);
-		this_KK = mxGetN(GENENCODER);
 
         /* determine if g has changed */
         /* the code below runs if not initialized, since default nn = -1 */
-        if ( (this_nn!=nn)||(this_KK!=KK) ) {
+        if (this_nn!=nn) {
             changed_code = 1;  /* dimensions changed */
             #ifdef DEBUG
-            mexPrintf( "Dimensions of g have changed\n" );
+            mexPrintf( "Number rows of g has changed\n" );
             #endif
+            nn = this_nn;
         } else {
             /* test each row of the g_array */
             for (i = 0;i<nn;i++) {
-                subs[0] = i;
-                this_g_row = 0;
-                for (j=0;j<KK;j++) {
-                    subs[1] = j;
-                    index = mxCalcSingleSubscript(GENENCODER, 2, subs);
-                    elm = g_array[index];
-                    if (elm != 0) {
-                        this_g_row = this_g_row + (int) pow(2,(KK-j-1));
-                    }
-                }
                 /* compare */
-                if ( this_g_row != g_encoder[i] ) {
+                if ( g_input[i] != g_encoder[i] ) {
                     changed_code = 1;
                     #ifdef DEBUG
                     mexPrintf( "Row %d of g has changed\n", i );
@@ -177,18 +143,29 @@ void mexFunction(
             free( out1 );
             free( state0 );
             free( state1 );
-            free( tail );            
-        }
-		
-		nn = this_nn;
-		KK = this_KK;
-
-		/* create new g */
-		if ( changed_code ) {
+            free( tail );            		            
+            
+		    /* create new g */
 			#ifdef DEBUG
             mexPrintf( "Creating g_encoder\n" );
             #endif
-			max_states = 1 << (KK-1);        									
+            /* determine the constraint length */
+            KK = 0;
+            for (i = 0;i<nn;i++) {
+                g_temp = g_input[i];
+                for ( k = 1;k<32;k++ ) {
+                    g_temp = g_temp/2;
+                    if (!g_temp)
+                        break;
+                }
+                if (k > KK) 
+                    KK = k;
+            }
+            
+            #ifdef DEBUG
+            mexPrintf("Constraint Length = %d\n", KK );
+            #endif     
+			max_states = 1 << (KK-1);             
 			
             /* create the arrays */
 			g_encoder = calloc(nn, sizeof(int) );		
@@ -198,21 +175,13 @@ void mexFunction(
 			state1 = calloc( max_states, sizeof(int) );
 			tail = calloc( max_states, sizeof(int) );
 			
-			/* Convert code polynomial to binary */
+			/* Update the code polynomial */
             for (i = 0;i<nn;i++) {
-				subs[0] = i;
-				for (j=0;j<KK;j++) {
-					subs[1] = j;
-					index = mxCalcSingleSubscript(GENENCODER, 2, subs);
-					elm = g_array[index];
-					if (elm != 0) {
-						g_encoder[i] = g_encoder[i] + (int) pow(2,(KK-j-1)); 
-					}
-				}
+                g_encoder[i] = g_input[i];
 				#ifdef DEBUG
                 mexPrintf("   g_encoder[%d] = %o octal = %d decimal\n", i, g_encoder[i], g_encoder[i] );
                 #endif
-			}
+			}            
 		}
 
 		/* optional third input indicates if outer is RSC, NSC or tail-biting NSC */
@@ -246,45 +215,27 @@ void mexFunction(
 				rsc_transit( out1, state1, 1, g_encoder, KK, nn );
 				rsc_tail( tail, g_encoder, max_states, KK-1 );
 			}
-            
             #ifdef DEBUG
             for (i = 0;i<max_states;i++) 
                 mexPrintf( "out0[%d] = %d, state0[%d] = %d, out1[%d] = %d, state1[%d] = %d\n", 
                    i, out0[i], i, state0[i], i, out1[i], i, state1[i] );
-            #endif
+            #endif               
 		}		
 	}		
 
 	/* Calculate the length of the output */
 	if (code_type < 2)
-		this_CodeLength = nn*(DataLength+KK-1);
+		CodeLength = nn*(DataLength+KK-1);
 	else
-		this_CodeLength = nn*DataLength;	
-    
-    /* if new output length, need to create new array */
-	if ( this_CodeLength!=CodeLength ) {
-        /* this code runs if not initialized, since default CodeLength == -1 */
-		/* need to destroy old output array */
-        free( output_int );
-		
-		/* create new ouput array */
-        #ifdef DEBUG
-        mexPrintf( "Creating new output array\n" );
-        #endif
-        CodeLength = this_CodeLength;
-		output_int = calloc( CodeLength, sizeof(int) );
-	}	
+		CodeLength = nn*DataLength;	    
 	
-	/* create the output vector */		
-	OUTPUT = mxCreateDoubleMatrix(1, CodeLength, mxREAL );
-	output_p = mxGetPr(OUTPUT);	
+	/* create the output vector */		    
+    OUTPUT = mxCreateNumericMatrix( 1, CodeLength, mxINT32_CLASS, mxREAL );
+	/* OUTPUT = mxCreateDoubleMatrix(1, CodeLength, mxREAL ); */
+	output = mxGetPr(OUTPUT);	
 
 	/* Encode */
-	conv_encode( output_int, input_int, out0, state0, out1, state1, tail, KK, DataLength, nn );	
-
-	/* cast to output */
-    for (i=0;i<CodeLength;i++) 			
-		output_p[i] = output_int[i];
+	conv_encode( output, input, out0, state0, out1, state1, tail, KK, DataLength, nn );	
 
     /* function is now initialized and can allow a single input argument */
     initialized = 1;
