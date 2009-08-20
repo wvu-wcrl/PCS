@@ -252,18 +252,18 @@ void mexFunction(
     if ( code_type < 2 ) {
         this_DataLength = (CodeLength/nn)-KK+1;
     } else {
-        this_DataLength = CodeLength/nn;            
-
-        /* 4th input (optional) is the wrap depth */        
+        this_DataLength = CodeLength/nn;
+        
+        /* 4th input (optional) is the wrap depth */
         if (nrhs >= 4) {
             this_depth_KK = (int) *mxGetPr(DEPTH);
             if ( this_depth_KK != depth_KK ) {
                 /* wrap depth has changed */
                 depth_KK = this_depth_KK;
-            }                     
-        }	        
+            }
+        }
     }
-    
+
     /* if new output length, need to create new array */
     if ( this_DataLength != DataLength ) {
         /* this code runs if not initialized, since default CodeLength == -1 */
