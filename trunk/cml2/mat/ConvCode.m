@@ -42,7 +42,7 @@ classdef ConvCode < ChannelCode
             obj.DataBits=DataBits;
             obj.DataLength=length(obj.DataBits);
             CodeWord=ConvEncode(obj.DataBits, obj.Generator, obj.Type);
-            obj.CodeWord=CodeWord;
+%             obj.CodeWord=CodeWord;
         end
         
         % Decoder Method performs Soft-In Hard or Soft-Out decoding for a convolutional code using the optimum Viterbi or SISO algorithms, respectively.
@@ -67,7 +67,11 @@ classdef ConvCode < ChannelCode
                         EstData=ViterbiDecode(obj.ReceivedLLR, obj.Generator, obj.Type);
                     end
                 case {0, 1, 2, 3, 4}
-                    [obj.OutU obj.OutC] = SisoDecode(InU, obj.ReceivedLLR, obj.Generator, obj.Type, obj.DecoderType);
+                    if (obj.Type==2)
+                        errordlg( 'You cannot use any Soft-Input Soft-Output (SISO) decoding algorithm for Tali-biting Convolutional Codes.' , 'SISO NOT Valid for Tail-Biting Conv Codes' );
+                    end
+                    
+                    [obj.OutU obj.OutC] = SisoDecode(obj.ReceivedLLR, InU, obj.Generator, obj.Type, obj.DecoderType);
                     EstData=(sign(obj.OutU)+1)/2;
                     
                     varargout{1}=obj.OutU;
