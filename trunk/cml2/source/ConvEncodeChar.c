@@ -4,7 +4,7 @@
 
    The calling syntax is:
 
-      [output] = ConvEncode(input, out, state, [tail] )
+      [output] = ConvEncode(input, [g_encoder], [code_type] )
 
       output = code word
 
