@@ -1,9 +1,9 @@
-/* File: BitPack.c
+/* File: Map.c
 
-   Transform vector of bits into a vector of M-ary symbols.
+   Map a vector of bits to a vector of M-ary symbols.
 
    The calling syntax is:
-      [output] = BitPack( input, bits_per_word )
+      [output] = Map( input, bits_per_word )
  
       input is input bits as uint8
       output is output bits as int32
@@ -37,7 +37,7 @@ void mexFunction(
 
     /* make sure there are enough inputs */
     if (nrhs<2)
-        mexErrMsgTxt("[output] = BitPack( input, bits_per_word )");
+        mexErrMsgTxt("[output] = Map( input, bits_per_word )");
     
     /* read in input bits */
     number_bits = mxGetN(prhs[0]);
