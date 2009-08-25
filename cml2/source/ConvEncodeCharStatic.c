@@ -4,7 +4,7 @@
 
    The calling syntax is:
 
-      [output] = ConvEncode(input, [g_encoder], [code_type] )
+      [output] = ConvEncode(input, {g_encoder}, [code_type] )
 
       output = code word
 
@@ -22,7 +22,7 @@
 
    Copyright (C) 2005-2009, Matthew C. Valenti
 
-   Last updated on Aug. 11, 2009
+   Last updated on Aug. 24, 2009
 
    Function ConvEncode is part of the Iterative Solutions 
    Coded Modulation Library. The Iterative Solutions Coded Modulation 
@@ -58,6 +58,9 @@
 /* Output Arguments */
 #define OUTPUT      plhs[0]
 
+/* default */
+#define CODE_TYPE 0
+
 /* main function that interfaces with MATLAB */
 void mexFunction(
 				 int            nlhs,
@@ -80,7 +83,7 @@ void mexFunction(
     
     /* static variables */
     static int		nn, KK;
-	static int      code_type = 0;  /* default is RSC code */
+	static int      code_type;  
 
 	/* static arrays */
 	static int     *g_encoder;
@@ -196,7 +199,9 @@ void mexFunction(
 				mexPrintf( "New code type is %d\n", code_type );
                 #endif
 			}
-		}
+		} else if ( changed_code ) {
+            code_type = CODE_TYPE;
+        }
 			
 		if ( changed_code )  { 
 			#ifdef DEBUG

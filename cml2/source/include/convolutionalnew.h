@@ -28,35 +28,6 @@
 /* define constants used throughout the library */
 #define MAXLOG 1e7  /* Define infinity */
 
-/* function itob()
-
-  Description: Converts an integer symbol into a vector of bits
-
-	Output parameters:
-		binvec_p: The binary vector
-		
-    Input parameters:
-	    symbol:  The integer-valued symbol
-		length:  The length of the binary vector
-	
-  This function is used by conv_encode()  */
-
-void itob(
-						unsigned char	binvec_p[],
-						int symbol,
-						int length )
-{
-	int counter;
-
-	/* Go through each bit in the vector */
-	for (counter=0;counter<length;counter++) {
-		binvec_p[length-counter-1] = (symbol&1);
-		symbol = symbol>>1;
-	}
-
-	return;
-}
-
 /* function parity_counter()
 
   Description: Determines if a symbol has odd (1) or even (0) parity
@@ -256,12 +227,6 @@ static void conv_encode(
   /* local variables */
   int i, j, outsym;
   int state = 0;
-  
-  /* static array */
-  static unsigned char *bin_vec;
-  
-  /* static variable */
-  static int last_nn = -1;
 
   /* Negative value in "tail" is a flag that this is 
   a tail-biting NSC code.  Determine initial state */
@@ -275,17 +240,6 @@ static void conv_encode(
 			  state = state0[state];
 		  }
 	  }
-  }
-  
-  /* nn has changed, need to free and reconstruct the array */
-  if (nn!=last_nn) {
-      /* this code runs if not initialized, since default last_nn == -1 */
-      #ifdef DEBUG
-      mexPrintf( "Creating bin_vec\n");
-      #endif
-      free( bin_vec );
-      bin_vec = calloc( nn, sizeof(char) );
-      last_nn = nn;
   }
 
   /* encode data bits one bit at a time */
@@ -303,13 +257,11 @@ static void conv_encode(
 		  /* Determine next state */
 		  state = state0[state];
 	  }
-
-	  /* Convert symbol to a binary vector	*/
-	  itob( bin_vec, outsym, nn );
-		  
-	  /* Assign to output */
-	  for (j=0;j<nn;j++)
-		  output_p[nn*i+j] = bin_vec[j];
+      
+      for (j=nn-1;j>=0;j--) {
+		output_p[nn*i+j] = (outsym&1);
+		outsym = outsym>>1;
+      }
   }
 
   /* encode tail if needed */
@@ -328,13 +280,11 @@ static void conv_encode(
 			  /* Determine next state */
 			  state = state0[state];
 		  }
-		  
-		  /* Convert symbol to a binary vector	*/
-		  itob( bin_vec, outsym, nn );
-		  
-		  /* Assign to output */
-		  for (j=0;j<nn;j++)
-			  output_p[nn*i+j] = bin_vec[j];
+          
+          for (j=nn-1;j>=0;j--) {
+              output_p[nn*i+j] = (outsym&1);
+              outsym = outsym>>1;
+          }
 	  }
   }
 
