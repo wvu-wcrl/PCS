@@ -77,7 +77,7 @@
 void Duobinary_SISO_wtrellis( float *inx, float *inz, float *outx, float *outz, float *soft_bits, int len, int *trellis_end_state, int *trellis_out , int dec_type)
 {
 
-    int m_input = 2;  // 2 input bits,
+    int m_input = 2;  /* 2 input bits, */
 	int max_states = 8; // total state numbers
 	int M_input = 1<<m_input;
 	int llr_height = M_input -1;  //llr_height is 3 for DVB and Wimax code
