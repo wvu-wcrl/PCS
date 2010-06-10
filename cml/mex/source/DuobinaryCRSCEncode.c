@@ -17,9 +17,9 @@
        outz = output parity bits
        Sc   = circular state 
 
-   Copyright (C) 2005-2007, Matthew C. Valenti and Shi Cheng
+   Copyright (C) 2005-2010, Matthew C. Valenti and Shi Cheng
 
-   Last updated on Oct. 12, 2007
+   Last updated on June 10, 2010
 
    Function DuobinaryCRSCEncode is part of the Iterative Solutions 
    Coded Modulation Library. The Iterative Solutions Coded Modulation 
@@ -40,8 +40,8 @@
 */
 #include "mex.h"
 #include "math.h"
-#include ".\include\maxstar.h"
-// #include ".\include\turbo.h"
+#include "./include/maxstar.h"
+#include "./include/convolutional.h"
 
 int find_circular_state( double *x, int len)
 {
@@ -139,7 +139,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
   Duobinary_Encode_wSc( srcx, codoutz, len, int_gen, M_poly, Sc);
   
 
-  free( int_gen, len);
+  free( int_gen ); /* fixed 6-10-10 */
 
 
 }

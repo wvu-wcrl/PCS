@@ -33,9 +33,9 @@
                    but might be different when max_option is not -1.
 
 
-   Copyright (C) 2005-2007, Matthew C. Valenti and Shi Cheng
+   Copyright (C) 2005-2010, Matthew C. Valenti and Shi Cheng
 
-   Last updated on Oct. 12, 2007
+   Last updated on June 10, 2010
 
    Function DuobinaryCRSCDecode is part of the Iterative Solutions 
    Coded Modulation Library. The Iterative Solutions Coded Modulation 
@@ -56,8 +56,9 @@
 */
 #include "mex.h"
 #include "math.h"
-#include ".\include\maxstar.h"
-#include ".\include\turbo.h"
+#include "./include/maxstar.h"
+#include "./include/convolutional.h"
+/* changed \ to / in the above 6-10-10 mcv */
 
 #define ABS_ERR 1E-7
 #define MAX_CYCLE 4
