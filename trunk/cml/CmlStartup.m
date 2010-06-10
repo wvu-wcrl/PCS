@@ -2,7 +2,7 @@
 %
 % Initializes the Coded Modulation Library
 %
-% Last updated Sep. 9, 2007
+% Last updated June 9, 2010
 
 % determine the version of matlab version
 version_text = version;
@@ -15,10 +15,27 @@ end
 % determine the home directory
 cml_home = pwd;
 
+% this is the location of the mex directory for this architecture
+switch computer
+    case 'PCWIN'  % MS Windows on x86
+        addpath( strcat( cml_home, '\mexpcwin');
+    case 'GLNX86' % Linux on x86
+        addpath( strcat( cml_home, '/mexglnx86');
+    case 'MACI'   % Apple Mac OS X on x86         
+        addpath( strcat( cml_home, '/mexmaci');
+    case 'PCWIN64' % Microsoft Windows on x64      
+        addpath( strcat( cml_home, '\mexpcwin64');
+    case 'GLNXA64'  % Linux on x86_64      
+        addpath( strcat( cml_home, '/mexglnxa64');
+    case 'SOL64'    % Sun Solaris on SPARC          
+        addpath( strcat( cml_home, '/mexsol64');
+    case 'MACI64'   % Apple Mac OS X on x86_64   
+        addpath( strcat( cml_home, '/mexmaci64');
+end
+
 if ispc
     % setup the path
-    addpath( strcat( cml_home, '\mex'), ...
-        strcat( cml_home, '\mat'), ...
+    addpath( strcat( cml_home, '\mat'), ...
         strcat( cml_home, '\matalt' ), ...
         strcat( cml_home, '\mexhelp'), ...
         strcat( cml_home, '\demos' ), ...
@@ -38,8 +55,7 @@ if ispc
     save_directory = strcat( cml_home, '\scenarios\CmlHome.mat' );
 else
     % setup the path
-    addpath( strcat( cml_home, '/mex'), ...
-        strcat( cml_home, '/mat'), ...
+    addpath( strcat( cml_home, '/mat'), ...
         strcat( cml_home, '/matalt' ), ...
         strcat( cml_home, '/mexhelp'), ...
         strcat( cml_home, '/demos' ), ...
