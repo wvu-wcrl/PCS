@@ -116,13 +116,13 @@ classdef TurboCode < ChannelCode
                 switch InterleaverType
                     
                     case 0
-                        Pattern=randperm(obj.DataLength)-1;
+                        Pattern = randperm(obj.DataLength)-1;
                     
                     case 1
-                        Pattern=CreateCcsdsInterleaver(obj.DataLength);
+                        Pattern = CreateCcsdsInterleaver(obj.DataLength);
                     
                     case 2
-                        Pattern=CreateLTEInterleaver(obj.DataLength);
+                        Pattern = CreateLTEInterleaver(obj.DataLength);
                         
                     case 3
                         Pattern = CreateUmtsInterleaver(obj.DataLength);

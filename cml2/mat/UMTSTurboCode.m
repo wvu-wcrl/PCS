@@ -29,4 +29,3 @@ classdef UMTSTurboCode < TurboCode
     end
     
 end
-
