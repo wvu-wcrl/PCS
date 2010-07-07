@@ -1,4 +1,10 @@
+function make( varargin )
 % makefile for the CML mex files
+%
+% Usage: 
+%    make % makes all files
+%
+%    make 'filename' % makes just the specified file (must end in .c)
 %
 % Last updated June 10, 2010
 
@@ -11,7 +17,12 @@ mex_dir = this_dir(1:length(this_dir)-6);
 target_dir = strcat( mex_dir, lower( computer ) );
 
 % Obtain a list of all the files in this directory
-D = dir( pwd );
+if nargin
+    desired_file = varargin{1};
+    D = dir( strcat( pwd, '/', desired_file ) );
+else
+    D = dir( pwd );
+end
 
 % Look for c-files in the list of files
 for i=1:length(D)
