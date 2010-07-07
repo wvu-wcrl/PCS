@@ -1,5 +1,5 @@
 function [detected_data, errors] = BTCDecode( symbol_likelihood, data, grows, gcolumns, k_per_row, k_per_column, B, Q, max_iterations, decoder_type )
-% BTCEncode decodes a block turbo code
+% BTCDecode decodes a block turbo code
 %
 % The calling syntax is:
 %     [detected_data, errors] = BTCDecode( symbol_likelihood, data, grows, gcolumns, k_per_row, k_per_column, B, Q, max_iterations, decoder_type )

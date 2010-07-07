@@ -1,5 +1,5 @@
 function  [sim_param, sim_state] = CalculateMinSNR( sim_param, sim_state, code_param )
-%  CalculateThroughput determines that capacity of FSK under bandwidth
+%  CalculateMinSNR determines that capacity of FSK under bandwidth
 % constraints, by returning min Eb/No (dB) as a function of h.
 %
 % The calling syntax is:
