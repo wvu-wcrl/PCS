@@ -2,9 +2,9 @@
    
    Description: General functions used to implement convolutional encoding.   
 
-   Copyright (C) 2006-2008, Matthew C. Valenti
+   Copyright (C) 2006-2010, Matthew C. Valenti
 
-   Last updated on May 22, 2008
+   Last updated on July 7, 2010
 
    The functions in this file are part of the Iterative Solutions 
    Coded Modulation Library. The Iterative Solutions Coded Modulation 
@@ -613,6 +613,17 @@ static void ViterbiTb(
 		}
 	}
 	
+    /* find the survivor path with minimum path metrics */
+    max_val = prev_section[0];				
+    max_state = 0;		
+    for (state=1;state<states;state++) {			
+        if (prev_section[state]>max_val){
+            max_val = prev_section[state];				
+            max_state = state;	
+        }		
+    }
+	
+
 	/* trace-back operation */
 	state = max_state;
 
