@@ -5,14 +5,14 @@ classdef APSK < Modulation
     
     methods
         
-        % Class constructor: obj = APSK( [Order] [,MappingType] [,Mapper] )
+        % Class constructor: obj = APSK( [Order] )
         function obj = APSK( varargin )
             
             if length(varargin) >= 1
                 Order = varargin{1};
                 % Making sure that modulation Order is a power of 2.
                 if ( rem( log(Order)/log(2),1 ) )
-                    error('The order of modulation MUST be a power of 2.');
+                    error( 'The order of modulation MUST be a power of 2.' );
                 end
             else
                 Order = 16;
@@ -40,6 +40,10 @@ classdef APSK < Modulation
             Constellation = Constellation/sqrt( mean(abs(MappingVector).^2) ); % Normalization
             
             SignalSet=[real(Constellation); imag(Constellation)];
+            
+            obj@Modulation(SignalSet);
+            obj.Type = 'APSK';
+            obj.MappingVector = MappingVector;
         end
         
     end

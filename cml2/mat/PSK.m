@@ -5,7 +5,7 @@ classdef PSK < Modulation
     
     methods
         
-        % Class constructor: obj = PSK( [Order] [,MappingType/MappingVector] [,Mapper] )
+        % Class constructor: obj = PSK( [Order] [,MappingType/MappingVector] )
         % MappingType='gray','SP'(Order=4,8),'SSP'(Order=8) or 'MSEW'(Order=8)
         function obj = PSK( varargin )
             
@@ -13,7 +13,7 @@ classdef PSK < Modulation
                 Order = varargin{1};
                 % Making sure that modulation Order is a power of 2.
                 if ( rem( log(Order)/log(2),1 ) )
-                    error('The order of modulation MUST be a power of 2.');
+                    error( 'The order of modulation MUST be a power of 2.' );
                 end
             else
                 Order = 8;
@@ -28,6 +28,7 @@ classdef PSK < Modulation
                         error( 'MappingType must contain all integers 0 through Order-1.' );
                     end
                     MappingVector = MappingType;
+                    MappingType = 'UserDefined';
                 end
             else
                 MappingType = [];
@@ -35,7 +36,7 @@ classdef PSK < Modulation
             end
             
             Temp = exp( j*2*pi*[0:Order-1]/Order );
-            if ischar(MappingType)
+            if ( ischar(MappingType) && ~strcmpi(MappingType, 'UserDefined') )
                 switch MappingType
                     case 'gray'
                         MappingVector = [0 1];
@@ -68,7 +69,12 @@ classdef PSK < Modulation
             end
             
             Constellation( MappingVector+1 ) = Temp;
-            SignalSet=[real(Constellation); imag(Constellation)];
+            SignalSet = [real(Constellation); imag(Constellation)];
+            
+            obj@Modulation(SignalSet);
+            obj.Type = 'PSK';
+            obj.MappingType = MappingType;
+            obj.MappingVector = MappingVector;
         end
         
     end
