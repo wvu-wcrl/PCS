@@ -32,6 +32,10 @@ classdef HEX < Modulation
             Constellation( MappingVector+1 ) = Temp;
             
             SignalSet=[real(Constellation); imag(Constellation)];
+            
+            obj@Modulation(SignalSet);
+            obj.Type = 'HEX';
+            obj.MappingVector = MappingVector;
         end
         
     end
