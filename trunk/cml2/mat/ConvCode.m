@@ -72,8 +72,8 @@ classdef ConvCode < ChannelCode
     methods
         
         % Class Constructor: Generator matrix of convolutional code and its type must be specified. The constructor syntax is as follows:
-        % obj=ConvCode(Generator [,Type] [,DecoderType] [,Depth])
-        function obj=ConvCode(Generator, varargin)
+        % obj = ConvCode(Generator [,Type] [,DecoderType] [,Depth])
+        function obj = ConvCode(Generator, varargin)
             obj.Generator=Generator;
             if (length(varargin)>=1)
                 obj.Type=varargin{1};
@@ -87,20 +87,22 @@ classdef ConvCode < ChannelCode
         end
         
         
-        function [CodeWord]=Encode(obj, DataBits)
+        function [Codeword] = Encode(obj, DataBits)
         % Encoder method
             obj.DataBits=DataBits;
             obj.DataLength=length(obj.DataBits);
-            CodeWord=ConvEncode(obj.DataBits, obj.Generator, obj.Type);
-%             obj.CodeWord=CodeWord;
+            Codeword=ConvEncode(obj.DataBits, obj.Generator, obj.Type);
+            obj.Codeword=Codeword;
+            obj.CodewordLength = length(obj.Codeword);
+            obj.Rate = obj.DataLength/obj.CodewordLength;
         end
         
                 
-        function [EstData, varargout]=Decode(obj, ReceivedLLR, varargin)
+        function [EstData, varargout] = Decode(obj, ReceivedLLR, varargin)
         % Decoder Method performs Soft-In Hard or Soft-Out decoding for a convolutional code using the optimum Viterbi or SISO algorithms, respectively.
         % [DataBitsLLR] is the INPUT OPTIONAL Log-Likelihood Ratios (LLR) of the DataBits (Only used in the SISO decoding algorithms).
         
-        % The syntax of calling this method is as follows: [ EstData [,OutU] [,OutC] ]=Decode(obj, ReceivedLLR, [DataBitsLLR])
+        % The syntax of calling this method is as follows: [ EstData [,OutU] [,OutC] ] = Decode(obj, ReceivedLLR, [DataBitsLLR])
         
             obj.ReceivedLLR=ReceivedLLR;
             

@@ -8,7 +8,8 @@ classdef BPSK < Modulation
         function obj = BPSK()
             Order = 2;
             Constellation = [1 -1];
-            SignalSet=[real(Constellation); imag(Constellation)];
+            SignalSet = Constellation;
+%             SignalSet=[real(Constellation); imag(Constellation)];
             MappingVector = 0:1;
             obj@Modulation(SignalSet);
             obj.Type = 'BPSK';

@@ -18,7 +18,7 @@ classdef APSK < Modulation
                 Order = 16;
             end
             
-            Temp = [+1 +j -1 -j]; % Inner ring is QPSK.
+            Temp = [1 j -1 -j]; % Inner ring is QPSK.
             % Mapping is fixed.
             if Order==16
                 rho = 2.85; % This value could be varied.
@@ -37,7 +37,7 @@ classdef APSK < Modulation
             end
             
             Constellation( MappingVector+1 ) = Temp;
-            Constellation = Constellation/sqrt( mean(abs(MappingVector).^2) ); % Normalization
+            Constellation = Constellation/sqrt( mean(abs(Constellation).^2) ); % Normalization
             
             SignalSet=[real(Constellation); imag(Constellation)];
             

@@ -3,8 +3,8 @@ classdef Mapping < handle
     
     properties
         NoBitsPerSymb       % Number of bits per symbol (There are M=2^(NoBitsPerSymb) symbols.)
-        Data                % Data row vector to be mapped to an M-ary symbol (The length of Data has to be an integer multiple (N) of NoBitsPerSymb.)
-        DataIndex           % 1-by-N vector of M-ary symbols corresponding to N groups of bits in the Data vector.
+        Data                % Data row vector as UINT8 to be mapped to an M-ary symbol (The length of Data has to be an integer multiple (N) of NoBitsPerSymb.)
+        DataIndex           % 1-by-N vector of M-ary symbols as INT32 corresponding to N groups of bits in the Data vector.
         SymbolLLR           % M-by-N matrix of symbol LLR to be demapped to BitLLR.
         BitLLR              % 1-by-N*LOG2(M) vector of demapped bit LLR.
     end
@@ -16,6 +16,7 @@ classdef Mapping < handle
         end
         
         function DataIndex = Map( obj, Data )
+        % Map method maps a vector of bits to a vector of M-ary symbols.
             obj.Data = Data;
             % The Map function maps obj.Data to a vector of M-ary symbols.
             DataIndex = Map( obj.Data, obj.NoBitsPerSymb );
@@ -23,6 +24,7 @@ classdef Mapping < handle
         end
         
         function BitLLR = Demap( obj, SymbolLLR, DemodType, varargin )
+        % Demap method is a SOFT demapper of M-ary to binary LLR conversion.
             obj.SymbolLLR = SymbolLLR;
             
             if (length(varargin)>=1)
