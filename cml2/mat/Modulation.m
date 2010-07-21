@@ -6,7 +6,7 @@ classdef Modulation < handle
                     % 'BPSK', 'QPSK', 'APSK'(Order=16,32), 'HEX'(Order=16), 'HSDPA' (Order=4,16) or 'custom'
                     % 'FSK'(MappingType='gray','reversegray'(Order=8,16),'mv'(Order=8,16),'dt'(Order=8,16), For ALL {'gray2','gray3','gray4','gray5','gray6'} Order is 8)
                     % 'PSK' (MappingType='gray','SP'(Order=4,8),'SSP'(Order=8),'MSEW'(Order=8))
-                    % 'QAM'(MappingType='gray'(Order=16,64,256), For ALL{'Antigray','SP','SSP','MSEW','huangITNr1','huangITNr2','huangLetterNr1','huangLetterNr2'} Order is 16,Order=32(Fixed Mapping))
+                    % 'QAM'(MappingType='gray'(Order=16,64,256), For ALL{'Antigray','SP','MSP','MSEW','huangITNr1','huangITNr2','huangLetterNr1','huangLetterNr2'} Order is 16,Order=32(Fixed Mapping))
         Order       % Modulation Order which is the number of points (symbols) in the signal constellation (It has to be a power of 2.)
                     % It is not needed for 'BPSK' (Order=2), 'QPSK' (Order=4), or 'HEX' (Order=16). Default for 'FSK' is Order=2.
 %         MappingType='gray'  
@@ -169,13 +169,14 @@ classdef Modulation < handle
 % OLD VERSION            obj.SymbolLikelihood = Demod2D(obj.RecievedSignal, obj.SignalSet, obj.EsN0, obj.FadingCoef);
             obj.SymbolLikelihood = VectorDemod(obj.RecievedSignal, obj.SignalSet, obj.EsN0);
             
-            if ( strcmpi(obj.Type, 'BPSK') )
-                BitLikelihood = obj.SymbolLikelihood;
-            else
+            % The following if statement was commented on July 16, 2009.
+%             if ( strcmpi(obj.Type, 'BPSK') )
+%                 BitLikelihood = obj.SymbolLikelihood;
+%             else
 % OLDER VERSION                BitLikelihood = Somap(obj.SymbolLikelihood, obj.DemodType); % Extrinsic information is considered to be all zero (DEFAULT).
 % OLD VERSION                BitLikelihood = Demap(obj.SymbolLikelihood, obj.DemodType); % Extrinsic information is considered to be all zero (DEFAULT).
-                BitLikelihood = Mapper.Demap( obj.SymbolLikelihood, obj.DemodType ); % Extrinsic information is considered to be all zero (DEFAULT).
-            end
+                BitLikelihood = obj.Mapper.Demap( obj.SymbolLikelihood, obj.DemodType ); % Extrinsic information is considered to be all zero (DEFAULT).
+%             end
             obj.BitLikelihood=BitLikelihood;
         end
     end    

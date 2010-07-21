@@ -6,6 +6,7 @@ classdef QAM < Modulation
     methods
         
         % Class constructor: obj = QAM( [Order] [,MappingType/MappingVector] )
+        % MappingType='gray'(Order=16,64,256), For ALL{'Antigray','SP','MSP','MSEW','huangITNr1','huangITNr2','huangLetterNr1','huangLetterNr2'} Order is 16.
         function obj = QAM( varargin )
             
             if length(varargin) >= 1

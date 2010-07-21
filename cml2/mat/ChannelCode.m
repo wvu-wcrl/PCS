@@ -5,9 +5,9 @@ classdef ChannelCode < handle
 % ChannelCode Properties:
 %   DataBits        - Row vector of data bits to be coded
 %   DataLength      - Length of DataBits vector
-%   CodeWord        - Generated row vector codeword of DataBits
-%   CodeWordLength  - Length of each CodeWord
-%   ReceivedLLR     - Received vector of bit Log-Likelihood-Ratio (LLR) for the received data (CodeWord) to be decoded
+%   Codeword        - Generated row vector codeword of DataBits
+%   CodewordLength  - Length of each Codeword
+%   ReceivedLLR     - Received vector of bit Log-Likelihood-Ratio (LLR) for the received data (Codeword) to be decoded
 %   EstBits         - Row vector of decoded bits of ReceivedLLR
 %   Rate            - Code rate (R=k/n)
 %   NumError        - The number of errors calculated by comparing DataBits and EstBits
@@ -20,16 +20,16 @@ classdef ChannelCode < handle
     properties
         DataBits        % Row vector of data bits to be coded
         DataLength      % Length of DataBits vector
-        CodeWord        % Generated row vector codeword of DataBits
-        CodeWordLength  % Length of each CodeWord
-        ReceivedLLR     % Received vector of bit Log-Likelihood-Ratio (LLR) for the received data (CodeWord) to be decoded
+        Codeword        % Generated row vector codeword of DataBits
+        CodewordLength  % Length of each Codeword
+        ReceivedLLR     % Received vector of bit Log-Likelihood-Ratio (LLR) for the received data (Codeword) to be decoded
         EstBits         % Row vector of decoded bits of ReceivedLLR
         Rate            % Code rate (R=k/n)
         NumError        % The number of errors calculated by comparing DataBits and EstBits
     end
     
     methods
-        function [CodeWord]=Encode(obj, DataBits)
+        function [Codeword]=Encode(obj, DataBits)
 %       This is the encode method.            
         end
         function [EstData]=Decode(obj, ReceivedLLR)
@@ -37,7 +37,6 @@ classdef ChannelCode < handle
         end
         function NumError = ErrorCount()
 %       This is the methode responsible for counting the errors made between the input and ouput of the Encode and Decode methods, respectively.
-            NumError = sum( obj.DataBits ~= EstBits );
         end
     end    
 end
