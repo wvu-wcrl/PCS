@@ -4,18 +4,15 @@ classdef APSK < Modulation
     end
     
     methods
-        
         % Class constructor: obj = APSK( [Order] )
         function obj = APSK( varargin )
-            
+            Order = 16;
             if length(varargin) >= 1
                 Order = varargin{1};
                 % Making sure that modulation Order is a power of 2.
                 if ( rem( log(Order)/log(2),1 ) )
                     error( 'The order of modulation MUST be a power of 2.' );
                 end
-            else
-                Order = 16;
             end
             
             Temp = [1 j -1 -j]; % Inner ring is QPSK.
@@ -43,9 +40,8 @@ classdef APSK < Modulation
             
             obj@Modulation(SignalSet);
             obj.Type = 'APSK';
-            obj.MappingVector = MappingVector;
+%             obj.MappingVector = MappingVector;
         end
-        
     end
     
 end

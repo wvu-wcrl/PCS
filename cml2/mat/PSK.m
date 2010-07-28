@@ -4,19 +4,16 @@ classdef PSK < Modulation
     end
     
     methods
-        
         % Class constructor: obj = PSK( [Order] [,MappingType/MappingVector] )
         % MappingType='gray','SP'(Order=4,8),'SSP'(Order=8) or 'MSEW'(Order=8)
         function obj = PSK( varargin )
-            
+            Order = 8;
             if length(varargin) >= 1
                 Order = varargin{1};
                 % Making sure that modulation Order is a power of 2.
                 if ( rem( log(Order)/log(2),1 ) )
                     error( 'The order of modulation MUST be a power of 2.' );
                 end
-            else
-                Order = 8;
             end
             
             if length(varargin) >= 2
@@ -74,9 +71,8 @@ classdef PSK < Modulation
             obj@Modulation(SignalSet);
             obj.Type = 'PSK';
             obj.MappingType = MappingType;
-            obj.MappingVector = MappingVector;
+%             obj.MappingVector = MappingVector;
         end
-        
     end
     
 end

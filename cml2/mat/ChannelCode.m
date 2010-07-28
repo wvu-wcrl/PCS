@@ -25,7 +25,7 @@ classdef ChannelCode < handle
         ReceivedLLR     % Received vector of bit Log-Likelihood-Ratio (LLR) for the received data (Codeword) to be decoded
         EstBits         % Row vector of decoded bits of ReceivedLLR
         Rate            % Code rate (R=k/n)
-        NumError        % The number of errors calculated by comparing DataBits and EstBits
+        NumError=0      % The number of errors calculated by comparing DataBits and EstBits
     end
     
     methods

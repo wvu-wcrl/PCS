@@ -98,11 +98,11 @@ classdef ConvCode < ChannelCode
         end
         
                 
-        function [EstData, varargout] = Decode(obj, ReceivedLLR, varargin)
+        function [EstBits, varargout] = Decode(obj, ReceivedLLR, varargin)
         % Decoder Method performs Soft-In Hard or Soft-Out decoding for a convolutional code using the optimum Viterbi or SISO algorithms, respectively.
         % [DataBitsLLR] is the INPUT OPTIONAL Log-Likelihood Ratios (LLR) of the DataBits (Only used in the SISO decoding algorithms).
         
-        % The syntax of calling this method is as follows: [ EstData [,OutU] [,OutC] ] = Decode(obj, ReceivedLLR, [DataBitsLLR])
+        % The syntax of calling this method is as follows: [ EstBits [,OutC] [,OutU] ] = Decode(obj, ReceivedLLR, [DataBitsLLR])
         
             obj.ReceivedLLR=ReceivedLLR;
             
@@ -115,9 +115,9 @@ classdef ConvCode < ChannelCode
             switch obj.DecoderType
                 case -1
                     if (obj.Type==2 && obj.Depth>=0)
-                        EstData=ViterbiDecode(obj.ReceivedLLR, obj.Generator, obj.Type, obj.Depth);
+                        EstBits=ViterbiDecode(obj.ReceivedLLR, obj.Generator, obj.Type, obj.Depth);
                     else
-                        EstData=ViterbiDecode(obj.ReceivedLLR, obj.Generator, obj.Type);
+                        EstBits=ViterbiDecode(obj.ReceivedLLR, obj.Generator, obj.Type);
                     end
                     
                 case {0, 1, 2, 3, 4}
@@ -125,15 +125,15 @@ classdef ConvCode < ChannelCode
                         errordlg( 'You cannot use any Soft-Input Soft-Output (SISO) decoding algorithm for Tali-biting Convolutional Codes.' , 'SISO NOT Valid for Tail-Biting Conv Codes' );
                     else
                         [obj.OutU obj.OutC] = SisoDecode(obj.ReceivedLLR, InU, obj.Generator, obj.Type, obj.DecoderType);
-                        EstData=(sign(obj.OutU)+1)/2;
-                        varargout{1}=obj.OutU;
-                        varargout{2}=obj.OutC;
+                        EstBits=(sign(obj.OutU)+1)/2;
                     end
                     
                 otherwise
                         errordlg( 'Decoder type has to be one of the integers -1, 0, 1, 2, 3 or 4. Please refer to the help of the ConvCode class to find out the meaning of these options for the Decoder Type.', 'Invalid Decoder Type' );
             end
-            obj.EstBits=EstData;
+            obj.EstBits=EstBits;
+            varargout{1}=obj.OutC;
+            varargout{2}=obj.OutU;
         end        
     end    
 end
