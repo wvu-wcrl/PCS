@@ -4,19 +4,16 @@ classdef QAM < Modulation
     end
     
     methods
-        
         % Class constructor: obj = QAM( [Order] [,MappingType/MappingVector] )
         % MappingType='gray'(Order=16,64,256), For ALL{'Antigray','SP','MSP','MSEW','huangITNr1','huangITNr2','huangLetterNr1','huangLetterNr2'} Order is 16.
         function obj = QAM( varargin )
-            
+            Order = 16;
             if length(varargin) >= 1
                 Order = varargin{1};
                 % Making sure that modulation Order is a power of 2.
                 if ( rem( log(Order)/log(2),1 ) )
                     error( 'The order of modulation MUST be a power of 2.' );
                 end
-            else
-                Order = 16;
             end
             
             if length(varargin) >= 2
@@ -33,10 +30,10 @@ classdef QAM < Modulation
                 MappingType = [];
                 MappingVector = 0:Order-1;
             end
+%             [Constellation, MappingVector] = CreateQAMConstellation( Order, MappingType );
+            Constellation = CreateQAMConstellation( Order, MappingType );
             
-            [Constellation, MappingVector] = CreateQAMConstellation( Order, MappingType );
-            
-            SignalSet=[real(Constellation); imag(Constellation)];
+            SignalSet = [real(Constellation); imag(Constellation)];
             
             obj@Modulation(SignalSet);
             obj.Type = 'QAM';
@@ -45,9 +42,8 @@ classdef QAM < Modulation
             else
                 obj.MappingType = MappingType;
             end
-            obj.MappingVector = MappingVector;
+%             obj.MappingVector = MappingVector;
         end
-        
     end
     
 end

@@ -1,4 +1,5 @@
-function [Constellation, MappingVector] = CreateQAMConstellation( Order, MappingType )
+function [Constellation] = CreateQAMConstellation( Order, MappingType )
+% function [Constellation, MappingVector] = CreateQAMConstellation( Order, MappingType )
 
 if Order == 32
     % The mapping is NOT right here (just for CM capacity simulation).

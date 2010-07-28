@@ -4,10 +4,9 @@ classdef HEX < Modulation
     end
     
     methods
-        
         % (ONLY 16-)HEX modulation constructor.
         function obj = HEX()
-            Order = 16;
+%             Order = 16;
             MappingVector = 0:Order-1;
             
             % Fixed mapping.
@@ -35,9 +34,8 @@ classdef HEX < Modulation
             
             obj@Modulation(SignalSet);
             obj.Type = 'HEX';
-            obj.MappingVector = MappingVector;
+%             obj.MappingVector = MappingVector;
         end
-        
     end
     
 end
