@@ -190,7 +190,7 @@ elseif ( strcmpi(mod_type, 'APSK' )  )% APSK modulation
         rho = 2.85; % this could be varied
         % outer ring is 12-PSK w/ radius rho
         temps(5:16) = rho*exp( j*2*pi*[0:11]'/12);
-        % mapping = [3 11 9 1 6 2 10 14 15 13 12 8 0 4 5 7];
+        mapping = [3 11 9 1 6 2 10 14 15 13 12 8 0 4 5 7];  %fixed 7-10-10
     elseif (M==32)
         rho1 = 2.84;  % these could be varied
         rho2 = 5.27
