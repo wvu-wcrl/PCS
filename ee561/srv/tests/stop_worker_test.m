@@ -1,11 +1,10 @@
-% Test the constructor of the cluster worker
-%   controller.
+% Test the worker stopping method.
 %
 % Version 1
-% 2/27/2011
+% 2/28/2011
 % Terry Ferrett
 
-function cwc_obj = start_worker_test()
+function cwc_obj = stop_worker_test()
 
 cd ..;
 cd ..;
@@ -17,3 +16,7 @@ cd tests/
 cwc_obj = cwc(cmlRoot, 'test.cfg', 'stub_worker');
 
 cwc_obj.wSta('node01');
+
+pause(5);
+
+cwc_obj.wSto(0);
