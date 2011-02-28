@@ -14,15 +14,16 @@ classdef util < handle
         
     methods(Static)
         % fp() - File Parser
-        function out = fp(cfp, heading, key)
-            %1. Open the file.
-            %2. Seek to 'heading'
-            %3. for all fields denoted by 'key
-            %   Read value into 'out' array
+        function out = fp(filename, heading, key)
+            %Method Steps
+            %1. Open file.
+            %2. Seek to 'heading'.
+            %3. for all fields denoted by 'key,
+            %      Read value into 'out' array.
             
-            cfgFid = fopen(cfp);
+            fid = fopen(filename);
             
-            str_in = fgetl(cfgFid);
+            str_in = fgetl(fid);
             empty_file = isnumeric(str_in);
             
             % Scan for heading.
@@ -31,12 +32,12 @@ classdef util < handle
                     case heading
                         break;
                     otherwise
-                        str_in = fgetl(cfgFid);
+                        str_in = fgetl(fid);
                         empty_file = isnumeric(str_in);
                 end
             end
             
-            str_in = fgetl(cfgFid);
+            str_in = fgetl(fid);
             empty_file = isnumeric(str_in);
             
             
@@ -63,7 +64,7 @@ classdef util < handle
                         end
                 end
                                 
-                str_in = fgetl(cfgFid);
+                str_in = fgetl(fid);
                 empty_file = isnumeric(str_in);
                 
             end

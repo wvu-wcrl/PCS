@@ -24,14 +24,12 @@ classdef cwc < wc
     
     
     
-    % Constructor
     methods
         function obj = cwc(cfpIn)
-            % 1. Input config file name
+            % 1. Read configuration file name.
             obj.cfp = cfpIn;
             
-            % 2. read input path from config
-            % 3. Read output path from config
+            % 2. Read input and output paths from configuration file.
             heading = '[Paths]';
             key = 'InputPath';
             out = util.fp(obj.cfp, heading, key);
@@ -43,6 +41,7 @@ classdef cwc < wc
             obj.outPath = out{1}{1};
             
             % 4. Read active nodes and max workers per node
+            %      from configuration file.
             heading = '[Hosts]';
             key = 'host';
             out = util.fp(obj.cfp, heading, key);
@@ -54,10 +53,8 @@ classdef cwc < wc
             
         end
     end
+       
     
-    
-    
-    % Inherited from wc
     methods
         function wSta(obj)
         end
