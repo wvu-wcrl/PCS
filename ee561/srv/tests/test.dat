@@ -1,0 +1,11 @@
+[Paths]
+InputPath = /home/tferrett1
+OutputPath = /home/tferrett2
+
+[Hosts]
+host = node01 8
+host = node11 12
+host = node12 12
+host = node13 12
+host = node14 12
+host = node15 12
