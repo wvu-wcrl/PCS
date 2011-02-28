@@ -60,7 +60,10 @@ classdef cwc < wc
             obj.cmlRoot = cmlRoot;
             obj.workerScript = workerScript;
             obj.bashScriptPath = [cmlRoot '/srv'];
-            obj.workerPath = [cmlRoot '/srv' '/wrk'];
+
+[ignore pathTemp] = strtok(cmlRoot, '/');
+obj.workerPath = ['/rhome' pathTemp '/srv' '/wrk'];
+            %obj.workerPath = [cmlRoot '/srv' '/wrk'];
             
             obj.wrkCnt = 0;
             
@@ -86,7 +89,7 @@ classdef cwc < wc
             wNum_str = int2str(obj.wrkCnt);
                 
             % Form the command string.
-            cmd_str = ['.', obj.bashScriptPath, '/start_worker'];
+            cmd_str = [obj.bashScriptPath, '/start_worker.sh'];
                            
             cmd_str = [cmd_str, ' ',...
                 hostname, ' ',...
@@ -94,7 +97,7 @@ classdef cwc < wc
                 obj.workerScript, ' ',...
                 int2str(obj.wrkCnt)];
             
-            %[stat pid] = system(cmd_str);  
+            [stat pid] = system(cmd_str);  
             % Create worker object from node name and
             newWrkObj = cWrk(hostname, pid, obj.wrkCnt);
             
