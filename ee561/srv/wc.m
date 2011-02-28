@@ -19,7 +19,6 @@ classdef wc < handle
         wSta(obj)  % Start worker
         wSto(obj)  % Stop worker
         status(obj) % Return worker status
-        rcf(obj) % Read configuration file
     end
     
 end
