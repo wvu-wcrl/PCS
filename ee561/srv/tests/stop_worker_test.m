@@ -17,6 +17,6 @@ cwc_obj = cwc(cmlRoot, 'test.cfg', 'stub_worker');
 
 cwc_obj.wSta('node01');
 
-pause(5);
+pause(10);
 
 cwc_obj.wSto(0);

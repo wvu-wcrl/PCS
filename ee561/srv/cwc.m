@@ -120,8 +120,8 @@ classdef cwc < wc
             
             tempWrk = [];
             for k = 1:numWorkers,
-                if workers(k).wrkCnt == wNum,
-                    tempWrk = workers(k);
+                if obj.workers(k).wrkCnt == wNum,
+                    tempWrk = obj.workers(k);
                     break;
                 end
             end
@@ -140,7 +140,7 @@ classdef cwc < wc
             % PID
             
             cmd_str = [cmd_str, ' ',...
-                hostname, ' ',...
+                tempWrk.hostname, ' ',...
                 tempWrk.pid];
                 
             [stat] = system(cmd_str);
@@ -149,6 +149,7 @@ classdef cwc < wc
             % Remove worker from array.
             workTmp = obj.workers(1:k-1);
             workTmp = [workTmp obj.workers(k+1:end)];            
+obj.workers = workTmp;
         end
         
         function cSto(obj)
