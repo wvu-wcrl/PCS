@@ -25,6 +25,9 @@ classdef cwc < wc
         outPath  % Path to results
     end
     
+    properties (Access=private)
+        wrkCnt
+    end
     
     
     methods
@@ -58,12 +61,17 @@ classdef cwc < wc
             obj.workerScript = workerScript;
             obj.bashScriptPath = [cmlRoot '/srv'];
             obj.workerPath = [cmlRoot '/srv' '/wrk'];
+            
+            obj.wrkCnt = 0;
+            
+            % Initialize worker array
+            obj.workers = cWrk.empty(1,0);
         end
     end
        
     
     methods
-        function wSta(obj, hostname, wNum)
+        function wSta(obj, hostname)
             % Inputs
             %  hostname - node hostname, e.g., node01
             %  wNum - unique integer identifying the worker.
@@ -75,24 +83,28 @@ classdef cwc < wc
             %   Inputs: unique ID (integer counter)
             % 3. Return process ID
             
-            wNum_str = int2str(wNum);
+            wNum_str = int2str(obj.wrkCnt);
                 
             % Form the command string.
-            cmd_str = [obj.workerPath, ' ',...
-                    obj.workerScript];
-                
+            cmd_str = ['.', obj.bashScriptPath, '/start_worker'];
+                           
             cmd_str = [cmd_str, ' ',...
                 hostname, ' ',...
                 obj.workerPath, ' ',...
                 obj.workerScript, ' ',...
-                wNum_str];
+                int2str(obj.wrkCnt)];
             
-            [stat pid] = system(cmd_str);  
-            % Save the PID
+            %[stat pid] = system(cmd_str);  
             % Create worker object from node name and
-            %  PID and worker number
-            % Increment worker number
+            newWrkObj = cWrk(hostname, pid, obj.wrkCnt);
+            
+            % Add worker object to worker array.
+           obj.workers(end+1) = newWrkObj;
+            
             % Write test
+            
+            % Increment worker counter
+            obj.wrkCnt = obj.wrkCnt + 1;
         end
         
         function cSta(obj)
