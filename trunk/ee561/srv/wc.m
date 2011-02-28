@@ -23,8 +23,3 @@ classdef wc < handle
     end
     
 end
-
-% Refactor code
-% Move file parser to separate file
-% Comment/organize
-% Upload to Google code
