@@ -7,9 +7,9 @@
 % Terry Ferrett
 
 classdef cwc < wc
-        
-    properties        
-        nodes        
+    
+    properties
+        nodes
         maxWorkers
         workers
         workerPath % path to worker script
@@ -60,18 +60,19 @@ classdef cwc < wc
             obj.cmlRoot = cmlRoot;
             obj.workerScript = workerScript;
             obj.bashScriptPath = [cmlRoot '/srv'];
-
-[ignore pathTemp] = strtok(cmlRoot, '/');
-obj.workerPath = ['/rhome' pathTemp '/srv' '/wrk'];
-            %obj.workerPath = [cmlRoot '/srv' '/wrk'];
             
+            % Change the home directory to /rhome - the
+            %  mount point for home directories on the cluster.
+            [ignore pathTemp] = strtok(cmlRoot, '/');
+            obj.workerPath = ['/rhome' pathTemp '/srv' '/wrk'];
+                        
             obj.wrkCnt = 0;
             
             % Initialize worker array
             obj.workers = cWrk.empty(1,0);
         end
     end
-       
+    
     
     methods
         function wSta(obj, hostname)
@@ -87,24 +88,22 @@ obj.workerPath = ['/rhome' pathTemp '/srv' '/wrk'];
             % 3. Return process ID
             
             wNum_str = int2str(obj.wrkCnt);
-                
+            
             % Form the command string.
             cmd_str = [obj.bashScriptPath, '/start_worker.sh'];
-                           
+            
             cmd_str = [cmd_str, ' ',...
                 hostname, ' ',...
                 obj.workerPath, ' ',...
                 obj.workerScript, ' ',...
                 int2str(obj.wrkCnt)];
             
-            [stat pid] = system(cmd_str);  
+            [stat pid] = system(cmd_str);
             % Create worker object from node name and
             newWrkObj = cWrk(hostname, pid, obj.wrkCnt);
             
             % Add worker object to worker array.
-           obj.workers(end+1) = newWrkObj;
-            
-            % Write test
+            obj.workers(end+1) = newWrkObj;
             
             % Increment worker counter
             obj.wrkCnt = obj.wrkCnt + 1;
@@ -112,16 +111,52 @@ obj.workerPath = ['/rhome' pathTemp '/srv' '/wrk'];
         
         function cSta(obj)
         end
+        
+        function wSto(obj, wNum)
+                        
+            % Iterate over worker array and locate worker
+            %  having ID 'wNum'
+            numWorkers = length(obj.workers);
+            
+            tempWrk = [];
+            for k = 1:numWorkers,
+                if workers(k).wrkCnt == wNum,
+                    tempWrk = workers(k);
+                    break;
+                end
+            end
+            
+            if isempty(tempWrk)
+                sprintf('Worker %d not found. \n', wNum);
+                return;
+            end
+            
+            % Stop this worker.
+            wNum_str = int2str(obj.wrkCnt);
+            % Form the command string.
+            cmd_str = [obj.bashScriptPath, '/stop_worker.sh'];
+            % Script inputs:
+            % Hostname
+            % PID
+            
+            cmd_str = [cmd_str, ' ',...
+                hostname, ' ',...
+                tempWrk.pid];
                 
-        function wSto(obj)
+            [stat] = system(cmd_str);
+            
+            
+            % Remove worker from array.
+            workTmp = obj.workers(1:k-1);
+            workTmp = [workTmp obj.workers(k+1:end)];            
         end
         
         function cSto(obj)
         end
-                
+        
         function status(obj)
         end
         
-     end    
-  
+    end
+    
 end
