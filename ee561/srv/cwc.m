@@ -65,7 +65,7 @@ classdef cwc < wc
             %  mount point for home directories on the cluster.
             [ignore pathTemp] = strtok(cmlRoot, '/');
             obj.workerPath = ['/rhome' pathTemp '/srv' '/wrk'];
-                        
+            
             obj.wrkCnt = 0;
             
             % Initialize worker array
@@ -110,10 +110,18 @@ classdef cwc < wc
         end
         
         function cSta(obj)
+            % Loop over all active nodes
+            % For all active nodes,
+            %   start max_workers
+            num_nodes = length(obj.nodes);
+            for k = 1:num_nodes,
+                for l = 1:obj.maxWorkers(k),
+                    wSta(obj, obj.nodes{k});
+                end
+            end
         end
         
         function wSto(obj, wNum)
-                        
             % Iterate over worker array and locate worker
             %  having ID 'wNum'
             numWorkers = length(obj.workers);
@@ -135,29 +143,32 @@ classdef cwc < wc
             wNum_str = int2str(obj.wrkCnt);
             % Form the command string.
             cmd_str = [obj.bashScriptPath, '/stop_worker.sh'];
-            % Script inputs:
-            % Hostname
-            % PID
             
             cmd_str = [cmd_str, ' ',...
                 tempWrk.hostname, ' ',...
                 tempWrk.pid];
-                
+            
             [stat] = system(cmd_str);
             
             
             % Remove worker from array.
             workTmp = obj.workers(1:k-1);
-            workTmp = [workTmp obj.workers(k+1:end)];            
-obj.workers = workTmp;
+            workTmp = [workTmp obj.workers(k+1:end)];
+            obj.workers = workTmp;
         end
         
         function cSto(obj)
+            % Loop over all active nodes
+            % For all active nodes,
+            %   start max_workers
+            num_workers = length(obj.workers);
+            for k = 1:num_workers,
+                wSto(obj, obj.workers(k).wrkCnt);
+            end
         end
         
         function status(obj)
         end
         
     end
-    
 end
