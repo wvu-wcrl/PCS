@@ -1,5 +1,4 @@
-% Test the constructor of the cluster worker
-%   controller.
+% Test the method which starts a single worker.
 %
 % Version 1
 % 2/27/2011
@@ -10,6 +9,7 @@ function cwc_obj = start_worker_test()
 cd ..;
 cd ..;
 cmlRoot = pwd;
+CmlStartup
 cd srv/
 cd tests/
 

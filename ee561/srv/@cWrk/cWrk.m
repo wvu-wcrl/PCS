@@ -1,6 +1,6 @@
 % cWrk.m
 %
-% Implementation of the cluster worker object
+% Implementation of the cluster worker object,
 %
 % Version 1
 % 2/28/2011

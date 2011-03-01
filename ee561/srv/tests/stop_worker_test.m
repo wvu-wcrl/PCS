@@ -9,6 +9,7 @@ function cwc_obj = stop_worker_test()
 cd ..;
 cd ..;
 cmlRoot = pwd;
+CmlStartup;
 cd srv/
 cd tests/
 
