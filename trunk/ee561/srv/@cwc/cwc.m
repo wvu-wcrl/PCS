@@ -10,11 +10,13 @@ classdef cwc < wc
 
     % Cluster state.    
     properties (Access=private)
+        wrkCnt
+    end
+    properties
         nodes
         maxWorkers
 	workers        
         workerScript
-        wrkCnt
     end
 
     % Cluster controller paths.
