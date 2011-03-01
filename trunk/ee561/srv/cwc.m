@@ -163,7 +163,7 @@ classdef cwc < wc
             %   start max_workers
             num_workers = length(obj.workers);
             for k = 1:num_workers,
-                wSto(obj, obj.workers(k).wrkCnt);
+                wSto(obj, obj.workers(1).wrkCnt);
             end
         end
         
