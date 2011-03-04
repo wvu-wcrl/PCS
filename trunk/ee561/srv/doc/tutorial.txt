@@ -1,0 +1,72 @@
+== Cluster Controller Usage Tutorial ==
+
+
+== Introduction ==
+This tutorial guides the user through an example of using the
+cluster worker controller component of CML.
+
+The tutorial is completed entirely on the cluster, so the only
+software requirement is that the user have an SSH client.
+
+A full description of the cluster controller software is
+given in the file
+./CMLROOT/doc/desc.txt
+
+
+
+== Begin Tutorial ==
+
+Notation:
+> denotes a command executed on the cluster head Linux command line
+>> denotes a command executed within MATLAB on the cluster head
+
+
+1. Log in to cluster using SSH.
+   URL: http://wcrlcluster.csee.wvu.edu
+
+
+2. Create a directory to house the EE 561 project code,
+   and switch to this directory.
+> mkdir ee561/
+> cd ee561/
+
+
+3. Download the EE 561 project code and decompress.
+> wget http://iscml.googlecode.com/files/cml_EE561_v1.zip  
+> unzip cml_EE561_v1.zip
+
+
+4. Start MATLAB
+> matlab
+
+
+5. Initialize CML.
+>> CmlStartup
+
+
+6. Create a cluster controller object.
+   The configuration file used in this example utilizes
+     8 workers on node01
+     12 workers on node11
+>> cwc_obj = cwc(cml_home, 'test.cfg', 'stub_worker')
+
+
+7. Start 8 workers on node01, and 12 workers on node11.
+>> cwc_obj.cSta()
+
+
+8. Observe the 8 worker processes on node01
+>> !ssh node01 'ps aux|grep -i matlab'
+
+
+9. Observe the 12 worker processes on node11
+>> !ssh node11 'ps aux|grep -i matlab'
+
+
+10. Stop the worker processes.
+>> cwc_obj.cSto()
+
+
+11. Observe that all worker processes on node01 and node11 have stopped.
+>> !ssh node01 'ps aux|grep -i matlab'
+>> !ssh node11 'ps aux|grep -i matlab'
