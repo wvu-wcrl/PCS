@@ -1,3 +1,26 @@
+% CWC   Create Cluster Worker Controller Object
+%
+% 
+%   The calling syntax is:
+%     cwc_obj = cwc(cmlRoot, cf, ws)
+% 
+%   Inputs:
+%      cmlRoot = CML root directory.
+%      cf = Configuration file specifying
+%             - List of cluster nodes and maximum workers per node.
+%             - Input and output paths for worker data.
+%      ws = Name of worker .m script.
+%
+%   Outputs:
+%      cwc_obj = Cluster Worker Controller Object
+%   
+%   Example:   
+%      [cwc_obj] = cwc( cml_home, 'test.cfg', 'stub_worker' );
+%
+%          where cml_home is a workspace variable containing the cml
+%             root directory, created by the script 'CmlStartup'
+
+
 % cwc.m
 %
 % Implementation of the cluster worker controller.
