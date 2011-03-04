@@ -22,9 +22,9 @@ classdef AWGN < Channel
         
         
         function SymbolLikelihood = ChannelUse(obj, SymbolIndex)
-            ModulatedSignal=Modulate(obj, SymbolIndex)
-            RecievedSignal = PassToChannel(obj, ModulatedSignal)
-            SymbolLikelihood = Demodulate( obj, RecievedSignal )
+            ModulatedSignal=Modulate(obj, SymbolIndex);
+            RecievedSignal = PassToChannel(obj, ModulatedSignal);
+            SymbolLikelihood = Demodulate( obj, RecievedSignal );
         end
         
         
