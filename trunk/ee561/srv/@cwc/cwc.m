@@ -60,7 +60,7 @@ classdef cwc < wc
     methods
         function obj = cwc(cmlRoot, cfpIn, workerScript)
             % 1. Read configuration file name.
-            obj.cfp = cfpIn;
+            obj.cfp = strcat(cmlRoot, '/srv/cfg/', cfpIn);
             
             % 2. Read worker input path from configuration file.
             heading = '[Paths]';
