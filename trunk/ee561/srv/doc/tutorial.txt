@@ -33,7 +33,7 @@ Notation:
 
 3. Download the EE 561 project code and decompress.
 > wget http://iscml.googlecode.com/files/cml_ee561_v1.zip  
-> unzip cml_EE561_v1.zip
+> unzip cml_ee561_v1.zip
 
 
 4. Start MATLAB
