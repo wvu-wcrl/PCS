@@ -1,4 +1,4 @@
-classdef PSK < Modulation
+classdef PSK < CreateModulation
     
     properties
     end
@@ -6,22 +6,23 @@ classdef PSK < Modulation
     methods
         % Class constructor: obj = PSK( [Order] [,MappingType/MappingVector] )
         % MappingType='gray','SP'(Order=4,8),'SSP'(Order=8) or 'MSEW'(Order=8)
-        function obj = PSK( varargin )
-            Order = 8;
-            if length(varargin) >= 1
-                Order = varargin{1};
+        function obj = PSK( Order, SignalProb, varargin )
+            if( nargin<1 || isempty(Order) )
+                Order = 8;
+            elseif( rem( log2(Order),1 ) )
                 % Making sure that modulation Order is a power of 2.
-                if ( rem( log(Order)/log(2),1 ) )
-                    error( 'The order of modulation MUST be a power of 2.' );
-                end
+                error( 'The order of modulation MUST be a power of 2.' );
+            end
+            if( nargin<2 || isempty(SignalProb) )
+                SignalProb = [];
             end
             
-            if length(varargin) >= 2
-                MappingType = varargin{2};
+            if length(varargin) >= 1
+                MappingType = varargin{1};
                 if ~ischar(MappingType)
                     if (length(MappingType) ~= Order)
                         error('Length of MappingType must be EQUALL to the Order of modulation.');
-                    elseif (sum( sort(MappingType) ~= [0:Order-1] ) > 0)
+                    elseif (sum( sort(MappingType) ~= (0:Order-1) ) > 0)
                         error( 'MappingType must contain all integers 0 through Order-1.' );
                     end
                     MappingVector = MappingType;
@@ -32,7 +33,7 @@ classdef PSK < Modulation
                 MappingVector = 0:Order-1;
             end
             
-            Temp = exp( j*2*pi*[0:Order-1]/Order );
+            Temp = exp( j*2*pi*(0:Order-1)/Order );
             if ( ischar(MappingType) && ~strcmpi(MappingType, 'UserDefined') )
                 switch MappingType
                     case 'gray'
@@ -68,7 +69,7 @@ classdef PSK < Modulation
             Constellation( MappingVector+1 ) = Temp;
             SignalSet = [real(Constellation); imag(Constellation)];
             
-            obj@Modulation(SignalSet);
+            obj@CreateModulation(SignalSet, SignalProb);
             obj.Type = 'PSK';
             obj.MappingType = MappingType;
 %             obj.MappingVector = MappingVector;
