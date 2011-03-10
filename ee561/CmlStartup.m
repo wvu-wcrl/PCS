@@ -22,6 +22,21 @@ else
 end
 
 
+% Load the cluster worker controller state, if it exists.
+cwcRelativePath = strcat('srv',...
+    '/', 'state',...
+    '/', 'cwc_state.mat');
+cwcFullPath = strcat(cml_home,...
+    '/', cwcRelativePath);
+try
+    fprintf('Attempting to load cluster controller state from file\n %s\n\n', cwcRelativePath);
+    load(cwcFullPath);
+    fprintf('State loaded to workspace variable "%s".\n', cwc_obj);
+catch
+    fprintf('State file does not exist.  Aborting load.\n');
+end
+
+
 % this is the location of the mex directory for this architecture
 switch computer
     case 'PCWIN'  % MS Windows on x86
