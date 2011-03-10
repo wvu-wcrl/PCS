@@ -41,4 +41,8 @@ cmd_str = [cmd_str, ' ',...
 workTmp = obj.workers(1:k-1);
 workTmp = [workTmp obj.workers(k+1:end)];
 obj.workers = workTmp;
+
+% Save cluster state.
+svSt(obj);
+
 end

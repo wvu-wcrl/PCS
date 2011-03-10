@@ -7,8 +7,8 @@
 
 function cwc_obj = cwc_constructor_test()
 
-cd..;
-cd..;
+cd ..;
+cd ..;
 cmlRoot = pwd;
 CmlStartup;
 cd srv/
