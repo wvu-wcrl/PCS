@@ -12,4 +12,5 @@ function svSt(obj)
 svPath = strcat(obj.svPath, '/', obj.svFile); 
 
 % Save cluster state.
-save(svPath, obj);
+cwc_obj = obj;
+save(svPath, 'cwc_obj');
