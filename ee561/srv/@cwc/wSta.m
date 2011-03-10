@@ -32,4 +32,5 @@ obj.workers(end+1) = newWrkObj;
 
 % Increment the worker counter
 obj.wrkCnt = obj.wrkCnt + 1;
+svSt(obj);
 end

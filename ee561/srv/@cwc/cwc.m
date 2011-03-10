@@ -1,9 +1,9 @@
 % CWC   Create Cluster Worker Controller Object
 %
-% 
+%
 %   The calling syntax is:
 %     cwc_obj = cwc(cmlRoot, cf, ws)
-% 
+%
 %   Inputs:
 %      cmlRoot = CML root directory.
 %      cf = Configuration file specifying
@@ -13,8 +13,8 @@
 %
 %   Outputs:
 %      cwc_obj = Cluster Worker Controller Object
-%   
-%   Example:   
+%
+%   Example:
 %      [cwc_obj] = cwc( cml_home, 'test.cfg', 'stub_worker' );
 %
 %          where cml_home is a workspace variable containing the cml
@@ -30,29 +30,32 @@
 % Terry Ferrett
 
 classdef cwc < wc
-
-    % Cluster state.    
+    
+    % Cluster state.
     properties (Access=private)
         wrkCnt
     end
     properties
         nodes
         maxWorkers
-	workers        
+        workers
         workerScript
     end
-
+    
     % Cluster controller paths.
     properties
         bashScriptPath
-        cfp 
+        cfp
         cmlRoot
-	workerPath 
+        workerPath
+        
+        svPath
+        svFile
     end
     
     % Worker paths.
     properties
-        inPath    
+        inPath
         outPath
     end
     
@@ -85,21 +88,25 @@ classdef cwc < wc
                 obj.maxWorkers(k) = str2num(out{k}{2});
             end
             
-	    % 5. Worker script.
+            % 5. Worker script.
             obj.workerScript = workerScript;
-
-	    % 6. CML root path and path to BASH scripts.
+            
+            % 6. CML root path and path to BASH scripts.
             obj.cmlRoot = cmlRoot;
             obj.bashScriptPath = [cmlRoot '/srv'];
-
-
+            
+            % 7. State file and path.
+            svPathRelative = ['/srv/state'];
+            obj.svPath = [cmlRoot svPathRelative];
+            obj.svFile = 'cwc_state.mat';
+            
             
             % 7.Change the home directory to /rhome - the
             %   mount point for home directories on the cluster nodes.
             [ignore pathTemp] = strtok(cmlRoot, '/');
             obj.workerPath = ['/rhome' pathTemp '/srv' '/wrk'];
             
-	    % 8. Initialize the worker ID counter to 0.
+            % 8. Initialize the worker ID counter to 0.
             obj.wrkCnt = 0;
             
             % 9. Initialize the worker array.
@@ -115,15 +122,19 @@ classdef cwc < wc
     end
     
     methods
-	% Start single worker.
+        % Start single worker.
         wSta(obj, hostname)
-	% Start workers on entire cluster.
+        % Start workers on entire cluster.
         cSta(obj)
         
-	% Stop single worker.
+        % Stop single worker.
         wSto(obj, wNum)
-	% Stop workers on entire cluster.
-        cSto(obj)        
+        % Stop workers on entire cluster.
+        cSto(obj)
+        % Unconditionally stop all workers running under this username.
+        slay(obj)
+        % Save the object state.
+        svSt(obj)
     end
 end
 
