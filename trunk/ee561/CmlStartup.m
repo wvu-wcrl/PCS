@@ -24,14 +24,15 @@ end
 
 % Load the cluster worker controller state, if it exists.
 cwcRelativePath = strcat('srv',...
-    '/', 'state',...
-    '/', 'cwc_state.mat');
+    '/', 'state');
 cwcFullPath = strcat(cml_home,...
     '/', cwcRelativePath);
 try
     fprintf('Attempting to load cluster controller state from file\n %s\n\n', cwcRelativePath);
-    load(cwcFullPath);
-    fprintf('State loaded to workspace variable "%s".\n', cwc_obj);
+    cd(cwcFullPath)
+    load('cwc_state.mat');
+    cd(cml_home);
+fprintf('State loaded.\n')
 catch
     fprintf('State file does not exist.  Aborting load.\n');
 end

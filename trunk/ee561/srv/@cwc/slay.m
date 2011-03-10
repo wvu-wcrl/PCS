@@ -27,4 +27,7 @@ end
 
 % Null the worker array.
 obj.workers = [];
+
+% Save state.
+svSt(obj)
 end
