@@ -1,36 +1,30 @@
 classdef PSK < CreateModulation
     
-    properties
-    end
-    
     methods
-        % Class constructor: obj = PSK( [Order] [,MappingType/MappingVector] )
-        % MappingType='gray','SP'(Order=4,8),'SSP'(Order=8) or 'MSEW'(Order=8)
-        function obj = PSK( Order, SignalProb, varargin )
+        function obj = PSK( Order, SignalProb, MappingType )
+            % Class constructor: obj = PSK( [Order] [,SignalProb] [,MappingType/MappingVector] )
+            % MappingType='gray','SP'(Order=4,8),'SSP'(Order=8) or 'MSEW'(Order=8)
             if( nargin<1 || isempty(Order) )
                 Order = 8;
             elseif( rem( log2(Order),1 ) )
                 % Making sure that modulation Order is a power of 2.
                 error( 'The order of modulation MUST be a power of 2.' );
             end
-            if( nargin<2 || isempty(SignalProb) )
+            if( nargin<2 )
                 SignalProb = [];
             end
             
-            if length(varargin) >= 1
-                MappingType = varargin{1};
-                if ~ischar(MappingType)
-                    if (length(MappingType) ~= Order)
-                        error('Length of MappingType must be EQUALL to the Order of modulation.');
-                    elseif (sum( sort(MappingType) ~= (0:Order-1) ) > 0)
-                        error( 'MappingType must contain all integers 0 through Order-1.' );
-                    end
-                    MappingVector = MappingType;
-                    MappingType = 'UserDefined';
-                end
-            else
+            if( nargin<3 || isempty(MappingType) )
                 MappingType = [];
                 MappingVector = 0:Order-1;
+            elseif ~ischar(MappingType)
+                if (length(MappingType) ~= Order)
+                    error('Length of MappingType must be EQUALL to the Order of modulation.');
+                elseif (sum( sort(MappingType) ~= (0:Order-1) ) > 0)
+                    error( 'MappingType must contain all integers 0 through Order-1.' );
+                end
+                MappingVector = MappingType;
+                MappingType = 'UserDefined';
             end
             
             Temp = exp( j*2*pi*(0:Order-1)/Order );

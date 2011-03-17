@@ -1,11 +1,7 @@
 classdef QPSK < CreateModulation
     
-    properties
-    end
-    
     methods
         function obj = QPSK(SignalProb)
-%             Order = 4;
             if( nargin<1 )
                 SignalProb = [];
             end
