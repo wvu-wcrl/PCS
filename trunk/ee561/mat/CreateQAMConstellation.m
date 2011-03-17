@@ -1,5 +1,4 @@
-function [Constellation] = CreateQAMConstellation( Order, MappingType )
-% function [Constellation, MappingVector] = CreateQAMConstellation( Order, MappingType )
+function [Constellation, MappingVector] = CreateQAMConstellation( Order, MappingType )
 
 if Order == 32
     % The mapping is NOT right here (just for CM capacity simulation).
@@ -8,7 +7,8 @@ if Order == 32
     Constellation(11:16) = [ ((-5:2:5)' + j*1) ];
     Constellation(17:32) = conj( Constellation(1:16) );
 
-    Temp = Constellation/sqrt( mean(abs(Constellation).^2) ); % Normalization
+%   Temp = Constellation/sqrt( mean(abs(Constellation).^2) ); % Normalization
+    Temp = Constellation;
 
     % Mapping is fixed.
     MappingVector = 0:Order-1;
@@ -98,6 +98,5 @@ else
 end
 
 Constellation( MappingVector+1 ) = Temp;
-Constellation = Constellation/sqrt( mean(abs(Constellation).^2) );  % Normalization
-
+% Constellation = Constellation/sqrt( mean(abs(Constellation).^2) );  % Normalization
 end

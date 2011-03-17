@@ -2,9 +2,9 @@ MM = CreateModulation([-1 1]);
 C = AWGN( MM, 20 );
 D = UncodedModulation(2, 4);
 
-M = Encode(D, [0 0 1 1])
-SymbolLikelihood = ChannelUse(C, M)
-EstBits = Decode(D, SymbolLikelihood)
+M = D.Encode([0 0 1 1])
+SymbolLikelihood = C.ChannelUse(M)
+EstBits = D.Decode(SymbolLikelihood)
 
 %%
 K = 2000; N = 10;
@@ -29,6 +29,7 @@ T_RandP_Avg = mean(T_RandP)
 T_Rand_Avg = mean(T_gDiscrPdfRnd)
 
 %%
+clc
 SymbolProb = [0.2 0.2 0.3 0.3];
 SignalSet = [-1 -1  1  1
              -1  1 -1  1];
@@ -39,13 +40,14 @@ MM = CreateModulation(SignalSet, SymbolProb);
 C = AWGN( MM, 10^(SNRdB/10) );
 D = UncodedModulation(4, 10*SymbolProb, BlockLength);
 
-M = Encode(D)
+M = D.Encode()
 DataBits = D.DataBits
-SymbolLikelihood = ChannelUse(C, M);
-[EstBits, EstSymbols] = Decode(D, SymbolLikelihood)
-[NumBitError, NumSymbolError] = ErrorCount(D, SymbolLikelihood)
+SymbolLikelihood = C.ChannelUse(M);
+[EstBits, EstSymbols] = D.Decode(SymbolLikelihood)
+[NumBitError, NumSymbolError] = D.ErrorCount(SymbolLikelihood)
 
 %%
+clc
 SymbolProb = [0.2 0.2 0.3 0.3];
 SignalSet = [-1 -1  1  1
              -1  1 -1  1];
@@ -56,13 +58,14 @@ MM = CreateModulation(SignalSet, SymbolProb);
 C = AWGN( MM, 10^(SNRdB/10) );
 D = UncodedModulation(4, 10*SymbolProb, BlockLength);
 
-M = Encode(D);
+M = D.Encode();
 hist(D.DataSymbols, [1:length(D.SymbolProb)]);
-SymbolLikelihood = ChannelUse(C, M);
-[EstBits, EstSymbols] = Decode(D, SymbolLikelihood);
-[NumBitError, NumSymbolError] = ErrorCount(D, SymbolLikelihood)
+SymbolLikelihood = C.ChannelUse(M);
+[EstBits, EstSymbols] = D.Decode(SymbolLikelihood);
+[NumBitError, NumSymbolError] = D.ErrorCount(SymbolLikelihood)
 
 %%
+clc
 SymbolProb = [0.2 0.2 0.3 0.3];
 SignalSet = [-1 -1  1  1
              -1  1 -1  1];
@@ -73,13 +76,14 @@ MM = CreateModulation(SignalSet, SymbolProb);
 C = AWGN( MM, 10^(SNRdB/10) );
 D = BinaryUncodedModulation(4, BlockLength);
 
-M = Encode(D)
+M = D.Encode()
 DataBits = D.DataBits
-SymbolLikelihood = ChannelUse(C, M);
-[EstBits, EstSymbols] = Decode(D, SymbolLikelihood)
-[NumBitError, NumSymbolError] = ErrorCount(D, SymbolLikelihood)
+SymbolLikelihood = C.ChannelUse(M);
+[EstBits, EstSymbols] = D.Decode(SymbolLikelihood)
+[NumBitError, NumSymbolError] = D.ErrorCount(SymbolLikelihood)
 
 %%
+clc
 SymbolProb = [0.2 0.2 0.3 0.3];
 SignalSet = [-1 -1  1  1
              -1  1 -1  1];
@@ -90,21 +94,49 @@ MM = CreateModulation(SignalSet, SymbolProb);
 C = AWGN( MM, 10^(SNRdB/10) );
 D = BinaryUncodedModulation(4, BlockLength);
 
-M = Encode(D);
-SymbolLikelihood = ChannelUse(C, M);
-[EstBits, EstSymbols] = Decode(D, SymbolLikelihood);
-[NumBitError, NumSymbolError] = ErrorCount(D, SymbolLikelihood)
+M = D.Encode();
+SymbolLikelihood = C.ChannelUse(M);
+[EstBits, EstSymbols] = D.Decode(SymbolLikelihood);
+[NumBitError, NumSymbolError] = D.ErrorCount(SymbolLikelihood)
 
 %%
 SymbolProb = [0.2 0.2 0.3 0.3];
-SNRdB = 5;
+SNRdB = 10;
 BlockLength = 10000;
 
 MM = QPSK(SymbolProb);
 C = AWGN( MM, 10^(SNRdB/10) );
 D = BinaryUncodedModulation(4, BlockLength);
 
-M = Encode(D);
-SymbolLikelihood = ChannelUse(C, M);
-[EstBits, EstSymbols] = Decode(D, SymbolLikelihood);
-[NumBitError, NumSymbolError] = ErrorCount(D, SymbolLikelihood)
+M = D.Encode();
+SymbolLikelihood = C.ChannelUse(M);
+[EstBits, EstSymbols] = D.Decode(SymbolLikelihood);
+[NumBitError, NumSymbolError] = D.ErrorCount(SymbolLikelihood)
+
+%%
+SymbolProb = [0.2 0.2 0.3 0.3];
+SignalSet = [-1 -1  1  1
+             -1  1 -1  1];
+SNRdB = 5;
+BlockLength = 10000;
+
+MM = CreateModulation(SignalSet, SymbolProb);
+ChannelObj = AWGN( MM, 10^(SNRdB/10) );
+CodedModObj = BinaryUncodedModulation(4, BlockLength);
+
+SimParam = struct(...
+            'CodedModObj', CodedModObj, ...    % Coded modulation object.
+            'ChannelObj', ChannelObj, ...     % Channel object (Modulation is a property of channel).
+            'SNRType', 'Es/N0 in dB', ...
+            'SNR', [5:0.5:10], ...            % Row vector of SNR points in dB.
+            'MaxTrials', 1000, ...      % A vector of integers (or scalar), one for each SNR point. Maximum number of trials to run per point.
+            'FileName', 'BPSKAWGN.mat', ...
+            'SimTime', 300, ...       % Simulation time in Seconds.
+            'CheckPeriod', 5, ...    % Checking time in number of Trials.
+            'MaxBitErrors', 5000*ones(size([5:0.5:10])), ...
+            'MaxSymErrors', 5000*ones(size([5:0.5:10])), ...
+            'minBER', 1e-6, ...
+            'minFER', 1e-6 );
+ 
+ Link = LinkSimulation(SimParam);
+ Link.SingleSimulate();

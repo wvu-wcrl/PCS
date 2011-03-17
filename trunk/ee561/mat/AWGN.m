@@ -11,17 +11,55 @@ classdef AWGN < Channel
         
         EsN0                % Ratio of Es/N0 for the realization of the channel (in Linear Units NOT dB).
         Variance            % Noise variance.
+        UpperSymbolBoundValue % Value of union bound on average symbol error probability.
     end
+    
+    
+    methods( Static )
+        function UpperSymbolBoundValue = UnionBoundSymbol( SignalSet, EsN0, SignalProb )
+            % EsN0 is in linear (Es = 1).
+            NoSignals = size( SignalSet, 2);    % Determine the number of signals.
+            Distance = zeros(NoSignals);
+            % Calculate the distance between each signal and the rest of the signals.
+            % Upper triangular part of Distance has the distances of signals with each other. It is a symmetric matrix.
+            for m = 1:NoSignals-1
+                SignalDifference = repmat(SignalSet(:,m), [1 NoSignals-m]) - SignalSet(:, m+1:end);
+                Distance(m, m+1:end) = sqrt( sum( abs(SignalDifference).^2 ) );     % Sum over columns of matrix.
+            end
+            % Calculate Q function for lower triangular part.
+            QValues = 0.5 * (1 - erf( sqrt(EsN0)*Distance / 2 ));
+            % Use the symmetry to get the Q function valued for upper triangular part.
+            QValues = QValues' + QValues;
+            % Calculate conditional symbol error bound.
+            CondSymbolErrorBound = sum(QValues);
+            % Calculate the union bound on average symbol error probability.
+            if (nargin<3 || isempty(SignalProb))
+                UpperSymbolBoundValue = sum(CondSymbolErrorBound) / NoSignals;
+            else
+                UpperSymbolBoundValue = sum( CondSymbolErrorBound .* SignalProb );
+            end
+        end
+    end
+    
     
     methods
         function obj = AWGN( ModulationObj, EsN0 )
             obj.ModulationObj = ModulationObj;
             obj.EsN0 = EsN0;
+            % Determine the noise variance.
             obj.Variance = 1/(2*EsN0);
+            obj.UpperSymbolBoundValue = AWGN.UnionBoundSymbol( ModulationObj.SignalSet, EsN0, ModulationObj.SignalProb );
         end
         
         
-        function SymbolLikelihood = ChannelUse(obj, SymbolIndex)
+        function SymbolLikelihood = ChannelUse(obj, SymbolIndex, EsN0)
+            if (nargin>=3 && ~isempty(EsN0))
+                if (obj.EsN0<0)
+                    error('In order to demodulate RecievedSignal, EsN0 of the channel has to be specified in LINEAR units.');
+                end
+                obj.EsN0 = EsN0;
+                obj.Variance = 1/(2*EsN0);
+            end
             ModulatedSignal=Modulate(obj, SymbolIndex);
             RecievedSignal = PassToChannel(obj, ModulatedSignal);
             SymbolLikelihood = Demodulate( obj, RecievedSignal );
@@ -40,10 +78,11 @@ classdef AWGN < Channel
         % Demodulate Method: SymbolLikelihood = Demodulate( RecievedSignal [,EsN0] )
             obj.RecievedSignal=RecievedSignal;
             if (nargin>=3 && ~isempty(EsN0))
-                obj.EsN0 = EsN0;
                 if (obj.EsN0<0)
                     error('In order to demodulate RecievedSignal, EsN0 of the channel has to be specified in LINEAR units.');
                 end
+                obj.EsN0 = EsN0;
+                obj.Variance = 1/(2*EsN0);
             end
             
             SymbolLikelihood = VectorDemod(obj.RecievedSignal, obj.ModulationObj.SignalSet, obj.EsN0);

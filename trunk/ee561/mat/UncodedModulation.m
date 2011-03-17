@@ -8,7 +8,7 @@ classdef UncodedModulation < CodedModulation
         SymbolLikelihood
     end
     
-    properties( SetAccess = protected)
+    properties( SetAccess = protected )
         DataLength
         BitLikelihood       % 1 by N*LOG2(M) row vector of BITWISE likelihood.
         EstBits
