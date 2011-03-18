@@ -114,6 +114,15 @@ SymbolLikelihood = C.ChannelUse(M);
 [NumBitError, NumSymbolError] = D.ErrorCount(SymbolLikelihood)
 
 %%
+% Exact average symbol error probability for QAM.
+% Distance is the same matrix generated in UnionBoundSymbol method of AWGN class.
+DistanceA = Distance;
+DistanceA(Distance == 0) = Inf;
+D = min( min(DistanceA) )
+Q1 = 0.5 * ( 1 - erf( sqrt(EsN0)*D / 2 ) );
+QAM = 4*(1 - 1/sqrt(NoSignals)) * Q1 * (1 - (1 - 1/sqrt(NoSignals)) * Q1)
+
+%%
 SymbolProb = [0.2 0.2 0.3 0.3];
 SignalSet = [-1 -1  1  1
              -1  1 -1  1];
@@ -128,15 +137,34 @@ SimParam = struct(...
             'CodedModObj', CodedModObj, ...    % Coded modulation object.
             'ChannelObj', ChannelObj, ...     % Channel object (Modulation is a property of channel).
             'SNRType', 'Es/N0 in dB', ...
-            'SNR', [5:0.5:10], ...            % Row vector of SNR points in dB.
-            'MaxTrials', 1000, ...      % A vector of integers (or scalar), one for each SNR point. Maximum number of trials to run per point.
+            'SNR', [15:0.5:20], ...            % Row vector of SNR points in dB.
+            'MaxTrials', 100, ...      % A vector of integers (or scalar), one for each SNR point. Maximum number of trials to run per point.
             'FileName', 'BPSKAWGN.mat', ...
             'SimTime', 300, ...       % Simulation time in Seconds.
             'CheckPeriod', 5, ...    % Checking time in number of Trials.
             'MaxBitErrors', 5000*ones(size([5:0.5:10])), ...
             'MaxSymErrors', 5000*ones(size([5:0.5:10])), ...
             'minBER', 1e-6, ...
-            'minFER', 1e-6 );
+            'minSER', 1e-6 );
  
  Link = LinkSimulation(SimParam);
  Link.SingleSimulate();
+ 
+ %%
+ NoSignals = 16;
+ Mod = QAM(NoSignals);
+ SNRdB = -5:1:25;
+ UpperSymbolBoundValue = LinkSimulation.UnionBoundSymbol( Mod.SignalSet, 10.^(SNRdB/10) )
+ % Exact average symbol error probability for QAM.
+
+ % Distance is the same matrix generated in UnionBoundSymbol method of AWGN class.
+Distance = AWGN.GetSignalDistance(Mod.SignalSet);
+DistanceA = Distance;
+DistanceA(Distance == 0) = Inf;
+D = min( min(DistanceA) );
+QAM_ExactPs = zeros(1, length(SNRdB));
+for m = 1:length(SNRdB)
+Q1 = 0.5 * ( 1 - erf( sqrt(10.^(SNRdB(m)/10))*D / 2 ) );
+QAM_ExactPs(m) = 4*(1 - 1/sqrt(NoSignals)) * Q1 * (1 - (1 - 1/sqrt(NoSignals)) * Q1);
+end
+QAM_ExactPs

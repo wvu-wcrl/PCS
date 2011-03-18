@@ -18,6 +18,11 @@ classdef AWGN < Channel
     methods( Static )
         function UpperSymbolBoundValue = UnionBoundSymbol( SignalSet, EsN0, SignalProb )
             % EsN0 is in linear (Es = 1).
+            Distance = AWGN.GetSignalDistance(SignalSet);
+            UpperSymbolBoundValue = AWGN.GetUnionBoundSymbol(Distance, EsN0, SignalProb);
+        end
+        
+        function Distance = GetSignalDistance(SignalSet)
             NoSignals = size( SignalSet, 2);    % Determine the number of signals.
             Distance = zeros(NoSignals);
             % Calculate the distance between each signal and the rest of the signals.
@@ -26,10 +31,17 @@ classdef AWGN < Channel
                 SignalDifference = repmat(SignalSet(:,m), [1 NoSignals-m]) - SignalSet(:, m+1:end);
                 Distance(m, m+1:end) = sqrt( sum( abs(SignalDifference).^2 ) );     % Sum over columns of matrix.
             end
-            % Calculate Q function for lower triangular part.
-            QValues = 0.5 * (1 - erf( sqrt(EsN0)*Distance / 2 ));
+        end
+        
+        function UpperSymbolBoundValue = GetUnionBoundSymbol(Distance, EsN0, SignalProb)
+            NoSignals = size( Distance, 2);    % Determine the number of signals.
+            % Calculate Q function for upper triangular part.
+            QValuesT = 0.5 * (1 - erf( sqrt(EsN0)*Distance / 2 ));
+            
             % Use the symmetry to get the Q function valued for upper triangular part.
-            QValues = QValues' + QValues;
+            QValuesUp = triu(QValuesT, 1);
+            QValues = QValuesUp.' + QValuesUp;
+            
             % Calculate conditional symbol error bound.
             CondSymbolErrorBound = sum(QValues);
             % Calculate the union bound on average symbol error probability.

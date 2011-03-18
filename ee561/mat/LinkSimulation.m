@@ -4,6 +4,19 @@ classdef LinkSimulation < Simulation
         EsN0    % Es/N0 in Linear.
         EbN0    % Eb/N0 in Linear.
         NumNewPoints
+        UpperSymbolBoundValue
+    end
+    
+    methods( Static )
+        function UpperSymbolBoundValue = UnionBoundSymbol( SignalSet, EsN0, SignalProb )
+            if nargin<3, SignalProb = []; end
+            Distance = AWGN.GetSignalDistance(SignalSet);
+            
+            UpperSymbolBoundValue = zeros(1, length(EsN0));
+            for m = 1:length(EsN0)
+                UpperSymbolBoundValue(m) = AWGN.GetUnionBoundSymbol(Distance, EsN0(m), SignalProb);
+            end
+        end
     end
     
     methods
@@ -21,7 +34,7 @@ classdef LinkSimulation < Simulation
                 end
             end
             
-            % Determine Es/N0.
+            % Determine Es/N0 in linear.
             if ( strcmpi(SimParam.SNRType(2), 'b') ) % Eb/N0
                 obj.EbN0 = 10.^(SimParam.SNR/10);
                 obj.EsN0 = obj.EbN0 * log2(SimParam.ChannelObj.ModulationObj.Order);
@@ -30,6 +43,7 @@ classdef LinkSimulation < Simulation
                 obj.EbN0 = obj.EsN0 / ( log2(SimParam.ChannelObj.ModulationObj.Order) );
             end
             obj.SimStateInit();
+            obj.UpperSymbolBoundValue = obj.UnionBoundSymbol( SimParam.ChannelObj.ModulationObj.SignalSet, obj.EsN0, SimParam.ChannelObj.ModulationObj.SignalProb );
         end
         
         function SimStateInit(obj)
