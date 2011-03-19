@@ -35,6 +35,7 @@ try
 fprintf('State loaded.\n')
 catch
     fprintf('State file does not exist.  Aborting load.\n');
+    cd(cml_home);
 end
 
 
