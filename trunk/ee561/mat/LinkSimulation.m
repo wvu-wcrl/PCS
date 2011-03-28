@@ -58,43 +58,81 @@ classdef LinkSimulation < Simulation
         end
         
         function SingleSimulate(obj)
+            Test = true; TestInactivation = true;
             ElapsedTime = 0;
+            if(Test)
+                RemainingSymError = obj.SimParam.MaxSymErrors - obj.SimState.SymbolErrors;
+                RemainingSymError(RemainingSymError<0) = 0;
+                % Determine the number of remaining trials reqiured for each SNR point.
+                RemainingTrials = obj.SimParam.MaxTrials - obj.SimState.Trials;
+                RemainingTrials(RemainingTrials<0) = 0;
+                % Determine the position of active SNR points based on the number of remaining symbol errors and trials.
+                OldActiveSNRPoints = ( (RemainingSymError>0) & (RemainingTrials>0) );
+            end
 %             if (fopen(obj.SimParam.FileName) ~= -1)
 %                 NewParam = load(obj.SimParam.FileName, 'SimParam', 'SimState');
 %                 obj.SimState = NewParam.SimState;
 %                 obj.SimParam = NewParam.SimParam;
 %             end
+            
             % Accumulate errors for different SNR points unitil time is up.
             while ElapsedTime < obj.SimParam.SimTime
-                RemainingBitError = obj.SimParam.MaxBitErrors - obj.SimState.BitErrors;
-                RemainingBitError(RemainingBitError<0) = 0;
+                % Determine the number of remaining symbol errors reqiured for each SNR point.
+                RemainingSymError = obj.SimParam.MaxSymErrors - obj.SimState.SymbolErrors;
+                RemainingSymError(RemainingSymError<0) = 0;
+                % Determine the number of remaining trials reqiured for each SNR point.
+                RemainingTrials = obj.SimParam.MaxTrials - obj.SimState.Trials;
+                RemainingTrials(RemainingTrials<0) = 0;
+                % Determine the position of active SNR points based on the number of remaining symbol errors and trials.
+                ActiveSNRPoints = ( (RemainingSymError>0) & (RemainingTrials>0) );
+                
+                % Check if we can discard SNR points whose BER WILL be less than SimParam.minBER.
+                LastInactivePoint = find(ActiveSNRPoints == 0, 1, 'last');
+                if ( ~isempty(LastInactivePoint) && ...
+                     (obj.SimState.BER(1, LastInactivePoint) ~=0) && (obj.SimState.BER(1, LastInactivePoint) < obj.SimParam.minBER) && ...
+                     (obj.SimState.SER(1, LastInactivePoint) ~=0) && (obj.SimState.SER(1, LastInactivePoint) < obj.SimParam.minSER) )
+                    ActiveSNRPoints(LastInactivePoint:end) = 0;
+                    if(Test && (sum(OldActiveSNRPoints-ActiveSNRPoints) ~= 0) && TestInactivation)
+                        fprintf( '\nThe simulation for SNR=%.2f dB and all SNRs above it is not required since BER=%e @ SNR=%.2f dB.\n', ...
+                            obj.SimParam.SNR(LastInactivePoint+1), obj.SimState.BER(1, LastInactivePoint), obj.SimParam.SNR(LastInactivePoint) );
+                        OldActiveSNRPoints = ActiveSNRPoints;
+                        TestInactivation = false;
+                    end
+                end
+                
+                if(Test)
+                    if sum(OldActiveSNRPoints-ActiveSNRPoints) ~= 0
+                        FinishedSNRID = find(OldActiveSNRPoints-ActiveSNRPoints == 1);
+                        fprintf( 'The simulation for SNR=%.2f dB is finished.\n', obj.SimParam.SNR(FinishedSNRID) );
+                    end
+                end
+                
+                obj.NumNewPoints = sum(ActiveSNRPoints);
                 tic;
-                if sum(unique(RemainingBitError) ~= 0)
-                    SNRPoint = randp(RemainingBitError);    % Choose SNR point based on remaining errors required.
+                if obj.NumNewPoints ~= 0
+                    SNRPoint = randp(ActiveSNRPoints);    % Choose SNR point uniformly.
+%                     SNRPoint = randp(RemainingBitError);    % Choose SNR point based on remaining errors required.
                     % Loop until either there are enough trials or enough errors or the time is up.
                     while ( ( obj.SimState.Trials( 1, SNRPoint) < obj.SimParam.MaxTrials(SNRPoint) ) && ...
-                            ( obj.SimState.BitErrors(1, SNRPoint) < obj.SimParam.MaxBitErrors(SNRPoint) ) && ...
                             ( obj.SimState.SymbolErrors(1, SNRPoint) < obj.SimParam.MaxSymErrors(SNRPoint) ) )
                         % Increment the trials counter.
                         obj.SimState.Trials(1, SNRPoint) = obj.SimState.Trials(1, SNRPoint) + 1;
                         [NumBitError, NumSymbolError] = obj.Trial(obj.EsN0(SNRPoint));
                         obj.UpdateErrorRate(SNRPoint, NumBitError, NumSymbolError);
 
-                        % Halt if BER and SER is low enough.
-                        if ( (obj.SimState.BER(1, SNRPoint) < obj.SimParam.minBER) && (obj.SimState.SER(1, SNRPoint) < obj.SimParam.minSER) )
-                            break;
-                        end
                         % Determine if it is time to save and exit from while loop (once per CheckPeriod trials)
                         if ~rem(obj.SimState.Trials(1, SNRPoint), obj.SimParam.CheckPeriod)
                             break;
                         end
                     end
-                    obj.Save();
                     ElapsedTime = toc + ElapsedTime;
+                    if(Test), OldActiveSNRPoints = ActiveSNRPoints; end
                 else
                     return;
                 end
             end
+            % Save the results only once when the time for simulation is up.
+            obj.Save();
         end
         
         
