@@ -154,8 +154,8 @@ SimParam = struct(...
  SymbolProb = [1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1];
 %  SymbolProb = [1 1 1 1 2 2 2 2 3 3 3 3 4 4 4 4];
  MM = QAM(NoSignals, SymbolProb);
- SNRdB = -5:0.5:15;
- UpperSymbolBoundValue = LinkSimulation.UnionBoundSymbol( MM.SignalSet, 10.^(SNRdB/10), SymbolProb )
+ SNRdB = -5:0.5:25;
+ UpperSymbolBoundValue = LinkSimulation.UnionBoundSymbol( MM.SignalSet, 10.^(SNRdB/10), SymbolProb/sum(SymbolProb) )
  
  % Exact average symbol error probability for QAM.
 
@@ -181,17 +181,17 @@ SimParam = struct(...
             'CodedModObj', CodedModObj, ...    % Coded modulation object.
             'ChannelObj', ChannelObj, ...     % Channel object (Modulation is a property of channel).
             'SNRType', 'Es/N0 in dB', ...
-            'SNR', [-5:0.5:15], ...            % Row vector of SNR points in dB.
-            'MaxTrials', 5000, ...      % A vector of integers (or scalar), one for each SNR point. Maximum number of trials to run per point.
+            'SNR', [-5:0.5:25], ...            % Row vector of SNR points in dB.
+            'MaxTrials', 10000, ...      % A vector of integers (or scalar), one for each SNR point. Maximum number of trials to run per point.
             'FileName', 'BPSKAWGN.mat', ...
             'SimTime', 300, ...       % Simulation time in Seconds.
             'CheckPeriod', 50, ...    % Checking time in number of Trials.
-            'MaxBitErrors', 5000*ones(size([-5:0.5:15])), ...
-            'MaxSymErrors', 5000*ones(size([-5:0.5:15])), ...
+            'MaxBitErrors', 10000*ones(size([-5:0.5:25])), ...
+            'MaxSymErrors', 10000*ones(size([-5:0.5:25])), ...
             'minBER', 1e-6, ...
             'minSER', 1e-6 );
  
  Link = LinkSimulation(SimParam);
  Link.SingleSimulate();
  
- semilogy(SNRdB, UpperSymbolBoundValue, 'r', SNRdB, QAM_ExactPs, 'k', SNRdB, Link.SimState.BER)
+ semilogy(SNRdB, UpperSymbolBoundValue, 'r', SNRdB, QAM_ExactPs, 'k', SNRdB, Link.SimState.SER)
