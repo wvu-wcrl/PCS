@@ -5,6 +5,7 @@ classdef LinkSimulation < Simulation
         EbN0    % Eb/N0 in Linear.
         NumNewPoints
         UpperSymbolBoundValue
+        UpperBitBoundValue
     end
     
     methods( Static )
@@ -14,7 +15,27 @@ classdef LinkSimulation < Simulation
             
             UpperSymbolBoundValue = zeros(1, length(EsN0));
             for m = 1:length(EsN0)
-                UpperSymbolBoundValue(m) = AWGN.GetUnionBoundSymbol(Distance, EsN0(m), SignalProb);
+                QValues = AWGN.ClculateQValues( Distance, EsN0(m) );
+                % Calculate conditional symbol error bound.
+                CondSymbolErrorBound = sum(QValues);
+                UpperSymbolBoundValue(m) = AWGN.GetUnionBoundSymbol(CondSymbolErrorBound, SignalProb);
+            end
+        end
+        
+        function UpperBitBoundValue = UnionBoundBit( SignalSet, EsN0, SignalProb )
+            Distance = AWGN.GetSignalDistance(SignalSet);
+            NoSignals = size( SignalSet, 2);    % Determine the number of signals.
+            HammingDistance = AWGN.SymbolHammingDis(NoSignals);
+            
+            UpperBitBoundValue = zeros(1, length(EsN0));
+            for m = 1:length(EsN0)
+                CondBitErrorBound = AWGN.CondUnionBoundBit( Distance, EsN0(m), HammingDistance );
+                % Calculate the union bound on average bit error probability.
+                if (nargin<3 || isempty(SignalProb))
+                    UpperBitBoundValue(m) = sum(CondBitErrorBound) / NoSignals;
+                else
+                    UpperBitBoundValue(m) = sum( CondBitErrorBound .* (SignalProb/sum(SignalProb)) );
+                end
             end
         end
     end
@@ -44,6 +65,7 @@ classdef LinkSimulation < Simulation
             end
             obj.SimStateInit();
             obj.UpperSymbolBoundValue = obj.UnionBoundSymbol( SimParam.ChannelObj.ModulationObj.SignalSet, obj.EsN0, SimParam.ChannelObj.ModulationObj.SignalProb );
+            obj.UpperBitBoundValue = UnionBoundBit( SimParam.ChannelObj.ModulationObj.SignalSet, obj.EsN0, SimParam.ChannelObj.ModulationObj.SignalProb );
         end
         
         function SimStateInit(obj)
