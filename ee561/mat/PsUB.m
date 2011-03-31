@@ -1,11 +1,12 @@
-
 function Ps = PsUB( SignalSet, EsN0 )
+% EsN0 is in linear (Es = 1).
 
-% normalize the signal set (should already be done)
+Tol = 1e-8;
+% Normalize the signal set (should have already be done).
 SignalEnergy = sum( abs(SignalSet).^2 );
 EsAvg = mean( SignalEnergy );
-if (EsAvg ~= 1)
-    fprintf( 'warning, signal set was not normalized\n' );
+if ( (EsAvg < 1-Tol) || (EsAvg > 1+Tol) )
+    fprintf( 'Warning, signal set was not normalized.\n' );
     SignalSet = SignalSet / sqrt(EsAvg);
 end
 
@@ -19,7 +20,8 @@ for m = 1:NoSignals-1
     Distance(m, m+1:end) = sqrt( sum( abs(SignalDifference).^2 ) );     % Sum over columns of matrix.
 end
 
-% loop over the elements of EsNo
+Ps = zeros(size(EsN0));
+% Loop over the elements of EsN0.
 for snrpoint = 1:length(EsN0)
     
     % Calculate Q function for upper triangular part.
