@@ -79,7 +79,7 @@ classdef AWGN < Channel
             end
             QValues = AWGN.ClculateQValues( Distance, EsN0 );
             
-            % Calculate conditional symbol error bound.
+            % Calculate conditional bit error bound.
             CondBitErrorBound = sum(HammingDistance .* QValues) / log2(size(Distance,2));
         end
         
