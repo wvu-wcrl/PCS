@@ -22,6 +22,7 @@ end
 
 Ps = zeros(size(EsN0));
 % Loop over the elements of EsN0.
+if ~isscalar(EsN0)
 for snrpoint = 1:length(EsN0)
     
     % Calculate Q function for upper triangular part.
@@ -36,4 +37,19 @@ for snrpoint = 1:length(EsN0)
     
     % Calculate the union bound on average symbol error probability.
     Ps(snrpoint) = sum(CondSymbolErrorBound) / NoSignals;
+end
+
+else
+    % Calculate Q function for upper triangular part.
+    QValuesT = 0.5 * (1 - erf( sqrt( EsN0 )*Distance / 2 ));
+
+    % Use the symmetry to get the Q function valued for upper triangular part.
+    QValuesUp = triu(QValuesT, 1);
+    QValues = QValuesUp.' + QValuesUp;
+
+    % Calculate conditional symbol error bound.
+    CondSymbolErrorBound = sum(QValues);
+
+    % Calculate the union bound on average symbol error probability.
+    Ps = sum(CondSymbolErrorBound) / NoSignals;
 end
