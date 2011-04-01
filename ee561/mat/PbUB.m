@@ -1,8 +1,23 @@
 function Pb = PbUB( SignalSet, EsN0 )
-% EsN0 is in linear (Es = 1).
+% PbUB computes the union bound on bit-error probability over an AWGN channel.
+%
+%    Calling syntax:
+%    Pb = PbUB( SignalSet, EsN0 )
+%
+%    where:
+%        SignalSet is a K by M real-valued signal matrix
+%        EsN0 is a vector of SNR points (in linear, not dB, units)
+%        Pb is the upper/union bound on bit-error rate.
+%
+%    notes:
+%        The SignalSet provided as an input should be normalized to unit
+%        energy.  However, if it is not normalized, the program will
+%        normalize it and flag a warning.
 
+% Tolerance used to determine if the signal is normalized
 Tol = 1e-8;
-% Normalize the signal set (should have already be done).
+
+% Check to see if SignalSet normalized.  If it is not, then normalize it.
 SignalEnergy = sum( abs(SignalSet).^2 );
 EsAvg = mean( SignalEnergy );
 if ( (EsAvg < 1-Tol) || (EsAvg > 1+Tol) )
@@ -11,7 +26,7 @@ if ( (EsAvg < 1-Tol) || (EsAvg > 1+Tol) )
 end
 
 NoSignals = size( SignalSet, 2);    % Determine the number of signals.
-Distance = zeros( NoSignals );
+Distance = zeros( NoSignals );      % Euclidian distance betweeen signals.
 
 % Calculate the distance between each signal and the rest of the signals.
 % Upper triangular part of Distance has the distances of signals with each other. It is a symmetric matrix.
