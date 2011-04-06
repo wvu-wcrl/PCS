@@ -65,7 +65,7 @@ classdef LinkSimulation < Simulation
             end
             obj.SimStateInit();
             obj.UpperSymbolBoundValue = obj.UnionBoundSymbol( SimParam.ChannelObj.ModulationObj.SignalSet, obj.EsN0, SimParam.ChannelObj.ModulationObj.SignalProb );
-            obj.UpperBitBoundValue = UnionBoundBit( SimParam.ChannelObj.ModulationObj.SignalSet, obj.EsN0, SimParam.ChannelObj.ModulationObj.SignalProb );
+            obj.UpperBitBoundValue = obj.UnionBoundBit( SimParam.ChannelObj.ModulationObj.SignalSet, obj.EsN0, SimParam.ChannelObj.ModulationObj.SignalProb );
         end
         
         function SimStateInit(obj)
