@@ -35,7 +35,7 @@ while running
     fprintf( '.' );
     heartbeat_counter = heartbeat_counter - 1;
     if ~heartbeat_counter
-        heartbeat_counter = 20;
+        heartbeat_counter = column_width;
         fprintf('\n');
     end
         
