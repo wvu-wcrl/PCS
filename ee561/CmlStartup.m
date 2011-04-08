@@ -6,7 +6,6 @@
 % Latest change:
 % Added worker controller and utility code directories to the path.
 
-
 % determine the home directory
 cml_home = pwd;
 

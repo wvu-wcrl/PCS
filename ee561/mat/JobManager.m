@@ -27,17 +27,17 @@ fprintf( 'Starting\nLocation of input queue: ' );
 fprintf( queue );
 fprintf( '\n' );
 
-column_width = 80;
-heartbeat_counter = column_width;
+% column_width = 80;
+% heartbeat_counter = column_width;
 
 while running
     
-    fprintf( '.' );
-    heartbeat_counter = heartbeat_counter - 1;
-    if ~heartbeat_counter
-        heartbeat_counter = column_width;
-        fprintf('\n');
-    end
+    % fprintf( '.' );
+    % heartbeat_counter = heartbeat_counter - 1;
+    % if ~heartbeat_counter
+    %     heartbeat_counter = column_width;
+    %     fprintf('\n');
+    % end
         
     
     % check the queue for files
