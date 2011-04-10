@@ -8,7 +8,7 @@ function status = JobManager( varargin )
 
 % default location
 % my local location is /Users/mvalenti/Dropbox/web/webapps/CommunicationTheory/
-rootdir = '/usr/share/tomcat5.5/webapps/CommunicationTheory/';
+rootdir = '/usr/share/tomcat5.5/webapps/EE561/';
 
 % if there is an option argument, assign it to rootdir
 if (nargin >= 1)
@@ -87,6 +87,8 @@ while running
             catch
                 % file was bad, kick out of loop
                 fprintf( '\nWarning: File could not be loaded\n\n' );
+                fprintf( fid, 'Error: (1)\nN/A\nN/A\nN/A' ); 
+                close( fid );
                 break
             end
             
@@ -95,6 +97,8 @@ while running
                 S = user_data.S;
             else
                 fprintf( '\nWarning: File does not contain an S matrix\n\n' );
+                fprintf( fid, 'Error: (2)\nN/A\nN/A\nN/A' );
+                close( fid );
                 break;
             end
             
@@ -113,6 +117,8 @@ while running
             % make sure there are at least as many columns as rows
             if (K>M)
                 fprintf( '\nWarning: S matrix has more rows than columns\n\n' );
+                fprintf( fid, 'Error: (3)\nN/A\nN/A\nN/A' );
+                close( fid );
                 break;
             end           
            
