@@ -88,7 +88,7 @@ while running
                 % file was bad, kick out of loop
                 fprintf( '\nWarning: File could not be loaded\n\n' );
                 fprintf( fid, 'Error: (1)\nN/A\nN/A\nN/A' ); 
-                close( fid );
+                fclose( fid );
                 break
             end
             
@@ -98,7 +98,7 @@ while running
             else
                 fprintf( '\nWarning: File does not contain an S matrix\n\n' );
                 fprintf( fid, 'Error: (2)\nN/A\nN/A\nN/A' );
-                close( fid );
+                fclose( fid );
                 break;
             end
             
@@ -118,7 +118,7 @@ while running
             if (K>M)
                 fprintf( '\nWarning: S matrix has more rows than columns\n\n' );
                 fprintf( fid, 'Error: (3)\nN/A\nN/A\nN/A' );
-                close( fid );
+                fclose( fid );
                 break;
             end           
            
