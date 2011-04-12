@@ -122,17 +122,25 @@ while running
                 break;
             end           
            
-            fprintf( 'Processing user file\n' );
+            fprintf( 'Tring to Process signal matrix\n' );
             
-            % normalize
-            S = sqrt(M)*S./norm( S, 'fro' );
-            
-            % determine the PAPR
-            PAPR = max( sum( S.^2 ) );
-            
-            % determine the threshold SNR's.
-            GammaPs = InversePsUB( S );
-            GammaPb = InversePbUB( S );
+            try          
+                % normalize
+                S = sqrt(M)*S./norm( S, 'fro' );
+                
+                % determine the PAPR
+                PAPR = max( sum( S.^2 ) );
+                
+                % determine the threshold SNR's.
+                GammaPs = InversePsUB( S );
+                GammaPb = InversePbUB( S );
+            catch
+                % file was bad, kick out of loop
+                fprintf( '\nWarning: Error processing S matrix \n\n' );
+                fprintf( fid, 'Error: (4)\nN/A\nN/A\nN/A' ); 
+                fclose( fid );
+                break
+            end
             
             % update the status
             status = 'In Progress';
