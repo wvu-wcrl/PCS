@@ -80,7 +80,8 @@ classdef LinkSimulation < Simulation
         end
         
         function SingleSimulate(obj)
-            Test = true; TestInactivation = true;
+            Test = false;              % turning off tests (scheduler will decided if needs to run full work unit) 
+            TestInactivation = false;  % don't want to deactivate in this method when error rates below minBER or minSER
             ElapsedTime = 0;
             if(Test)
                 RemainingSymError = obj.SimParam.MaxSymErrors - obj.SimState.SymbolErrors;
