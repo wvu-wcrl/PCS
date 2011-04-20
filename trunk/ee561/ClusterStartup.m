@@ -1,10 +1,12 @@
-% CmlStartup
+% ClusterStartup
 %
-% Initializes CML 2 by setting the path
+% Initializes EE561 project (cluster code) by setting the path
 %
 % Last updated February 27, 2011 by Terry
-% Latest change:
-% Added worker controller and utility code directories to the path.
+%
+% Latest changes:
+%    Added worker controller and utility code directories to the path.
+%    On April 20, 2011 MCV changed the name of the file from CmlStartup to ClusterStartup
 
 % determine the home directory
 cml_home = pwd;
