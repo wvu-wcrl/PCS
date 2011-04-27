@@ -8,6 +8,8 @@
 
 function wSta(obj, hostname)
 
+% we need to pass cmlRoot, but starting with /rhome instead of /home
+cmlPath = ['/r' obj.cmlRoot(2:end)];
 
 % 1. Form the BASH command string.
 wNum_str = int2str(obj.wrkCnt);
