@@ -7,7 +7,7 @@
 % 2/27/2011
 function stub_worker(n)
 
-TimeToLive = 30;
+TimeToLive = 600;
 t1=tic;
 
 while(toc(t1) < TimeToLive )
