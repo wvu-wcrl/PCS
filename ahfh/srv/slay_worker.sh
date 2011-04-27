@@ -4,7 +4,6 @@
 # Inputs
 #  1. hostname
 
-
 # Input variables.
 hostname=$1
 
