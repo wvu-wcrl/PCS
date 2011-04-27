@@ -133,6 +133,9 @@ classdef OutageNakagami < handle
             end
             
             epsilon = epsilon/obj.N;
+            
+            % note that the Gamma, Beta, p properties of the class are never actually set
+            
         end
         
         function epsilon = ComputeOutage( obj, Gamma, Beta, p )
@@ -153,6 +156,8 @@ classdef OutageNakagami < handle
                     epsilon(:,j,k) = obj.ComputeSingleOutage( Gamma, Beta(j), p(k) );
                 end
             end
+            
+            % note that the Gamma, Beta, p properties of the class are never actually set
         end
     end
     

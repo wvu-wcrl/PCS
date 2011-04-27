@@ -2,16 +2,16 @@
 %
 % computes the outage
 
-function outage_worker(n,cmlRoot)
+function outage_worker(n,ahfhRoot)
 
 % build directories
-InDir = [cmlRoot '/input/' ];
-OutDir = [cmlRoot '/output/'];
-TableDir = [cmlRoot, '/tables/'];
-LogDir = [cmlRoot, '/log/'];
+InDir = [ahfhRoot '/input/' ];
+OutDir = [ahfhRoot '/output/'];
+TableDir = [ahfhRoot, '/tables/'];
+LogDir = [ahfhRoot, '/log/'];
 
 % update path
-MatDir = [cmlRoot, '/mat'];
+MatDir = [ahfhRoot, '/mat'];
 addpath( MatDir );
 
 running = 1;
