@@ -14,9 +14,8 @@ InFile  =  [cmlRoot '/input/i' int2str(n)];
 OutFile = [cmlRoot '/output/o' int2str(n)];  
 
 while(toc(t1) < TimeToLive )
-    % save( InFile, 't1' );
-    % save( OutFile, 't1' );
-    save( 'dummy', 'InFile', 'OutFile', 'n', 'cmlRoot' )
+    save( InFile, 't1' );
+    save( OutFile, 't1' );
     pause(5);
 end
     
