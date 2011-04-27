@@ -5,7 +5,6 @@
 #  2. hostname
 #  3. Worker ID
 
-
 # Input variables.
 hostname=$1
 worker_path=$2
