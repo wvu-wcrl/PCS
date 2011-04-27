@@ -4,7 +4,7 @@ classdef JobManager
     
     properties
         JobParam    % Job Parameter: OmegaFileName, m_i, Gamma, Beta, p, m
-        JobStatus   % Job status: -1=not submitted,0=queued, 1=running, 2=done
+        JobStatus   % Job status: -1=submitted,0=queued, 1=running, 2=done
         epsilon     % outage probability
         ahfhRoot    % root of the ahfh directory
         JobFileName % Name of the input and output files for this job
@@ -27,6 +27,7 @@ classdef JobManager
         
         % submit a job
         function obj = SubmitJob( obj )
+            fprintf( 'Submitting Job %s\n', obj.JobFileName );
             obj.JobStatus = 0;
             JobParam = obj.JobParam;
             save( [obj.InDir obj.JobFileName], 'JobParam' );
@@ -76,6 +77,8 @@ classdef JobManager
             
             % now load the save file
             epsilon = load( [obj.OutDir obj.JobFileName ], 'epsilon' );
+            
+            obj.epsilon = epsilon;
         end            
         
     end
