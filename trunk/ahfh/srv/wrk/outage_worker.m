@@ -21,6 +21,9 @@ while( running )
     D = dir( [InDir '*.mat'] );
     
     if ~isempty(D) 
+        % start a timer
+        t1 = tic;
+        
         % pick a file at random
         InFileIndex = randint( 1, 1, [1 length(D)]);
         
@@ -163,8 +166,11 @@ while( running )
         end
         
         % Done!
+        msg = sprintf( 'Completed job at %s for a runtime of %f seconds\n', datestr(clock), toc(t1) );
+        fprintf( msg );
+        fprintf( fid, msg );
         
-        msg = sprintf( 'Done.  Waiting for next job...\n\n' );
+        msg = sprintf( '\nWaiting for next job...\n\n' );
         fprintf( msg );
         fprintf( fid, msg );
     end
