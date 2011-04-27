@@ -15,3 +15,4 @@ else
 end
 
 % can add paths to c-mex, if necessary
+% test of a comment
