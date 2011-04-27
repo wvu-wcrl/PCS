@@ -4,6 +4,7 @@
 #  1. hostname
 #  2. Process ID
 
+
 # Input variables.
 hostname=$1
 process_id=$2
