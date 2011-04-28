@@ -65,90 +65,98 @@ while( running )
             fprintf( msg );
             fprintf( fid, msg );
             load( [InDir D(InFileIndex).name], 'JobParam' );
+            success = 1;
         catch
             % file was bad, kick out of loop
             msg = sprintf( 'Error: Input File could not be loaded\n' );
             fprintf( msg );
             fprintf( fid, msg );
-            break
+            success = 0;
         end
         
         % delete input file
-        try
-            msg = sprintf( 'Deleting input file\n' );
-            fprintf( msg );
-            fprintf( fid, msg );
-            delete( [InDir InFile] );
-        catch
-            % fcould not delete, just a warning
-            msg = sprintf( 'Warning: Input file could not be deleted\n' );
-            fprintf( msg );
-            fprintf( fid, msg );
-        end        
-
-        
-        % try to load the Network Description file
-        NetworkFile = JobParam.NetworkFileName;
-        try
-            msg = sprintf( 'Loading Network file\n' );
-            fprintf( msg );
-            fprintf( fid, msg );
-            load( [TableDir NetworkFile], 'b' );           
-        catch
-            % file was bad, kick out of loop
-            msg = sprintf( 'Error: Network File could not be loaded\n' );
-            fprintf( msg );
-            fprintf( fid, msg );
-            break
+        if (success)
+            try
+                msg = sprintf( 'Deleting input file\n' );
+                fprintf( msg );
+                fprintf( fid, msg );
+                delete( [InDir InFile] );
+            catch
+                % fcould not delete, just a warning
+                msg = sprintf( 'Warning: Input file could not be deleted\n' );
+                fprintf( msg );
+                fprintf( fid, msg );
+            end
+         
+            % try to load the Network Description file
+            NetworkFile = JobParam.NetworkFileName;
+            try
+                msg = sprintf( 'Loading Network file\n' );
+                fprintf( msg );
+                fprintf( fid, msg );
+                load( [TableDir NetworkFile], 'b' );
+                success = 1;
+            catch
+                % file was bad, kick out of loop
+                msg = sprintf( 'Error: Network File could not be loaded\n' );
+                fprintf( msg );
+                fprintf( fid, msg );
+                success = 0;
+            end
         end
             
         % try to compute the outage probability
-        try
-            msg = sprintf( 'Computing outage probabilty\n' );
-            fprintf( msg );
-            fprintf( fid, msg );
-            
-            epsilon = b.ComputeOutage( JobParam.Gamma, JobParam.Beta, JobParam.p );                      
-        catch
-            % file was bad, kick out of loop
-            msg = sprintf( '\nError: Could not compute outage probability\n\n' );
-            fprintf( msg );
-            fprintf( fid, msg );
-            break
+        if (success)
+            try
+                msg = sprintf( 'Computing outage probabilty\n' );
+                fprintf( msg );
+                fprintf( fid, msg );
+                epsilon = b.ComputeOutage( JobParam.Gamma, JobParam.Beta, JobParam.p );
+                msg = sprintf( 'Done computing outage probabilty\n' );
+                fprintf( msg );
+                fprintf( fid, msg );
+                success = 1;
+            catch
+                % file was bad, kick out of loop
+                msg = sprintf( '\nError: Could not compute outage probability\n\n' );
+                fprintf( msg );
+                fprintf( fid, msg );
+                success = 0;
+            end
         end
 
-        msg = sprintf( 'Done computing outage probabilty\n' );
-        fprintf( msg );
-        fprintf( fid, msg );
-        
-        % update status
-        JobStatus = 2;
         
         % try to save it
-        try
-            msg = sprintf( 'Saving output file\n' );
-            fprintf( msg );
-            fprintf( fid, msg );            
-            
-            % save to temporary file
-            save( TempFile, 'JobParam', 'epsilon' );
-            system( ChmodStr );
-            system( [MovStr OutFile] );
-            
-            % save( [OutDir OutFile], 'JobParam', 'JobStatus', 'epsilon' );
-            % save( [OutDir OutFile] );
-        catch
-            % file cound not save, kick out of loop
-            msg = sprintf( 'Error: Output File could not be saved\n' );
-            fprintf( msg );
-            fprintf( fid, msg );
-            break
+        if (success)
+            try
+                msg = sprintf( 'Saving output file\n' );
+                fprintf( msg );
+                fprintf( fid, msg );
+                
+                % save to temporary file
+                save( TempFile, 'JobParam', 'epsilon' );
+                system( ChmodStr );
+                system( [MovStr OutFile] );
+                
+                % save( [OutDir OutFile], 'JobParam', 'JobStatus', 'epsilon' );
+                % save( [OutDir OutFile] );
+                
+                % Done!
+                msg = sprintf( 'Completed job at %s for a runtime of %f seconds\n', datestr(clock), toc(t1) );
+                fprintf( msg );
+                fprintf( fid, msg );
+                
+                success = 1;
+            catch
+                % file cound not save, kick out of loop
+                msg = sprintf( 'Error: Output File could not be saved\n' );
+                fprintf( msg );
+                fprintf( fid, msg );
+                
+                success = 0;
+            end
         end
         
-        % Done!
-        msg = sprintf( 'Completed job at %s for a runtime of %f seconds\n', datestr(clock), toc(t1) );
-        fprintf( msg );
-        fprintf( fid, msg );
         
         msg = sprintf( '\nWaiting for next job...\n\n' );
         fprintf( msg );
