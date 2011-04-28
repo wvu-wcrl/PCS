@@ -10,7 +10,7 @@ classdef OutageNakagami < handle
         m_i               % Nakagami factor for the interfereres (length M vector)
         M                 % Number of nodes
         N                 % Number of networks
-        Omega_i           % Power of each interferer, can be N by M, where N is the number of networks
+        Omega_i           % Power of each interferer, can be N by M, where N is the number of networks 
         indices           % The set of indices summing to r
         coefficients      % The multinomial coefficients used inside the outage probability's product  
         Omega_i_norm      % Power normalized by m_i. (Could become private)
