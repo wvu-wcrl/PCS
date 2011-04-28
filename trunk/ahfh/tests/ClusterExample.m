@@ -14,7 +14,7 @@ ahfhRoot = cml_home;
 % set the parameters
 m = 3;
 M = 50;
-m_i = 3;  % should be constant for all interferers (for now)
+m_i = 4;  % should be constant for all interferers (for now)
 
 % Create an object
 % First load in the Omegas (or use your network class)
@@ -36,7 +36,7 @@ save( [ahfhRoot '/tables/' NetworkFileName ], 'b' );
 SNRdB = [10 20];
 
 % Test multiple jobs
-NumberJobs = 50;
+NumberJobs = 10;
 
 % Create an array of JobManager Objects
 for job=1:NumberJobs
@@ -53,7 +53,7 @@ for job=1:NumberJobs
     
     % Create a JobController object
     % In practice, should have a different JobParam set for each job
-    c(job) = JobManager( JobParam(job), JobFileName, ahfhRoot );
+    JobObject(job) = JobManager( JobParam(job), JobFileName, ahfhRoot );
     
 end
 
@@ -62,11 +62,18 @@ end
 % in order to avoid "collisions"
 for job=1:NumberJobs    
     % Submit the job
-    c(job).SubmitJob( );
+    JobObject(job).SubmitJob( );
     pause( 5 );
     
 end
 
+% check on the status
+for i=1:length( cwc_obj.nodes )
+    command_string = ['ssh ' cwc_obj.nodes{i} ' ps aux|grep -i outage_worker'];
+    [~,zz] = system( command_string );
+    fprintf( 'Node %s\n', cwc_obj.nodes{i} );
+    fprintf( '%s\n', zz );
+end
 
 
 

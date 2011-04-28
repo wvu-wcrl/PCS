@@ -26,6 +26,10 @@ addpath( MatDir );
 
 running = 1;
 
+% create a logfile for this worker
+LogFile = ['Worker' int2str(n) '.log'];
+fid = fopen( [LogDir LogFile], 'w+' );
+
 while( running )
     % look to see if there are any .mat files in the InDir
     D = dir( [InDir '*.mat'] );
@@ -41,12 +45,8 @@ while( running )
         InFile = D(InFileIndex).name;
         OutFile = InFile;
         
-        % create a logfile
-        LogFile = [D(InFileIndex).name(1:(end-3)) 'log'];
-        fid = fopen( [LogDir LogFile], 'w+' );
-        
         [tilde, host] = system( 'hostname' );
-        msg = sprintf( 'Servicing job using worker %d at %s on host %s', n, datestr(clock), host );
+        msg = sprintf( 'Servicing job %s using worker %d at %s on host %s', InFile, n, datestr(clock), host );
         fprintf( msg );
         fprintf( fid, msg );
 
@@ -61,7 +61,6 @@ while( running )
             msg = sprintf( 'Error: Input File could not be loaded\n' );
             fprintf( msg );
             fprintf( fid, msg );
-            fclose( fid );
             break
         end
         
@@ -91,7 +90,6 @@ while( running )
             msg = sprintf( 'Error: Network File could not be loaded\n' );
             fprintf( msg );
             fprintf( fid, msg );
-            fclose( fid );
             break
         end
             
@@ -107,7 +105,6 @@ while( running )
             msg = sprintf( '\nError: Could not compute outage probability\n\n' );
             fprintf( msg );
             fprintf( fid, msg );
-            fclose( fid );
             break
         end
 
@@ -130,7 +127,6 @@ while( running )
             msg = sprintf( 'Error: Output File could not be saved\n' );
             fprintf( msg );
             fprintf( fid, msg );
-            fclose( fid );
             break
         end
         
