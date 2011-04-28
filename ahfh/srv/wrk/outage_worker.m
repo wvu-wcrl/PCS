@@ -3,6 +3,16 @@
 % computes the outage
 
 function outage_worker(n,ahfhRoot)
+% Outage Worker.  Loads a Job and runs it.
+%
+% The JobFile contains a JobParam structure containing the following
+% elements:
+%   Gamma  % SNR values
+%   Beta   % Threholds 
+%   p      % Collision probabilities
+%   NetworkFileName  % Name of file in the TableDir containing network
+%   description (in the form of an OutageNakagami object called "b")
+%
 
 % build directories
 InDir = [ahfhRoot '/input/' ];
@@ -69,61 +79,20 @@ while( running )
         end        
 
         
-        % try to load the Omega file
-        OmegaFile = JobParam.OmegaFileName;
+        % try to load the Network Description file
+        NetworkFile = JobParam.NetworkFileName;
         try
-            msg = sprintf( 'Loading Omega file\n' );
+            msg = sprintf( 'Loading Network file\n' );
             fprintf( msg );
             fprintf( fid, msg );
-            load( [TableDir OmegaFile], 'Omega' );           
+            load( [TableDir NetworkFile], 'b' );           
         catch
             % file was bad, kick out of loop
-            msg = sprintf( 'Error: Omega File could not be loaded\n' );
+            msg = sprintf( 'Error: Network File could not be loaded\n' );
             fprintf( msg );
             fprintf( fid, msg );
             fclose( fid );
             break
-        end
-        
-        [N,M] = size( Omega );
-        
-        % check to see if there is a saved version of the object
-        ObjFile = ['Obj_' int2str(JobParam.m) '_' int2str(M) '.mat'];
-        
-        D = dir( [TableDir ObjFile ] );
-        if ~isempty(D)
-            % file is there, try to load it
-            try
-                msg = sprintf( 'Loading existing Object file\n' );
-                fprintf( msg );
-                fprintf( fid, msg );
-                load( [TableDir ObjFile], 'b' );
-            catch
-                % file was bad, kick out of loop
-                msg = sprintf( 'Error: Object File could not be loaded\n' );
-                fprintf( msg );
-                fprintf( fid, msg );
-                fclose( fid );
-                break
-            end        
-        
-            % update the Omega and the normalized Omega
-            b.Omega_i = Omega;           
-            if (length( JobParam.m_i ) == 1)
-                b.Omega_i_norm = Omega./repmat( JobParam.m_i, N, M);
-            else
-                b.Omega_i_norm = Omega./repmat( JobParam.m_i, N, 1);
-            end
-        else            
-            fprintf( fid, 'Creating oject\n' );
-            % if not, then create an OutageProbability object
-            b = OutageNakagami(Omega,JobParam.m,JobParam.m_i );            
-            msg = sprintf( 'Done creating object. Saving to file.\n' );
-            fprintf( msg );
-            fprintf( fid, msg );
-                
-            % save the OutageProbability object
-            save( [TableDir ObjFile], 'b' )
         end
             
         % try to compute the outage probability
