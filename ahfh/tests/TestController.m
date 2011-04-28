@@ -44,14 +44,14 @@ for job=1:NumberJobs
     
     % Create a JobController object
     % In practice, should have a different JobParam set for each job
-    a(job) = JobManager( JobParam, JobFileName, ahfhRoot );
+    c(job) = JobManager( JobParam, JobFileName, ahfhRoot );
     
 end
 
 % Submit the jobs
 for job=1:NumberJobs    
     % Submit the job
-    a(job).SubmitJob( );
+    c(job).SubmitJob( );
 end
 
 % to check status use:
