@@ -49,7 +49,7 @@ for job=1:NumberJobs
     JobParam(job).p = [1 0.1 0.01 0.001];
     JobParam(job).NetworkFileName = NetworkFileName;
     
-    JobFileName = ['Job' int2str(job) '.mat'];
+    JobFileName = ['WCRL' int2str(job) '.mat'];
     
     % Create a JobController object
     % In practice, should have a different JobParam set for each job

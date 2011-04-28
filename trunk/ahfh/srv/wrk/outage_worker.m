@@ -28,7 +28,13 @@ running = 1;
 
 % create a logfile for this worker
 LogFile = ['Worker' int2str(n) '.log'];
-fid = fopen( [LogDir LogFile], 'w+' );
+fid = fopen( [LogDir LogFile], 'a+' );
+
+[tilde, host] = system( 'hostname' );
+msg = sprintf( 'Worker %d started at %s on host %s\nRoot dir is %s\n', int2str(n), datestr(clock), host, ahfhRoot );
+
+fprintf( msg );
+fprintf( fid, msg );
 
 while( running )
     % look to see if there are any .mat files in the InDir
@@ -44,8 +50,7 @@ while( running )
         % construct the filename
         InFile = D(InFileIndex).name;
         OutFile = InFile;
-        
-        [tilde, host] = system( 'hostname' );
+       
         msg = sprintf( 'Servicing job %s using worker %d at %s on host %s', InFile, n, datestr(clock), host );
         fprintf( msg );
         fprintf( fid, msg );
@@ -142,7 +147,7 @@ while( running )
         
     
     % wait before looping
-    pause(1);
+    pause(4);
     
 end
     
