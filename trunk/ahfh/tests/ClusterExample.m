@@ -29,8 +29,13 @@ b = OutageNakagami( Omega, m, m_i );
 % Notice we are no longer saving just Omega
 NetworkFileName = 'Network1.mat';
 
-% save b
-save( [ahfhRoot '/tables/' NetworkFileName ], 'b' );
+% save b [NOTICE CHMOD STATEMENT]
+save( 'TempSave.mat', 'b' );
+system( 'chmod 666 TempSave.mat' );
+system( ['mv TempSave.mat ' ahfhRoot '/tables/' NetworkFileName ] );
+
+% old syntax, which doesn't set permissions correctly
+% save( [ahfhRoot '/tables/' NetworkFileName ], 'b' );
 
 % Now setup your jobs.
 SNRdB = [10 20];

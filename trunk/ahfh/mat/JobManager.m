@@ -30,7 +30,14 @@ classdef JobManager
             fprintf( 'Submitting Job %s\n', obj.JobFileName );
             obj.JobStatus = 0;
             JobParam = obj.JobParam;
-            save( [obj.InDir obj.JobFileName], 'JobParam' );
+            
+            % need to make sure that the permissions are set properly
+            save( 'TempSave.mat', 'JobParam' );
+            system( 'chmod 666 TempSave.mat' );
+            system( ['mv TempSave.mat ' obj.InDir obj.JobFileName ] );
+            
+            % old syntax
+            % save( [obj.InDir obj.JobFileName], 'JobParam' );
         end
         
         % check status

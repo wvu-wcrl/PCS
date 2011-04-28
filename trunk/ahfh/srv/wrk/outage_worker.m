@@ -20,6 +20,10 @@ OutDir = [ahfhRoot '/output/'];
 TableDir = [ahfhRoot, '/tables/'];
 LogDir = [ahfhRoot, '/log/'];
 
+TempFile = ['TempSave' int2str(n) '.mat'];
+ChmodStr = ['chmod 666 ' TempFile];
+MovStr = ['mv ' TempFile ' ' OutDir];
+
 % update path
 MatDir = [ahfhRoot, '/mat'];
 addpath( MatDir );
@@ -124,8 +128,14 @@ while( running )
         try
             msg = sprintf( 'Saving output file\n' );
             fprintf( msg );
-            fprintf( fid, msg );
-            save( [OutDir OutFile], 'JobParam', 'JobStatus', 'epsilon' );
+            fprintf( fid, msg );            
+            
+            % save to temporary file
+            save( TempFile, 'JobParam', 'epsilon' );
+            system( ChmodStr );
+            system( [MovStr OutFile] );
+            
+            % save( [OutDir OutFile], 'JobParam', 'JobStatus', 'epsilon' );
             % save( [OutDir OutFile] );
         catch
             % file cound not save, kick out of loop
