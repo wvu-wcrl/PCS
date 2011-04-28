@@ -22,7 +22,7 @@ b = OutageNakagami( Omega, m, m_i );
 NetworkFileName = 'Network1.mat';
 
 % save b
-save( [ahfhRoot '/tables/' NetworkFileName ]. 'b' );
+save( [ahfhRoot '/tables/' NetworkFileName ], 'b' );
 
 SNRdB = [10 20];
 
