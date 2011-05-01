@@ -1,7 +1,7 @@
-function ee561_worker(n,ProjectRoot)
+function ee561_worker( WorkerID, ProjectRoot)
 % EE561 Worker.  Loads a Job, runs it, and saves result.
-%
-% Inputs: n = worker number (as an integer)
+
+% Inputs: WorkerID = worker number (as an integer)
 %         ProjectRoot = location of the root for this project
 %
 % The input file is located in the TaskIn directory
@@ -21,7 +21,7 @@ LogDir = [ProjectRoot, '/log/'];
 TempDir = [ProjectRoot, '/temp/'];
 
 % string used to move saved files
-TempFile = [TempDir 'TempSave' int2str(n) '.mat'];
+TempFile = [TempDir 'TempSave' int2str(WorkerID) '.mat'];
 ChmodStr = ['chmod 666 ' TempFile];
 MovStr = ['mv ' TempFile ' ' OutDir];
 
@@ -36,11 +36,17 @@ addpath( MexDir );
 running = 1;
 
 % create a logfile for this worker
-LogFile = ['Worker' int2str(n) '.log'];
+LogFile = ['Worker' int2str(WorkerID) '.log'];
 fid = fopen( [LogDir LogFile], 'a+' );
 
-[tilde, host] = system( 'hostname' );
-msg = sprintf( 'Worker %d started at %s on host %s\nRoot dir is %s\n', n, datestr(clock), host, ProjectRoot );
+[tilde, HostName] = system( 'hostname' );
+StartTime = datestr(clock);
+
+% Information about this Worker
+WorkerInfo.WorkerID = WorkerID;
+WorkerInfo.HostName = HostName;
+
+msg = sprintf( 'Worker %d started at %s on host %s\nRoot dir is %s\n', WorkerID,  StartTime, HostName, ProjectRoot );
 
 fprintf( msg );
 fprintf( fid, msg );
@@ -52,6 +58,7 @@ while( running )
     if ~isempty(D) 
         % start a timer
         t1 = tic;
+        StartTime = datestr(clock);
         
         % pick a file at random
         InFileIndex = randint( 1, 1, [1 length(D)]);
@@ -60,7 +67,7 @@ while( running )
         InFile = D(InFileIndex).name;
         OutFile = InFile;
        
-        msg = sprintf( 'Servicing job %s using worker %d at %s on host %s', InFile, n, datestr(clock), host );
+        msg = sprintf( 'Servicing job %s using worker %d at %s on host %s', InFile, WorkerID, StartTime, HostName );
         fprintf( msg );
         fprintf( fid, msg );
 
@@ -149,18 +156,24 @@ while( running )
                 fprintf( fid, msg );
                 
                 % We are bypassing the Save method, because each worker needs
-                % its own independent temporary file.
-                
+                % its own independent temporary file, and also we want to save
+                % how much work this worker has expended (to credit the "donor")
+                               
                 % Update SimState 
                 SimState = LinkObjLocal.SimState;
                 
+                % Update the Worker information
+                WorkerInfo.StartTime = StartTime;
+                WorkerInfo.StopTime = datestr(clock);
+                WorkerInfo.RunTime = toc(t1);
+                
                 % save to temporary file
-                save( TempFile, 'SimState', 'SimParam' );
+                save( TempFile, 'SimState', 'SimParam', 'WorkerInfo' );
                 system( ChmodStr );
                 system( [MovStr OutFile] );
                                
                 % Done!
-                msg = sprintf( 'Completed job at %s for a runtime of %f seconds\n', datestr(clock), toc(t1) );
+                msg = sprintf( 'Completed job at %s for a runtime of %f seconds\n', WorkerInfo.StopTime, WorkerInfo.RunTime );
                 fprintf( msg );
                 fprintf( fid, msg );
                 
