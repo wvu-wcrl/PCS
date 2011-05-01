@@ -1,6 +1,9 @@
 function ee561_worker(n,ProjectRoot)
 % EE561 Worker.  Loads a Job, runs it, and saves result.
 %
+% Inputs: n = worker number (as an integer)
+%         ProjectRoot = location of the root for this project
+%
 % The input file is located in the TaskIn directory
 %
 % The JobFile contains SimParam structure (SimState is ignored)
