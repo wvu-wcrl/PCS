@@ -7,7 +7,7 @@ NumberWorkers = zeros(1,length(hosts));
 for i=1:length( hosts )
     command_string = ['ssh ' hosts{i} ' ps aux|grep -i ' worker_name];
     [~,zz] = system( command_string );
-    hits = findstr( zz, woerker_name );
+    hits = findstr( zz, worker_name );
     NumberWorkers( i ) = length( hits );
 end
 
