@@ -155,7 +155,8 @@ classdef LinkSimulation < Simulation
                 end
             end
             % Save the results only once when the time for simulation is up.
-            obj.Save();
+            % Commented out so that it is saved as extra operation.
+            % obj.Save();
         end
         
         

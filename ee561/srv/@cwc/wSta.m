@@ -8,6 +8,8 @@
 
 function wSta(obj, hostname)
 
+% we need to pass cmlRoot, but starting with /rhome instead of /home
+cmlPath = ['/r' obj.cmlRoot(2:end)];
 
 % 1. Form the BASH command string.
 wNum_str = int2str(obj.wrkCnt);
@@ -16,7 +18,8 @@ cmd_str = [cmd_str, ' ',...
     hostname, ' ',...
     obj.workerPath, ' ',...
     obj.workerScript, ' ',...
-    int2str(obj.wrkCnt)];
+    int2str(obj.wrkCnt), ' ', ...
+    cmlPath];
 
 % 2. Execute the BASH command to start a worker.
 [stat pid] = system(cmd_str);
