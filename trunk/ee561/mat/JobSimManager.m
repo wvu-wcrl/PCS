@@ -179,14 +179,14 @@ while running
                 'ChannelObj', ChannelObj, ...     % Channel object (Modulation is a property of channel).
                 'SNRType', 'Es/N0 in dB', ...
                 'SNR', SNRdB, ...            % Row vector of SNR points in dB.
-                'MaxTrials', 50000*ones( size(SNRdB) ), ...      % A vector of integers (or scalar), one for each SNR point. Maximum number of trials to run per point.
+                'MaxTrials', 100000*ones( size(SNRdB) ), ...      % A vector of integers (or scalar), one for each SNR point. Maximum number of trials to run per point.
                 'FileName', MatlabFileName, ...
                 'SimTime', 30, ...       % Simulation time in Seconds.
                 'CheckPeriod', 5, ...    % Checking time in number of Trials.
-                'MaxBitErrors', 3000*ones( size(SNRdB) ), ...
-                'MaxSymErrors',  500*ones( size(SNRdB) ), ...
-                'minBER', 1e-5, ...
-                'minSER', 1e-5 );
+                'MaxBitErrors', 4000*ones( size(SNRdB) ), ...
+                'MaxSymErrors', 1000*ones( size(SNRdB) ), ...
+                'minBER', 5e-6, ...
+                'minSER', 5e-6 );
             
             % Create the Link Object
             LinkObjGlobal = LinkSimulation( SimParam );
@@ -278,12 +278,46 @@ while running
                 msg = sprintf( 'Deleting output job file\n' );
                 fprintf( msg );
                 delete( [JobOutDir InFile] );
+
+            catch
+                % fcould not delete, just a warning
+                msg = sprintf( 'Warning: Could not make figure\n' );
+                fprintf( msg );
+            end        
+        end
+        
+        % create and save the figure
+        if (success)
+            try
+                h = figure(1);
+                fprintf( 'Making figure\n'); 
+                semilogy( SimParam.SNR, PsUB( S, 10.^(SimParam.SNR/10) ), '--b',...
+                    SimParam.SNR, SimState.SER, '.b-', ...
+                    SimParam.SNR, PbUB( S, 10.^(SimParam.SNR/10) ), '--r', ...
+                    SimParam.SNR, SimState.BER, '.r-' );
+                
+                legend( 'SER: Union Bound', 'SER: Simulated', 'BER: Union Bound', 'BER: Simulated' );
+                
+                xlabel( 'E_s/N_0 (in dB)' );
+                ylabel( 'Error Rate' );
+                
+                TitleTxt = sprintf( 'Error rate for Job %s', job_str );
+                title( TitleTxt );
+                
+                axis( [min(SimParam.SNR) max(SimParam.SNR) 1e-6 1] );
+
+
+                print( h, '-dpdf', [outdir 'figure.pdf'] );               
+                
+
             catch
                 % fcould not delete, just a warning
                 msg = sprintf( 'Warning: Input job file could not be deleted\n' );
                 fprintf( msg );
             end        
         end
+        
+        
     end
    
     % sleep briefly before checking again
