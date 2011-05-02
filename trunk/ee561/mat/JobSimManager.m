@@ -238,7 +238,7 @@ while running
             fprintf( 'Saving Job File\n' );
             save( [outdir InFile], 'SimParam', 'SimState' );
             
-            fprintf( 'Updating Results File\n);
+            fprintf( 'Updating Results File\n' );
             S = SimParam.ChannelObj.ModulationObj.SignalSet;
             % determine the PAPR
             PAPR = max( sum( S.^2 ) );
