@@ -5,7 +5,7 @@ function SimManager( ProjectRoot )
 MaxTasks = 208; % maximimum number of tasks
 NumTasks = 10; % Number taks to submit at a time
 SimTime = 60; % Time of each task
-PauseTime = 0.25; % Time to wait between task submissions
+PauseTime = 0.1; % Time to wait between task submissions
 
 % build directories
 TaskInDir = [ProjectRoot '/TaskIn/' ];
@@ -276,7 +276,7 @@ while( running )
                 DTask = dir( [TaskInDir '*.mat'] );
                 TaskLoad = length(DTask);
                 
-                Tasks = max(MaxTasks-TaskLoad,1);  % always run at least one task
+                Tasks = max( min(NumTasks,MaxTasks-TaskLoad), 1);  % always run at least one task
                 SimParamLocal.MaxTrials = ceil(SimParamLocal.MaxTrials/Tasks);
                 
                 % submit each tasks
