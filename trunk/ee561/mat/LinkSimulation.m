@@ -6,6 +6,7 @@ classdef LinkSimulation < Simulation
         NumNewPoints
         UpperSymbolBoundValue
         UpperBitBoundValue
+        RunMode = 0;  % Running Mode: 0 = Local, 1 = Cluster
     end
     
     methods( Static )
@@ -155,8 +156,9 @@ classdef LinkSimulation < Simulation
                 end
             end
             % Save the results only once when the time for simulation is up.
-            % Commented out so that it is saved as extra operation.
-            % obj.Save();
+            if ~obj.RunMode % Only do this if running locally
+                obj.Save();
+            end
         end
         
         
