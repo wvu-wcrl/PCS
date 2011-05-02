@@ -4,7 +4,8 @@ function SimManager( ProjectRoot )
 % properties
 MaxTasks = 208; % maximimum number of tasks
 NumTasks = 5; % Number taks to submit at a time
-SimTime = 60; % Time of each task
+InitialSimTime = 30; % Quick Initial Sime time to quickly get results
+SimTime = 300; % Longer sim time in the long term
 PauseTime = 0.1; % Time to wait between task submissions
 
 % build directories
@@ -106,7 +107,7 @@ while( running )
             SimParamLocal.FileName =  InFile;
             
             % Update the Simulation Time
-            SimParamLocal.SimTime = SimTime;
+            SimParamLocal.SimTime = InitialSimTime;
             
             % submit each tasks
             % make sure that each one has a unique name
@@ -285,7 +286,7 @@ while( running )
                 JobFile = SimParamLocal.FileName;
                 
                 % limit the simulation runtime
-                SimParamLocal.SimTime = SimTime;
+                SimParam.SimTime = SimTime;
                 for task=1:Tasks
                     % Increment the TaskID counter
                     TaskID = TaskID + 1;
