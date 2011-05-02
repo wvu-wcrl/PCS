@@ -28,6 +28,7 @@ queue = [TomcatDir 'Jobs/inputQueueTest/']; % Temporarily rename
 % build name of JobIn and JobOut (Matlab Side)
 JobInDir = [MatlabDir, '/JobIn/'];
 JobOutDir = [MatlabDir, '/JobOut/'];
+JobRunningDir = [MatlabDir, '/JobRunning/'];
 
 % flag to indicate still running
 running = 1;
@@ -48,7 +49,10 @@ while running
         % construct queue filename
         queuefile = [queue D(count).name];
         
-        % parse job and group name from file
+        % MatlabFileName
+        MatlabFileName = [queuefile '.mat'];
+        
+        % parse job and username from file
         job = sscanf( D(count).name, '%i' );
         job_str = int2str( job );
         user = sscanf( D(count).name( (length(job_str)+1):end ), '%s' );
@@ -138,7 +142,7 @@ while running
             end
             
             % update the status
-            status = 'Simulating';
+            status = 'Queued';
             
             % write results to the results.txt file
             fprintf( fid, '%s\n', status );
@@ -168,17 +172,15 @@ while running
             LastSNR = InversePsUB( S, 1e-6 );
             SNRperdB = 2;
             SNRdB = 1/SNRperdB*[ round( SNRperdB*FirstSNR):ceil( SNRperdB*LastSNR) ];
-            SNRdB = [10 SNRdB];
-            
-            FileName = ['Job' job_str '.mat'];
-            
+            SNRdB = [10 SNRdB];            
+           
             SimParam = struct(...
                 'CodedModObj', CodedModObj, ...    % Coded modulation object.
                 'ChannelObj', ChannelObj, ...     % Channel object (Modulation is a property of channel).
                 'SNRType', 'Es/N0 in dB', ...
                 'SNR', SNRdB, ...            % Row vector of SNR points in dB.
                 'MaxTrials', 50000*ones( size(SNRdB) ), ...      % A vector of integers (or scalar), one for each SNR point. Maximum number of trials to run per point.
-                'FileName', FileName, ...
+                'FileName', MatlabFileName, ...
                 'SimTime', 30, ...       % Simulation time in Seconds.
                 'CheckPeriod', 5, ...    % Checking time in number of Trials.
                 'MaxBitErrors', 3000*ones( size(SNRdB) ), ...
@@ -193,7 +195,7 @@ while running
             SimState = LinkObjGlobal.SimState;
             
             % Save
-            save( [JobInDir FileName], 'SimParam', 'SimState' ); 
+            save( [JobInDir MatlabFileName], 'SimParam', 'SimState' ); 
             
             
         else
@@ -205,7 +207,53 @@ while running
       
     end
     
-    % check to see if there are any results in the JobOut directory
+    % reset the check flag
+    checkflag = 0;      
+    
+    % check to see if there are any results in the JobOut or JobRunning directory
+    D = dir( [JobRunningDir '*.mat'] );
+    
+    if ~isempty(D)
+        % pick a file at random
+        InFileIndex = randint( 1, 1, [1 length(D)]);
+        
+        % construct the filename
+        InFile = D(InFileIndex).name;
+        
+        % try to parse out jobid and user from filename (STICKING POINT)
+        job = sscanf( D(count).name, '%i' );
+        job_str = int2str( job );
+        user = sscanf( D(count).name( (length(job_str)+1):end-4 ), '%s' );
+        
+        % try to copy the file to the proper directory
+        outdir = [TomcatDir 'Jobs/' user '/' job_str '/output/'];
+        fprintf( 'Copying %s to %s\n', InFile, outdir );
+
+        try
+            load( [JobRunningDir InFile], 'SimParam', 'SimState' );
+            
+            save( [outdir InFile], 'SimParam', 'SimState' );
+            
+            success = 1;
+        catch
+            % file was bad or nonexistent, kick out of loop
+            msg = sprintf( 'Error: JobsRunning File could not be loaded and/or saved\n' );
+            fprintf( msg );            
+           
+            success = 0;
+        end
+    end
+        
+    
+    
+    D = dir( [JobInDir '*.mat'] );
+    
+    % update the status, which requires PAPR to be recomputed (POOR PROGRAMMING!)
+    if (checkflag)
+        pause(1);
+    end
+    
+    
     
     
     % sleep briefly before checking again
