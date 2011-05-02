@@ -186,9 +186,10 @@ while( running )
         % Try to load the correspoding file from the Jobs Running Directory (if it is there)
         if (success)
             try
+                JobFile = SimParam.FileName;
                 msg = sprintf( 'Loading the corresponding JobsRunning file\n' );
                 fprintf( msg );
-                load( [JobRunningDir SimParam.FileName], 'SimParam','SimState' );
+                load( [JobRunningDir JobFile], 'SimParam','SimState' );
                 
                 % Reassign as Global
                 SimStateGlobal = SimState;
