@@ -2,8 +2,9 @@ function SimManager( ProjectRoot )
 % EE561 Simulation Manager.  
 
 % properties
-MaxTasks = 5; % maximimum number of tasks
-SimTime = 10; % Time of each task
+MaxTasks = 208; % maximimum number of tasks
+NumTasks = 10; % Number taks to submit at a time
+SimTime = 60; % Time of each task
 PauseTime = 0.25; % Time to wait between task submissions
 
 % build directories
@@ -97,7 +98,7 @@ while( running )
             DTask = dir( [TaskInDir '*.mat'] );
             TaskLoad = length(DTask);
             
-            Tasks = max(MaxTasks-TaskLoad,1);  % always run at least one task
+            Tasks = max( min(NumTasks,MaxTasks-TaskLoad), 1);  % always run at least one task
             SimParamLocal.MaxTrials = ceil(SimParamLocal.MaxTrials/Tasks);
             
             % Make sure that the FileName matches the name of the input file
@@ -332,6 +333,6 @@ while( running )
     end
  
     % wait before looping
-    pause(1);
+    pause( PauseTime );
     
 end
