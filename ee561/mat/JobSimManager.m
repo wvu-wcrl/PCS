@@ -172,7 +172,7 @@ while running
             
             FileName = ['Job' job_str '.mat'];
             
-            SimParamGlobal = struct(...
+            SimParam = struct(...
                 'CodedModObj', CodedModObj, ...    % Coded modulation object.
                 'ChannelObj', ChannelObj, ...     % Channel object (Modulation is a property of channel).
                 'SNRType', 'Es/N0 in dB', ...
@@ -187,10 +187,10 @@ while running
                 'minSER', 1e-5 );
             
             % Create the Link Object
-            LinkObjGlobal = LinkSimulation(SimParamGlobal);
+            LinkObjGlobal = LinkSimulation( SimParam );
             
-            % Intiialize SimParam
-            SimParam = LinkObjGlobal.SimParam;
+            % Intiialize SimState
+            SimState = LinkObjGlobal.SimState;
             
             % Save
             save( [JobInDir FileName], 'SimParam', 'SimState' ); 
