@@ -2,11 +2,11 @@ function SimManager( ProjectRoot )
 % EE561 Simulation Manager.  
 
 % properties
-MaxTasks = 208; % maximimum number of tasks
+MaxTasks = 500; % maximimum number of tasks in the input queue
 NumTasks = 10; % Number taks to submit at a time
 InitialSimTime = 30; % Quick Initial Sime time to quickly get results
 SimTime = 300; % Longer sim time in the long term
-PauseTime = 0.1; % Time to wait between task submissions
+PauseTime = 0.01; % Time to wait between task submissions
 
 % build directories
 TaskInDir = [ProjectRoot '/TaskIn/' ];
