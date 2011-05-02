@@ -232,10 +232,13 @@ while running
         fprintf( 'Copying %s to %s\n', InFile, outdir );
 
         try
-            fprintf( 'Updating status\n' );
+            fprintf( 'Loading Job File\n' );
             load( [JobOutDir InFile], 'SimParam', 'SimState' );
+            
+            fprintf( 'Saving Job File\n' );
             save( [outdir InFile], 'SimParam', 'SimState' );
             
+            fprintf( 'Updating Results File\n);
             S = SimParam.ChannelObj.ModulationObj.SignalSet;
             % determine the PAPR
             PAPR = max( sum( S.^2 ) );
@@ -247,11 +250,18 @@ while running
             % update the status
             status = 'Simulated';
             
+            % open the results file
+            txtfile = [outdir 'results.txt'];
+            fid = fopen( txtfile, 'w+' );
+            
             % write results to the results.txt file
             fprintf( fid, '%s\n', status );
             fprintf( fid, '%2.4f\n', PAPR );
             fprintf( fid, '%2.4f\n', GammaPs );
-            fprintf( fid, '%2.4f', GammaPb );            
+            fprintf( fid, '%2.4f', GammaPb );  
+            
+            % close results file
+            fclose( fid );
            
             success = 1;
         catch
