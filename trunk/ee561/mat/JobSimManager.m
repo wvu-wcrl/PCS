@@ -142,7 +142,7 @@ while running
             end
             
             % update the status
-            status = 'Queued';
+            status = 'Simulating';
             
             % write results to the results.txt file
             fprintf( fid, '%s\n', status );
@@ -248,7 +248,7 @@ while running
             GammaPb = InversePbUB( S );
             
             % update the status
-            status = 'Simulated';
+            status = 'Done';
             
             % open the results file
             txtfile = [outdir 'results.txt'];
