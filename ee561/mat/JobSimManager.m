@@ -60,8 +60,8 @@ while running
         fprintf( '\n\nServicing job %s for user %s at %s\n', job_str, user, datestr(clock) );
         
         % construct the input and output directory strings
-        indir  = [rootdir 'Jobs/' user '/' job_str '/input/' ];
-        outdir = [rootdir 'Jobs/' user '/' job_str '/output/'];
+        indir  = [TomcatDir 'Jobs/' user '/' job_str '/input/' ];
+        outdir = [TomcatDir 'Jobs/' user '/' job_str '/output/'];
         
         fprintf( 'Input directory: %s\n', indir );
         

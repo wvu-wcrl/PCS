@@ -3,7 +3,7 @@ function SimManager( ProjectRoot )
 
 % properties
 MaxTasks = 208; % maximimum number of tasks
-NumTasks = 5; % Number taks to submit at a time
+NumTasks = 10; % Number taks to submit at a time
 InitialSimTime = 30; % Quick Initial Sime time to quickly get results
 SimTime = 300; % Longer sim time in the long term
 PauseTime = 0.1; % Time to wait between task submissions
