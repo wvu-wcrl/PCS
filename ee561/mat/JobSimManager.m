@@ -221,9 +221,9 @@ while running
         InFile = D(InFileIndex).name;
         
         % try to parse out jobid and user from filename (STICKING POINT)
-        job = sscanf( D(count).name, '%i' );
+        job = sscanf( InFile, '%i' );
         job_str = int2str( job );
-        user = sscanf( D(count).name( (length(job_str)+1):end-4 ), '%s' );
+        user = sscanf( InFile( (length(job_str)+1):end-4 ), '%s' );
         
         % try to copy the file to the proper directory
         outdir = [TomcatDir 'Jobs/' user '/' job_str '/output/'];
