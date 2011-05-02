@@ -232,10 +232,27 @@ while running
         fprintf( 'Copying %s to %s\n', InFile, outdir );
 
         try
+            fprintf( 'Updating status\n' );
             load( [JobOutDir InFile], 'SimParam', 'SimState' );
-            
             save( [outdir InFile], 'SimParam', 'SimState' );
             
+            S = SimParam.ChannelObj.ModulationObj.SignalSet;
+            % determine the PAPR
+            PAPR = max( sum( S.^2 ) );
+            
+            % determine the threshold SNR's.
+            GammaPs = InversePsUB( S );
+            GammaPb = InversePbUB( S );
+            
+            % update the status
+            status = 'Simulated';
+            
+            % write results to the results.txt file
+            fprintf( fid, '%s\n', status );
+            fprintf( fid, '%2.4f\n', PAPR );
+            fprintf( fid, '%2.4f\n', GammaPs );
+            fprintf( fid, '%2.4f', GammaPb );            
+           
             success = 1;
         catch
             % file was bad or nonexistent, kick out of loop
