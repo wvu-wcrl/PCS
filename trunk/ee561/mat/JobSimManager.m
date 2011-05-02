@@ -210,8 +210,10 @@ while running
     % reset the check flag
     checkflag = 0;      
     
-    % check to see if there are any results in the JobOut or JobRunning directory
-    D = dir( [JobRunningDir '*.mat'] );
+    % check to see if there are any results in the JobOut directory
+    D = dir( [JobOutDir '*.mat'] );
+    
+    % could do the same thing for JobRunning by copying instead of moving
     
     if ~isempty(D)
         % pick a file at random
@@ -230,7 +232,7 @@ while running
         fprintf( 'Copying %s to %s\n', InFile, outdir );
 
         try
-            load( [JobRunningDir InFile], 'SimParam', 'SimState' );
+            load( [JobOutDir InFile], 'SimParam', 'SimState' );
             
             save( [outdir InFile], 'SimParam', 'SimState' );
             
@@ -242,20 +244,21 @@ while running
            
             success = 0;
         end
-    end
         
-    
-    
-    D = dir( [JobInDir '*.mat'] );
-    
-    % update the status, which requires PAPR to be recomputed (POOR PROGRAMMING!)
-    if (checkflag)
-        pause(1);
+        % delete the input job file
+        if (success)
+            try
+                msg = sprintf( 'Deleting output job file\n' );
+                fprintf( msg );
+                delete( [JobOutDir InFile] );
+            catch
+                % fcould not delete, just a warning
+                msg = sprintf( 'Warning: Input job file could not be deleted\n' );
+                fprintf( msg );
+            end        
+        end
     end
-    
-    
-    
-    
+   
     % sleep briefly before checking again
     pause(1);
     
