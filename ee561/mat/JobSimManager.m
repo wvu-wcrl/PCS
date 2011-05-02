@@ -50,7 +50,7 @@ while running
         queuefile = [queue D(count).name];
         
         % MatlabFileName
-        MatlabFileName = [queuefile '.mat'];
+        MatlabFileName = [D(count).name '.mat'];
         
         % parse job and username from file
         job = sscanf( D(count).name, '%i' );
