@@ -110,6 +110,9 @@ while( running )
                 
                 % Construct the object
                 LinkObjLocal = LinkSimulation( SimParam );
+                
+                % Change RunMode to cluster, which bypasses saving the results
+                LinkObjLocal.RunMode = 1;
 
                 msg = sprintf( 'Done constructing the object\n' );
                 fprintf( msg );
