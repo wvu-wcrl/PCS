@@ -170,6 +170,8 @@ while running
             SNRdB = 1/SNRperdB*[ round( SNRperdB*FirstSNR):ceil( SNRperdB*LastSNR) ];
             SNRdB = [10 SNRdB];
             
+            FileName = ['Job' job_str '.mat'];
+            
             SimParamGlobal = struct(...
                 'CodedModObj', CodedModObj, ...    % Coded modulation object.
                 'ChannelObj', ChannelObj, ...     % Channel object (Modulation is a property of channel).
@@ -191,7 +193,7 @@ while running
             SimParam = LinkObjGlobal.SimParam;
             
             % Save
-            save( [JobInDir 'Job' job '.mat'], 'SimParam', 'SimState' ); 
+            save( [JobInDir FileName], 'SimParam', 'SimState' ); 
             
             
         else
