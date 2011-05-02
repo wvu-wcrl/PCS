@@ -197,6 +197,16 @@ while( running )
                 % file was bad or nonexistent, kick out of loop
                 msg = sprintf( 'Error: JobsRunning File could not be loaded\n' );
                 fprintf( msg );
+                
+                % Destroy any other task files related to this job
+                % More Cleanup: Any tasks associated with this job should be deleted from the input queue
+                RmStr = ['rm ' TaskInDir JobFile(1:end-4) '_task_*.mat' ];
+                system( RmStr );
+                
+                % Some more outputs could arrive
+                RmStr = ['rm ' TaskOutDir JobFile(1:end-4) '_task_*.mat' ];
+                system( RmStr );
+                
                 success = 0;
             end
         end
@@ -242,77 +252,78 @@ while( running )
             % determine and echo progress
             Remaining = sum( (ActiveSNRPoints==1).*RemainingTrials );
             Completed = sum( SimStateGlobal.Trials );
-            fprintf( '  Progress update: %d trials completed, %d trials remaining, %2.4f percent complete\n', Completed, Remaining, 100*Completed/(Completed+Remaining) );
-            
-        end
+            fprintf( '  Progress update: %d trials completed, %d trials remaining, %2.4f percent complete\n', Completed, Remaining, 100*Completed/(Completed+Remaining) );            
         
-        % Simulation is not done, resubmit another round of tasks
-        if ~StoppingCriteria 
-            % Update the Running File
-            SimParam = SimParamGlobal;
-            SimState = SimStateGlobal;
-            msg = sprintf( 'Updating the corresponding JobsRunning file %s\n', SimParamLocal.FileName );
-            fprintf( msg );
-            save( [JobRunningDir SimParamLocal.FileName], 'SimParam','SimState' );            
-            
-            % Note, this part is repetitive.  Should make object-oriented and call a common method
-            
-            % Update the local SimParam to the number of errors and trials that remain
-            SimParamLocal.MaxSymErrors = SimParamGlobal.MaxSymErrors - SimStateGlobal.SymbolErrors;
-            SimParamLocal.MaxBitErrors = SimParamGlobal.MaxBitErrors - SimStateGlobal.BitErrors;
-            SimParamLocal.MaxTrials    = SimParamGlobal.MaxTrials    - SimStateGlobal.Trials;
-            
-            % divide into multiple tasks
-            % Sense the load of the task input queue (TaskInDir)
-            DTask = dir( [TaskInDir '*.mat'] );
-            TaskLoad = length(DTask);
-            
-            Tasks = max(MaxTasks-TaskLoad,1);  % always run at least one task
-            SimParamLocal.MaxTrials = ceil(SimParamLocal.MaxTrials/Tasks);
-            
-            % submit each tasks
-            % make sure that each one has a unique name
-            SimParam = SimParamLocal;
-            JobFile = SimParamLocal.FileName;
-            for task=1:Tasks
-                % Increment the TaskID counter
-                TaskID = TaskID + 1;
-                
-                % Create the name of the task
-                TaskFileName = [JobFile(1:end-4) '_task_' int2str(TaskID) '.mat'];
-                
-                msg = sprintf( 'Saving File %s to TaskInput queue (resubmit)\n', TaskFileName );
+            % Simulation is not done, resubmit another round of tasks
+            if ~StoppingCriteria
+                % Update the Running File
+                SimParam = SimParamGlobal;
+                SimState = SimStateGlobal;
+                msg = sprintf( 'Updating the corresponding JobsRunning file %s\n', SimParamLocal.FileName );
                 fprintf( msg );
+                save( [JobRunningDir SimParamLocal.FileName], 'SimParam','SimState' );
                 
-                % Save in the task input queue
-                save( [TaskInDir  TaskFileName], 'SimParam' );
+                % Note, this part is repetitive.  Should make object-oriented and call a common method
                 
-                % Pause briefly for flow control
-                pause( PauseTime );
+                % Update the local SimParam to the number of errors and trials that remain
+                SimParamLocal.MaxSymErrors = SimParamGlobal.MaxSymErrors - SimStateGlobal.SymbolErrors;
+                SimParamLocal.MaxBitErrors = SimParamGlobal.MaxBitErrors - SimStateGlobal.BitErrors;
+                SimParamLocal.MaxTrials    = SimParamGlobal.MaxTrials    - SimStateGlobal.Trials;
+                
+                % divide into multiple tasks
+                % Sense the load of the task input queue (TaskInDir)
+                DTask = dir( [TaskInDir '*.mat'] );
+                TaskLoad = length(DTask);
+                
+                Tasks = max(MaxTasks-TaskLoad,1);  % always run at least one task
+                SimParamLocal.MaxTrials = ceil(SimParamLocal.MaxTrials/Tasks);
+                
+                % submit each tasks
+                % make sure that each one has a unique name
+                SimParam = SimParamLocal;
+                JobFile = SimParamLocal.FileName;
+                for task=1:Tasks
+                    % Increment the TaskID counter
+                    TaskID = TaskID + 1;
+                    
+                    % Create the name of the task
+                    TaskFileName = [JobFile(1:end-4) '_task_' int2str(TaskID) '.mat'];
+                    
+                    msg = sprintf( 'Saving File %s to TaskInput queue (resubmit)\n', TaskFileName );
+                    fprintf( msg );
+                    
+                    % Save in the task input queue
+                    save( [TaskInDir  TaskFileName], 'SimParam' );
+                    
+                    % Pause briefly for flow control
+                    pause( PauseTime );
+                end
+                
+            else % Simulation is done, save to JobsOut queue
+
+                % Set SimState and SimParam to their global values
+                SimState = SimStateGlobal;
+                SimParam = SimParamGlobal;
+                
+                % save to temporary file
+                save( TempFile, 'SimState', 'SimParam' );
+                JobFile = SimParamLocal.FileName;
+                system( ChmodStr );
+                system( [ MovStr JobFile ] );
+                
+                % Remove the JobRunning file
+                RmStr = ['rm ' JobRunningDir JobFile ];
+                system( RmStr );
+                
+                % More Cleanup: Any tasks associated with this job should be deleted from the input queue
+                RmStr = ['rm ' TaskInDir JobFile(1:end-4) '_task_*.mat' ];
+                system( RmStr );
+                
+                % Some more outputs could arrive
+                RmStr = ['rm ' TaskOutDir JobFile(1:end-4) '_task_*.mat' ];
+                system( RmStr );
+                
             end
-            
-        end
-        
-        % Simulation is done, save to JobsOut queue
-        if StoppingCriteria
-            % Set SimState and SimParam to their global values
-            SimState = SimStateGlobal;
-            SimParam = SimParamGlobal;
-            
-            % save to temporary file
-            save( TempFile, 'SimState', 'SimParam' );
-            JobFile = SimParamLocal.FileName;
-            system( ChmodStr );
-            system( [ MovStr JobFile ] );
-            
-            % Remove the JobRunning file
-            RmStr = ['rm ' JobRunningDir JobFile ];
-            system( RmStr );
-            
-            % More Cleanup: Any tasks associated with this job should be deleted from the input queue
-            RmStr = ['rm ' TaskInDir JobFile(1:end-4) '_task_*.mat' ];
-            system( RmStr );
-            
         end
         
         msg = sprintf( '\nWaiting for next job or task ...\n\n' );
@@ -321,6 +332,6 @@ while( running )
     end
  
     % wait before looping
-    pause(4);
+    pause(1);
     
 end
