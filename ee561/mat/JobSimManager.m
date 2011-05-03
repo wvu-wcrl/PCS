@@ -23,7 +23,7 @@ end
 
 % build name of the input queue
 % queue = [TomcatDir 'Jobs/inputQueue/'];
-queue = [TomcatDir 'Jobs/inputQueueTest/']; % Temporarily rename
+queue = [TomcatDir 'Jobs/inputQueue/']; % Temporarily rename
 
 % build name of JobIn and JobOut (Matlab Side)
 JobInDir = [MatlabDir, '/JobIn/'];
