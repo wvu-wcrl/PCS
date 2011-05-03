@@ -10,7 +10,8 @@ function status = JobSimManager( varargin )
 % MatlabDir gives locaiton of Matlab directory structure
 
 % default location
-% my local location is /Users/mvalenti/Dropbox/web/webapps/CommunicationTheory/
+% my local location is:
+TomcatDir = '/Users/mvalenti/Dropbox/web/webapps/CommunicationTheory/'
 TomcatDir = '/usr/share/tomcat5.5/webapps/EE561/';
 MatlabDir = '/home/mvalenti/svn/ee561';
 
@@ -83,7 +84,8 @@ while running
             % try to load the input file
             fprintf( 'Loading User File:   %s\n', infile );
             try
-                S = load( infile, 'S' );
+                clear S;
+                load( infile, 'S' );
             catch
                 % file was bad, kick out of loop
                 fprintf( '\nWarning: File could not be loaded\n\n' );
