@@ -83,7 +83,7 @@ while running
             % try to load the input file
             fprintf( 'Loading User File:   %s\n', infile );
             try
-                user_data = load( infile );
+                S = load( infile, 'S' );
             catch
                 % file was bad, kick out of loop
                 fprintf( '\nWarning: File could not be loaded\n\n' );
@@ -91,17 +91,7 @@ while running
                 fclose( fid );
                 break
             end
-            
-            % see if there is an S matrix in the file
-            if isfield( user_data, 'S' )
-                S = user_data.S;
-            else
-                fprintf( '\nWarning: File does not contain an S matrix\n\n' );
-                fprintf( fid, 'Error: (2)\nN/A\nN/A\nN/A' );
-                fclose( fid );
-                break;
-            end
-            
+                       
             % make sure it is numeric 
             if ~isnumeric( S )
                 fprintf( '\nWarning: S matrix is not numeric\n\n' );
