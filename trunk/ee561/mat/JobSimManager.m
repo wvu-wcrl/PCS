@@ -84,7 +84,7 @@ while running
             % try to load the input file
             fprintf( 'Loading User File:   %s\n', infile );
             try
-                clear S;
+                S = randn(6,256);
                 load( infile, 'S' );
             catch
                 % file was bad, kick out of loop
