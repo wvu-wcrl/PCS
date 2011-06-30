@@ -25,49 +25,76 @@ classdef OutageNakagami < handle
         % constructor
         function obj = OutageNakagami( varargin )
             
-            % X_i, alpha, m, m_i
-            if (nargin == 4)
-                
-                % later, we should change to allow the object to accept a "network" object as input
-                X_i = varargin{1};
-                alpha = varargin{2};
-                
-                obj.m = varargin{3};
-                obj.m_i = varargin{4};
-                
-                % Compute Omega
-                obj.Omega_i = abs(X_i).^(-alpha);
-                
-            else % Omega_i, m, m_i
-                obj.Omega_i = varargin{1};
-                obj.m = varargin{2};
-                obj.m_i = varargin{3};
-            end
+            % first three arguments are: Omega_i, m, m_i
+            obj.Omega_i = varargin{1};
+            obj.m = varargin{2};
+            obj.m_i = varargin{3};
             
             % determine the number of networks and nodes
             [obj.N obj.M] = size( obj.Omega_i );
             
+            % fourth argument is the location of the directory of index tables
+            if (nargin == 4)
+                TableDir = varargin{4};
+                
+                % build the name of the index table
+                IndexTable = [TableDir 'IndicesM' int2str( obj.M ) 'm' int2str(obj.m) '.mat'];
+                
+                % either create or load the file
+                try
+                    % try to load the file
+                    load( IndexTable, 'indices' );
+                    
+                    % it loaded, assign results to indices
+                    obj.indices = indices; 
+                    
+                catch
+                    % it did not load, so create the index tables
+                    obj.ComputeIndices( );
+                    
+                    % save it
+                    indices = obj.indices;
+                    save( IndexTable, 'indices' );                    
+                end               
+                
+            else
+                % no directory specified, create the index tables
+                obj.ComputeIndices( );
+            end
+            
+            % compute the coefficients
+            obj.ComputeCoefficients( );
+                
             % normalize by m_i
             if (length( obj.m_i ) == 1)
                 obj.Omega_i_norm = obj.Omega_i./repmat( obj.m_i, obj.N, obj.M);
             else
                 obj.Omega_i_norm = obj.Omega_i./repmat( obj.m_i, obj.N, 1);
             end       
-            
-            % Find the sets of indices for the multindex summation
-            obj.ComputeIndices( );
-            
+                       
         end
         
         function obj = ComputeIndices( obj )
             % create the indices structure
             % for r+1=1, the only set of indices is all zeros
             obj.indices{1} = zeros( 1, obj.M );
+            
+            for r=1:(obj.m-1)
+                % initialize this member of the cell arrays
+                % note that this is a sparse matrix
+                % yet it actually takes more space to save it as a sparse!
+                % obj.indices{r+1} = sparse( allVL1(obj.M,r) );
+                obj.indices{r+1} = sparse( allVL1(obj.M,r) );
+                
+            end
+        end
+        
+        function obj = ComputeCoefficients( obj )
+            % create the coefficients structure
             obj.coefficients{1} = ones( 1, obj.M );
             
             for r=1:(obj.m-1)
                 % initialize this member of the cell arrays
-                obj.indices{r+1} = allVL1(obj.M,r);
                 obj.coefficients{r+1} = ones( size( obj.indices{r+1} ) );
                 for ell=1:r
                     if ( size( obj.m_i ) == 1)
@@ -85,17 +112,6 @@ classdef OutageNakagami < handle
                         end
                     end
                 end
-                
-                % Salvatore's implementation is below
-                % matrix=allVL1(obj.M,r);
-                % for count=0:nchoosek( r+1+obj.M-2, r )-1
-                %    % create a string of M indices, each of base-r
-                %    obj.indices{r+1} = [obj.indices{r+1}
-                %            matrix(count+1,:) ];
-                %    obj.coefficients{r+1} = [obj.coefficients{r+1}
-                %            factorial( matrix(count+1,:) + obj.m_i - 1 )./(factorial( obj.m_i - 1 ).*factorial( matrix(count+1,:) )) ];
-                % end
-                
             end
         end
         

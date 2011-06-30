@@ -89,12 +89,14 @@ while( running )
             end
          
             % try to load the Network Description file
+            % which should contain only Omega
+            % the file should reside in the TableDir directory
             NetworkFile = JobParam.NetworkFileName;
             try
                 msg = sprintf( 'Loading Network file\n' );
                 fprintf( msg );
                 fprintf( fid, msg );
-                load( [TableDir NetworkFile], 'b' );
+                load( [TableDir NetworkFile], 'Omega' );
                 success = 1;
             catch
                 % file was bad, kick out of loop
@@ -111,7 +113,18 @@ while( running )
                 msg = sprintf( 'Computing outage probabilty\n' );
                 fprintf( msg );
                 fprintf( fid, msg );
+                
+                % Adjust Omega by the processing gain
+                if  isfield( JobParam, 'PG' )
+                    Omega = Omega/JobParam.PG;
+                end
+                
+                % Create the OutageNakagami object
+                b = OutageNakagami( Omega, JobParam.m, JobParam.m_i, TableDir );
+                
+                % Compute the outage                
                 epsilon = b.ComputeOutage( JobParam.Gamma, JobParam.Beta, JobParam.p );
+                
                 msg = sprintf( 'Done computing outage probabilty\n' );
                 fprintf( msg );
                 fprintf( fid, msg );
