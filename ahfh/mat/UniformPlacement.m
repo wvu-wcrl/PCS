@@ -77,7 +77,7 @@ while (net < N)
         % done with this net
         if (counter == M)
             net = net + 1;
-            fprintf( 'done with net %d\n', net );
+            % fprintf( 'done with net %d\n', net );
             Xi( net, : ) = this_net;
             break;
         end
