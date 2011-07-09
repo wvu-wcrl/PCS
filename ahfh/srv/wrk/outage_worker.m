@@ -10,14 +10,15 @@ function outage_worker(n,ahfhRoot)
 %   Gamma  % SNR values
 %   Beta   % Threholds 
 %   p      % Collision probabilities
-%   NetworkFileName  % Name of file in the TableDir containing network
+%   NetworkFileName  % Name of file in the NetworksDir containing network
 %   description (in the form of an OutageNakagami object called "b")
 %
 
 % build directories
 InDir = [ahfhRoot '/input/' ];
 OutDir = [ahfhRoot '/output/'];
-TableDir = [ahfhRoot, '/tables/'];
+IndicesDir = [ahfhRoot, '/indices/'];
+NetworksDir = [ahfhRoot, '/networks/'];
 LogDir = [ahfhRoot, '/log/'];
 
 TempFile = ['TempSave' int2str(n) '.mat'];
@@ -90,13 +91,13 @@ while( running )
          
             % try to load the Network Description file
             % which should contain only Omega
-            % the file should reside in the TableDir directory
+            % the file should reside in the NetworksDir directory
             NetworkFile = JobParam.NetworkFileName;
             try
                 msg = sprintf( 'Loading Network file\n' );
                 fprintf( msg );
                 fprintf( fid, msg );
-                load( [TableDir NetworkFile], 'Omega' );
+                load( [NetworksDir NetworkFile], 'Omega' );
                 success = 1;
             catch
                 % file was bad, kick out of loop
@@ -120,10 +121,23 @@ while( running )
                 end
                 
                 % Create the OutageNakagami object
-                b = OutageNakagami( Omega, JobParam.m, JobParam.m_i, TableDir );
+                b = OutageNakagami( Omega, JobParam.m, JobParam.m_i, IndicesDir );
                 
-                % Compute the outage                
-                epsilon = b.ComputeOutage( JobParam.Gamma, JobParam.Beta, JobParam.p );
+                
+                % determine if adjacent channel interference is considered
+                Splatter = 0;
+                if isfield( JobParam, 'Fibp' );
+                    if ( JobParam.Fibp < 1 )
+                        Splatter = 1;
+                    end
+                end
+                
+                % Compute the outage
+                if Splatter
+                    epsilon = b.ComputeOutage( JobParam.Gamma, JobParam.Beta, JobParam.p, JobParam.Fibp );
+                else                                                           
+                    epsilon = b.ComputeOutage( JobParam.Gamma, JobParam.Beta, JobParam.p );                    
+                end
                 
                 msg = sprintf( 'Done computing outage probabilty\n' );
                 fprintf( msg );
