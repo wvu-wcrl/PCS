@@ -61,6 +61,7 @@ classdef OutageNakagami < handle
                 % no directory specified, create the index tables
                 obj.ComputeIndices( );
             end
+
             
             % compute the coefficients
             obj.ComputeCoefficients( );
@@ -83,8 +84,9 @@ classdef OutageNakagami < handle
                 % initialize this member of the cell arrays
                 % note that this is a sparse matrix
                 % yet it actually takes more space to save it as a sparse!
+                % and also more processing time to compute outage
                 % obj.indices{r+1} = sparse( allVL1(obj.M,r) );
-                obj.indices{r+1} = sparse( allVL1(obj.M,r) );
+                obj.indices{r+1} = allVL1(obj.M,r);
                 
             end
         end
