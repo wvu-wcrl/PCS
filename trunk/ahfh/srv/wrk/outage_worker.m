@@ -112,8 +112,7 @@ while( running )
         if (success)
             try
                 msg = sprintf( 'Computing outage probabilty\n' );
-                fprintf( msg );
-                fprintf( fid, msg );
+                fprintf( msg ); fprintf( fid, msg );
                 
                 % Adjust Omega by the processing gain
                 if  isfield( JobParam, 'PG' )
@@ -134,6 +133,8 @@ while( running )
                 
                 % Compute the outage
                 if Splatter
+                    msg = sprintf( 'Considering Spectral Splatter\n' );
+                    fprintf( msg ); fprintf( fid, msg );
                     epsilon = b.ComputeOutage( JobParam.Gamma, JobParam.Beta, JobParam.p, JobParam.Fibp );
                 else                                                           
                     epsilon = b.ComputeOutage( JobParam.Gamma, JobParam.Beta, JobParam.p );                    

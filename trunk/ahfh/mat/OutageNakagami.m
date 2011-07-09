@@ -165,6 +165,8 @@ classdef OutageNakagami < handle
             % initialize epsion
             epsilon = zeros(1,NumberSNR);
             
+            % fprintf( 'Fibp = %f\n', Fibp );
+            
             % loop over the N networks
             for trial=1:obj.N
                 sum_s = zeros(1,NumberSNR);
@@ -204,8 +206,8 @@ classdef OutageNakagami < handle
             %   dimension 3 is p
             D3 = length( p );
             
-            % if defined, the third dimension is the fraction of inband power
-            if (nargin==1)
+            % if defined, the fourth dimension is the fraction of inband power
+            if (nargin==5)
                 Fibp = varargin{1}; % fraction of inband power
                 D4 = length( Fibp );
                 epsilon = zeros( D1, D2, D3, D4 ); % preallocate
@@ -216,9 +218,9 @@ classdef OutageNakagami < handle
             % compute outage for each value of beta, p, and Fibp
             for j=1:D2
                 for k=1:D3
-                    if (nargin == 1)
+                    if (nargin==5)
                         for q=1:D4
-                            epsilon(:,j,k,q) = obj.ComputeSingleOutage( Gamma, Beta(j), p(k), Fipb(q) );
+                            epsilon(:,j,k,q) = obj.ComputeSingleOutageSplatter( Gamma, Beta(j), p(k), Fibp(q) );
                         end
                     else
                         epsilon(:,j,k) = obj.ComputeSingleOutage( Gamma, Beta(j), p(k) );
