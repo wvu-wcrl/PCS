@@ -11,6 +11,7 @@ classdef OutageNakagami < handle
         indices           % The set of indices summing to r
         coefficients      % The multinomial coefficients used inside the outage probability's product  
         Omega_i_norm      % Power normalized by m_i. (Could become private)
+        Omega0            % Power of desired signal, set to indicate shadowing
     end
     
     properties (GetAccess='private' , SetAccess='private')
@@ -68,9 +69,18 @@ classdef OutageNakagami < handle
                 obj.Omega_i_norm = obj.Omega_i./repmat( obj.m_i, obj.N, obj.M);
             else
                 obj.Omega_i_norm = obj.Omega_i./repmat( obj.m_i, obj.N, 1);
-            end       
+            end
+            
+            % Set Omega0 by defualt to non-shadowing
+            obj.Omega0 = ones(1,obj.N);
                        
         end
+        
+        function obj = SetShadowing( obj, ShadowStd )
+            % Set the shadowing for the desired signal
+            obj.Omega0 = 10.^( sqrt( ShadowStd )*randn(1,obj.N)/10 );            
+        end
+        
         
         function obj = ComputeIndices( obj )
             % create the indices structure
@@ -115,7 +125,7 @@ classdef OutageNakagami < handle
         end
         
         function epsilon = ComputeSingleOutage( obj, Gamma, Beta, p )
-            % computes the outage for a single set of beta, gamma, and p
+            % computes the outage for a single set of gamma, beta, and p
             % averaged over the N networks
             
             % evaluate the cdf at Gamma^-1
@@ -129,6 +139,8 @@ classdef OutageNakagami < handle
             
             % loop over the N networks
             for trial=1:obj.N
+                % normalize Beta according to the desired-signal's shadowing
+                BetaNorm = Beta/obj.Omega0(trial);
                 sum_s = zeros(1,NumberSNR);
                 for s=0:obj.m-1
                     sum_r = zeros(1,NumberSNR);
@@ -137,14 +149,14 @@ classdef OutageNakagami < handle
                         for ellset=1:size( obj.indices{r+1}, 1)
                             elli = obj.indices{r+1}(ellset,:); % the vector of indices
                             coef = obj.coefficients{r+1}(ellset,:); % the multinomial coefficients
-                            factors = coef.*obj.Omega_i_norm(trial,:).^elli./( (Beta*obj.m*obj.Omega_i_norm(trial,:)+1).^(elli+obj.m_i) );
+                            factors = coef.*obj.Omega_i_norm(trial,:).^elli./( (BetaNorm*obj.m*obj.Omega_i_norm(trial,:)+1).^(elli+obj.m_i) );
                             sum_ell = sum_ell + prod( p*factors + (1-p)*(elli==0) );
                         end
                         sum_r = sum_r + z.^(-r)*sum_ell/factorial(s-r);
                     end
-                    sum_s = sum_s + ((Beta*obj.m*z).^s).*sum_r;
+                    sum_s = sum_s + ((BetaNorm*obj.m*z).^s).*sum_r;
                 end
-                epsilon = epsilon + 1 - sum_s.*exp(-Beta*obj.m*z);
+                epsilon = epsilon + 1 - sum_s.*exp(-BetaNorm*obj.m*z);
             end
             
             epsilon = epsilon/obj.N;
@@ -169,6 +181,8 @@ classdef OutageNakagami < handle
             
             % loop over the N networks
             for trial=1:obj.N
+                % normalize Beta according to the desired-signal's shadowing
+                BetaNorm = Beta/obj.Omega0(trial);
                 sum_s = zeros(1,NumberSNR);
                 for s=0:obj.m-1
                     sum_r = zeros(1,NumberSNR);
@@ -177,15 +191,15 @@ classdef OutageNakagami < handle
                         for ellset=1:size( obj.indices{r+1}, 1)
                             elli = obj.indices{r+1}(ellset,:); % the vector of indices
                             coef = obj.coefficients{r+1}(ellset,:); % the multinomial coefficients
-                            factors = coef.*(obj.Omega_i_norm(trial,:)*Fibp).^elli./( (Beta*obj.m*obj.Omega_i_norm(trial,:)*Fibp+1).^(elli+obj.m_i) );
-                            factors1 = 2*coef.*(obj.Omega_i_norm(trial,:)*(1-Fibp)/2).^elli./( (Beta*obj.m*obj.Omega_i_norm(trial,:)*(1-Fibp)/2+1).^(elli+obj.m_i) );
+                            factors = coef.*(obj.Omega_i_norm(trial,:)*Fibp).^elli./( (BetaNorm*obj.m*obj.Omega_i_norm(trial,:)*Fibp+1).^(elli+obj.m_i) );
+                            factors1 = 2*coef.*(obj.Omega_i_norm(trial,:)*(1-Fibp)/2).^elli./( (BetaNorm*obj.m*obj.Omega_i_norm(trial,:)*(1-Fibp)/2+1).^(elli+obj.m_i) );
                             sum_ell = sum_ell + prod( p*(factors + factors1) + (1-3*p)*(elli==0) );
                         end
                         sum_r = sum_r + z.^(-r)*sum_ell/factorial(s-r);
                     end
-                    sum_s = sum_s + ((Beta*obj.m*z).^s).*sum_r;
+                    sum_s = sum_s + ((BetaNorm*obj.m*z).^s).*sum_r;
                 end
-                epsilon = epsilon + 1 - sum_s.*exp(-Beta*obj.m*z);
+                epsilon = epsilon + 1 - sum_s.*exp(-BetaNorm*obj.m*z);
             end
             
             epsilon = epsilon/obj.N;
