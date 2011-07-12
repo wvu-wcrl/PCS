@@ -131,6 +131,11 @@ while( running )
                     end
                 end
                 
+                % determine if there is shadowing
+                if isfield( JobParam, 'ShadowStd' )
+                    b.SetShadowing( JobParam.ShadowStd;
+                end
+                
                 % Compute the outage
                 if Splatter
                     msg = sprintf( 'Considering Spectral Splatter\n' );
