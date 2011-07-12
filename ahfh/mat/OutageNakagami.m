@@ -78,6 +78,7 @@ classdef OutageNakagami < handle
         
         function obj = SetShadowing( obj, ShadowStd )
             % Set the shadowing for the desired signal
+            fprintf( 'ShadowStd = %f\n', ShadowStd );
             obj.Omega0 = 10.^( sqrt( ShadowStd )*randn(1,obj.N)/10 );            
         end
         
