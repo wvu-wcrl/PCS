@@ -133,7 +133,7 @@ while( running )
                 
                 % determine if there is shadowing
                 if isfield( JobParam, 'ShadowStd' )
-                    b.SetShadowing( JobParam.ShadowStd;
+                    b.SetShadowing( JobParam.ShadowStd );
                 end
                 
                 % Compute the outage
