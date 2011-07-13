@@ -31,6 +31,8 @@ addpath( MatDir );
 
 running = 1;
 
+PauseTime = 10;
+
 % create a logfile for this worker
 LogFile = ['Worker' int2str(n) '.log'];
 fid = fopen( [LogDir LogFile], 'a+' );
@@ -198,7 +200,7 @@ while( running )
         
     
     % wait before looping
-    pause(4);
+    pause( PauseTime );
     
 end
     
