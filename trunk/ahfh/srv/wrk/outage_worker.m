@@ -31,7 +31,7 @@ addpath( MatDir );
 
 running = 1;
 
-PauseTime = 10;
+PauseTime = 2;
 
 % create a logfile for this worker
 LogFile = ['Worker' int2str(n) '.log'];
@@ -135,7 +135,9 @@ while( running )
                 
                 % determine if there is shadowing
                 if isfield( JobParam, 'ShadowStd' )
-                    b.SetShadowing( JobParam.ShadowStd );
+                    if (JobParam.ShadowStd > 0)
+                        b.SetShadowing( JobParam.ShadowStd );
+                    end
                 end
                 
                 % Compute the outage
