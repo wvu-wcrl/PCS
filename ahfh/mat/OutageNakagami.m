@@ -7,10 +7,10 @@ classdef OutageNakagami < handle
         m_i               % Nakagami factor for the interfereres (length M vector)
         M                 % Number of nodes
         N                 % Number of networks
-        Omega_i           % Power of each interferer, can be N by M, where N is the number of networks 
         indices           % The set of indices summing to r
-        coefficients      % The multinomial coefficients used inside the outage probability's product  
-        Omega_i_norm      % Power normalized by m_i. (Could become private)
+        coefficients      % The multinomial coefficients used inside the outage probability's product 
+        Omega_i           % Relative power of the interferers
+        Omega_i_norm      % Power normalized by m_i and multiplied by the shadowing. 
         Omega0            % Power of desired signal, set to indicate shadowing
     end
     
@@ -73,13 +73,35 @@ classdef OutageNakagami < handle
             
             % Set Omega0 by defualt to non-shadowing
             obj.Omega0 = ones(1,obj.N);
+            
+            % Set the shadowing seed to its default value
+            
                        
         end
         
         function obj = SetShadowing( obj, ShadowStd )
+            % set the random number generator
+            reset( RandStream.getDefaultStream );
+            
             % Set the shadowing for the desired signal
             fprintf( 'ShadowStd = %f\n', ShadowStd );
-            obj.Omega0 = 10.^( sqrt( ShadowStd )*randn(1,obj.N)/10 );            
+            obj.Omega0 = 10.^( sqrt( ShadowStd )*randn(1,obj.N)/10 );    
+                       
+            % Set the shadowing for the interferers
+            zeta = sqrt( ShadowStd )*randn(obj.N,obj.M);
+            % convert from log to linear
+            power_gain = 10.^(zeta/10);
+            
+            % normalize by m_i
+            if (length( obj.m_i ) == 1)
+                obj.Omega_i_norm = obj.Omega_i./repmat( obj.m_i, obj.N, obj.M);
+            else
+                obj.Omega_i_norm = obj.Omega_i./repmat( obj.m_i, obj.N, 1);
+            end
+            
+            % Multiply by the shadowing
+            obj.Omega_i_norm = obj.Omega_i_norm.*power_gain;        
+            
         end
         
         
