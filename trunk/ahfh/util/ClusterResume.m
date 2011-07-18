@@ -19,7 +19,7 @@ if ~isempty(D)
         
         % Move the file to the input directory
         system( ['mv ' RunningDir D(i).name ' ' InDir InputFileName] );
-        system( ['chmod 666 ' InputFileName ] );
+        system( ['chmod 666 ' InDir InputFileName ] );
         
         % pause before continuing
         pause( PauseTime );
