@@ -8,8 +8,6 @@ RunningDir = [ahfhRoot '/running/' ];
 % look to see if there is a file for this worker in the Running Directory
 D = dir( [RunningDir 'Worker*.mat'] );
 
-PauseTime = 1;
-
 if ~isempty(D)   
     for i=1:length(D)
         % Strip worker out of the name
@@ -21,7 +19,5 @@ if ~isempty(D)
         system( ['mv ' RunningDir D(i).name ' ' InDir InputFileName] );
         system( ['chmod 666 ' InDir InputFileName ] );
         
-        % pause before continuing
-        pause( PauseTime );
     end
 end
