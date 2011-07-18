@@ -1,4 +1,4 @@
-function ResumeCluster( ahfhRoot )
+function ClusterResume( ahfhRoot )
 % Resumes the cluster by moving files in /running to /input
 
 % build directories
@@ -13,7 +13,8 @@ PauseTime = 1;
 if ~isempty(D)   
     for i=1:length(D)
         % Strip worker out of the name
-        start_ind = length( ['Worker' int2str(n) ] ) + 1;
+        period_locs = findstr( D(i).name, '.' );  % location of periods
+        start_ind = period_locs(1) + 1;
         InputFileName = D(i).name( start_ind:end );
         
         % Move the file to the input directory
