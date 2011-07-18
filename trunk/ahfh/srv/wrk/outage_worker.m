@@ -17,9 +17,10 @@ function outage_worker(n,ahfhRoot)
 % build directories
 InDir = [ahfhRoot '/input/' ];
 OutDir = [ahfhRoot '/output/'];
-IndicesDir = [ahfhRoot, '/indices/'];
-NetworksDir = [ahfhRoot, '/networks/'];
-LogDir = [ahfhRoot, '/log/'];
+IndicesDir = [ahfhRoot '/indices/'];
+NetworksDir = [ahfhRoot '/networks/'];
+LogDir = [ahfhRoot '/log/'];
+RunningDir = [ahfhRoot '/running/' ];
 
 TempFile = ['TempSave' int2str(n) '.mat'];
 ChmodStr = ['chmod 666 ' TempFile];
@@ -38,7 +39,7 @@ LogFile = ['Worker' int2str(n) '.log'];
 fid = fopen( [LogDir LogFile], 'a+' );
 
 [tilde, host] = system( 'hostname' );
-msg = sprintf( 'Worker %d started at %s on host %s\nRoot dir is %s\n', int2str(n), datestr(clock), host, ahfhRoot );
+msg = sprintf( 'Worker %s started at %s on host %s\nRoot dir is %s\n', int2str(n), datestr(clock), host, ahfhRoot );
 
 fprintf( msg );
 fprintf( fid, msg );
@@ -62,43 +63,50 @@ while( running )
         fprintf( msg );
         fprintf( fid, msg );
 
-        % try to load it
+        % try to move file to the running directory it
         try
-            msg = sprintf( 'Loading input file\n' );
+            msg = sprintf( 'Moving input file to Running directory\n' );
             fprintf( msg );
             fprintf( fid, msg );
-            load( [InDir D(InFileIndex).name], 'JobParam' );
+            
+            RunningFileName = [ RunningDir 'Worker' int2str(n) D(InFileIndex).name ];
+            system( ['mv ' InDir D(InFileIndex).name ' ' RunningFileName] );
+            system( ['chmod 666 ' RunningFileName ] );
+  
             success = 1;
         catch
             % file was bad, kick out of loop
-            msg = sprintf( 'Error: Input File could not be loaded\n' );
+            msg = sprintf( 'Error: Input File could not be moved to Running Directory\n' );
             fprintf( msg );
             fprintf( fid, msg );
             success = 0;
         end
         
-        % delete input file
+        
+        % try to load the input file from the running directory
         if (success)
             try
-                msg = sprintf( 'Deleting input file\n' );
-                fprintf( msg );
-                fprintf( fid, msg );
-                delete( [InDir InFile] );
+                msg = sprintf( 'Loading input file\n' );
+                fprintf( msg ); fprintf( fid, msg );
+                
+                load( RunningFileName, 'JobParam' );
+                success = 1;
             catch
-                % fcould not delete, just a warning
-                msg = sprintf( 'Warning: Input file could not be deleted\n' );
+                % file was bad, kick out of loop
+                msg = sprintf( 'Error: Input File could not be loaded from Running Directory\n' );
                 fprintf( msg );
                 fprintf( fid, msg );
+                success = 0;
             end
-         
-            % try to load the Network Description file
-            % which should contain only Omega
-            % the file should reside in the NetworksDir directory
+        end
+        
+        % try to load the Network Description file
+        if (success)         
             NetworkFile = JobParam.NetworkFileName;
             try
                 msg = sprintf( 'Loading Network file\n' );
-                fprintf( msg );
-                fprintf( fid, msg );
+                fprintf( msg ); fprintf( fid, msg );
+                
                 load( [NetworksDir NetworkFile], 'Omega' );
                 success = 1;
             catch
@@ -123,8 +131,7 @@ while( running )
                 
                 % Create the OutageNakagami object
                 b = OutageNakagami( Omega, JobParam.m, JobParam.m_i, IndicesDir );
-                
-                
+                                
                 % determine if adjacent channel interference is considered
                 Splatter = 0;
                 if isfield( JobParam, 'Fibp' );
@@ -175,14 +182,6 @@ while( running )
                 system( ChmodStr );
                 system( [MovStr OutFile] );
                 
-                % save( [OutDir OutFile], 'JobParam', 'JobStatus', 'epsilon' );
-                % save( [OutDir OutFile] );
-                
-                % Done!
-                msg = sprintf( 'Completed job at %s for a runtime of %f seconds\n', datestr(clock), toc(t1) );
-                fprintf( msg );
-                fprintf( fid, msg );
-                
                 success = 1;
             catch
                 % file cound not save, kick out of loop
@@ -194,6 +193,26 @@ while( running )
             end
         end
         
+        % delete running file
+        if (success)
+            try
+                msg = sprintf( 'Deleting Running file\n' );
+                fprintf( msg );
+                fprintf( fid, msg );
+                
+                delete( RunningFileName );
+                
+                % Done!
+                msg = sprintf( 'Completed job at %s for a runtime of %f seconds\n', datestr(clock), toc(t1) );
+                fprintf( msg );
+                fprintf( fid, msg );
+            catch
+                % fcould not delete, just a warning
+                msg = sprintf( 'Warning: Running file could not be deleted\n' );
+                fprintf( msg );
+                fprintf( fid, msg );
+            end
+        end
         
         msg = sprintf( '\nWaiting for next job...\n\n' );
         fprintf( msg );
