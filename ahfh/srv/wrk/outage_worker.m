@@ -48,7 +48,7 @@ D = dir( [RunningDir 'Worker' int2str(n) '_*.mat'] );
 if ~isempty(D)   
     for i=1:length(D)
         % Strip worker out of the name
-        start_ind = length( ['Worker' int2str(n) '_'] ) + 1;
+        start_ind = length( ['Worker' int2str(n) ] ) + 1;
         InputFileName = D(i).name( start_ind:end );
         
         % Move the file to the input directory
@@ -85,7 +85,7 @@ while( running )
             fprintf( msg );
             fprintf( fid, msg );
             
-            RunningFileName = [ RunningDir 'Worker' int2str(n) '_' D(InFileIndex).name ];
+            RunningFileName = [ RunningDir 'Worker' int2str(n) D(InFileIndex).name ];
             system( ['mv ' InDir D(InFileIndex).name ' ' RunningFileName] );
             system( ['chmod 666 ' RunningFileName ] );
   
