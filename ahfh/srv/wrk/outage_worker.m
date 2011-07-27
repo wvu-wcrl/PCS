@@ -69,7 +69,8 @@ while( running )
             
             RunningFileName = [ RunningDir 'Worker' int2str(n) '.' D(InFileIndex).name ];
             system( ['mv ' InDir D(InFileIndex).name ' ' RunningFileName] );
-            system( ['chmod 666 ' RunningFileName ] );
+            % something is causing files to sometimes not load, perhaps this chmod statement?
+            % system( ['chmod 666 ' RunningFileName ] );
   
             success = 1;
         catch
@@ -83,13 +84,14 @@ while( running )
         
         % try to load the input file from the running directory
         if (success)
-            try
-                msg = sprintf( 'Loading input file\n' );
-                fprintf( msg ); fprintf( fid, msg );
-                
+            msg = sprintf( 'Loading input file\n' );
+            fprintf( msg ); fprintf( fid, msg );
+            pause( 0.5 ); % short pause before trying to load file.
+            
+            try                
                 load( RunningFileName, 'JobParam' );
                 success = 1;
-            catch
+            catch                
                 % file was bad, kick out of loop
                 msg = sprintf( 'Error: Input File could not be loaded from Running Directory\n' );
                 fprintf( msg );
