@@ -69,8 +69,6 @@ while( running )
             
             RunningFileName = [ RunningDir 'Worker' int2str(n) '.' D(InFileIndex).name ];
             system( ['mv ' InDir D(InFileIndex).name ' ' RunningFileName] );
-            % something is causing files to sometimes not load, perhaps this chmod statement?
-            % system( ['chmod 666 ' RunningFileName ] );
   
             success = 1;
         catch
@@ -80,13 +78,33 @@ while( running )
             fprintf( fid, msg );
             success = 0;
         end
+
+        % change the file permission
+        if (success)
+            try
+                msg = sprintf( 'Changing permissions of the Running file\n' );
+                fprintf( msg );
+                fprintf( fid, msg );
+                
+                % change the permissions
+                system( ['chmod 666 ' RunningFileName ] );
+                
+                success = 1;
+            catch
+                % can't change permission, kick out of loop
+                msg = sprintf( 'Error: Could not change permission of Running file\n' );
+                fprintf( msg );
+                fprintf( fid, msg );
+                success = 0;
+            end
+        end
         
         
         % try to load the input file from the running directory
         if (success)
             msg = sprintf( 'Loading input file\n' );
             fprintf( msg ); fprintf( fid, msg );
-            pause( 0.5 ); % short pause before trying to load file.
+            pause( 0.25 ); % short pause before trying to load file.
             
             try                
                 load( RunningFileName, 'JobParam' );
