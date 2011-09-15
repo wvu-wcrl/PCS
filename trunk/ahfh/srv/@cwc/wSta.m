@@ -6,7 +6,7 @@
 % 2/28/2011
 % Terry Ferrett
 
-function wSta(obj, hostname)
+function wSta(obj, hostname, ws)
 
 % we need to pass cmlRoot, but starting with /rhome instead of /home
 cmlPath = ['/r' obj.cmlRoot(2:end)];
@@ -17,7 +17,7 @@ cmd_str = [obj.bashScriptPath, '/start_worker.sh'];
 cmd_str = [cmd_str, ' ',...
     hostname, ' ',...
     obj.workerPath, ' ',...
-    obj.workerScript, ' ',...
+    ws, ' ',...
     int2str(obj.wrkCnt), ' ', ...
     cmlPath];
 
@@ -28,7 +28,8 @@ cmd_str = [cmd_str, ' ',...
 %     hostname
 %     process ID
 %     worker ID
-newWrkObj = cWrk(hostname, pid, obj.wrkCnt);
+%     worker script
+newWrkObj = cWrk(hostname, pid, obj.wrkCnt, ws);
 
 % Add the new worker object to the worker array.
 obj.workers(end+1) = newWrkObj;
