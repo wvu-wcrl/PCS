@@ -11,23 +11,25 @@
 
 function cSto(obj,varargin)
 
-if nargin == 0,   % kill all workers unconditionally
+if nargin == 1,   % kill all workers unconditionally
     % Loop over all active workers and end worker processes.
     num_workers = length(obj.workers);
     for k = 1:num_workers,
         wSto(obj, obj.workers(1).wrkCnt);
     end
     
-else if nargin == 1,
+else if nargin == 2,
         
         % Loop over all active workers and stop workers running a particular worker script.
         num_workers = length(obj.workers);
         ws = varargin{1};
+
+
         
         % gather the IDs of the workers running the script 'ws'
         for k = 1:num_workers,
-            if obj.workers(k).ws == ws,
-                wrkid(k) = obj.worker(k).wrkCnt;
+		  if strcmp(obj.workers(k).ws, ws),
+                wrkid(k) = obj.workers(k).wrkCnt;
             end
         end
         

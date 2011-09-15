@@ -32,10 +32,8 @@
 classdef cwc < wc
     
     % Cluster state.
-    properties (Access=private)
-        wrkCnt
-    end
     properties
+        wrkCnt
         nodes
         maxWorkers
         workers
@@ -130,7 +128,7 @@ classdef cwc < wc
         % Stop single worker.
         wSto(obj, wNum)
         % Stop workers on entire cluster.
-        cSto(obj)
+        cSto(obj, varargin)
         % Unconditionally stop all workers running under this username.
         slay(obj)
         % Save the object state.
