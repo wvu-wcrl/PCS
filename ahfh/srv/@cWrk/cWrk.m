@@ -12,13 +12,15 @@ classdef cWrk < handle
         hostname
         pid
         wrkCnt
+        ws
     end
     
     methods
-        function obj = cWrk(hostname, pid, wrkCnt)
+        function obj = cWrk(hostname, pid, wrkCnt, ws)
             obj.hostname = hostname;
             obj.pid = pid;
             obj.wrkCnt = wrkCnt;
+	    obj.ws = ws;
         end
     end
     
