@@ -17,7 +17,7 @@ function cSta(obj)
 
 % if workers were specified in the configuration file, use them.
 %  otherwise, use the default worker specified in the cwc object
-if(!isempty(out))
+if(~isempty(out))
  nws = length(out);
  for k = 1:nws,
     ws{k} = out{k}{1};
@@ -35,18 +35,18 @@ end
 % the number of requested worker instances is greater than
 %  the available number of workers. stop execution
 if sum(nwi) > sum(obj.maxWorkers),
-error('The number of requested workers in the configuration...
- file is greater than the maximum available.');
+error('The number of requested workers in the configuration  file is greater than the maximum available.');
 end
 
 
 
 % start workers using the defined scripts and numbers of instances
 wsc = nws;
-wic = nwi{wsc};
+wic = nwi(wsc);
+num_nodes = length(obj.nodes);
    for l = 1:num_nodes,
-      for m = 1:obj.maxWorkers(k)
-        wSta(obj, obj.nodes{k},ws{wsc});
+      for m = 1:obj.maxWorkers(l)
+        wSta(obj, obj.nodes{l},ws{wsc});
         wic = wic - 1;
 
 	if wic ==0,
@@ -54,7 +54,7 @@ wic = nwi{wsc};
            if wsc == 0,
 	    break;
            end
-	   wic = nwi{wsc};
+	   wic = nwi(wsc);
          end 
 end
 if wsc ==0,
