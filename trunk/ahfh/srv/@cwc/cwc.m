@@ -123,7 +123,7 @@ classdef cwc < wc
     
     methods
         % Start single worker.
-        wSta(obj, hostname)
+        wSta(obj, hostname, ws)
         % Start workers on entire cluster.
         cSta(obj)
         
