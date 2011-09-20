@@ -1,76 +1,43 @@
 % cSta.m
 %
-% Stop all cluster workers.
+% Start all cluster workers.
 %
-% Version 1
-% 2/28/2011
+% Version 2
+% 9/18/2011
 % Terry Ferrett
 
-function cSta(obj)
-
-% read the worker distribution from the configuration file
-% if no distribution exists, default to the worker specified in the cwc constructor
- heading = '[Workers]';
- key = 'worker';
- out = util.fp(obj.cfp, heading, key);
+function cSta(obj, varargin)
 
 
-% if workers were specified in the configuration file, use them.
-%  otherwise, use the default worker specified in the cwc object
-if(~isempty(out))
- nws = length(out);
- for k = 1:nws,
-    ws{k} = out{k}{1};
-    nwi(k) = str2num(out{k}{2});
- end
+if nargin == 1,   % start all workers unconditionally
+    % Loop over all active workers and start worker processes.
+    n = length(obj.workers);
+    for k = 1:n,
+        staw(obj, obj.workers(k) );
+    end
+
+else if nargin == 2, % start workers by name
+
+  % Loop over all active workers and locate workers running a particular worker script.
+        n = length(obj.workers);
+        ws = varargin{1};
+
+        
+        % gather worker objects running the script 'ws'
+        l = 1;
+        for k = 1:n,
+            if strcmp(obj.workers(k).ws, ws),
+                wrk_array(l) = obj.workers(k);
+                l = l + 1;
+            end
+        end
+        
+        % start the workers running script 'ws'
+        for k = 1:length(wrk_array),
+            staw(obj, wrk_array(k));
+        end
+
 else
-
-nws = 1;
-ws = obj.workerScript;
-nwi{1} = sum(obj.maxWorkers);
-end
-
-
-
-% the number of requested worker instances is greater than
-%  the available number of workers. stop execution
-if sum(nwi) > sum(obj.maxWorkers),
-error('The number of requested workers in the configuration  file is greater than the maximum available.');
-end
-
-
-
-% start workers using the defined scripts and numbers of instances
-wsc = nws;
-wic = nwi(wsc);
-num_nodes = length(obj.nodes);
-   for l = 1:num_nodes,
-      for m = 1:obj.maxWorkers(l)
-        wSta(obj, obj.nodes{l},ws{wsc});
-        wic = wic - 1;
-
-	if wic ==0,
-	   wsc = wsc - 1;
-           if wsc == 0,
-	    break;
-           end
-	   wic = nwi(wsc);
-         end 
-end
-if wsc ==0,
-break;
-end
-end
-
-
-
-
-% Start the maximum number of workers on each node.
-%num_nodes = length(obj.nodes);
-%for k = 1:num_nodes,
-%    for l = 1:obj.maxWorkers(k),
-%        wSta(obj, obj.nodes{k});
-%    end
-%end
+        error('Too many arguments to function cSto()');
 
 end
