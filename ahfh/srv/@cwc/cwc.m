@@ -26,7 +26,7 @@
 % Implementation of the cluster worker controller.
 %
 % Version 1
-% 2/27/2011
+% 9/18/2011
 % Terry Ferrett
 
 classdef cwc < wc
@@ -34,8 +34,8 @@ classdef cwc < wc
     % Cluster state.
     properties
         wrkCnt
-        nodes
-        maxWorkers
+        %nodes
+        %maxWorkers
         workers
         workerScript
     end
@@ -59,7 +59,7 @@ classdef cwc < wc
     
     
     methods
-        function obj = cwc(cmlRoot, cfpIn, workerScript)
+        function obj = cwc(cmlRoot, cfpIn)
             % 1. Read configuration file name.
             obj.cfp = strcat(cmlRoot, '/srv/cfg/', cfpIn);
             
@@ -75,25 +75,15 @@ classdef cwc < wc
             out = util.fp(obj.cfp, heading, key);
             obj.outPath = out{1}{1};
             
-            % 4. Read active nodes and max workers per node
-            %      from configuration file.
-            heading = '[Hosts]';
-            key = 'host';
-            out = util.fp(obj.cfp, heading, key);
-            numHosts = length(out);
-            for k = 1:numHosts,
-                obj.nodes{k} = out{k}{1};
-                obj.maxWorkers(k) = str2num(out{k}{2});
-            end
+
+            % 4. Worker script.
+            %obj.workerScript = workerScript;
             
-            % 5. Worker script.
-            obj.workerScript = workerScript;
-            
-            % 6. CML root path and path to BASH scripts.
+            % 5. CML root path and path to BASH scripts.
             obj.cmlRoot = cmlRoot;
             obj.bashScriptPath = [cmlRoot '/srv'];
             
-            % 7. State file and path.
+            % 6. State file and path.
             svPathRelative = ['/srv/state'];
             obj.svPath = [cmlRoot svPathRelative];
             obj.svFile = 'cwc_state.mat';
@@ -109,29 +99,40 @@ classdef cwc < wc
             
             % 9. Initialize the worker array.
             obj.workers = cWrk.empty(1,0);
+
+
+            % Read the worker configuration from the configuration file.
+            heading = '[Workers]';
+            key = 'worker';
+            out = util.fp(obj.cfp, heading, key);
+            n = length(out);
+            % create a worker object for every worker specified in the config file.
+	    for k = 1:n,
+                cw(obj,out);
+	    end   
+
         end
     end
     
-    methods
-        function status(obj)
-            % Form list of nodes
-            % Form list of number of active workers per node.
-        end
-    end
+
     
     methods
+        % create worker objects from configuration file data
+        cw(obj, cfd)
         % Start single worker.
-        wSta(obj, hostname, ws)
+        staw(obj, worker)
         % Start workers on entire cluster.
-        cSta(obj)
+        cSta(obj, varargin)
         
         % Stop single worker.
-        wSto(obj, wNum)
+        stow(obj, worker)
         % Stop workers on entire cluster.
         cSto(obj, varargin)
+	% delete worker object
+        dw(obj, worker)
         % Unconditionally stop all workers running under this username.
         slay(obj)
-        % Save the object state.
+        % Save the cluster state.
         svSt(obj)
     end
 end
