@@ -62,6 +62,7 @@ classdef cwc < wc
         function obj = cwc(cmlRoot, cfpIn)
             % 1. Read configuration file name.
             obj.cfp = strcat(cmlRoot, '/srv/cfg/', cfpIn);
+            obj.cfp
             
             % 2. Read worker input path from configuration file.
             heading = '[Paths]';
@@ -98,7 +99,7 @@ classdef cwc < wc
             obj.wrkCnt = 0;
             
             % 9. Initialize the worker array.
-            obj.workers = cWrk.empty(1,0);
+            obj.workers = wrk.empty(1,0);
             
             
             % Read the worker configuration from the configuration file.
@@ -107,8 +108,10 @@ classdef cwc < wc
             out = util.fp(obj.cfp, heading, key);
             n = length(out);
             % create a worker object for every worker specified in the config file.
-            for k = 1:n,
-                cw(obj,out);
+n
+	   for k = 1:n,
+
+		      cw(obj,out{k});
             end
             
         end

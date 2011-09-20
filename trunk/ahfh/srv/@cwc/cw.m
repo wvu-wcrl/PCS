@@ -11,7 +11,7 @@ function cw(obj, cfd)
 %cfd - structure containing the following entries
 ws = cfd{1};  % worker script name
 nd = cfd{2};  % node name
-n = cfd{3};   % number of workers per node
+n = str2num( cfd{3} );   % number of workers per node
 
 
 % create worker object with
@@ -22,7 +22,7 @@ for k = 1:n,
 cs = ccs(obj, ws, nd);
 
 % add worker object to array
-new_wrk = wrk(hostname, obj.wrkCnt, ws, cs);
+new_wrk = wrk(nd, obj.wrkCnt, ws, cs);
 obj.workers(end+1) = new_wrk;
 
 % increment the worker counter
