@@ -9,7 +9,7 @@
 function staw(obj, worker)
 
 % start the worker by executing the command string
-[stat pid] = system(worker.cs);
+[stat pid] = system(worker.stac);
 
 % store the pid in the worker object
 worker.pid = pid;

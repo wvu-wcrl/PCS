@@ -13,12 +13,12 @@ function cwc_obj = test_v3()
 cd ..;
 cd ..;
 cmlRoot = pwd;
-CmlStartup
+ClusterStartup
 cd srv/
-cd tests/
+%cd tests/
 
 % Create cluster worker object
-cwc_obj = cwc(cmlRoot, 'test_v3');
+cwc_obj = cwc(cml_home, 'test_v3');
 
 cwc_obj.cSta();
 

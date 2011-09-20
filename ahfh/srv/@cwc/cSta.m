@@ -16,7 +16,7 @@ if nargin == 1,   % start all workers unconditionally
         staw(obj, obj.workers(k) );
     end
 
-else if nargin == 2, % start workers by name
+elseif nargin == 2, % start workers by name
 
   % Loop over all active workers and locate workers running a particular worker script.
         n = length(obj.workers);
