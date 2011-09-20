@@ -11,14 +11,14 @@ classdef wc < handle
     
     properties (Abstract)
         workers % Array of worker objects
-        maxWorkers % Maximum workers per node
+%        maxWorkers % Maximum workers per node
         workerPath % Path to worker script.
     end
         
     methods (Abstract)
-        wSta(obj)  % Start worker
-        wSto(obj)  % Stop worker
-        status(obj) % Return worker status
+        %wSta(obj)  % Start worker
+        %wSto(obj)  % Stop worker
+       % status(obj) % Return worker status
     end
     
 end

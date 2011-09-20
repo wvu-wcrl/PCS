@@ -75,7 +75,7 @@ classdef cwc < wc
             out = util.fp(obj.cfp, heading, key);
             obj.outPath = out{1}{1};
             
-
+            
             % 4. Worker script.
             %obj.workerScript = workerScript;
             
@@ -99,22 +99,22 @@ classdef cwc < wc
             
             % 9. Initialize the worker array.
             obj.workers = cWrk.empty(1,0);
-
-
+            
+            
             % Read the worker configuration from the configuration file.
             heading = '[Workers]';
             key = 'worker';
             out = util.fp(obj.cfp, heading, key);
             n = length(out);
             % create a worker object for every worker specified in the config file.
-	    for k = 1:n,
+            for k = 1:n,
                 cw(obj,out);
-	    end   
-
+            end
+            
         end
     end
     
-
+    
     
     methods
         % create worker objects from configuration file data
@@ -128,7 +128,7 @@ classdef cwc < wc
         stow(obj, worker)
         % Stop workers on entire cluster.
         cSto(obj, varargin)
-	% delete worker object
+        % delete worker object
         dw(obj, worker)
         % Unconditionally stop all workers running under this username.
         slay(obj)
