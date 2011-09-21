@@ -6,7 +6,7 @@
 % 9/21/2011
 % Terry Ferrett
 
-function [NumberWorkers] = cstat(obj, ws)
+function [NumberWorkers nodes] = cstat(obj, ws)
 % == outputs ==
 % tot    total number of running processes
 
@@ -26,47 +26,31 @@ function [NumberWorkers] = cstat(obj, ws)
 % query all active pids
 n = length(obj.nodes);
 for k = 1:n,
-    cs = ['ssh ' nodes{k} ' ps aux| grep -i ' ws];
+    cs = ['ssh ' obj.nodes{k} ' ps aux| grep -i '  ws ];
     [~, pr] = system( cs );
-    
-    if strcmp( pr(1:3), 'ssh' ) % node is down
+
+
+c1 = length(pr) > 0;    
+if c1,
+  c2 = strcmp( pr(1:3), 'ssh' );
+  if c2, % node is down
         nw(k) = 0;
     else
-        hits = findstr( pr, 'outage_worker' );
+        hits = findstr( pr, ws );
         nw(k) = length( hits );
     end
+	else
+	  nw(k) = 0;
+end
     
 end
 
 
 NumberWorkers = nw;
+nodes = obj.nodes;
+
 % return total number of workers running 'worker script'
 %tot = sum(nw);
 
-
-
-
-
-
-% start the worker by executing the command string
-[stat pid] = system(worker.stac);
-
-% store the pid in the worker object
-worker.pid = pid;
-
-% create the command string which stops the worker
-worker.stoc = ccs(obj, worker);
-
-end
-
-
-
-function cs = ccs(obj, worker)
-
-% Form the command string.
-cs = [obj.bashScriptPath, '/stop_worker.sh'];
-cs = [cs, ' ',...
-    worker.hostname, ' ',...
-    worker.pid];
 
 end

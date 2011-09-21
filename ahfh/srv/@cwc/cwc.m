@@ -15,7 +15,7 @@
 %      cwc_obj = Cluster Worker Controller Object
 %
 %   Example:
-%      [cwc_obj] = cwc( cml_home, 'test.cfg', 'stub_worker' );
+%      [cwc_obj] = cwc( cml_home, 'test.cfg' );
 %
 %          where cml_home is a workspace variable containing the cml
 %             root directory, created by the script 'CmlStartup'
@@ -154,7 +154,7 @@ classdef cwc < wc
         % delete worker object
         dw(obj, worker)
         % return the number of workers running worker script 'ws'
-        [NumberWorkers] = cstat(obj, ws)
+        [NumberWorkers nodes] = cstat(obj, ws)
         % Unconditionally stop all workers running under this username.
         slay(obj)
         % Save the cluster state.
