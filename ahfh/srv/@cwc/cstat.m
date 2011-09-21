@@ -2,9 +2,16 @@
 %
 % check status of specified worker
 %
+% The workers must be named in a prefix-free manner, or the method
+%   will fail.
+%
+   % For example, "stub_worker" is a prefix of "stub_worker2".
+%  
 % Version 1
 % 9/21/2011
 % Terry Ferrett
+
+
 
 function [NumberWorkers nodes] = cstat(obj, ws)
 % == outputs ==
