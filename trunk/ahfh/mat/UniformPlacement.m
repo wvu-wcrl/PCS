@@ -2,7 +2,7 @@ function Xi = UniformPlacement( M, varargin )
 % places n points uniformly in a circle of radius r_max
 %
 % Usage:
-%   Xi = UniformPlacement( M, [r_max], [r_min], [d_min], [N], [d_min_tx] )
+%   Xi = UniformPlacement( M, [r_max], [r_min], [d_min], [N], [d_min_tx], [rx_loc] )
 %   Xi = the node locations as a complex row vector
 %   M =  number of nodes in the network
 %   r_max = radius of the circle (default = 1)
@@ -10,6 +10,7 @@ function Xi = UniformPlacement( M, varargin )
 %   d_min = minimum spacing between interferers (default = 0) 
 %   N = number of networks to generate (default = 1)
 %   d_min_tx = radius of guard zone around desired transmitter (at location 1)
+%   rx_loc = rx_location
  
 % determine radius of the circle
 if (nargin > 1)
@@ -46,7 +47,15 @@ else
     d_min_tx = 0;
 end
 
-%fprintf( 'r_max = %f, r_min = %f, d_min = %f, N = %d, d_min_tx = %d\n', r_max, r_min, d_min, N, d_min_tx );
+% location of the receiver
+if (nargin > 6 )
+    rx_loc = varargin{6};
+else
+    rx_loc = 0;
+end
+
+% transmitter is one unit away from the receiver
+tx_loc = rx_loc - 1;
 
 % initialize (preallocate)
 Xi = zeros( N, M );
@@ -62,7 +71,7 @@ while (net < N)
         node = unifrnd(-r_max,r_max) + 1i*unifrnd(-r_max,r_max);
         
         % check to make sure it is inside the annulus and not too close to desired transmitter
-        if ( (abs(node) > r_min) && (abs(node) < r_max) && (abs(node-1) >= d_min_tx) )
+        if ( (abs( node-rx_loc ) > r_min) && (abs(node) < r_max) && (abs( node-tx_loc ) >= d_min_tx) )
             if ~counter
                 % first node, always add to the set
                 counter = counter+1;
@@ -85,6 +94,9 @@ while (net < N)
     end
     
 end
+
+% shift the network so it is centered about the desired transmitter
+Xi = Xi - rx_loc;
 
 end
 
