@@ -34,7 +34,7 @@ classdef cwc < wc
     % Cluster state.
     properties
         wrkCnt
-        %nodes
+        nodes
         %maxWorkers
         workers
         workerScript
@@ -108,11 +108,31 @@ classdef cwc < wc
             out = util.fp(obj.cfp, heading, key);
             n = length(out);
             % create a worker object for every worker specified in the config file.
-n
-	   for k = 1:n,
-
-		      cw(obj,out{k});
+            
+            for k = 1:n,
+                cw(obj,out{k});
             end
+            
+            % Form a list of active nodes from the worker objects.
+            l = 1;
+            obj.nodes{1} = '';
+            for k = 1:n,
+                curwrk = out{k};
+                
+                % if the node already exists in the list, don't add it.
+                add = 1;
+                for m = 1:length(obj.nodes),
+                    if strcmp( obj.nodes(m), curwrk{2} ),
+                        add = 0;
+                    end
+                end
+                
+                if add == 1,
+                    obj.nodes{l} = curwrk{2};
+                    l = l + 1;
+                end
+            end
+            
             
         end
     end
@@ -133,6 +153,8 @@ n
         cSto(obj, varargin)
         % delete worker object
         dw(obj, worker)
+        % return the number of workers running worker script 'ws'
+        [NumberWorkers] = cstat(obj, ws)
         % Unconditionally stop all workers running under this username.
         slay(obj)
         % Save the cluster state.
