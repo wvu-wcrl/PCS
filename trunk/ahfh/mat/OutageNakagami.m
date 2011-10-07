@@ -214,15 +214,15 @@ classdef OutageNakagami < handle
                         for ellset=1:size( obj.indices{r+1}, 1)
                             elli = obj.indices{r+1}(ellset,:); % the vector of indices
                             coef = obj.coefficients{r+1}(ellset,:); % the multinomial coefficients
-                            factors = coef.*(obj.Omega_i_norm(trial,:)*Fibp).^elli./( (BetaNorm*obj.m*obj.Omega_i_norm(trial,:)*Fibp+1).^(elli+obj.m_i) );
-                            factors1 = 2*coef.*(obj.Omega_i_norm(trial,:)*(1-Fibp)/2).^elli./( (BetaNorm*obj.m*obj.Omega_i_norm(trial,:)*(1-Fibp)/2+1).^(elli+obj.m_i) );
-                            sum_ell = sum_ell + prod( p*(factors + factors1) + (1-3*p)*(elli==0) );
+                            factors = coef.*(obj.Omega_i_norm(trial,:)*Fibp).^elli./( (BetaNorm/Fibp*obj.m*obj.Omega_i_norm(trial,:)*Fibp+1).^(elli+obj.m_i) );
+                            factors1 = (2/p-2)*coef.*(obj.Omega_i_norm(trial,:)*(1-Fibp)/2).^elli./( (BetaNorm/Fibp*obj.m*obj.Omega_i_norm(trial,:)*(1-Fibp)/2+1).^(elli+obj.m_i) );
+                            sum_ell = sum_ell + prod( p*(factors + factors1*p) + (1-(3*p-2*p^2))*(elli==0) );
                         end
                         sum_r = sum_r + z.^(-r)*sum_ell/factorial(s-r);
                     end
-                    sum_s = sum_s + ((BetaNorm*obj.m*z).^s).*sum_r;
+                    sum_s = sum_s + ((BetaNorm/Fibp*obj.m*z).^s).*sum_r;
                 end
-                epsilon = epsilon + 1 - sum_s.*exp(-BetaNorm*obj.m*z);
+                epsilon = epsilon + 1 - sum_s.*exp(-BetaNorm/Fibp*obj.m*z);
             end
             
             epsilon = epsilon/obj.N;
