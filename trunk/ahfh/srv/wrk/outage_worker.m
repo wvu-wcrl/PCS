@@ -31,7 +31,7 @@ MatDir = [ahfhRoot, '/mat'];
 addpath( MatDir );
 
 running = 1;
-PauseTime = 2;
+PauseTime = 1;
 
 % create a logfile for this worker
 LogFile = ['Worker' int2str(n) '.log'];
@@ -165,13 +165,28 @@ while( running )
                     end
                 end
                 
+                ComputeCDF = false;
+                if isfield( JobParam, 'ComputeCDF' )
+                    if JobParam.ComputeCDF
+                        ComputeCDF = true;
+                    end
+                end
+                
                 % Compute the outage
                 if Splatter
                     msg = sprintf( 'Considering Spectral Splatter\n' );
                     fprintf( msg ); fprintf( fid, msg );
-                    epsilon = b.ComputeOutage( JobParam.Gamma, JobParam.Beta, JobParam.p, JobParam.Fibp );
-                else                                                           
-                    epsilon = b.ComputeOutage( JobParam.Gamma, JobParam.Beta, JobParam.p );                    
+                    if ComputeCDF
+                        epsilon = b.ComputeSingleOutageSplatter( JobParam.Gamma, JobParam.Beta(1), JobParam.p(1), JobParam.Fibp(1) );
+                    else
+                        epsilon = b.ComputeOutage( JobParam.Gamma, JobParam.Beta, JobParam.p, JobParam.Fibp );
+                    end                    
+                else
+                    if ComputeCDF
+                        epsilon = b.ComputeSingleOutage( JobParam.Gamma, JobParam.Beta(1), JobParam.p(1) );
+                    else
+                        epsilon = b.ComputeOutage( JobParam.Gamma, JobParam.Beta, JobParam.p );
+                    end
                 end
                 
                 msg = sprintf( 'Done computing outage probabilty\n' );

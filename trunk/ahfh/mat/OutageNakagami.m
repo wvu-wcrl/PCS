@@ -158,7 +158,7 @@ classdef OutageNakagami < handle
             NumberSNR = length( Gamma );
             
             % initialize epsion
-            epsilon = zeros(1,NumberSNR);
+            epsilon = zeros(obj.N,NumberSNR);
             
             % loop over the N networks
             for trial=1:obj.N
@@ -179,11 +179,9 @@ classdef OutageNakagami < handle
                     end
                     sum_s = sum_s + ((BetaNorm*obj.m*z).^s).*sum_r;
                 end
-                epsilon = epsilon + 1 - sum_s.*exp(-BetaNorm*obj.m*z);
+                epsilon(trial,:) = 1 - sum_s.*exp(-BetaNorm*obj.m*z);
             end
             
-            epsilon = epsilon/obj.N;
-                        
         end
         
         function epsilon = ComputeSingleOutageSplatter( obj, Gamma, Beta, p, Fibp )
@@ -198,10 +196,8 @@ classdef OutageNakagami < handle
             NumberSNR = length( Gamma );
             
             % initialize epsion
-            epsilon = zeros(1,NumberSNR);
-            
-            % fprintf( 'Fibp = %f\n', Fibp );
-            
+            epsilon = zeros(obj.N,NumberSNR);
+                        
             % loop over the N networks
             for trial=1:obj.N
                 % normalize Beta according to the desired-signal's shadowing
@@ -222,10 +218,8 @@ classdef OutageNakagami < handle
                     end
                     sum_s = sum_s + ((BetaNorm/Fibp*obj.m*z).^s).*sum_r;
                 end
-                epsilon = epsilon + 1 - sum_s.*exp(-BetaNorm/Fibp*obj.m*z);
+                epsilon(trial,:) = 1 - sum_s.*exp(-BetaNorm/Fibp*obj.m*z);
             end
-            
-            epsilon = epsilon/obj.N;
                        
         end
         
@@ -257,10 +251,10 @@ classdef OutageNakagami < handle
                 for k=1:D3
                     if (nargin==5)
                         for q=1:D4
-                            epsilon(:,j,k,q) = obj.ComputeSingleOutageSplatter( Gamma, Beta(j), p(k), Fibp(q) );
+                            epsilon(:,j,k,q) = mean( obj.ComputeSingleOutageSplatter( Gamma, Beta(j), p(k), Fibp(q) ) );
                         end
                     else
-                        epsilon(:,j,k) = obj.ComputeSingleOutage( Gamma, Beta(j), p(k) );
+                        epsilon(:,j,k) = mean( obj.ComputeSingleOutage( Gamma, Beta(j), p(k) ) );
                     end
                 end
             end
