@@ -10,15 +10,16 @@
 
 function cwc_obj = test_v3()
 
-cd ..;
-cd ..;
+
+cd ..; cd ..;
+cd ahfh/
 cmlRoot = pwd;
-ClusterStartup
-cd srv/
+[proj srv] = ClusterStartup(0);
+cd ..; cd srv/
 %cd tests/
 
 % Create cluster worker object
-cwc_obj = cwc(cml_home, 'test_v3');
+cwc_obj = cwc(srv, proj, 'test_v3.cfg');
 
 cwc_obj.cSta();
 
