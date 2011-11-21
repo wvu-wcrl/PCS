@@ -63,7 +63,7 @@ classdef cwc < wc
         function obj = cwc(srv_root, proj_root, cfpIn)
             % 1. Read configuration file name.
             obj.cfp = strcat(proj_root, '/cfg/', cfpIn);
-
+	    
             
             % 2. Read worker input path from configuration file.
             heading = '[Paths]';
@@ -76,7 +76,9 @@ classdef cwc < wc
             % 5. cluster server root path and path to BASH scripts.
             obj.srv_root = srv_root;
             obj.bashScriptPath = srv_root;
-            
+	    obj.proj_root = proj_root;
+	    obj.cmlRoot = proj_root;            
+
             % 6. State file and path.
             svPath = [proj_root '/state'];
             obj.svPath = svPath;

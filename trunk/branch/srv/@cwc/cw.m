@@ -39,7 +39,7 @@ function cs = ccs(obj, ws, nd)
 
 
 % we need to pass cmlRoot, but starting with /rhome instead of /home
-cmlPath = ['/r' obj.cmlRoot(2:end)];
+cmlPath = ['/r' obj.cmlRoot(2:end)]
 
 %  Form the BASH command string.
 wNum_str = int2str(obj.wrkCnt);
