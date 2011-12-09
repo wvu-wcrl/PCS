@@ -1,4 +1,4 @@
-% ClusterStartup
+% cs.m
 %
 % Initializes EE561 project (cluster code) by setting the path
 %
@@ -8,27 +8,22 @@
 %    Added worker controller and utility code directories to the path.
 %    On April 20, 2011 MCV changed the name of the file from CmlStartup to ClusterStartup
 
-   function [prjroot srvroot] = ClusterStartup(resume)
+   function [prjroot srvroot] = cs(resume)
 
 
 % determine the home directory
-   prjroot = pwd; cd ..; cd srv/; srvroot = pwd; cd(prjroot);
+   prjroot = pwd; 
+%cd ..; cd srv/; srvroot = pwd; cd(prjroot);
 
 
 
 % set the path
 if ispc
-    addpath( strcat( prjroot, '\mat' ) );
-addpath(prjroot, '\state');
-addpath( strcat( srvroot, '\srv' ) );
-addpath( strcat( srvroot, '\srv','\util' ) );
+    addpath( strcat( prjroot, '\tc' ) );
+addpath(prjroot, '\util');
  else
-   addpath(strcat(prjroot, '/state'));
-    addpath( strcat( prjroot, '/mat' ) );
-
-
-addpath( srvroot );
-addpath( strcat( srvroot,'/util' ) );
+   addpath(strcat(prjroot, '/tc'));
+    addpath( strcat( prjroot, '/util' ) );
 end
 
 
