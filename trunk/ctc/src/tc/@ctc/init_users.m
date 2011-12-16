@@ -33,12 +33,17 @@ for k = 1:n,
         heading = '[paths]';
         key = 'input';
         out = util.fp(cur_file, heading, key);
-        iqp{usr_cnt} = out{1};
+        iq{usr_cnt} = out{1};
         
         % read running directory
-        key = 'running';
+        key = 'active';
         out = util.fp(cur_file, heading, key);
-        rp{usr_cnt} = out{1};
+        rq{usr_cnt} = out{1};
+        
+        % read output directory
+        key = 'output';
+        out = util.fp(cur_file, heading, key);
+        oq{usr_cnt} = out{1};
         
     end
     
@@ -49,8 +54,9 @@ end
 n = length(users);   % number of workers
 for k = 1:n,
     tmp.username = users{k};
-    tmp.iqp = iqp{k};
-    tmp.rp = rp{k};
+    tmp.iq = iq{k};
+    tmp.rq = rq{k};
+    tmp.oq = oq{k};
     tmp.aw = 0;
     obj.users{k} = tmp;
 end
