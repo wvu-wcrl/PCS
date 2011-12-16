@@ -27,24 +27,28 @@ classdef ctc < handle
     properties       % cluster state
         cfp    % config file path
         
-        cfg    % controller configuration structure
-        % nl - node list
-        % wpn - workers per node
-        % qp - queue path
-        
+        gq     % global queue paths - read from config file
+               % iq - input 
+               % oq - output 
+               % rq - running 
+                
+       
         ws % worker state - cell array of structures
         % wid - worker id
         % user - user
         % status - worker status
+     
         
         nw % total number of workers
         aw % active workers
         
         users  % cell array of structs containg active users
-        % username - .name
-        % input queue path - iqp
-        % running path -        rp
-        % number of active workers - aw        
+        % username -                           .name
+        % input queue path -                 iq
+        % running path -                       rq
+        % output path -                         oq
+        % active workers for this user- aw        
+  
         
     end
     

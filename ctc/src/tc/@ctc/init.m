@@ -9,13 +9,10 @@
 
 function init(obj)
 
-% read configuration file
-readcfg(obj);
+% init global paths
+init_paths(obj);
 
-% init controller configuration structure
-init_cfg(obj);
-
-% init task state structures
+% init worker state structures
 init_ws(obj);
 
 % init users structure
