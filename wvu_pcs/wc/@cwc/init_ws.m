@@ -12,7 +12,7 @@ function init_ws(obj)
 % read worker list and workers per node
 heading = '[workers]';
 key = 'worker';
-out = util.fp(obj.cfp, heading, key);
+out = util.fp(obj.cf, heading, key);
 wrklist = out;
 
 
