@@ -20,12 +20,15 @@ classdef ChannelCode < handle
     properties
         DataBits        % Row vector of data bits to be coded
         DataLength      % Length of DataBits vector
-        Codeword        % Generated row vector codeword of DataBits
         CodewordLength  % Length of each Codeword
         ReceivedLLR     % Received vector of bit Log-Likelihood-Ratio (LLR) for the received data (Codeword) to be decoded
-        EstBits         % Row vector of decoded bits of ReceivedLLR
         Rate            % Code rate (R=k/n)
-        NumError=0      % The number of errors calculated by comparing DataBits and EstBits
+    end
+    
+    properties(SetAccess = protected)
+        Codeword        % Generated row vector codeword of DataBits
+        EstBits         % Row vector of decoded bits of ReceivedLLR
+        NumError        % The number of errors calculated by comparing DataBits and EstBits
     end
     
     methods
@@ -35,8 +38,10 @@ classdef ChannelCode < handle
         function [EstData]=Decode(obj, ReceivedLLR)
 %       This is the decode method.            
         end
-        function NumError = ErrorCount()
+        function [NumBitError] = ErrorCount(obj, ReceivedLLR, varargin)
 %       This is the methode responsible for counting the errors made between the input and ouput of the Encode and Decode methods, respectively.
+            EstBits = obj.Decode(ReceivedLLR, varargin{:});
+            NumBitError = sum( EstBits ~= obj.DataBits );
         end
     end    
 end

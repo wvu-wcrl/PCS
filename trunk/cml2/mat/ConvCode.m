@@ -55,7 +55,9 @@ classdef ConvCode < ChannelCode
     properties
         Generator       % Binary generator matrix for convolutional code
         Type=0          % Type of the convolutional code
-                        % 0 for Recursive Systematic Convolutional (RSC) codes (DEFAULT), 1 for non-systematic convolutional (NSC) codes and 2 for tail-biting NSC code
+                        % 0 for Recursive Systematic Convolutional (RSC) codes (DEFAULT)
+                        % 1 for non-systematic convolutional (NSC) codes
+                        % 2 for tail-biting NSC code
         
         DecoderType=-1  % (OPTIONAL INPUT) Type of the decoder to be used in the decoding process of the Convolutional Code
                         % =-1 For the optimum Soft-In/Hard-Out Viterbi algorithm (DEFAULT)
@@ -71,46 +73,39 @@ classdef ConvCode < ChannelCode
                 
     methods
         
-        % Class Constructor: Generator matrix of convolutional code and its type must be specified. The constructor syntax is as follows:
-        % obj = ConvCode(Generator [,Type] [,DecoderType] [,Depth])
-        function obj = ConvCode(Generator, varargin)
-            obj.Generator=Generator;
-            if (length(varargin)>=1)
-                obj.Type=varargin{1};
-                if (length(varargin)>=2)
-                    obj.DecoderType=varargin{2};
-                    if (length(varargin)>=3)
-                        obj.Depth=varargin{3};
-                    end
-                end
-            end
+        function obj = ConvCode(Generator, K, Type, DecoderType, Depth)
+        % Class Constructor: Generator matrix of convolutional code and its DataLength must be specified.
+        % Constructor syntax: obj = ConvCode(Generator, K [,Type] [,DecoderType] [,Depth])
+            obj.Generator = Generator; % The length of the generator matrix is m+1.
+            obj.DataLength = K;
+            if( nargin>=3 && ~isempty(Type)), obj.Type = Type; end
+            if( nargin>=4 && ~isempty(DecoderType)), obj.DecoderType = DecoderType; end
+            if( nargin>=5 && ~isempty(Depth)), obj.Depth = Depth; end
+            
+            Codeword = obj.Encode( zeros(1,obj.DataLength) );
+            obj.CodewordLength = length(Codeword);
+            obj.Rate = obj.DataLength/obj.CodewordLength;
         end
         
         
         function [Codeword] = Encode(obj, DataBits)
         % Encoder method
+            if(nargin<2 || isempty(DataBits)), DataBits = round(rand(1,obj.DataLength)); end
             obj.DataBits=DataBits;
-            obj.DataLength=length(obj.DataBits);
-            Codeword=ConvEncode(obj.DataBits, obj.Generator, obj.Type);
+            Codeword = ConvEncode(obj.DataBits, obj.Generator, obj.Type);
             obj.Codeword=Codeword;
-            obj.CodewordLength = length(obj.Codeword);
-            obj.Rate = obj.DataLength/obj.CodewordLength;
         end
         
                 
-        function [EstBits, varargout] = Decode(obj, ReceivedLLR, varargin)
+        function [EstBits, varargout] = Decode(obj, ReceivedLLR, DataBitsLLR)
         % Decoder Method performs Soft-In Hard or Soft-Out decoding for a convolutional code using the optimum Viterbi or SISO algorithms, respectively.
         % [DataBitsLLR] is the INPUT OPTIONAL Log-Likelihood Ratios (LLR) of the DataBits (Only used in the SISO decoding algorithms).
+        %
+        % Calling syntax: [ EstBits [,OutC] [,OutU] ] = Decode(obj, ReceivedLLR, [DataBitsLLR])
         
-        % The syntax of calling this method is as follows: [ EstBits [,OutC] [,OutU] ] = Decode(obj, ReceivedLLR, [DataBitsLLR])
-        
-            obj.ReceivedLLR=ReceivedLLR;
-            
-            if (length(varargin)>=1)
-                InU=varargin{1};
-            else
-                InU=zeros( 1,length(obj.DataBits) );
-            end
+            obj.ReceivedLLR = ReceivedLLR;
+            InU=zeros( 1,length(obj.DataBits) );
+            if(nargin>=3 && ~isempty(DataBitsLLR)), InU = DataBitsLLR; end
             
             switch obj.DecoderType
                 case -1
@@ -122,14 +117,14 @@ classdef ConvCode < ChannelCode
                     
                 case {0, 1, 2, 3, 4}
                     if (obj.Type==2)
-                        errordlg( 'You cannot use any Soft-Input Soft-Output (SISO) decoding algorithm for Tali-biting Convolutional Codes.' , 'SISO NOT Valid for Tail-Biting Conv Codes' );
+                        error( 'ConvCodeDecode:InvalidSISOTailBiting', 'You cannot use any Soft-Input Soft-Output (SISO) decoding algorithm for Tali-biting Convolutional Codes.' );
                     else
                         [obj.OutU obj.OutC] = SisoDecode(obj.ReceivedLLR, InU, obj.Generator, obj.Type, obj.DecoderType);
-                        EstBits=(sign(obj.OutU)+1)/2;
+                        EstBits=(obj.OutU>0);
                     end
                     
                 otherwise
-                        errordlg( 'Decoder type has to be one of the integers -1, 0, 1, 2, 3 or 4. Please refer to the help of the ConvCode class to find out the meaning of these options for the Decoder Type.', 'Invalid Decoder Type' );
+                        error( 'ConvCodeDecode:InvalidDecoderType', 'Decoder type has to be one of the integers -1, 0, 1, 2, 3 or 4. Please refer to the help of the ConvCode class to find out the meaning of these options for the Decoder Type.' );
             end
             obj.EstBits=EstBits;
             varargout{1}=obj.OutC;

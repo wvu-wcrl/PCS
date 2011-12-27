@@ -1,19 +1,11 @@
 classdef RSCConvCode < ConvCode
     
-    properties
-    end
-    
     methods
-        % The syntax of calling the construcot of this class is as follows: obj = RSCConvCode(Generator [, DecoderType])
-        function obj = RSCConvCode(Generator, varargin)
+        function obj = RSCConvCode(Generator, K, DecoderType)
+        % Calling syntax: obj = RSCConvCode(Generator K, [, DecoderType])
+            if( nargin<3 || isempty(DecoderType)), DecoderType = -1; end % optimum Soft-In/Hard-Out Viterbi decoding algorithm (DEFAULT)
             
-            DecoderType=-1;         % optimum Soft-In/Hard-Out Viterbi decoding algorithm (DEFAULT)
-            if(length(varargin) >= 1)
-                DecoderType=varargin{1};
-            end
-            
-            obj@ConvCode(Generator, 0, DecoderType);
+            obj@ConvCode(Generator, K, 0, DecoderType);
         end
     end
 end
-
