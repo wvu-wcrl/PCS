@@ -1,15 +1,13 @@
-classdef QPSK < Modulation
-    
-    properties
-    end
+classdef QPSK < CreateModulation
     
     methods
-        function obj = QPSK()
-%             Order = 4;
+        function obj = QPSK(SignalProb)
+        % Calling Syntax: obj = QPSK( [SignalProb] )
+            if( nargin<1 ), SignalProb = []; end
             Constellation = [1 j -j -1];
             SignalSet=[real(Constellation); imag(Constellation)];
 %             MappingVector = 0:3;
-            obj@Modulation(SignalSet);
+            obj@CreateModulation(SignalSet, SignalProb);
             obj.Type = 'QPSK';
 %             obj.MappingVector = MappingVector;
         end

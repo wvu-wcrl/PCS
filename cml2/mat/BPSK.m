@@ -1,18 +1,14 @@
-classdef BPSK < Modulation
-    
-    properties
-    end
+classdef BPSK < CreateModulation
     
     methods
-        function obj = BPSK()
-%             Order = 2;
+        function obj = BPSK(SignalProb)
+        % Calling Syntax: obj = BPSK( [SignalProb] )
+            if( nargin<1 ), SignalProb = []; end
             Constellation = [1 -1];
             SignalSet = Constellation;
-%             SignalSet=[real(Constellation); imag(Constellation)];
-%             MappingVector = 0:1;
-            obj@Modulation(SignalSet);
+%           MappingVector = 0:1;
+            obj@CreateModulation(SignalSet, SignalProb);
             obj.Type = 'BPSK';
-%             obj.MappingVector = MappingVector;
         end
     end
 end

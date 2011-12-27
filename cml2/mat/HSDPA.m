@@ -1,23 +1,21 @@
-classdef HSDPA < Modulation
-    
-    properties
-    end
+classdef HSDPA < CreateModulation
     
     methods
-        % Class constructor: obj = HSDPA( [Order] )
-        function obj = HSDPA( varargin )
-            Order = 4;
-            if length(varargin) >= 1
-                Order = varargin{1};
-                % Making sure that modulation Order is a power of 2.
-                if( Order~=4 && Order ~= 16 )
-                    error( 'HSDPA modulation is supported ONLY for Order=4 or 16.' );
-                end
+        function obj = HSDPA( Order, SignalProb )
+            % Calling Syntax: obj = HSDPA( [Order] [,SignalProb] )
+            % HSDPA modulation order can be 4 (DEFAULT) or 16.
+            if( nargin<1 || isempty(Order) )
+                Order = 4;
+            elseif( Order~=4 && Order ~= 16 )
+                % Making sure that modulation Order is supported.
+                error( 'HSDPA:InvalidOrder', 'HSDPA modulation is supported ONLY for Order=4 or 16.' );
             end
+            if( nargin<2 ), SignalProb = []; end
             
             if Order == 4 % QPSK
                 Temp = [1 1;1 -1;-1 1;-1 -1]';
-                Constellation = (Temp(1,:) + sqrt(-1)*Temp(2,:))/sqrt(2);
+%                 Constellation = (Temp(1,:) + sqrt(-1)*Temp(2,:))/sqrt(2);
+                Constellation = Temp(1,:) + sqrt(-1)*Temp(2,:);
 %                 MappingVector = 0:3;
             elseif Order == 16 % 16-QAM
                 for Point=0:15
@@ -28,16 +26,17 @@ classdef HSDPA < Modulation
                     end
                     iq = (-1).^bit_vector;
                     % Constellation(1,Point+1) = ( iq(1)*(2-iq(3)) + sqrt(-1)*iq(2)*(2-iq(4)) )/sqrt(5);
-                    Constellation(1,Point+1) = ( iq(1)*(2-iq(3)) + sqrt(-1)*iq(2)*(2-iq(4)) )/sqrt(10);
+%                     Constellation(1,Point+1) = ( iq(1)*(2-iq(3)) + sqrt(-1)*iq(2)*(2-iq(4)) )/sqrt(10);
+                    Constellation(1,Point+1) = iq(1)*(2-iq(3)) + sqrt(-1)*iq(2)*(2-iq(4));
                 end
 %                 MappingVector = 0:15;
             else
-                error( 'HSDPA modulation is supported ONLY for Order=4 or 16.' );
+                error( 'HSDPA:InvalidOrder', 'HSDPA modulation is supported ONLY for Order=4 or 16.' );
             end
             
             SignalSet=[real(Constellation); imag(Constellation)];
             
-            obj@Modulation(SignalSet);
+            obj@CreateModulation(SignalSet, SignalProb);
             obj.Type = 'HSDPA';
 %             obj.MappingVector = MappingVector;
         end

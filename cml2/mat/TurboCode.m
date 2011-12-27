@@ -9,11 +9,12 @@ classdef TurboCode < ChannelCode
         
         G1          % The first binary generator matrix for the first convolutional code
         Type1=0     % Type of the first convolutional code
-                    % 0 for Recursive Systematic Convolutional (RSC) codes (DEFAULT), 1 for Non-Systematic Convolutional (NSC) codes and 2 for tail-biting NSC code        
+                    % 0 for Recursive Systematic Convolutional (RSC) codes (DEFAULT)
+                    % 1 for Non-Systematic Convolutional (NSC) codes
+                    % 2 for tail-biting NSC code
                     
         G2          % The second binary generator matrix for the second convolutional code
         Type2=0     % Type of the second convolutional code
-                    % 0 for Recursive Systematic Convolutional (RSC) codes (DEFAULT), 1 for Non-Systematic Convolutional (NSC) codes and 2 for tail-biting NSC code        
         
         Interleaver % TYPE of the interleaver OR the specific interleaver pattern to be used in the Binary Turbo Code
                     % =0 Random interleaver
@@ -41,77 +42,68 @@ classdef TurboCode < ChannelCode
                         % =4 For log-MAP algorithm in which the correction factor uses C function calls.
         
         Iteration=8     % Number of turbo decoding iterations
-        ExtBitInf       % Extrinsic information of the code bits generated during the decoding process
     end
     
     
-    properties (GetAccess='private' , SetAccess='private')
+    properties(SetAccess = protected)
         Code1       % The first convolutional code object used in the Binary Turbo Code
         Code2       % The second convolutional code object used in the Binary Turbo Code
         N1          
-        V1          % Constraint length of the first convolutional code
+        V1          % Constraint length of the first convolutional code, i.e. m+1
         N2          
         V2          % Constraint length of the second convolutional code
-        NumberCodeword  % Number of codeword
+        NumberCodeword  % Number of codewords
         LInterleaver    % Length of the interleaver pattern
         DataMatrix  % If obj.DataLengh>InterleaverLength, DataBits is arranged in a matrix which has InterleaverLength columns.
+        ExtBitInf       % Extrinsic information of the code bits generated during the decoding process
     end
     
     
     methods
         
-        
-        function obj = TurboCode(G1, G2, Interleaver, PuncturePatt, TailPunc, DataLength, varargin)
+        function obj = TurboCode(G1, G2, Interleaver, PuncturePatt, TailPunc, DataLength, DecoderType, Iteration, Type1, Type2)
         % Class Constructor: Binary generator matrices and types of both of the convolutional codes, interleaver type or pattern, puncturing
         % pattern for both codeword bits and tail bits and also, length of DataBits to be encoded must be specified.
-        % The general syntax of calling the constructor of the TurboCode class is as follows:
-        % obj = TurboCode(G1, G2, Interleaver, PuncturePatt, TailPunc, DataLength [, DecoderType] [,Iteration] [, Type1] [,Type2])
+        % Calling Syntax: obj = TurboCode(G1, G2, Interleaver, PuncturePatt, TailPunc, DataLength [,DecoderType] [,Iteration] [,Type1] [,Type2])
             
-            [obj.N1, obj.V1] = size(G1); % Determining the size of the first convolutional code generator. 
+            [obj.N1, obj.V1] = size(G1); % Determining the size of the first convolutional code generator.
             [obj.N2, obj.V2] = size(G2);
             % In the future, we will allow constituent codes with different constraint lengths to be used in the Binary Turbo Codes.
             if ( obj.V1 ~= obj.V2 )
-                error( 'The constraint lengths of the two PCCC constituent codes must be IDENTICAL. Please choose two generator matrices for the two constituent codes with the same number of COLUMNS.', 'Constituent Code Mismatch' );
+                error( 'TurboCode:ConstituentMismatch', 'The constraint lengths of the two PCCC constituent codes must be IDENTICAL. Please choose two generator matrices for the two constituent codes with the same number of COLUMNS.' );
             end
             
-            if (length(varargin)>=1)
-                obj.DecoderType=varargin{1};
-                if (length(varargin)>=2)
-                    obj.Iteration=varargin{2};
-                    if (length(varargin)>=3)
-                        obj.Type1=varargin{3};
-                        if (length(varargin)>=4)
-                            obj.Type2=varargin{4};
-                        end
-                    end
-                end
-            end
-            
+            if(nargin>=7 && ~isempty(DecoderType)), obj.DecoderType = DecoderType; end
+            if(nargin>=8 && ~isempty(Iteration)), obj.Iteration = Iteration; end
+            if(nargin>=9 && ~isempty(Type1)), obj.Type1 = Type1; end
+            if(nargin>=10 && ~isempty(Type2)), obj.Type2 = Type2; end
             obj.G1=G1;
-            obj.Code1=ConvCode(obj.G1, obj.Type1, obj.DecoderType);
+            obj.Code1 = ConvCode(obj.G1, DataLength, obj.Type1, obj.DecoderType);
             obj.G2=G2;
-            obj.Code2=ConvCode(obj.G2, obj.Type2, obj.DecoderType);
+            obj.Code2 = ConvCode(obj.G2, DataLength, obj.Type2, obj.DecoderType);
             
             obj.Interleaver=Interleaver;
             obj.PuncturePatt=PuncturePatt;
             obj.TailPunc=TailPunc;
             obj.DataLength=DataLength;
             
-            obj.IntPattern = InterleaverPattern(obj, obj.Interleaver);
+            obj.IntPattern = obj.InterleaverPattern(obj.Interleaver);
             
             % Checking Interleaver Length against DataLength
             obj.LInterleaver = length(obj.IntPattern);
             if ( rem(obj.DataLength, obj.LInterleaver) ~= 0 )
-                error( 'The length of data to be encoded needs to be an INTEGER multiple of the interleaver length.', 'Data Length and Interleaver Mismatch' );
+                error( 'TurboCode:DataLength_Interleaver_Mismatch', 'The length of data to be encoded needs to be an INTEGER multiple of the interleaver length.' );
             end
             
+            % Setting the code Rate and CodewordLength
+            Codeword = obj.Encode( zeros(1, obj.DataLength) );
+            obj.CodewordLength = size(Codeword, 2);
+            obj.Rate = obj.DataLength/obj.CodewordLength;
         end
-            
         
         function Pattern = InterleaverPattern(obj, InterleaverType)
         % Pattern is the vector of interleaver pattern whose integer multiple of length is obj.DataLength bits.
             if (length(InterleaverType) == 1)
-                
                 switch InterleaverType
                     case 0
                         Pattern = randperm(obj.DataLength)-1;
@@ -122,28 +114,24 @@ classdef TurboCode < ChannelCode
                     case 3
                         Pattern = CreateUmtsInterleaver(obj.DataLength);
                     otherwise
-                        error('The type of the interleaver used in the Binary Turbo Codes has to be one of the integers between 0 and 3, inclusively.', 'Invalid Interleaver Type');
+                        error( 'TurboCode:InvalidInterleaverType', 'The type of the interleaver used in the Binary Turbo Codes has to be one of the integers between 0 and 3, inclusively.' );
                 end
-                
             else
                 Pattern = InterleaverType;
             end
-            
         end
         
-        
         function Codeword = Encode(obj, DataBits)
-            
+            if(nargin<2 || isempty(DataBits)), DataBits = round(rand(1,obj.DataLength)); end
             if rem( length(DataBits), obj.LInterleaver ) ~= 0
-                error( 'The length of the binary input DataBits to be encoded by this object has to be an integer multiple of DataLength.' );
+                error( 'TurboCodeEncode:DataLength', 'The length of the binary input DataBits to be encoded by this object has to be an integer multiple of DataLength.' );
             end
             
             obj.DataBits = DataBits;
             obj.NumberCodeword = length(obj.DataBits)/obj.LInterleaver;
             obj.DataMatrix = reshape( obj.DataBits, obj.LInterleaver, obj.NumberCodeword )';
-                        
+            
             for i=1:obj.NumberCodeword
-                
                 % Encoding in Parallel
                 T=obj.DataMatrix(i,:);
                 UpperOutput = obj.Code1.Encode (T);
@@ -162,27 +150,19 @@ classdef TurboCode < ChannelCode
             end
             
             obj.Codeword = Codeword;
-            obj.CodewordLength = size( obj.Codeword, 2 );
-            obj.Rate = obj.DataLength/obj.CodewordLength;
         end
         
-        
-        function [EstBits, ExtBitInf, UpperInUNext] = Decode(obj, ReceivedLLR, varargin)
-        % The syntax of calling this method is as follows: [EstBits, ExtBitInf] = Decode(obj, ReceivedLLR [, UpperInU])
+        function [EstBits, ExtBitInf, UpperInUNext] = Decode(obj, ReceivedLLR, UpperU)
+        % Calling syntax: [EstBits, ExtBitInf, UpperInUNext] = Decode(obj, ReceivedLLR [,UpperU])
         % ReceivedLLR could have multiple rows if DataBits is longer than IntPattern.
-        % UpperInU: OPTIONAL a priori information about systematic data bits.
+        % UpperU: OPTIONAL a priori information about systematic data bits.
         % ExtBitInf: Extrinsic information of the code bits generated during the decoding process.
-            
             obj.ReceivedLLR = ReceivedLLR;
             
             % Initializing Error Counter
             NErrors = zeros(obj.Iteration, 1);
-            
-            if length(varargin) >= 1
-                UpperInU = varargin{1};
-            else
-                UpperInU = zeros( obj.NumberCodeword, length(obj.DataBits)/obj.NumberCodeword );
-            end
+            UpperInU = zeros( obj.NumberCodeword, length(obj.DataBits)/obj.NumberCodeword );
+            if(nargin>=3 && ~isempty(UpperU)), UpperInU = UpperU; end
             
             % Loop Over Each ReceivedLLR Frame
             for i=1:obj.NumberCodeword
@@ -206,7 +186,7 @@ classdef TurboCode < ChannelCode
                     [Useless LowerOutputC LowerOutputU] = obj.Code2.Decode( LowerInC, LowerInU );
                     
                     % Counting the Number of Eerrors
-                    Temp1(obj.IntPattern+1)=(sign(LowerOutputU)+1)/2;
+                    Temp1(obj.IntPattern+1)=(LowerOutputU>0);
                     DetectedData(i,:) = Temp1;
                     ErrorPosition = xor( DetectedData(i,:), obj.DataMatrix(i,:) );
                     TNError = sum(ErrorPosition);
