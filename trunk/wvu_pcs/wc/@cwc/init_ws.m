@@ -37,8 +37,6 @@ for k = 1:n,
     end
 end
 
-obj.nw = nw-1;   % total number of workers
-obj.aw = 0;         % all workers are idle
 
 end
 
