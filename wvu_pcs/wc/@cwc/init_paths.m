@@ -36,6 +36,20 @@ function init_paths(obj)
   key = 'bash_scripts';
   out = util.fp(obj.cf, heading, key);
   obj.bs = out{1};
+
+
+  % worker script path
+  heading = '[workerscript]';
+  key = 'path';
+  out = util.fp(obj.cf, heading, key);
+  obj.gwp = out{1};
+
+
+  % worker script
+  heading = '[workerscript]';
+  key = 'script';
+  out = util.fp(obj.cf, heading, key);
+  obj.gwn = out{1};
   
   
 

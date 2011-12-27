@@ -18,6 +18,7 @@ workers{wid}.pid = pid;
 %[stat pid] = system(worker.stac);
 
 
+
 % create the command string which stops the worker
 %worker.stoc = ccs(obj, worker);
 
@@ -32,17 +33,15 @@ function [stat pid] = so(obj, wid)
 
 cmlPath = ''; %leave null for now.
 
-cs = [obj.bs, '/start_worker.sh'];
+cs = [obj.bs{1}  '/start_worker.sh'];
 cs = [cs, ' ',...
-    obj.workers{wid}.node, ' ',...
-    obj.gwp, ' ',...
-    obj.gwn, ' ',...
+	obj.workers{wid}.node, ' ',...
+	obj.gwp{1}, ' ',...
+	obj.gwn{1}, ' ',...
     int2str(wid), ' ', ...
     cmlPath];
 
-
-end
-
-
+cs
+[stat pid] = system(cs);
 
 end
