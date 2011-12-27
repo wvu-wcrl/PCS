@@ -13,28 +13,28 @@ function init_paths(obj)
   % input path
   heading = '[paths]';
   key = 'input_queue';
-  out = util.fp(obj.cfp, heading, key);
+  out = util.fp(obj.cf, heading, key);
   obj.gq.iq = out{1};
 
   
   % output path
   heading = '[paths]';
   key = 'output_queue';
-  out = util.fp(obj.cfp, heading, key);
+  out = util.fp(obj.cf, heading, key);
   obj.gq.oq = out{1};
 
   
   % running path
   heading = '[paths]';
   key = 'run_queue';
-  out = util.fp(obj.cfp, heading, key);
+  out = util.fp(obj.cf, heading, key);
   obj.gq.rq = out{1};
   
   
   % bash script path
   heading = '[paths]';
   key = 'bash_scripts';
-  out = util.fp(obj.cfp, heading, key);
+  out = util.fp(obj.cf, heading, key);
   obj.bs = out{1};
   
   
