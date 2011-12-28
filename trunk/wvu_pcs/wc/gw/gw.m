@@ -11,8 +11,16 @@
 % 12/26/2011
 % Terry Ferrett
 
-function gw(wid, iq, rq, oq)
+function gw(wid, gq, iq, rq, oq)
+%varagin
 
+default_path = path; % save the default path.
+
+% global task controller directories
+iq = gq.iq;     %input
+rq = gq.rq;    % running
+oq = gq.oq;  %output
+ld = gq.ld;    %log dir
 
 
 while(1)
@@ -20,26 +28,27 @@ while(1)
     next_input = read_input_queue(iq); % read a random input file from the input queue
     
     if( ~isempty(next_input) )
-        next_running = feed_running_queue(next_input, rq); % move the input file to the running queue
-        input_struct = read_input_file(next_running); % read the input struct from the running queue
+       
+        next_running= feed_running_queue(next_input, iq, rq, wid); % move the input file to the running queue
+        input_struct = read_input_file(rq, next_running); % read the input struct from the running queue
         
         
-        % break down the input struct
-        sim_param = input_struct.sim_param;     % simulation parameters
-        sim_path = input_struct.sim_path;           % path to simulation code
-        sim_fcn = input_struct.sim_fcn;                % entry routine into simulation code
+        % break the input struct into local variables
+        fcn_param = input_struct.fcn_param;     % simulation parameters
+        fcn_path = input_struct.fcn_path;           % path to simulation code
+        fcn = input_struct.fcn;                % entry routine into simulation code
         
-        addpath(sim_path);   % add path to simulation code to global path
+        addpath(fcn_path);   % add path to simulation code to global path
         
         % run the function with its input parameters
-        fun_in = str2func(sim_fcn);
-        save_param = feval(fun_in, sim_param);
-
+        fcn = str2func(fcn);
+        output_struct = feval(fcn, fcn_param);
+        
         
         consume_running_queue(next_running, rq); % delete file from running queue
-        write_output(sim_param, save_param, next_input); % write to output queue
+        write_output(input_struct, output_struct, next_input, oq); % write to output queue
         
-        rmpath(sim_path);  % remove code paths from global path
+        path(default_path); % restore the default path
     end
     
     
@@ -59,37 +68,73 @@ fl = dir( srch );    % get list of .mat files in input queue directory
     
 nf = length(fl);  % how many input files does this user have?
 
-next_input = ceil(rand*nf); % pick file randomly
+fn = ceil(rand*nf); % pick file randomly
+if fn ~= 0,
+    next_input = fl(fn).name;
+else
+    next_input = '';
+end
 
 end
 
 
 
 
-function next_running = feed_running_queue(next_input, rq, wid)
+
+function next_running = feed_running_queue(next_input, iq,  rq, wid)
 
 % move the file to the running queue and tag with the worker id
 [beg en] = strtok(next_input,'_');
 next_running = [beg '_' int2str(wid) en];
 
-cs = ['mv' ' ' iq '/' next_input ' ' next_running '/' fn];
+cs = ['mv' ' ' iq '/' next_input ' ' rq '/' next_running ];
 
 system(cs);
 
 end
 
 
-function input_struct = read_input_file(next_running)
+
+
+
+function input_struct = read_input_file(rq, next_running)
+
+lf = [rq '/' next_running];
+
+load(lf);
+
+% data file contains   
+        % data file contains
+            % input_struct
+                 % fcn_param
+                 % fcn_path
+                 % fcn
+            % output_struct
+                % fcn_res
 end
+
+
+
 
 
 
 function consume_running_queue(next_running, rq)
+
+cs = ['rm' ' ' rq '/' next_running];
+system(cs);
+
 end
 
 
 
-function write_output(sim_param, save_param, next_input)
+function write_output(input_struct, output_struct, next_input, oq)
+
+op = [oq '/' next_input];
+
+save(op, 'input_struct', 'output_struct');
+
 end
+
+
 
 
