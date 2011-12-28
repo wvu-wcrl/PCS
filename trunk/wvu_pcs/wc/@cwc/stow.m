@@ -21,9 +21,10 @@ end
 function so(obj, wid)
  
  % Form the command string.
- cs = [obj.bs, '/stop_worker.sh'];
+cs = [obj.bs{1}, '/stop_worker.sh'];
  cs = [cs, ' ',...
      obj.workers{wid}.node, ' ',...
-     obj.workers{wid}.pid];
+	  obj.workers{wid}.pid ]
  
+   system(cs);
  end

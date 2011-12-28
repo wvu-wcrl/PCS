@@ -61,7 +61,7 @@ for k = 1:nu,
     if length( sfl{k} ) > 0,
         na = na + 1;
         au{na} = obj.users{k};
-        nf(na) = length(fl{k});  % how many input files does this user have?
+        nf(na) = length(sfl{k});  % how many input files does this user have?
         fl{na} = sfl{k};
     end
     
@@ -84,11 +84,12 @@ fl_srt = {};
 
 for k =1:nau,
     for l = 1:ntu,
-        if strcmp(au{k}, obj.users{l})
-            nw(k) = obj.users{k}.aw;
+        if strcmp(au{k}.username, obj.users{l}.username)
+            nw(k) = obj.users{k}.aw
         end
     end
 end
+
 
 if ~isempty(nw)
     [l P] = sort(nw);
@@ -115,7 +116,7 @@ if ~isempty(users_srt)
     
     cnt = 1;
     while avw > 0 & nf > 0,
-        path1 = strcat(users_srt{1}.iq, '/', fl_srt{1}(cnt).name);  % path to input file
+        path1 = strcat(users_srt.iq, '/', fl_srt{1}(cnt).name);  % path to input file
         path2 = obj.gq.iq;
         
         % copy user file into input queue
@@ -140,13 +141,13 @@ end
 function update_user_active_status(obj, users_srt, fl_srt) % place file in user's active directory
 
 if ~isempty(users_srt)
-    path1 = users_srt{1}.rq{1};  % form path name
+    path1 = users_srt.rq;  % form path name
     
     nf = length( fl_srt{1} );     % determine number of input files
     
     for k = 1:nf,
         af = strcat('active_', fl_srt{1}(k).name); % form active filename
-        cmd_str = ['touch' ' ' path1 '/' af];
+        cmd_str = ['touch' ' ' path1{1} '/' af]
         system(cmd_str);
     end
 end
