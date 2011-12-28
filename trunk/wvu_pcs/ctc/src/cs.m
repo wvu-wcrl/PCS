@@ -12,7 +12,7 @@
 
 
 % determine the home directory
-   prjroot = pwd; 
+   cd ..;cd ..; prjroot = pwd; 
 %cd ..; cd srv/; srvroot = pwd; cd(prjroot);
 
 
@@ -22,7 +22,7 @@ if ispc
     addpath( strcat( prjroot, '\tc' ) );
 addpath(prjroot, '\util');
  else
-   addpath(strcat(prjroot, '/tc'));
+   addpath(strcat(prjroot, '/ctc/src/tc'));
     addpath( strcat( prjroot, '/util' ) );
 end
 
@@ -37,8 +37,6 @@ fprintf('State loaded.\n')
 catch
     fprintf('State file does not exist.  Aborting load.\n');
 end
-
-
-
 end
+   end
 
