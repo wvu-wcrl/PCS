@@ -119,8 +119,11 @@ if ~isempty(users_srt)
         path1 = strcat(users_srt.iq, '/', fl_srt{1}(cnt).name);  % path to input file
         path2 = obj.gq.iq;
         
+        % append username to file
+        afn = [users_srt.username '_' fl_srt{1}(cnt).name];
+
         % copy user file into input queue
-        cmd_str = ['cp' ' ' path1{1} ' ' path2{1}];
+        cmd_str = ['cp' ' ' path1{1} ' ' path2{1} '/' afn];
         system(cmd_str);
         
         avw = avw - 1;
@@ -138,16 +141,19 @@ end
 
 
 
-function update_user_active_status(obj, users_srt, fl_srt) % place file in user's active directory
+function update_user_active_status(obj, users_srt, fl_srt) % move input file to user's active directory
+
 
 if ~isempty(users_srt)
-    path1 = users_srt.rq;  % form path name
+    liq = users_srt.iq{1};
+    lrq =  users_srt.rq{1};  % form path name
+    
     
     nf = length( fl_srt{1} );     % determine number of input files
     
     for k = 1:nf,
-        af = strcat('active_', fl_srt{1}(k).name); % form active filename
-        cmd_str = ['touch' ' ' path1{1} '/' af]
+        af = strcat(fl_srt{1}(k).name); % form active filename
+        cmd_str = ['mv' ' ' liq '/' af ' ' lrq '/' af ];
         system(cmd_str);
     end
 end
@@ -205,8 +211,9 @@ for k = 1:nf,
     for m = 1:nu,
         name = obj.users{m}.username;
         if findstr( fl(k).name, name )
+            [beg on] = strtok(fl(k).name, '_'); on = on(2:end);
             path2 = obj.users{m}.oq{1};
-            cmd_str = ['mv' ' ' path1 '/'  fl(k).name ' ' path2];
+            cmd_str = ['mv' ' ' path1 '/'  fl(k).name ' ' path2 '/' on];
             system(cmd_str);
         end
     end
