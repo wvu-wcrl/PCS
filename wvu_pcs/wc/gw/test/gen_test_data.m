@@ -3,7 +3,7 @@
 % create an example input structure for the code loaded by the test 
 
 fcn_param.nnums = 10;                                        % generate 10 uniform random variates
-fcn_path = '/home/tferrett/cml2/iscml/wvu_pcs/wc/gw/test/'; % path to entry function
+fcn_path = '/rhome/tferrett/cml2/iscml/wvu_pcs/wc/gw/test/'; % path to entry function
 fcn = 'test';                                               % entry function
 
 input_struct.fcn_param = fcn_param; % load input struct

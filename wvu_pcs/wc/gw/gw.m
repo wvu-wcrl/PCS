@@ -11,16 +11,16 @@
 % 12/26/2011
 % Terry Ferrett
 
-function gw(wid, gq, iq, rq, oq)
+function gw(wid, iq, rq, oq)
 %varagin
 
 default_path = path; % save the default path.
 
 % global task controller directories
-iq = gq.iq;     %input
-rq = gq.rq;    % running
-oq = gq.oq;  %output
-ld = gq.ld;    %log dir
+%iq = gq.iq;     %input
+%rq = gq.rq;    % running
+%oq = gq.oq;  %output
+%ld = gq.ld;    %log dir
 
 
 while(1)
