@@ -1,3 +1,4 @@
 ctc - cluster task controller
 wc - worker controller
 cfg - configuration files for ctc and wc
+examples - example functions loaded by the generic worker
