@@ -34,15 +34,15 @@ while(1)
         
         
         % break the input struct into local variables
-        fcn_param = input_struct.fcn_param;     % simulation parameters
-        fcn_path = input_struct.fcn_path;           % path to simulation code
-        fcn = input_struct.fcn;                % entry routine into simulation code
+        SimulationParam = input_struct.SimulationParam;     % simulation parameters
+        FunctionPath = input_struct.FunctionPath;           % path to simulation code
+        FunctionName = input_struct.FunctionName;                % entry routine into simulation code
         
-        addpath(fcn_path);   % add path to simulation code to global path
+        addpath(FunctionPath);   % add path to simulation code to global path
         
         % run the function with its input parameters
-        fcn = str2func(fcn);
-        output_struct = feval(fcn, fcn_param);
+        FunctionName = str2func(FunctionName);
+        output_struct = feval(FunctionName, SimulationParam);
         
         
         consume_running_queue(next_running, rq); % delete file from running queue

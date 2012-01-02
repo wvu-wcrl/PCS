@@ -2,13 +2,13 @@
 %
 % create an example input structure for the code loaded by the test 
 
-fcn_param.nnums = 10;                                        % generate 10 uniform random variates
-fcn_path = '/rhome/tferrett/cml2/iscml/wvu_pcs/wc/gw/test/'; % path to entry function
-fcn = 'test';                                               % entry function
+SimulationParam.nnums = 10;                                        % generate 10 uniform random variates
+FunctionPath = '/rhome/tferrett/cml2/iscml/wvu_pcs/wc/gw/test/'; % path to entry function
+FunctionName = 'test';                                               % entry function
 
-input_struct.fcn_param = fcn_param; % load input struct
-input_struct.fcn_path = fcn_path;
-input_struct.fcn = fcn;
+input_struct.SimulationParam = SimulationParam; % load input struct
+input_struct.FunctionPath = FunctionPath;
+input_struct.FunctionName = FunctionName;
 
 output_struct = '';
 

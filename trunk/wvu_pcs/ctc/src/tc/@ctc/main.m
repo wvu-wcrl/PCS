@@ -16,8 +16,7 @@ function main(obj)
 nu = length(obj.users);           % number of users
 
 while(1) %enter primary loop
-    
-    
+        
     [au fl] = scan_user_inputs(obj);   % scan input directories for new .mat inputs
     
     [users_srt fl_srt] = schedule(obj, au, fl); % decide which user to service
