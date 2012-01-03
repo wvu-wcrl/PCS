@@ -17,7 +17,7 @@ nu = length(obj.users);           % number of users
 
 while(1) %enter primary loop
         
-    [au fl] = scan_user_inputs(obj);   % scan input directories for new .mat inputs
+    [au fl] = scan_user_inputs(obj)   % scan input directories for new .mat inputs
     
     [users_srt fl_srt] = schedule(obj, au, fl); % decide which user to service
     
@@ -55,11 +55,13 @@ au ={};
 fl = {};
 for k = 1:nu,
     srch = strcat(obj.users{k}.iq, '/*.mat');      % form full dir string
-    sfl{k} = dir( srch{1} );    % get list of .mat files in input queue directory
+    sfl{k} = dir( srch{1} )    % get list of .mat files in input queue directory
     
+%    obj.users{2}.iq
+
     if length( sfl{k} ) > 0,
         na = na + 1;
-        au{na} = obj.users{k};
+        au{na} = obj.users{k}
         nf(na) = length(sfl{k});  % how many input files does this user have?
         fl{na} = sfl{k};
     end
@@ -152,7 +154,7 @@ if ~isempty(users_srt)
     
     for k = 1:nf,
         af = strcat(fl_srt{1}(k).name); % form active filename
-        cmd_str = ['mv' ' ' liq '/' af ' ' lrq '/' af ];
+        cmd_str = ['sudo mv' ' ' liq '/' af ' ' lrq '/' af ];
         system(cmd_str);
     end
 end
@@ -212,7 +214,7 @@ for k = 1:nf,
         if findstr( fl(k).name, name )
             [beg on] = strtok(fl(k).name, '_'); on = on(2:end);
             path2 = obj.users{m}.oq{1};
-            cmd_str = ['mv' ' ' path1 '/'  fl(k).name ' ' path2 '/' on];
+            cmd_str = ['sudo mv' ' ' path1 '/'  fl(k).name ' ' path2 '/' on];
             system(cmd_str);
         end
     end
