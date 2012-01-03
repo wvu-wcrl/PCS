@@ -20,15 +20,17 @@ n = length(usrdirs);       % number of directories found
 usr_cnt = 1;                   % counter to track number of users
 for k = 1:n,
     
-    cur_path = strcat(HOME_ROOT, '/', usrdirs(k).name);  % find .ctc file
-    cur_file = strcat(cur_path, '/', CFG_FILENAME);
+	  cur_path = strcat(HOME_ROOT, '/', usrdirs(k).name);  % find .ctc file
+	  cur_file = strcat(cur_path, '/', CFG_FILENAME);
     file_exists = length( dir(cur_file) );
     
     if file_exists ~= 0, % if .ctc exists, read it
         
         % add this user to active users
-        users{usr_cnt} = usrdirs(k).name;
-        
+        users{usr_cnt} = usrdirs(k).name
+           
+
+
         % read input directory
         heading = '[paths]';
         key = 'input';
@@ -45,13 +47,15 @@ for k = 1:n,
         out = util.fp(cur_file, heading, key);
         oq{usr_cnt} = out{1};
         
+        usr_cnt = usr_cnt + 1;    
     end
     
 end
 
 
 
-n = length(users);   % number of workers
+n = length(users);   % number of users
+n
 for k = 1:n,
     tmp.username = users{k};
     tmp.iq = iq{k};

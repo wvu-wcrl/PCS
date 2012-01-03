@@ -41,8 +41,8 @@ while(1)
         addpath(FunctionPath);   % add path to simulation code to global path
         
         % run the function with its input parameters
-        FunctionName = str2func(FunctionName);
-        output_struct = feval(FunctionName, SimulationParam);
+        FunctionName = str2func(FunctionName)
+        output_struct = feval(FunctionName, SimulationParam)
         
         
         consume_running_queue(next_running, rq); % delete file from running queue
@@ -87,7 +87,10 @@ function next_running = feed_running_queue(next_input, iq,  rq, wid)
 [beg en] = strtok(next_input,'_');
 next_running = [beg '_' int2str(wid) en];
 
+
 cs = ['mv' ' ' iq '/' next_input ' ' rq '/' next_running ];
+
+
 
 system(cs);
 
