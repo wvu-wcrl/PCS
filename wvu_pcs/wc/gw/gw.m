@@ -28,21 +28,39 @@ while(1)
     next_input = read_input_queue(iq); % read a random input file from the input queue
     
     if( ~isempty(next_input) )
-       
+
+      
         next_running= feed_running_queue(next_input, iq, rq, wid); % move the input file to the running queue
         input_struct = read_input_file(rq, next_running); % read the input struct from the running queue
         
         
         % break the input struct into local variables
-        SimulationParam = input_struct.SimulationParam;     % simulation parameters
+        TaskParam = input_struct.TaskParam;     % simulation parameters
         FunctionPath = input_struct.FunctionPath;           % path to simulation code
         FunctionName = input_struct.FunctionName;                % entry routine into simulation code
         
         addpath(FunctionPath);   % add path to simulation code to global path
         
         % run the function with its input parameters
-        FunctionName = str2func(FunctionName)
-        output_struct = feval(FunctionName, SimulationParam)
+        FunctionName = str2func(FunctionName);
+      
+
+   [year month day hour min sec] = gettime(); % current time 
+   username = strtok(next_running, '_');  % username
+
+
+   ls = ['Executing task' ' ' func2str(FunctionName) ' ' 'from user' ' ' username  ' ' 'at'  ' ' year '-' month '-' day ' ' hour ':' min ':' sec];
+   fprintf(ls);
+fprintf('\n');
+        
+output_struct = feval(FunctionName, TaskParam);
+
+
+   [year month day hour min sec] = gettime(); % current time
+   ls = ['Task' ' ' func2str(FunctionName) ' ' 'from user'  ' ' username ' ' 'complete' ' ' 'at'  ' ' year '-' month '-' day '-' hour ':' min ':' sec];
+   fprintf(ls);
+fprintf('\n');
+
         
         
         consume_running_queue(next_running, rq); % delete file from running queue
@@ -140,4 +158,8 @@ end
 
 
 
-
+function [year month day hour min sec] = gettime();
+   timevec = fix(clock);  % time
+ year = int2str(timevec(1)); month = int2str(timevec(2)); day = int2str(timevec(3)); 
+ hour = int2str(timevec(4)); min = int2str(timevec(5)); sec = int2str(timevec(6));
+end

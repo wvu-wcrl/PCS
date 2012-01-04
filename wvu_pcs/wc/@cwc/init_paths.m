@@ -38,6 +38,14 @@ function init_paths(obj)
   obj.bs = out{1};
 
 
+  
+  % bash script path
+  heading = '[paths]';
+  key = 'log';
+  out = util.fp(obj.cf, heading, key);
+  obj.lp = out{1};
+
+
   % worker script path
   heading = '[workerscript]';
   key = 'path';

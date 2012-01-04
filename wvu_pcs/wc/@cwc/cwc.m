@@ -36,6 +36,8 @@ classdef cwc < handle
                % iq - input 
                % oq - output 
                % rq - running 
+       
+        lp     % log path - read from config file
     end
     
     
