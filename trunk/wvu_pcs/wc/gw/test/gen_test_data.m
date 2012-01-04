@@ -6,7 +6,7 @@ SimulationParam.nnums = 10;                                        % generate 10
 FunctionPath = '/rhome/tferrett/cml2/iscml/wvu_pcs/wc/gw/test/'; % path to entry function
 FunctionName = 'test';                                               % entry function
 
-input_struct.SimulationParam = SimulationParam; % load input struct
+input_struct.TaskParam = SimulationParam; % load input struct
 input_struct.FunctionPath = FunctionPath;
 input_struct.FunctionName = FunctionName;
 

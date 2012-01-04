@@ -17,7 +17,7 @@ nu = length(obj.users);           % number of users
 
 while(1) %enter primary loop
         
-    [au fl] = scan_user_inputs(obj)   % scan input directories for new .mat inputs
+	    [au fl] = scan_user_inputs(obj);   % scan input directories for new .mat inputs
     
     [users_srt fl_srt] = schedule(obj, au, fl); % decide which user to service
     
@@ -55,13 +55,13 @@ au ={};
 fl = {};
 for k = 1:nu,
     srch = strcat(obj.users{k}.iq, '/*.mat');      % form full dir string
-    sfl{k} = dir( srch{1} )    % get list of .mat files in input queue directory
+    sfl{k} = dir( srch{1} );    % get list of .mat files in input queue directory
     
 %    obj.users{2}.iq
 
     if length( sfl{k} ) > 0,
         na = na + 1;
-        au{na} = obj.users{k}
+        au{na} = obj.users{k};
         nf(na) = length(sfl{k});  % how many input files does this user have?
         fl{na} = sfl{k};
     end
@@ -86,7 +86,7 @@ fl_srt = {};
 for k =1:nau,
     for l = 1:ntu,
         if strcmp(au{k}.username, obj.users{l}.username)
-            nw(k) = obj.users{k}.aw
+            nw(k) = obj.users{k}.aw;
         end
     end
 end
