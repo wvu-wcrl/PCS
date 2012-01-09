@@ -11,7 +11,7 @@ function init_users(obj)
 
 % named constants
 HOME_ROOT = '/home';
-CFG_FILENAME = '.ctc';
+CFG_FILENAME = '.ctc_cfg';
 
 
 usrdirs = dir(HOME_ROOT);   % perform a directory listing in home to list users
