@@ -16,14 +16,14 @@ function main(obj)
 nu = length(obj.users);           % number of users
 
 while(1) %enter primary loop
-        
+	    fprintf('hi')        
 	    [au fl] = scan_user_inputs(obj);   % scan input directories for new .mat inputs
     
     [users_srt fl_srt] = schedule(obj, au, fl); % decide which user to service
     
     place_user_input_in_queue(obj, users_srt, fl_srt);   % move input files to cluster input queue
     
-    update_user_active_status(obj, users_srt, fl_srt); % place status file in user's active directory
+
     
     calculate_active_workers(obj); % scan the global running queue and count the active workers for each user
     
@@ -37,7 +37,7 @@ end
 
 end
 
-
+%  update_user_active_status(obj, users_srt, fl_srt); % place status file in user's active directory
 
 
 
@@ -111,27 +111,40 @@ end
 
 function place_user_input_in_queue(obj, users_srt, fl_srt)
 
+
 if ~isempty(users_srt)
+
     avw = obj.nw - obj.aw;   % available number of workers
     nf = length( fl_srt{1} );
     
-    cnt = 1;
+    cnt = 0;
     while avw > 0 & nf > 0,
-        path1 = strcat(users_srt.iq, '/', fl_srt{1}(cnt).name);  % path to input file
-        path2 = obj.gq.iq;
-        
-        % append username to file
-        afn = [users_srt.username '_' fl_srt{1}(cnt).name];
-
-        % copy user file into input queue
-        cmd_str = ['cp' ' ' path1{1} ' ' path2{1} '/' afn];
-        system(cmd_str);
-        
         avw = avw - 1;
         nf = nf - 1;
         cnt = cnt + 1;
+
+        path1 = strcat(users_srt.iq, '/', fl_srt{1}(cnt).name)  % path to input file
+        path2 = obj.gq.iq;
+	path3 = users_srt.rq;
+
+        % append username to file
+        afn = [users_srt.username '_' fl_srt{1}(cnt).name];
+
+
+
+        % copy user file into running queue
+        cmd_str = ['cp' ' ' path1{1} ' ' path3{1} '/' fl_srt{1}(cnt).name];
+        system(cmd_str);
+
+
+        % move user file into input queue
+        cmd_str = ['mv' ' ' path1{1} ' ' path2{1} '/' afn];
+       system(cmd_str);
+      
+
     end
     
+obj.aw = obj.aw + cnt;
     
 end
 
@@ -190,6 +203,13 @@ for k = 1:nu, % for all users
     obj.users{k}.aw = nw;  % update active user count
 end
 
+% add up all active workers for all users
+nw = 0;
+for k = 1:nu,
+nw = nw + obj.users{k}.aw;
+end
+obj.aw = nw;
+
 end
 
 
@@ -203,7 +223,7 @@ function consume_output(obj)
 path1 = obj.gq.oq{1};
 
 srch = strcat(path1, '/*.mat');      % form full dir string
-fl = dir( srch );    % get list of .mat files in input queue directory
+fl = dir( srch );    % get list of .mat files in output queue
 nf = length(fl);
 nu = length(obj.users);
 
@@ -214,8 +234,18 @@ for k = 1:nf,
         if findstr( fl(k).name, name )
             [beg on] = strtok(fl(k).name, '_'); on = on(2:end);
             path2 = obj.users{m}.oq{1};
-            cmd_str = ['sudo mv' ' ' path1 '/'  fl(k).name ' ' path2 '/' on];
+
+            cmd_str = ['sudo mv' ' ' path1 '/'  fl(k).name ' ' path2 '/' on]; % move file to user output queue
             system(cmd_str);
+            cmd_str = ['chown' ' ' name ':' name ' ' path2 '/' on]; system(cmd_str);   % change ownership back to user
+
+
+	    rq = obj.users{m}.rq{1};
+	    cmd_str = ['sudo rm' ' ' rq '/'  on]; % remove file from user running queue
+
+            system(cmd_str);
+
+	    
         end
     end
 end
