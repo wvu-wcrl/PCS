@@ -15,6 +15,9 @@ function main(obj)
 
 nu = length(obj.users);           % number of users
 
+
+
+
 while(1) %enter primary loop
 	    fprintf('hi')        
 	    [au fl] = scan_user_inputs(obj);   % scan input directories for new .mat inputs
@@ -111,6 +114,8 @@ end
 
 function place_user_input_in_queue(obj, users_srt, fl_srt)
 
+PCSUSER = 'pcs';
+
 
 if ~isempty(users_srt)
 
@@ -138,8 +143,11 @@ if ~isempty(users_srt)
 
 
         % move user file into input queue
-        cmd_str = ['mv' ' ' path1{1} ' ' path2{1} '/' afn];
+        cmd_str = ['sudo mv' ' ' path1{1} ' ' path2{1} '/' afn];
        system(cmd_str);
+        % change ownership to pcs user
+        cmd_str = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' path2{1} '/' afn]
+         system(cmd_str);   % change ownership back to user      
       
 
     end
@@ -237,7 +245,7 @@ for k = 1:nf,
 
             cmd_str = ['sudo mv' ' ' path1 '/'  fl(k).name ' ' path2 '/' on]; % move file to user output queue
             system(cmd_str);
-            cmd_str = ['chown' ' ' name ':' name ' ' path2 '/' on]; system(cmd_str);   % change ownership back to user
+            cmd_str = ['sudo chown' ' ' name ':' name ' ' path2 '/' on]; system(cmd_str);   % change ownership back to user
 
 
 	    rq = obj.users{m}.rq{1};
