@@ -22,10 +22,17 @@ default_path = path; % save the default path.
 %oq = gq.oq;  %output
 %ld = gq.ld;    %log dir
 
+   [year month day hour min sec] = gettime(); % current time 
+
+   ls = ['Worker' ' ' int2str(wid) ' ' 'started at' ' '  year '-' month '-' day ' ' hour ':' min ':' sec];
+   fprintf(ls);
+
 
 while(1)
     
     next_input = read_input_queue(iq); % read a random input file from the input queue
+
+
     
     if( ~isempty(next_input) )
 
@@ -45,11 +52,15 @@ while(1)
         FunctionName = str2func(FunctionName);
       
 
+
    [year month day hour min sec] = gettime(); % current time 
    username = strtok(next_running, '_');  % username
 
 
-   ls = ['Executing task' ' ' func2str(FunctionName) ' ' 'from user' ' ' username  ' ' 'at'  ' ' year '-' month '-' day ' ' hour ':' min ':' sec];
+   task_name = get_task_name(next_input);
+
+
+   ls = ['Executing task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' year '-' month '-' day ' ' hour ':' min ':' sec];
    fprintf(ls);
 fprintf('\n');
         
@@ -57,7 +68,7 @@ output_struct = feval(FunctionName, TaskParam);
 
 
    [year month day hour min sec] = gettime(); % current time
-   ls = ['Task' ' ' func2str(FunctionName) ' ' 'from user'  ' ' username ' ' 'complete' ' ' 'at'  ' ' year '-' month '-' day '-' hour ':' min ':' sec];
+   ls = ['Task' ' ' task_name ' ' 'from user'  ' ' username ' ' 'complete' ' ' 'at'  ' ' year '-' month '-' day ' ' hour ':' min ':' sec];
    fprintf(ls);
 fprintf('\n');
 
@@ -74,6 +85,7 @@ fprintf('\n');
     
 end
 end
+
 
 
 
@@ -162,4 +174,18 @@ function [year month day hour min sec] = gettime();
    timevec = fix(clock);  % time
  year = int2str(timevec(1)); month = int2str(timevec(2)); day = int2str(timevec(3)); 
  hour = int2str(timevec(4)); min = int2str(timevec(5)); sec = int2str(timevec(6));
+end
+
+
+
+
+
+
+function  task_name = get_task_name(next_input)
+
+
+  [beg task_name] = strtok(next_input, '_');
+
+task_name = task_name(2:end-4);
+
 end

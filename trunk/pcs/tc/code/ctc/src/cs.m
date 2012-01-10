@@ -23,7 +23,7 @@ if ispc
 addpath(prjroot, '\util');
  else
 prjroot
-   addpath(strcat(prjroot, '/wvu_pcs/ctc/src/tc'));
+   addpath(strcat(prjroot, '/code/ctc/src/tc'))
 %    addpath( strcat( prjroot, '/util' ) );
 end
 

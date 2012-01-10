@@ -31,6 +31,14 @@ function init_paths(obj)
   obj.gq.rq = out{1};
 
 
+  
+  % log path
+  heading = '[paths]';
+  key = 'log';
+  out = util.fp(obj.cfp, heading, key);
+  obj.gq.log = out{1};
+
+
 end
 
 
