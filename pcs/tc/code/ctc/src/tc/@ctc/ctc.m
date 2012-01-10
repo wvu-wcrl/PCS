@@ -31,7 +31,7 @@ classdef ctc < handle
                % iq - input 
                % oq - output 
                % rq - running 
-                
+               % log - log files 
        
         ws % worker state - cell array of structures
         % wid - worker id

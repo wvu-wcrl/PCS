@@ -9,11 +9,11 @@ cd(rootdir);
 cd ..; cd ..; cd cfg/;
 
 
-cfg_file = strcat(pwd,'/','pcs_test.cfg');
+cfg_file = strcat(pwd,'/','pcs_test_2.cfg');
 
 
 cs(0);
 cd(rootdir);
 
-
+cfg_file
 ctcobj = ctc(cfg_file);

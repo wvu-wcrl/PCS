@@ -20,5 +20,7 @@ lf=$8
 ssh $hostname "export MATLABPATH=$worker_path; nohup matlab -r $worker_exe\($worker_id,\'$iq\',\'$rq\',\'$oq\'\) >> $lf 2>&1 &"
 #ssh $hostname "export MATLABPATH=$worker_path; nohup matlab -r $worker_exe\($worker_id,\'$iq\',\'$rq\',\'$oq\'\)"
 
+
+
 # Get the process ID.
 ssh $hostname "ps -ef" |grep -i "matlab -r $worker_exe($worker_id," | awk '{ print $2 }'
