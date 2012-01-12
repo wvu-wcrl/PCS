@@ -9,7 +9,7 @@ cd(rootdir);
 cd ..; cd ..; cd cfg/;
 
 
-cfg_file = strcat(pwd,'/','pcs_test_2.cfg');
+cfg_file = strcat(pwd,'/','pcs_test.cfg');
 
 
 cs(0);
