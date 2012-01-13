@@ -18,23 +18,28 @@ classdef LDPCCode < ChannelCode
         
         function obj = LDPCCode( HRows, P, MaxIteration, DecoderType )
         % Calling Syntax: obj = LDPCCode( HRows, [,P] [,MaxIteration] [,DecoderType] )
-            obj.HRows = HRows;
-            obj.HCols = obj.FindHCols();
-            if(nargin<3 || isempty(P)), P = []; end
-            if(nargin<4 || isempty(MaxIteration)), MaxIteration = 30; end
-            if(nargin<5 || isempty(DecoderType))
+            if(nargin<2 || isempty(P)), P = []; end
+            if(nargin<3 || isempty(MaxIteration)), MaxIteration = 30; end
+            if(nargin<4 || isempty(DecoderType))
                 DecoderType = 0;
             elseif isempty( find(DecoderType==[0 1 2], 1) )
                 error('LDPCCode:DecoderType', 'The optional input DecoderType should be either 0 (sum-product), 1 (min-sum), or 2 (approximate min-sum).');
             end
             obj.P = P;
+            
+            if(ischar(HRows))
+                obj.ReadHRows(HRows);
+            else
+                obj.HRows = HRows;
+                obj.HCols = obj.FindHCols();
+                % HCols has N-M rows for DVBS2 and N-M+z rows for LDPCWiMax, P=[] for DVBS2.
+                % IF THE CODE IS NOT WIMAX OR DVBS2, THIS PART SHOULD BE CHANGED.
+                obj.DataLength = size(obj.HCols,1) - size(obj.P,1);
+                % HRows has M rows.
+                obj.CodewordLength = obj.DataLength + size(obj.HRows,1);
+            end
             obj.MaxIteration = MaxIteration;
             obj.DecoderType = DecoderType;
-            % HCols has N-M rows for DVBS2 and N-M+z rows for LDPCWiMax, P=[] for DVBS2.
-            % IF THE CODE IS NOT WIMAX OR DVBS2, THIS PART SHOULD BE CHANGED.
-            obj.DataLength = size(obj.HCols,1) - size(obj.P,1);
-            % HRows has M rows.
-            obj.CodewordLength = obj.DataLength + size(obj.HRows,1);
             obj.Rate = obj.DataLength/obj.CodewordLength;
         end
         
@@ -74,6 +79,19 @@ classdef LDPCCode < ChannelCode
             end
             HCols(:,RealMaxColWeight+1:end) = [];
             obj.HCols = HCols;
+            obj.MaxColWeight = RealMaxColWeight;
+        end
+        
+        function ReadHRows(obj, HRowsPath)
+            AlistFile = dlmread(HRowsPath);
+            N = AlistFile(1,1);
+            obj.CodewordLength = N;
+            M = AlistFile(1,2);
+            obj.DataLength = N - M;
+            obj.MaxColWeight = AlistFile(2,1);
+            MaxRowWeight = AlistFile(2,2);
+            obj.HCols = AlistFile(5:N+4, 1:obj.MaxColWeight);
+            obj.HRows = AlistFile(N+5:N+M+4, 1:MaxRowWeight);
         end
     end
     

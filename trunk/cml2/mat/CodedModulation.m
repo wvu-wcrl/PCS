@@ -29,9 +29,14 @@ classdef CodedModulation < handle
         function DataSymbols = Encode(obj, DataBits)
             K = obj.ChannelCodeObject.DataLength;
             if(nargin<2 || isempty(DataBits))
-                if obj.ZeroRandFlag==0
-                    DataBits = zeros(1,K);
-                elseif obj.ZeroRandFlag==1
+                if obj.ZeroRandFlag==0      % DataBits is all zeros.
+                    obj.ChannelCodeObject.DataBits = zeros(1,K);
+                    obj.NumCodewords = 1;
+                    Codeword = zeros(1,obj.ChannelCodeObject.CodewordLength);
+                    obj.ChannelCodeObject.Codeword = Codeword;
+                    DataSymbols = obj.Mapper.Map(cast(Codeword,'uint8')); % vector of M-ary symbols as INT32.
+                    return;
+                elseif obj.ZeroRandFlag==1  % DataBits is random.
                     DataBits = round( rand(1,K) );
                 end
             else
