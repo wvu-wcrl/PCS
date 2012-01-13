@@ -11,7 +11,7 @@
 #include <mex.h>
 #include <matrix.h>
 #include <stdlib.h>
-#include "maxstar.h"
+#include "./include/maxstar.h"
 
 
 /* Input Arguments */

@@ -55,7 +55,7 @@ void mexFunction(
     
     /* create the output matrix */
     plhs[0] = mxCreateNumericMatrix( 1, number_symbols, mxINT32_CLASS, mxREAL );
-    // plhs[0] = mxCreateNumericMatrix( 1, number_symbols, mxDOUBLE_CLASS, mxREAL );
+    /* plhs[0] = mxCreateNumericMatrix( 1, number_symbols, mxDOUBLE_CLASS, mxREAL ); */
     output_symbols = mxGetPr( plhs[0] );
 
     /* determine output */
