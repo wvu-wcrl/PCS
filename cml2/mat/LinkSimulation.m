@@ -7,7 +7,7 @@ classdef LinkSimulation < Simulation
     
     properties( SetAccess = protected )
         NumNewPoints
-        RunMode = 0;  % Running Mode: 0 = Local, 1 = Cluster.
+        RunMode = 1;  % Running Mode: 0 = Local, 1 = Cluster.
     end
     
     methods

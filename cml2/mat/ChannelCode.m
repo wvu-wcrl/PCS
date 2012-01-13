@@ -19,6 +19,7 @@ classdef ChannelCode < handle
 
     properties
         DataBits        % Row vector of data bits to be coded
+        Codeword        % Generated row vector codeword of DataBits
         DataLength      % Length of DataBits vector
         CodewordLength  % Length of each Codeword
         ReceivedLLR     % Received vector of bit Log-Likelihood-Ratio (LLR) for the received data (Codeword) to be decoded
@@ -26,7 +27,6 @@ classdef ChannelCode < handle
     end
     
     properties(SetAccess = protected)
-        Codeword        % Generated row vector codeword of DataBits
         EstBits         % Row vector of decoded bits of ReceivedLLR
         NumError        % The number of errors calculated by comparing DataBits and EstBits
     end
