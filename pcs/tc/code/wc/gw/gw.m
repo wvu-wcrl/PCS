@@ -87,7 +87,7 @@ while(1)
             path(default_path); 
             
         ls = ['Task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' year '-' month '-' day ' ' hour ':' min ':' sec];
-        ls = [ls 'failed to execute.']
+ls = [ls 'failed to execute.'];
         fprintf(ls);
         end
     end
