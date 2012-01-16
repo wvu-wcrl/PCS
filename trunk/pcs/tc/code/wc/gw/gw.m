@@ -22,21 +22,22 @@ default_path = path; % save the default path.
 %oq = gq.oq;  %output
 %ld = gq.ld;    %log dir
 
-   [year month day hour min sec] = gettime(); % current time 
+[year month day hour min sec] = gettime(); % current time
 
-   ls = ['Worker' ' ' int2str(wid) ' ' 'started at' ' '  year '-' month '-' day ' ' hour ':' min ':' sec];
-   fprintf(ls);
+ls = ['Worker' ' ' int2str(wid) ' ' 'started at' ' '  year '-' month '-' day ' ' hour ':' min ':' sec];
+fprintf(ls);
 
 
 while(1)
     
     next_input = read_input_queue(iq); % read a random input file from the input queue
-
-
+    
+    
     
     if( ~isempty(next_input) )
-
-      
+        
+        try
+        
         next_running= feed_running_queue(next_input, iq, rq, wid); % move the input file to the running queue
         input_struct = read_input_file(rq, next_running); % read the input struct from the running queue
         
@@ -50,34 +51,41 @@ while(1)
         
         % run the function with its input parameters
         FunctionName = str2func(FunctionName);
-      
-
-
-   [year month day hour min sec] = gettime(); % current time 
-   username = strtok(next_running, '_');  % username
-
-
-   task_name = get_task_name(next_input);
-
-
-   ls = ['Executing task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' year '-' month '-' day ' ' hour ':' min ':' sec];
-   fprintf(ls);
-fprintf('\n');
         
-output_struct = feval(FunctionName, TaskParam);
-
-
-   [year month day hour min sec] = gettime(); % current time
-   ls = ['Task' ' ' task_name ' ' 'from user'  ' ' username ' ' 'complete' ' ' 'at'  ' ' year '-' month '-' day ' ' hour ':' min ':' sec];
-   fprintf(ls);
-fprintf('\n');
-
+        
+        
+        [year month day hour min sec] = gettime(); % current time
+        username = strtok(next_running, '_');  % username
+        
+        
+        task_name = get_task_name(next_input);
+        
+        
+        ls = ['Executing task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' year '-' month '-' day ' ' hour ':' min ':' sec];
+        fprintf(ls);
+        fprintf('\n');
+        
+        output_struct = feval(FunctionName, TaskParam);
+        
+        
+        [year month day hour min sec] = gettime(); % current time
+        ls = ['Task' ' ' task_name ' ' 'from user'  ' ' username ' ' 'complete' ' ' 'at'  ' ' year '-' month '-' day ' ' hour ':' min ':' sec];
+        fprintf(ls);
+        fprintf('\n');
+        
         
         
         consume_running_queue(next_running, rq); % delete file from running queue
         write_output(input_struct, output_struct, next_input, oq); % write to output queue
         
         path(default_path); % restore the default path
+       
+        
+        catch
+            % an error occurred in file loading or function execution.
+            % perform cleanup by resetting the default path
+            path(default_path); 
+        end
     end
     
     
@@ -95,7 +103,7 @@ function next_input = read_input_queue(iq)
 srch = strcat(iq, '/*.mat');      % form full directory string
 
 fl = dir( srch );    % get list of .mat files in input queue directory
-    
+
 nf = length(fl);  % how many input files does this user have?
 
 fn = ceil(rand*nf); % pick file randomly
@@ -134,16 +142,19 @@ function input_struct = read_input_file(rq, next_running)
 
 lf = [rq '/' next_running];
 
-load(lf);
+try
+    load(lf);
+catch
+    fprintf('');
+end
 
-% data file contains   
-        % data file contains
-            % input_struct
-                 % fcn_param
-                 % fcn_path
-                 % fcn
-            % output_struct
-                % fcn_res
+% data file contains
+% input_struct
+% fcn_param
+% fcn_path
+% fcn
+% output_struct
+% fcn_res
 end
 
 
@@ -171,9 +182,9 @@ end
 
 
 function [year month day hour min sec] = gettime();
-   timevec = fix(clock);  % time
- year = int2str(timevec(1)); month = int2str(timevec(2)); day = int2str(timevec(3)); 
- hour = int2str(timevec(4)); min = int2str(timevec(5)); sec = int2str(timevec(6));
+timevec = fix(clock);  % time
+year = int2str(timevec(1)); month = int2str(timevec(2)); day = int2str(timevec(3));
+hour = int2str(timevec(4)); min = int2str(timevec(5)); sec = int2str(timevec(6));
 end
 
 
@@ -184,7 +195,7 @@ end
 function  task_name = get_task_name(next_input)
 
 
-  [beg task_name] = strtok(next_input, '_');
+[beg task_name] = strtok(next_input, '_');
 
 task_name = task_name(2:end-4);
 
