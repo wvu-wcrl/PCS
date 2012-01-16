@@ -89,6 +89,14 @@ while(1)
         ls = ['Task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' year '-' month '-' day ' ' hour ':' min ':' sec];
 ls = [ls 'failed to execute.'];
         fprintf(ls);
+
+
+        consume_running_queue(next_running, rq); % delete file from running queue
+
+	output_struct.err = 1;   % return a struct with a single field indicating an error
+        write_output(input_struct, output_struct, next_input, oq); % write to output queue
+        
+
         end
     end
     
