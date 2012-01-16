@@ -85,6 +85,10 @@ while(1)
             % an error occurred in file loading or function execution.
             % perform cleanup by resetting the default path
             path(default_path); 
+            
+        ls = ['Task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' year '-' month '-' day ' ' hour ':' min ':' sec];
+        ls = [ls 'failed to execute.']
+        fprintf(ls);
         end
     end
     
