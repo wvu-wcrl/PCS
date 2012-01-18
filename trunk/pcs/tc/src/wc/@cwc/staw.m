@@ -14,17 +14,8 @@ function staw(obj, wid)
 % store the pid in the worker object
 obj.workers{wid}.pid = pid;
 
-% start the worker by executing the command string
-%[stat pid] = system(worker.stac);
-
-
-
-% create the command string which stops the worker
-%worker.stoc = ccs(obj, worker);
 
 end
-
-
 
 
 
@@ -36,9 +27,9 @@ function [stat pid] = so(obj, wid)
   [bg oqr] = strtok(obj.gq.oq{1}, '/');
   [bg lp] = strtok(obj.lp{1}, '/');
 
-iqr = ['/rhome' iqr]
-rqr = ['/rhome' rqr]
-oqr = ['/rhome' oqr]
+iqr = ['/rhome' iqr];
+rqr = ['/rhome' rqr];
+oqr = ['/rhome' oqr];
   lp =  ['/rhome' lp '/' int2str(wid) '.log'];
 
 
@@ -51,7 +42,7 @@ cs = [cs, ' ',...
 	iqr, ' ',...
         rqr, ' ',...
         oqr,' '...
-        lp]%
+        lp];
 
 cs
   [stat pid] = system(cs);

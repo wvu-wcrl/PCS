@@ -11,7 +11,7 @@
 %      ctcobj = cluster task controller object
 %
 %   Example:
-%      [ctcobj] = ctc(  'eight_core.cfg' );
+%      [ctcobj] = ctc(  'pcs_test.cfg' );
 %
 %
 % Implementation of the cluster worker controller.
@@ -81,6 +81,7 @@ classdef ctc < handle
         main(obj) % main control loop
         
     end
+
     
     methods % called from init()
         

@@ -15,9 +15,6 @@ init_paths(obj);
 % init worker state structures
 init_ws(obj);
 
-% init users structure
-%init_users(obj) 
-
 end
 
 

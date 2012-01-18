@@ -7,14 +7,16 @@
 %  path to code
 %  struct containing parameters
 %
+% executes entry function and saves results
+%
 % Version 1
 % 12/26/2011
 % Terry Ferrett
 
 function gw(wid, iq, rq, oq)
-%varagin
 
-default_path = path; % save the default path.
+default_path = path; % the default path will be restored after executing
+                     %  the entry function
 
 % global task controller directories
 %iq = gq.iq;     %input
@@ -22,81 +24,82 @@ default_path = path; % save the default path.
 %oq = gq.oq;  %output
 %ld = gq.ld;    %log dir
 
-[year month day hour min sec] = gettime(); % current time
 
+
+%%% log the worker start time %%%
+[year month day hour min sec] = gettime(); % current time
 ls = ['Worker' ' ' int2str(wid) ' ' 'started at' ' '  year '-' month '-' day ' ' hour ':' min ':' sec];
 fprintf(ls);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
+%%% main worker loop
 while(1)
     
+
     next_input = read_input_queue(iq); % read a random input file from the input queue
-    
-    
-    
     if( ~isempty(next_input) )
-        
+    
+      
         try
-        
-        next_running= feed_running_queue(next_input, iq, rq, wid); % move the input file to the running queue
-        input_struct = read_input_file(rq, next_running); % read the input struct from the running queue
+        next_running = feed_running_queue(next_input, iq, rq, wid); % move the input file to the running queue
+        TaskParam = read_input_file(rq, next_running); % read the input struct from the running queue
         
         
         % break the input struct into local variables
-        TaskParam = input_struct.TaskParam;     % simulation parameters
-        FunctionPath = input_struct.FunctionPath;           % path to simulation code
-        FunctionName = input_struct.FunctionName;                % entry routine into simulation code
+        InputParam = TaskParam.InputParam;     % simulation parameters
+        FunctionPath = TaskParam.FunctionPath; % path to simulation code
+        FunctionName = TaskParam.FunctionName; % entry routine into simulation code
         
-        addpath(FunctionPath);   % add path to simulation code to global path
-        
-        % run the function with its input parameters
-        FunctionName = str2func(FunctionName);
+        addpath(FunctionPath);   % add simulation code path to working paths
         
         
-        
+        %%% log function start time %       
         [year month day hour min sec] = gettime(); % current time
         username = strtok(next_running, '_');  % username
-        
-        
         task_name = get_task_name(next_input);
-        
-        
         ls = ['Executing task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' year '-' month '-' day ' ' hour ':' min ':' sec];
         fprintf(ls);
         fprintf('\n');
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+        % run the function with its input parameters        
+        FunctionName = str2func(FunctionName);
+        TaskState = feval(FunctionName, InputParam);
         
-        output_struct = feval(FunctionName, TaskParam);
         
-        
+        %%% log function end time %
         [year month day hour min sec] = gettime(); % current time
         ls = ['Task' ' ' task_name ' ' 'from user'  ' ' username ' ' 'complete' ' ' 'at'  ' ' year '-' month '-' day ' ' hour ':' min ':' sec];
         fprintf(ls);
         fprintf('\n');
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         
         
         consume_running_queue(next_running, rq); % delete file from running queue
-        write_output(input_struct, output_struct, next_input, oq); % write to output queue
+        write_output(TaskParam, TaskState, next_input, oq); % write to output queue
+        
         
         path(default_path); % restore the default path
        
         
-        catch
+        catch exception
             % an error occurred in file loading or function execution.
             % perform cleanup by resetting the default path
             path(default_path); 
+        task_name = get_task_name(next_input);
+        username = strtok(next_running, '_');  % username
+        [year month day hour min sec] = gettime(); % current time
             
         ls = ['Task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' year '-' month '-' day ' ' hour ':' min ':' sec];
 ls = [ls 'failed to execute.'];
         fprintf(ls);
-
-
-        consume_running_queue(next_running, rq); % delete file from running queue
-
-	output_struct.err = 1;   % return a struct with a single field indicating an error
-        write_output(input_struct, output_struct, next_input, oq); % write to output queue
+        fprintf('\n');
+        fprintf(exception.message);
         
-
         end
     end
     
@@ -150,23 +153,12 @@ end
 
 
 
-function input_struct = read_input_file(rq, next_running)
+function TaskParam = read_input_file(rq, next_running)
 
 lf = [rq '/' next_running];
 
-try
     load(lf);
-catch
-    fprintf('');
-end
 
-% data file contains
-% input_struct
-% fcn_param
-% fcn_path
-% fcn
-% output_struct
-% fcn_res
 end
 
 
@@ -183,11 +175,11 @@ end
 
 
 
-function write_output(input_struct, output_struct, next_input, oq)
+function write_output(TaskParam, TaskState, next_input, oq)
 
 op = [oq '/' next_input];
 
-save(op, 'input_struct', 'output_struct');
+save(op, 'TaskParam', 'TaskState');
 
 end
 
