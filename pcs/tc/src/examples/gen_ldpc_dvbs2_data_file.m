@@ -2,7 +2,9 @@ clear classes
 
 
 example_root = pwd;  % example directory
-cd ..; cd ..; cd('cml2'); cd('mat'); matroot = pwd; % mat directory
+cd ..; cd ..; cd ..; cd('projects'); cd('cml2'); 
+CmlStartup;
+cd('mat'); matroot = pwd; % mat directory
 cd(example_root);
 
 
@@ -24,13 +26,13 @@ DVBS2Param = struct(...
 
 
 
-input_struct = struct(...
-    'FunctionName', 'TestLDPC_DVBS2',...
-    'FunctionPath', '/home/tferrett/scratch/wcrl/webcml/src/iscml2/cml2/mat',...
-    'SimulationParam', DVBS2Param,...
+TaskParam = struct(...
+    'FunctionName', 'launch_ldpc',...
+    'FunctionPath', '/rhome/tferrett/cml2/iscml/cml2/mat',...
+    'InputParam', DVBS2Param,...
     'OutputFileName', 'QPSK_DVBS2.mat');
 
 
-save('ldpc_dvbs2_task.mat','input_struct');
+save('ldpc_dvbs2_task.mat','TaskParam');
 
 
