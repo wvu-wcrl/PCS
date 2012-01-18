@@ -65,9 +65,19 @@ while(runningJob)
             % if(success)
             if strcmpi( JobDirectory, JobInDir )
                 try
-                    delete( fullfile(JobInDir,InFileName) );
-                    msg = sprintf( 'Input job file %s of user %s is deleted.\n', InFileName(1:end-4), Username );
-                    fprintf( msg );
+                    try
+                        delete( fullfile(JobInDir,InFileName) );
+                        msg = sprintf( 'Input job file %s of user %s is deleted.\n', InFileName(1:end-4), Username );
+                        fprintf( msg );
+                    catch
+                        RmStr = ['sudo rm ' JobInDir filesep InFileName];
+                        try
+                            system( RmStr );
+                            msg = sprintf( 'Input job file %s of user %s is deleted.\n', InFileName(1:end-4), Username );
+                            fprintf( msg );
+                        catch
+                        end
+                    end
                 catch
                     % If could not delete the selected input job file from JobIn directory, just issue a warning.
                     msg = sprintf( 'Job Delete Error/Warning: Input job file %s of user %s could not be deleted.\n', InFileName(1:end-4), Username );
@@ -85,7 +95,12 @@ while(runningJob)
                 % Put a copy of the selected input job into JobRunning directory.
                 % Note that SimParam and SimState are still the "Global Versions".
                 if ~strcmpi( JobDirectory, JobRunningDir )
-                    save( fullfile(JobRunningDir,InFileName), 'SimParam', 'SimState' );
+                    try
+                        save( fullfile(JobRunningDir,InFileName), 'SimParam', 'SimState' );
+                    catch
+                        TempfileName = JM_Save(InFileName, SimParam, SimState);
+                        JM_Move(TempfileName, JobRunningDir);
+                    end
                     msg = sprintf( 'The corresponding JobRunning file %s is created for user %s.\n', InFileName(1:end-4), Username );
                     fprintf( msg );
                 end
@@ -152,9 +167,19 @@ while(runningJob)
             % Delete the selected output task file from TaskOut directory.
             % if(success)
             try
-                delete( fullfile(TaskOutDir,OutFileName) );
-                msg = sprintf( 'The selected output task file %s of user %s is deleted from its TaskOut directory.\n', OutFileName(1:end-4), Username );
-                fprintf( msg );
+                try
+                    delete( fullfile(TaskOutDir,OutFileName) );
+                    msg = sprintf( 'The selected output task file %s of user %s is deleted from its TaskOut directory.\n', OutFileName(1:end-4), Username );
+                    fprintf( msg );
+                catch
+                    RmStr = ['sudo rm ' TaskOutDir filesep OutFileName];
+                    try
+                        system( RmStr );
+                        msg = sprintf( 'The selected output task file %s of user %s is deleted from its TaskOut directory.\n', OutFileName(1:end-4), Username );
+                        fprintf( msg );
+                    catch
+                    end
+                end
             catch
                 % Could not delete output task file. Just issue a warning.
                 msg = sprintf( 'Task Delete Error/Warning: Output task file %s of user %s could not be deleted from its TaskOut directory.\n', OutFileName(1:end-4), Username );
@@ -196,14 +221,20 @@ while(runningJob)
 
                     % Destroy any other task files related to this job.
                     % More Cleanup: Any tasks associated with this job should be deleted from TaskIn directory.
-                    try delete( fullfile(TaskInDir,[JobFileName(1:end-4) '_task_*.mat']) ); catch end
-                    % RmStr = ['rm ' TaskInDir filesep JobFileName(1:end-4) '_task_*.mat' ];
-                    % try system( RmStr ); catch end
+                    try
+                        delete( fullfile(TaskInDir,[JobFileName(1:end-4) '_task_*.mat']) );
+                    catch
+                        RmStr = ['sudo rm ' TaskInDir filesep JobFileName(1:end-4) '_task_*.mat' ];
+                        try system( RmStr ); catch end
+                    end
 
                     % Some more associated output tasks could arrive in TaskOut directory. They should also be deleted.
-                    try delete( fullfile(TaskOutDir,[JobFileName(1:end-4) '_task_*.mat']) ); catch end
-                    % RmStr = ['rm ' TaskOutDir filesep JobFileName(1:end-4) '_task_*.mat' ];
-                    % try system( RmStr ); catch end
+                    try
+                        delete( fullfile(TaskOutDir,[JobFileName(1:end-4) '_task_*.mat']) );
+                    catch
+                        RmStr = ['sudo rm ' TaskOutDir filesep JobFileName(1:end-4) '_task_*.mat' ];
+                        try system( RmStr ); catch end
+                    end
 
                     successJR = 0;
                 end
@@ -295,19 +326,28 @@ while(runningJob)
                     % try system( [ MovStr JobFileName ] ); catch end
 
                     % Remove the finished job from JobRunning queue/directory.
-                    try delete( fullfile(JobRunningDir,JobFileName) ); catch end
-                    % RmStr = ['rm ' JobRunningDir filesep JobFileName ];
-                    % try system( RmStr ); catch end
+                    try
+                        delete( fullfile(JobRunningDir,JobFileName) );
+                    catch
+                        RmStr = ['sudo rm ' JobRunningDir filesep JobFileName];
+                        try system( RmStr ); catch end
+                    end
 
                     % More Cleanup: Any tasks associated with this job should be deleted from TaskIn directory.
-                    try delete( fullfile(TaskInDir,[JobFileName(1:end-4) '_task_*.mat']) ); catch end
-                    % RmStr = ['rm ' TaskInDir filesep JobFileName(1:end-4) '_task_*.mat' ];
-                    % try system( RmStr ); catch end
+                    try
+                        delete( fullfile(TaskInDir,[JobFileName(1:end-4) '_task_*.mat']) );
+                    catch
+                        RmStr = ['sudo rm ' TaskInDir filesep JobFileName(1:end-4) '_task_*.mat' ];
+                        try system( RmStr ); catch end
+                    end
 
                     % Some more associated output tasks could arrive in TaskOut directory. They should also be deleted.
-                    try delete( fullfile(TaskOutDir,[JobFileName(1:end-4) '_task_*.mat']) ); catch end
-                    % RmStr = ['rm ' TaskOutDir filesep JobFileName(1:end-4) '_task_*.mat' ];
-                    % try system( RmStr ); catch end
+                    try
+                        delete( fullfile(TaskOutDir,[JobFileName(1:end-4) '_task_*.mat']) );
+                    catch
+                        RmStr = ['sudo rm ' TaskOutDir filesep JobFileName(1:end-4) '_task_*.mat' ];
+                        try system( RmStr ); catch end
+                    end
                 end
             end
             
@@ -496,7 +536,7 @@ elseif( length(DRunning) < MaxRunningJobs )
         InFileIndex = DateIndx(1);
         % Construct the filename.
         InFileName = DIn(InFileIndex).name;
-        msg = sprintf( '\nLauching coded-modulation simulation for user %s NEW job %s at %s.\n', ...
+        msg = sprintf( '\nLaunching coded-modulation simulation for user %s NEW job %s at %s.\n', ...
             Username, InFileName(1:end-4), datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
         fprintf( msg );
         JobDirectory = JobInDir;
@@ -638,5 +678,40 @@ fclose(fid);
 % If no matching keys were found, assign out to null.
 out_flag = strcmp( 'out', who('out') );
 if isempty(out_flag), out = []; end
+
+end
+
+
+function TempfileName = JM_Save(InFileName, SimParam, SimState)
+% Save SimParam and SimState in InFileName in a Temp directory.
+if ispc
+    HomeRoot = pwd;
+else
+    HomeRoot = '/home';
+end
+
+Sep = filesep;
+TempDir = [HomeRoot Sep 'pcs' Sep 'jm' Sep 'log' Sep 'CodedMod' Sep 'Temp'];
+TempfileName = [TempDir Sep InFileName];
+
+if( nargin<3 || isempty(SimState) )
+    TaskParam = SimParam;
+    save( fullfile(TempDir,InFileName), 'TaskParam' );
+else
+    save( fullfile(TempDir,InFileName), 'SimParam', 'SimState' );
+end
+
+end
+
+
+function JM_Move(FileTarget, FileDestination)
+TargetDir = dir(FileTarget);
+if TargetDir.isdir
+    RmStr = ['sudo mv ' FileTarget filesep '* ' FileDestination];
+    try system( RmStr ); catch end
+else
+    RmStr = ['sudo mv ' FileTarget  ' ' FileDestination];
+    try system( RmStr ); catch end
+end
 
 end
