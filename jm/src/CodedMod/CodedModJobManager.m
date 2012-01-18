@@ -97,12 +97,14 @@ while(runningJob)
                 if ~strcmpi( JobDirectory, JobRunningDir )
                     try
                         save( fullfile(JobRunningDir,InFileName), 'SimParam', 'SimState' );
+                        msg = sprintf( 'The corresponding JobRunning file %s is created for user %s.\n', InFileName(1:end-4), Username );
+                        fprintf( msg );
                     catch
                         TempfileName = JM_Save(InFileName, SimParam, SimState);
                         JM_Move(TempfileName, JobRunningDir);
+                        msg = sprintf( 'The corresponding JobRunning file %s is created for user %s by OS.\n', InFileName(1:end-4), Username );
+                        fprintf( msg );
                     end
-                    msg = sprintf( 'The corresponding JobRunning file %s is created for user %s.\n', InFileName(1:end-4), Username );
-                    fprintf( msg );
                 end
 
                 SimParamLocal = UpdateSimParamLocal(SimParamGlobal, SimStateGlobal);
@@ -296,9 +298,16 @@ while(runningJob)
                 SimState = SimStateGlobal;
 
                 if ~StoppingCriteria    % If simulation of this job is not done, resubmit another round of tasks.
-                    save( fullfile(JobRunningDir,JobFileName), 'SimParam', 'SimState' );
-                    msg = sprintf( 'The corresponding job file %s of user %s is updated in the JobRunning directory.\n', JobFileName(1:end-4), Username );
-                    fprintf( msg );
+                    try
+                        save( fullfile(JobRunningDir,JobFileName), 'SimParam', 'SimState' );
+                        msg = sprintf( 'The corresponding job file %s of user %s is updated in the JobRunning directory.\n', JobFileName(1:end-4), Username );
+                        fprintf( msg );
+                    catch
+                        TempfileName = JM_Save(JobFileName, SimParam, SimState);
+                        JM_Move(TempfileName, JobRunningDir);
+                        msg = sprintf( 'The corresponding job file %s of user %s is updated in the JobRunning directory by OS.\n', JobFileName(1:end-4), Username );
+                        fprintf( msg );
+                    end
                     
                     SimParamLocal = UpdateSimParamLocal(SimParamGlobal, SimStateGlobal);
 
@@ -319,12 +328,20 @@ while(runningJob)
                     ChmodStr = ['chmod 666 ' TempFile];     % Allow everyone to read and write to the file, TempFile.
                     MovStr = ['mv ' TempFile ' ' JobOutDir filesep];
 
-                    save( TempFile, 'SimParam', 'SimState' );
+                    try
+                        save( TempFile, 'SimParam', 'SimState' );
+                    catch
+                        TempfileName = JM_Save('TempSaveJobManager.mat', SimParam, SimState);
+                        JM_Move(TempfileName, TempDir);
+                    end
                     
                     try system( ChmodStr ); catch end
-                    try movefile(TempFile, fullfile(JobOutDir,JobFileName), 'f'); catch end
-                    % try system( [ MovStr JobFileName ] ); catch end
-
+                    try
+                        movefile(TempFile, fullfile(JobOutDir,JobFileName), 'f');
+                    catch
+                        try system( [ MovStr JobFileName ] ); catch end
+                    end
+                        
                     % Remove the finished job from JobRunning queue/directory.
                     try
                         delete( fullfile(JobRunningDir,JobFileName) );
@@ -596,6 +613,8 @@ msg = sprintf( 'Generating TASK files corresponding to JOB %s of user %s at %s.\
     JobFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
 fprintf( msg );
 
+OS_flag = 1;
+
 for TaskCount=1:Tasks
     % Increment TaskID counter.
     TaskID = TaskID + 1;
@@ -604,14 +623,21 @@ for TaskCount=1:Tasks
     TaskFileName = [JobFileName(1:end-4) '_task_' int2str(TaskID) '.mat'];
 
     % Save the new task in TaskIn queue.
-    save( fullfile(TaskInDir,TaskFileName), 'TaskParam' );
-    
-    msg = sprintf( 'Task file %s for user %s is saved to its TaskIn directory.\n', TaskFileName(1:end-4), Username );
-    fprintf( msg );
+    try
+        save( fullfile(TaskInDir,TaskFileName), 'TaskParam' );
+        msg = sprintf( 'Task file %s for user %s is saved to its TaskIn directory.\n', TaskFileName(1:end-4), Username );
+        fprintf( msg );
+    catch
+        TempfileName = JM_Save(TaskFileName, TaskParam);
+        msg = sprintf( 'Task file %s for user %s is saved to its TaskIn directory by OS.\n', TaskFileName(1:end-4), Username );
+        fprintf( msg );
+        OS_flag = 1;
+    end
     
     % Pause briefly for flow control.
     pause( PauseTime );
 end
+if(OS_flag), JM_Move(TempfileName, TaskInDir); end
 
 FinalTaskID = TaskID;
 
@@ -692,13 +718,14 @@ end
 
 Sep = filesep;
 TempDir = [HomeRoot Sep 'pcs' Sep 'jm' Sep 'log' Sep 'CodedMod' Sep 'Temp'];
-TempfileName = [TempDir Sep InFileName];
 
 if( nargin<3 || isempty(SimState) )
     TaskParam = SimParam;
     save( fullfile(TempDir,InFileName), 'TaskParam' );
+    TempfileName = TempDir;
 else
     save( fullfile(TempDir,InFileName), 'SimParam', 'SimState' );
+    TempfileName = [TempDir Sep InFileName];
 end
 
 end
