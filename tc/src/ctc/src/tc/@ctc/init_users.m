@@ -55,8 +55,7 @@ end
 
 
 n = length(users);   % number of users
-n
-for k = 1:n,
+for k = 1:n,         % add users to queue
     tmp.username = users{k};
     tmp.iq = iq{k};
     tmp.rq = rq{k};

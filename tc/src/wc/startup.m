@@ -5,7 +5,7 @@ addpath(pwd);
 
 
 
-cfg_file = 'pcs_test_2.cfg';
+cfg_file = 'pcs_test.cfg';
 
 cd(rootdir); cd ..; cd cfg/;
 
