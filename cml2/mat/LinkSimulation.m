@@ -42,6 +42,7 @@ classdef LinkSimulation < Simulation
             SimState.FrameErrors = SimState.Trials;
             SimState.BER = SimState.Trials;
             SimState.FER = SimState.Trials;
+            try [Status, SimState.NodeID] = system('hostname'); catch end
 
             obj.SimState = SimState;
         end
