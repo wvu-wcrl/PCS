@@ -1,12 +1,12 @@
 % launch_ldpc.m
 %
-% function to launch the ldpc dvbs2 simulation via the cluster task controller
+% function to launch the ldpc_dvbs2 simulation via the cluster task controller.
 
 function SimState = launch_ldpc(DVBS2Param)
 
-   cd('/rhome/tferrett/cml2/iscml/cml2');
+cd('/rhome/pcs/cml2/iscml/cml2');
 CmlStartup;
 
-   SimState = TestLDPC_DVBS2(DVBS2Param);
+SimState = TestLDPC_DVBS2(DVBS2Param);
 
 end
