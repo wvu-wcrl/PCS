@@ -66,17 +66,17 @@ while(runningJob)
             if strcmpi( JobDirectory, JobInDir )
                 try
                     try
-                        delete( fullfile(JobInDir,InFileName) );
-                        msg = sprintf( 'Input job file %s of user %s is deleted.\n', InFileName(1:end-4), Username );
-                        fprintf( msg );
-                    catch
                         RmStr = ['sudo rm ' JobInDir filesep InFileName];
                         try
                             system( RmStr );
-                            msg = sprintf( 'Input job file %s of user %s is deleted.\n', InFileName(1:end-4), Username );
+                            msg = sprintf( 'Input job file %s of user %s is deleted by OS.\n', InFileName(1:end-4), Username );
                             fprintf( msg );
                         catch
                         end
+                    catch
+                        delete( fullfile(JobInDir,InFileName) );
+                        msg = sprintf( 'Input job file %s of user %s is deleted.\n', InFileName(1:end-4), Username );
+                        fprintf( msg );
                     end
                 catch
                     % If could not delete the selected input job file from JobIn directory, just issue a warning.
@@ -146,14 +146,14 @@ while(runningJob)
             
             % Try to load the selected output task file.
             try
-                load( fullfile(TaskOutDir,OutFileName), 'TaskParam', 'SimState' );
+                load( fullfile(TaskOutDir,OutFileName), 'TaskParam', 'TaskState' );
                 msg = sprintf( 'Output task file %s of user %s is loaded.\n', OutFileName(1:end-4), Username );
                 fprintf( msg );
                 success = 1;
 
                 % Reassign variables as Local.
                 SimParamLocal = TaskParam.InputParam;
-                SimStateLocal = SimState;
+                SimStateLocal = TaskState;
             catch
                 % Selected output task file was bad, kick out of loading loop.
                 msg = sprintf( 'Output Task Load Error: Output task file %s of user %s could not be loaded and will be deleted.\n', OutFileName(1:end-4), Username );
@@ -170,10 +170,6 @@ while(runningJob)
             % if(success)
             try
                 try
-                    delete( fullfile(TaskOutDir,OutFileName) );
-                    msg = sprintf( 'The selected output task file %s of user %s is deleted from its TaskOut directory.\n', OutFileName(1:end-4), Username );
-                    fprintf( msg );
-                catch
                     RmStr = ['sudo rm ' TaskOutDir filesep OutFileName];
                     try
                         system( RmStr );
@@ -181,6 +177,10 @@ while(runningJob)
                         fprintf( msg );
                     catch
                     end
+                catch
+                    delete( fullfile(TaskOutDir,OutFileName) );
+                    msg = sprintf( 'The selected output task file %s of user %s is deleted from its TaskOut directory.\n', OutFileName(1:end-4), Username );
+                    fprintf( msg );
                 end
             catch
                 % Could not delete output task file. Just issue a warning.
@@ -224,18 +224,18 @@ while(runningJob)
                     % Destroy any other task files related to this job.
                     % More Cleanup: Any tasks associated with this job should be deleted from TaskIn directory.
                     try
-                        delete( fullfile(TaskInDir,[JobFileName(1:end-4) '_task_*.mat']) );
-                    catch
                         RmStr = ['sudo rm ' TaskInDir filesep JobFileName(1:end-4) '_task_*.mat' ];
                         try system( RmStr ); catch end
+                    catch
+                        delete( fullfile(TaskInDir,[JobFileName(1:end-4) '_task_*.mat']) );
                     end
 
                     % Some more associated output tasks could arrive in TaskOut directory. They should also be deleted.
                     try
-                        delete( fullfile(TaskOutDir,[JobFileName(1:end-4) '_task_*.mat']) );
-                    catch
                         RmStr = ['sudo rm ' TaskOutDir filesep JobFileName(1:end-4) '_task_*.mat' ];
                         try system( RmStr ); catch end
+                    catch
+                        delete( fullfile(TaskOutDir,[JobFileName(1:end-4) '_task_*.mat']) );
                     end
 
                     successJR = 0;
@@ -247,8 +247,8 @@ while(runningJob)
                 SimStateGlobal.Trials      = SimStateGlobal.Trials      + SimStateLocal.Trials;
                 SimStateGlobal.BitErrors   = SimStateGlobal.BitErrors   + SimStateLocal.BitErrors;
                 SimStateGlobal.FrameErrors = SimStateGlobal.FrameErrors + SimStateLocal.FrameErrors;
-                SimStateGlobal.BER         = SimStateGlobal.BitErrors   ./ ( SimStateGlobal.Trials * SimParamGlobal.CodedModObj.NumCodewords * SimParamGlobal.CodedModObj.ChannelCodeObject.DataLength );
-                SimStateGlobal.FER         = SimStateGlobal.FrameErrors ./ ( SimStateGlobal.Trials * SimParamGlobal.CodedModObj.NumCodewords );
+                SimStateGlobal.BER         = SimStateGlobal.BitErrors   ./ ( SimStateGlobal.Trials * SimStateLocal.NumCodewords * SimStateLocal.DataLength );
+                SimStateGlobal.FER         = SimStateGlobal.FrameErrors ./ ( SimStateGlobal.Trials * SimStateLocal.NumCodewords );
 
                 % See if the global stopping criteria have been reached.
 
@@ -344,26 +344,26 @@ while(runningJob)
                         
                     % Remove the finished job from JobRunning queue/directory.
                     try
-                        delete( fullfile(JobRunningDir,JobFileName) );
-                    catch
                         RmStr = ['sudo rm ' JobRunningDir filesep JobFileName];
                         try system( RmStr ); catch end
+                    catch
+                        delete( fullfile(JobRunningDir,JobFileName) );
                     end
 
                     % More Cleanup: Any tasks associated with this job should be deleted from TaskIn directory.
                     try
-                        delete( fullfile(TaskInDir,[JobFileName(1:end-4) '_task_*.mat']) );
-                    catch
                         RmStr = ['sudo rm ' TaskInDir filesep JobFileName(1:end-4) '_task_*.mat' ];
                         try system( RmStr ); catch end
+                    catch
+                        delete( fullfile(TaskInDir,[JobFileName(1:end-4) '_task_*.mat']) );
                     end
 
                     % Some more associated output tasks could arrive in TaskOut directory. They should also be deleted.
                     try
-                        delete( fullfile(TaskOutDir,[JobFileName(1:end-4) '_task_*.mat']) );
-                    catch
                         RmStr = ['sudo rm ' TaskOutDir filesep JobFileName(1:end-4) '_task_*.mat' ];
                         try system( RmStr ); catch end
+                    catch
+                        delete( fullfile(TaskOutDir,[JobFileName(1:end-4) '_task_*.mat']) );
                     end
                 end
             end
@@ -613,7 +613,7 @@ msg = sprintf( 'Generating TASK files corresponding to JOB %s of user %s at %s.\
     JobFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
 fprintf( msg );
 
-OS_flag = 1;
+OS_flag = 0;
 
 for TaskCount=1:Tasks
     % Increment TaskID counter.
@@ -733,7 +733,7 @@ end
 
 function JM_Move(FileTarget, FileDestination)
 TargetDir = dir(FileTarget);
-if TargetDir.isdir
+if length(TargetDir)>2  % Bypass . and .. directories in dir command.
     RmStr = ['sudo mv ' FileTarget filesep '* ' FileDestination];
     try system( RmStr ); catch end
 else
