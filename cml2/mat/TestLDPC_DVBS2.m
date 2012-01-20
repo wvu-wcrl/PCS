@@ -88,7 +88,7 @@ function OldPath = SetPath()
 OldPath = path;
 % Pos = regexp(OldPath,pathsep);
 % HomeDir = OldPath(1:Pos(1)-1);
-HomeDir = fullfile('home','pcs','projects','cml2');
+HomeDir = fullfile(filesep,'rhome','pcs','projects','cml2');
 
 addpath( fullpath(HomeDir, 'mat') );
 
