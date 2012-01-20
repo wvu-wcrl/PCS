@@ -121,6 +121,7 @@ classdef LinkSimulation < Simulation
                     ElapsedTime = toc + ElapsedTime;
                     if(Test), OldActiveSNRPoints = ActiveSNRPoints; end
                 else
+                    SimState = obj.SimState;
                     return;
                 end
             end
