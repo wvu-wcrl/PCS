@@ -90,7 +90,7 @@ OldPath = path;
 % HomeDir = OldPath(1:Pos(1)-1);
 HomeDir = fullfile(filesep,'rhome','pcs','projects','cml2');
 
-addpath( fullpath(HomeDir, 'mat') );
+addpath( fullfile(HomeDir, 'mat') );
 
 % This is the location of the mex directory for this architecture.
 switch computer
