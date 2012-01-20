@@ -465,11 +465,11 @@ for k = 1:n
         % Read name and full path of function to be executed for running each task.
         key = 'FunctionName';
         out = fp(cur_file, heading1, key);
-        UserList{usr_cnt}.FunctionName = out;
+        UserList{usr_cnt}.FunctionName = eval(out);
         
         key = 'FunctionPath';
         out = fp(cur_file, heading1, key);
-        UserList{usr_cnt}.FunctionPath = out;
+        UserList{usr_cnt}.FunctionPath = eval(out);
         
         
         heading2 = '[TaskInSpec]';
