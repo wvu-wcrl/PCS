@@ -165,12 +165,12 @@ while(runningJob)
                 NodeID_TimesIn = NodeID_Times;
                 
                 try
-                    save( fullfile(JobRunningDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
+                    save( fullfile(TempDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
                     msg = sprintf( 'Timing information for the NODE that has finished the task is saved for job %s and user %s.\n', InFileName(1:end-4), Username );
                     fprintf( msg );
                 catch
                     TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrial, NodeID_Times);
-                    JM_Move(TempfileName, JobRunningDir);
+                    JM_Move(TempfileName, TempDir);
                     msg = sprintf( 'Timing information for the NODE that has finished the task is saved for job %s and user %s by OS.\n', InFileName(1:end-4), Username );
                     fprintf( msg );
                 end
