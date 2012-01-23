@@ -175,7 +175,17 @@ while(runningJob)
                 % eTimeTrialTemp(:,:,sum(all(eTimeTrialTemp==0,1)) == MaxTimes) = [];
                 eTimeTrialTemp(:,:,all(NodeID_TimeVecTemp==0,1)) = [];
                 
-                save( fullfile(JobRunningDir,'eTimeTrial.mat'), 'eTimeTrialTemp', 'NodeID_TimeVecTemp' );
+                try
+                    save( fullfile(JobRunningDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrialTemp', 'NodeID_TimeVecTemp' );
+                    msg = sprintf( 'Timing information for the NODE that has finished the task is saved for job %s and user %s.\n', InFileName(1:end-4), Username );
+                    fprintf( msg );
+                catch
+                    TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrialTemp, NodeID_TimeVecTemp);
+                    JM_Move(TempfileName, JobRunningDir);
+                    msg = sprintf( 'Timing information for the NODE that has finished the task is saved for job %s and user %s by OS.\n', InFileName(1:end-4), Username );
+                    fprintf( msg );
+                end
+                
             catch
                 % Selected output task file was bad, kick out of loading loop.
                 msg = sprintf( 'Output Task Load Error: Output task file %s of user %s could not be loaded and will be deleted.\n', OutFileName(1:end-4), Username );
