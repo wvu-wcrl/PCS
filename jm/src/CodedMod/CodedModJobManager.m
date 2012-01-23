@@ -6,11 +6,8 @@ if( nargin<1 || isempty(HomeRootIn) ), HomeRootIn = []; end
 Check4NewUserPeriod = 50;
 UserListPrimary = [];
 
-MaxNode = 100;
-MaxTimes = 500;
-
-NodeID_TimeVecIn = zeros(2,MaxNode);
-eTimeTrialIn = zeros(2,MaxTimes,MaxNode);
+NodeID_TimesIn = [];
+eTimeTrialIn = [];
 
 % Echo out starting time of running coded-modulation simulation job manager.
 msg = sprintf( '\nCoded-modulation simulation JOB MANAGER started at %s.\n\n', datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
@@ -162,25 +159,17 @@ while(runningJob)
                 SimParamLocal = TaskParam.InputParam;
                 SimStateLocal = TaskState;
                 
-                % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task.
-                [eTimeTrial, NodeID_TimeVec] = ExtractETimeTrial( SimStateLocal, NodeID_TimeVecIn, eTimeTrialIn );
+                % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save timing info.
+                [eTimeTrial, NodeID_Times] = ExtractETimeTrial( SimStateLocal, NodeID_TimesIn, eTimeTrialIn );
                 eTimeTrialIn = eTimeTrial;
-                NodeID_TimeVecIn = NodeID_TimeVec;
-                
-                % Remove columns of all zeros from NodeID_TimeVec and save the result.
-                NodeID_TimeVecTemp = NodeID_TimeVec;
-                NodeID_TimeVecTemp(:,all(NodeID_TimeVecTemp==0,1)) = [];
-                
-                eTimeTrialTemp = eTimeTrial;
-                % eTimeTrialTemp(:,:,sum(all(eTimeTrialTemp==0,1)) == MaxTimes) = [];
-                eTimeTrialTemp(:,:,all(NodeID_TimeVecTemp==0,1)) = [];
+                NodeID_TimesIn = NodeID_Times;
                 
                 try
-                    save( fullfile(JobRunningDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrialTemp', 'NodeID_TimeVecTemp' );
+                    save( fullfile(JobRunningDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
                     msg = sprintf( 'Timing information for the NODE that has finished the task is saved for job %s and user %s.\n', InFileName(1:end-4), Username );
                     fprintf( msg );
                 catch
-                    TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrialTemp, NodeID_TimeVecTemp);
+                    TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrial, NodeID_Times);
                     JM_Move(TempfileName, JobRunningDir);
                     msg = sprintf( 'Timing information for the NODE that has finished the task is saved for job %s and user %s by OS.\n', InFileName(1:end-4), Username );
                     fprintf( msg );
@@ -804,28 +793,43 @@ end
 end
 
 
-function [eTimeTrial, NodeID_TimeVec] = ExtractETimeTrial( SimState, NodeID_TimeVecIn, eTimeTrialIn )
-% NodeID_TimeVec is a 2-by-MaxNode matrix.
-% Its first row is node IDs and its second row is how many times that specific node has generated SimState (run simulations).
-% 
-% eTimeTrial is a 2-by-MaxTimes-by-MaxNode matrix.
+function [eTimeTrial, NodeID_Times] = ExtractETimeTrial( SimState, NodeID_TimesIn, eTimeTrialIn )
+% NodeID_Times is a vector structure with two fields:
+% NodeID and NumTimes (how many times that specific node has generated SimState (run simulations)).
+% The length of this structure is equal to the number of active nodes.
+%
+% eTimeTrial is a 2-by-MaxTimes-by-NodeNum matrix.
 % Its first row contains elapsed times and its second row contains the number of trials completed in the eTime.
 
-NodeID_TimeVec = NodeID_TimeVecIn;
-eTimeTrial = eTimeTrialIn;
-Ind = find(NodeID_TimeVec(1,:)==SimState.NodeID,1,'first');
-if isempty(Ind)
-    Ind = find(NodeID_TimeVec(1,:)==0,1,'first');
-    NodeID_TimeVec(1,Ind) = SimState.NodeID;
-end
-NodeID_TimeVec(2,Ind) = NodeID_TimeVec(2,Ind) + 1;
+MaxTimes = 500;
 
-if NodeID_TimeVec(2,Ind) <= size(eTimeTrial,2)
-    ColPos = NodeID_TimeVec(2,Ind);
+NodeID_Times = NodeID_TimesIn;
+eTimeTrial = eTimeTrialIn;
+
+LID = length(NodeID_Times);
+IndT = zeros(1,LID);
+for Node = 1:LID
+    IndT(Node) = strcmpi( num2str(NodeID_Times(Node).NodeID), SimState.NodeID );
+end
+
+Ind = find(IndT~=0, 1,'first');
+if isempty(Ind)
+    NodeID_Times = [NodeID_Times, struct('NodeID',SimState.NodeID, 'NumTimes',1)];
+    Ind = length(NodeID_Times);
+    eTimeTrial = cat(3,eTimeTrial,zeros(2,MaxTimes));
+else
+    NodeID_Times(Ind).NumTimes = NodeID_Times(Ind).NumTimes + 1;
+end
+
+if NodeID_Times(Ind).NumTimes <= MaxTimes
+    ColPos = NodeID_Times(Ind).NumTimes;
 else
     eTimeTrial = circshift(eTimeTrial, [0 -1 0]);
     ColPos = size(eTimeTrial,2);
 end
+
+etime(SimState.StopTime, SimState.StartTime)
+SimState.Trials
 eTimeTrial(:,ColPos,Ind) = [etime(SimState.StopTime, SimState.StartTime)
-    SimState.Trials];
+    sum(SimState.Trials)];
 end
