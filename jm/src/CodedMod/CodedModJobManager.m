@@ -274,19 +274,19 @@ while(runningJob)
 
                 % See if the global stopping criteria have been reached.
 
-                % First check to see if minimum number of trials or bit errors has been reached.
+                % First check to see if minimum number of trials or frame errors has been reached.
                 RemainingTrials = SimParamGlobal.MaxTrials - SimStateGlobal.Trials;
-                RemainingTrials(RemainingTrials<0) = 0;     % Force to zero if negative.
-                RemainingBitError = SimParamGlobal.MaxBitErrors - SimStateGlobal.BitErrors;
-                RemainingBitError(RemainingBitError<0) = 0; % Force to zero if negative.
+                RemainingTrials(RemainingTrials<0) = 0;         % Force to zero if negative.
+                RemainingFrameError = SimParamGlobal.MaxFrameErrors - SimStateGlobal.FrameErrors;
+                RemainingFrameError(RemainingFrameError<0) = 0; % Force to zero if negative.
 
-                % Determine the position of active SNR points based on the number of remaining trials and bit errors.
-                ActiveSNRPoints  = ( (RemainingTrials>0) & (RemainingBitError>0) );
+                % Determine the position of active SNR points based on the number of remaining trials and frame errors.
+                ActiveSNRPoints  = ( (RemainingTrials>0) & (RemainingFrameError>0) );
                 % Set the stopping criteria flag.
                 StoppingCriteria = ( sum(ActiveSNRPoints) == 0 );
                 
                 if StoppingCriteria
-                    msg = sprintf( '\nStopping simulation of job %s for user %s because enough trials and/or bit errors are observed for ALL SNR points.\n\n',...
+                    msg = sprintf( '\nStopping simulation of job %s for user %s because enough trials and/or frame errors are observed for ALL SNR points.\n\n',...
                         JobFileName(1:end-4), Username );
                     fprintf( msg );
                 else
