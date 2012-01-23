@@ -34,9 +34,9 @@ OldPath = SetPath();
 if( ~isfield(DVBS2Param, 'EffectiveRate') || isempty(DVBS2Param.EffectiveRate) ), DVBS2Param.EffectiveRate = 1/2; end
 if( ~isfield(DVBS2Param, 'FrameSize') || isempty(DVBS2Param.FrameSize) ), DVBS2Param.FrameSize = 64800; end
 if( ~isfield(DVBS2Param, 'SNRType') || isempty(DVBS2Param.SNRType) ), DVBS2Param.SNRType = 'Es/N0 in dB'; end
-if( ~isfield(DVBS2Param, 'MaxTrials') || isempty(DVBS2Param.MaxTrials) ), DVBS2Param.MaxTrials = 18000; end
-if( ~isfield(DVBS2Param, 'MaxBitErrors') || isempty(DVBS2Param.MaxBitErrors) ), DVBS2Param.MaxBitErrors = 5000*ones(size(DVBS2Param.SNR)); end
-if( ~isfield(DVBS2Param, 'MaxFrameErrors') || isempty(DVBS2Param.MaxFrameErrors) ), DVBS2Param.MaxFrameErrors = 1000*ones(size(DVBS2Param.SNR)); end
+if( ~isfield(DVBS2Param, 'MaxTrials') || isempty(DVBS2Param.MaxTrials) ), DVBS2Param.MaxTrials = 1e9; end
+if( ~isfield(DVBS2Param, 'MaxBitErrors') || isempty(DVBS2Param.MaxBitErrors) ), DVBS2Param.MaxBitErrors = 5e15*ones(size(DVBS2Param.SNR)); end
+if( ~isfield(DVBS2Param, 'MaxFrameErrors') || isempty(DVBS2Param.MaxFrameErrors) ), DVBS2Param.MaxFrameErrors = 100*ones(size(DVBS2Param.SNR)); end
 if( ~isfield(DVBS2Param, 'minBER') || isempty(DVBS2Param.minBER) ), DVBS2Param.minBER = 1e-5; end
 if( ~isfield(DVBS2Param, 'minFER') || isempty(DVBS2Param.minFER) ), DVBS2Param.minFER = 1e-5; end
 if( ~isfield(DVBS2Param, 'SimTime') || isempty(DVBS2Param.SimTime) ), DVBS2Param.SimTime = 300; end
@@ -66,7 +66,7 @@ SimParam = struct(...
     'SNR', DVBS2Param.SNR, ...              % Row vector of SNR points in dB.
     'MaxTrials', DVBS2Param.MaxTrials, ...  % A vector of integers (or scalar), one for each SNR point. Maximum number of trials to run per point.
     'SimTime', DVBS2Param.SimTime, ...      % Simulation time in Seconds.
-    'CheckPeriod', 500, ...                 % Checking time in number of Trials.
+    'CheckPeriod', 10, ...                  % Checking time in number of Trials.
     'MaxBitErrors', DVBS2Param.MaxBitErrors, ...
     'MaxFrameErrors', DVBS2Param.MaxFrameErrors, ...
     'minBER', DVBS2Param.minBER, ...
