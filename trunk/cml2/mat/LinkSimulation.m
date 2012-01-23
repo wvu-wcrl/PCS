@@ -43,24 +43,27 @@ classdef LinkSimulation < Simulation
             SimState.BER = SimState.Trials;
             SimState.FER = SimState.Trials;
             try [Status, SimState.NodeID] = system('hostname'); catch end
+            SimState.StartTime = 0;
+            SimState.StopTime = 0;
 
             obj.SimState = SimState;
         end
         
         function SimState = SingleSimulate(obj, SimParam)
+            obj.SimState.StartTime = clock;
             if(nargin>=2 && ~isempty(SimParam)), obj.SimParam = SimParam; end
             Test = false;              % Turning off test (scheduler will decide if it needs to run full work unit).
             TestInactivation = false;  % Don't want to deactivate in this method when error rate is below minBER or minFER.
             ElapsedTime = 0;
             if(Test)
-                % Determine the number of remaining bit errors reqiured for each SNR point.
-                RemainingBitError = obj.SimParam.MaxBitErrors - obj.SimState.BitErrors;
-                RemainingBitError(RemainingBitError<0) = 0;
+                % Determine the number of remaining frame errors reqiured for each SNR point.
+                RemainingFrameError = obj.SimParam.MaxFrameErrors - obj.SimState.FrameErrors;
+                RemainingFrameError(RemainingFrameError<0) = 0;
                 % Determine the number of remaining trials reqiured for each SNR point.
                 RemainingTrials = obj.SimParam.MaxTrials - obj.SimState.Trials;
                 RemainingTrials(RemainingTrials<0) = 0;
-                % Determine the position of active SNR points based on the number of remaining bit errors and trials.
-                OldActiveSNRPoints = ( (RemainingBitError>0) & (RemainingTrials>0) );
+                % Determine the position of active SNR points based on the number of remaining frame errors and trials.
+                OldActiveSNRPoints = ( (RemainingFrameError>0) & (RemainingTrials>0) );
             end
 %             if (fopen(obj.SimParam.FileName) ~= -1)
 %                 NewParam = load(obj.SimParam.FileName, 'SimParam', 'SimState');
@@ -70,16 +73,17 @@ classdef LinkSimulation < Simulation
             
             % Accumulate errors for different SNR points unitil time is up.
             while ElapsedTime < obj.SimParam.SimTime
-                % Determine the number of remaining bit errors reqiured for each SNR point.
-                RemainingBitError = obj.SimParam.MaxBitErrors - obj.SimState.BitErrors;
-                RemainingBitError(RemainingBitError<0) = 0;
+                tic;
+                % Determine the number of remaining frame errors reqiured for each SNR point.
+                RemainingFrameError = obj.SimParam.MaxFrameErrors - obj.SimState.FrameErrors;
+                RemainingFrameError(RemainingFrameError<0) = 0;
                 % Determine the number of remaining trials reqiured for each SNR point.
                 RemainingTrials = obj.SimParam.MaxTrials - obj.SimState.Trials;
                 RemainingTrials(RemainingTrials<0) = 0;
-                % Determine the position of active SNR points based on the number of remaining bit errors and trials.
-                ActiveSNRPoints = ( (RemainingBitError>0) & (RemainingTrials>0) );
+                % Determine the position of active SNR points based on the number of remaining frame errors and trials.
+                ActiveSNRPoints = ( (RemainingFrameError>0) & (RemainingTrials>0) );
                 
-                % Check if we can discard SNR points whose BER WILL be less than SimParam.minBER.
+                % Check if we can discard SNR points whose BER and FER WILL be less than SimParam.minBER and SimParam.minFER.
                 LastInactivePoint = find(ActiveSNRPoints == 0, 1, 'last');
                 if ( ~isempty(LastInactivePoint) && ...
                      (obj.SimState.BER(1, LastInactivePoint) ~=0) && (obj.SimState.BER(1, LastInactivePoint) < obj.SimParam.minBER) && ...
@@ -101,19 +105,21 @@ classdef LinkSimulation < Simulation
                 end
                 
                 obj.NumNewPoints = sum(ActiveSNRPoints);
-                tic;
                 if obj.NumNewPoints ~= 0
-                    SNRPoint = randp(ActiveSNRPoints);    % Choose SNR point uniformly.
-%                     SNRPoint = randp(RemainingBitError);    % Choose SNR point based on remaining bit errors required.
+                    SNRPoint = randp(ActiveSNRPoints);      % Choose SNR point uniformly.
+                    % SNRPoint = randp(RemainingFrameError);% Choose SNR point based on remaining frame errors required.
+                    msg = sprintf('\nMore TRIALS are run for simulation of SNR = %.2f dB.\n', obj.SimParam.SNR(SNRPoint));
+                    fprintf( msg );
                     % Loop until either there are enough trials or enough errors or the time is up.
                     while ( ( obj.SimState.Trials( 1, SNRPoint) < obj.SimParam.MaxTrials(SNRPoint) ) && ...
-                            ( obj.SimState.BitErrors(1, SNRPoint) < obj.SimParam.MaxBitErrors(SNRPoint) ) )
+                            ( obj.SimState.FrameErrors(1, SNRPoint) < obj.SimParam.MaxFrameErrors(SNRPoint) ) )
                         % Increment the trials counter.
                         obj.SimState.Trials(1, SNRPoint) = obj.SimState.Trials(1, SNRPoint) + 1;
                         [NumBitError, NumCodewordError] = obj.Trial(obj.EsN0(SNRPoint));
+                        fprintf('x');
                         obj.UpdateErrorRate(SNRPoint, NumBitError, NumCodewordError);
 
-                        % Determine if it is time to save and exit from while loop (once per CheckPeriod trials)
+                        % Determine if it is time to save and exit from while loop (once per CheckPeriod trials).
                         if ~rem(obj.SimState.Trials(1, SNRPoint), obj.SimParam.CheckPeriod)
                             break;
                         end
@@ -121,6 +127,7 @@ classdef LinkSimulation < Simulation
                     ElapsedTime = toc + ElapsedTime;
                     if(Test), OldActiveSNRPoints = ActiveSNRPoints; end
                 else
+                    obj.SimState.StopTime = clock;
                     SimState = obj.SimState;
                     return;
                 end
@@ -129,6 +136,7 @@ classdef LinkSimulation < Simulation
             if ~obj.RunMode % Only do this if running locally.
                 obj.Save();
             end
+            obj.SimState.StopTime = clock;
             SimState = obj.SimState;
         end
         
