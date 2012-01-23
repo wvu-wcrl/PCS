@@ -4,6 +4,13 @@ function CodedModJobManager(HomeRootIn)
 if( nargin<1 || isempty(HomeRootIn) ), HomeRootIn = []; end
 
 Check4NewUserPeriod = 50;
+UserListPrimary = [];
+
+MaxNode = 100;
+MaxTimes = 500;
+
+NodeID_TimeVecIn = zeros(2,MaxNode);
+eTimeTrialIn = zeros(2,MaxTimes,MaxNode);
 
 % Echo out starting time of running coded-modulation simulation job manager.
 msg = sprintf( '\nCoded-modulation simulation JOB MANAGER started at %s.\n\n', datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
@@ -16,7 +23,7 @@ while(runningJob)
     Check4NewUser = 0;
     msg = sprintf( '\n\n\nThe list of ACTIVE users is extracted and updated at %s.\n\n\n', datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
     fprintf( msg );
-    UserList = InitUsers(HomeRootIn);
+    UserList = InitUsers(HomeRootIn,UserListPrimary);
     nActiveUsers = length(UserList);
     
     if ~isempty(UserList)
@@ -154,6 +161,21 @@ while(runningJob)
                 % Reassign variables as Local.
                 SimParamLocal = TaskParam.InputParam;
                 SimStateLocal = TaskState;
+                
+                % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task.
+                [eTimeTrial, NodeID_TimeVec] = ExtractETimeTrial( SimStateLocal, NodeID_TimeVecIn, eTimeTrialIn );
+                eTimeTrialIn = eTimeTrial;
+                NodeID_TimeVecIn = NodeID_TimeVec;
+                
+                % Remove columns of all zeros from NodeID_TimeVec and save the result.
+                NodeID_TimeVecTemp = NodeID_TimeVec;
+                NodeID_TimeVecTemp(:,all(NodeID_TimeVecTemp==0,1)) = [];
+                
+                eTimeTrialTemp = eTimeTrial;
+                % eTimeTrialTemp(:,:,sum(all(eTimeTrialTemp==0,1)) == MaxTimes) = [];
+                eTimeTrialTemp(:,:,all(NodeID_TimeVecTemp==0,1)) = [];
+                
+                save( fullfile(JobRunningDir,'eTimeTrial.mat'), 'eTimeTrialTemp', 'NodeID_TimeVecTemp' );
             catch
                 % Selected output task file was bad, kick out of loading loop.
                 msg = sprintf( 'Output Task Load Error: Output task file %s of user %s could not be loaded and will be deleted.\n', OutFileName(1:end-4), Username );
@@ -386,6 +408,7 @@ while(runningJob)
     if(Check4NewUser>=Check4NewUserPeriod), break; end
     end
     end
+    UserListPrimary = UserList;
 end
 end
 
@@ -405,13 +428,13 @@ SimParamLocal.MaxTrials(SimParamLocal.MaxTrials<0) = 0;
 end
 
 
-function UserList = InitUsers(HomeRootIn)
+function UserList = InitUsers(HomeRootIn,UserListPrimary)
 % Initialize users' states in UserList structure.
 %
-% Calling syntax: UserList = InitUsers([HomeRootIn])
+% Calling syntax: UserList = InitUsers([HomeRootIn][,UserListPrimary])
 % UserList fields for EACH user:
-%       UserPath(Full Path),FunctionName,FunctionPath,MaxTasks,NumTasks,
-%       MaxRunningJobs,InitialSimTime,SimTime,PauseTime,TaskID.
+%       UserPath(Full Path),FunctionName,FunctionPath,MaxTasks,MaxTasksFactor,
+%       NumTasks,MaxRunningJobs,InitialSimTime,SimTime,PauseTime,TaskID.
 %
 % Version 1, 12/07/2011, Terry Ferrett.
 % Version 2, 01/11/2012, Mohammad Fanaei.
@@ -421,11 +444,12 @@ if( nargin<1 || isempty(HomeRootIn) )
     if ispc
         HomeRoot = pwd;
     else
-        HomeRoot = '/home';
+        HomeRoot = [filesep 'home'];
     end
 else
     HomeRoot = HomeRootIn;
 end
+if( nargin<2 || isempty(UserListPrimary) ), UserListPrimary = []; end
 CFG_Filename = '.CodedMod_cfg.txt';
 
 usrdirs = []; RootInd = [];
@@ -437,10 +461,10 @@ if iscell(HomeRoot)
 else
     usrdirs = dir(HomeRoot);
 end
-n = length(usrdirs);        % Number of directories found in home.
-usr_cnt = 0;                % Counter to track number of ACTIVE users.
 
-UserList = [];
+UserList = UserListPrimary;
+n = length(usrdirs);        % Number of directories found in home.
+usr_cnt = length(UserList); % Counter to track number of ACTIVE users.
 
 for k = 1:n
     % Find CFG_Filename file, i.e. project configuration file.
@@ -452,8 +476,13 @@ for k = 1:n
     cur_file = fullfile(cur_path, CFG_Filename);
     cfgFileDir = dir(cur_file);
     
-    % If CFG_Filename (project configuration file) exists, read it.
-    if ~isempty(cfgFileDir)
+    UserFoundFlag = zeros(usr_cnt,1);
+    for u = 1:usr_cnt
+        UserFoundFlag(u) = strcmpi( UserList{u}.UserPath, cur_path );
+    end
+    
+    % If CFG_Filename (project configuration file) exists AND user is NOT already listed in UserList, read CFG_Filename.
+    if( ~isempty(cfgFileDir) && (sum(UserFoundFlag)==0) )
         usr_cnt = usr_cnt + 1;
         
         % Add FULL path to this user to active users list.
@@ -478,6 +507,11 @@ for k = 1:n
         key = 'MaxTasks';
         out = fp(cur_file, heading2, key);
         UserList{usr_cnt}.MaxTasks = str2num(out);
+        
+        % Read the factor of maximum number of input tasks in TaskIn queue/directory beyond which no new task is generated.
+        key = 'MaxTasksFactor';
+        out = fp(cur_file, heading2, key);
+        UserList{usr_cnt}.MaxTasksFactor = str2num(out);
         
         % Read number of input tasks to submit to TaskIn at a time.
         key = 'NumTasks';
@@ -509,6 +543,10 @@ for k = 1:n
         
         % Reset the task ID counter.
         UserList{usr_cnt}.TaskID = 0;
+    % If user is already listed in UserList but its CFG_Filename (project configuration file) does not exist anymore, remove user from list.
+    elseif( (sum(UserFoundFlag)~=0) && isempty(cfgFileDir) )
+        UserList(UserFoundFlag == 1) = [];
+        usr_cnt = usr_cnt - sum(UserFoundFlag);
     end
 end
 end
@@ -585,14 +623,18 @@ UserRoot = CurrentUser.UserPath;
 
 TaskInDir = fullfile(UserRoot,'Tasks','TaskIn');
 
-TaskID = CurrentUser.TaskID;
 MaxTasks = CurrentUser.MaxTasks;
-NumTasks = CurrentUser.NumTasks;
-PauseTime = CurrentUser.PauseTime;
+MaxTasksFactor = CurrentUser.MaxTasksFactor;
+TaskID = CurrentUser.TaskID;
 
 % Sense the load of the task input queue (TaskIn directory) of current user.
 DTask = dir( fullfile(TaskInDir,'*.mat') );
 TaskLoad = length(DTask);
+
+if TaskLoad < MaxTasksFactor*MaxTasks    % If TaskLoad>MaxTasksFactor*MaxTasks, NO NEW TASKs will be generated.
+
+NumTasks = CurrentUser.NumTasks;
+PauseTime = CurrentUser.PauseTime;
 
 Tasks = max( min( NumTasks, MaxTasks-TaskLoad ), 1);  % Always generate at least one task.
 SimParamLocal.MaxTrials = ceil(SimParamLocal.MaxTrials/Tasks);
@@ -609,7 +651,7 @@ TaskParam = struct(...
 
 JobFileName = InFileName;
 
-msg = sprintf( 'Generating TASK files corresponding to JOB %s of user %s at %s.\n',...
+msg = sprintf( 'Generating TASK files corresponding to JOB %s of user %s  and saving them to its TaskIn directory at %s.\n',...
     JobFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
 fprintf( msg );
 
@@ -625,11 +667,13 @@ for TaskCount=1:Tasks
     % Save the new task in TaskIn queue.
     try
         save( fullfile(TaskInDir,TaskFileName), 'TaskParam' );
-        msg = sprintf( 'Task file %s for user %s is saved to its TaskIn directory.\n', TaskFileName(1:end-4), Username );
+        % msg = sprintf( 'Task file %s for user %s is saved to its TaskIn directory.\n', TaskFileName(1:end-4), Username );
+        msg = sprintf('x');
         fprintf( msg );
     catch
         TempfileName = JM_Save(TaskFileName, TaskParam);
-        msg = sprintf( 'Task file %s for user %s is saved to its TaskIn directory by OS.\n', TaskFileName(1:end-4), Username );
+        % msg = sprintf( 'Task file %s for user %s is saved to its TaskIn directory by OS.\n', TaskFileName(1:end-4), Username );
+        msg = sprintf('x');
         fprintf( msg );
         OS_flag = 1;
     end
@@ -637,7 +681,13 @@ for TaskCount=1:Tasks
     % Pause briefly for flow control.
     pause( PauseTime );
 end
+fprintf( '\n' );
 if(OS_flag), JM_Move(TempfileName, TaskInDir); end
+
+else    % TaskInDir is full. No new tasks will be generated.
+msg = sprintf('No new task is generated for user %s since its TaskIn directory is full.\n', Username);
+fprintf( msg );
+end
 
 FinalTaskID = TaskID;
 
@@ -741,4 +791,31 @@ else
     try system( RmStr ); catch end
 end
 
+end
+
+
+function [eTimeTrial, NodeID_TimeVec] = ExtractETimeTrial( SimState, NodeID_TimeVecIn, eTimeTrialIn )
+% NodeID_TimeVec is a 2-by-MaxNode matrix.
+% Its first row is node IDs and its second row is how many times that specific node has generated SimState (run simulations).
+% 
+% eTimeTrial is a 2-by-MaxTimes-by-MaxNode matrix.
+% Its first row contains elapsed times and its second row contains the number of trials completed in the eTime.
+
+NodeID_TimeVec = NodeID_TimeVecIn;
+eTimeTrial = eTimeTrialIn;
+Ind = find(NodeID_TimeVec(1,:)==SimState.NodeID,1,'first');
+if isempty(Ind)
+    Ind = find(NodeID_TimeVec(1,:)==0,1,'first');
+    NodeID_TimeVec(1,Ind) = SimState.NodeID;
+end
+NodeID_TimeVec(2,Ind) = NodeID_TimeVec(2,Ind) + 1;
+
+if NodeID_TimeVec(2,Ind) <= size(eTimeTrial,2)
+    ColPos = NodeID_TimeVec(2,Ind);
+else
+    eTimeTrial = circshift(eTimeTrial, [0 -1 0]);
+    ColPos = size(eTimeTrial,2);
+end
+eTimeTrial(:,ColPos,Ind) = [etime(SimState.StopTime, SimState.StartTime)
+    SimState.Trials];
 end
