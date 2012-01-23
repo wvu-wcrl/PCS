@@ -828,8 +828,6 @@ else
     ColPos = size(eTimeTrial,2);
 end
 
-etime(SimState.StopTime, SimState.StartTime)
-SimState.Trials
 eTimeTrial(:,ColPos,Ind) = [etime(SimState.StopTime, SimState.StartTime)
     sum(SimState.Trials)];
 end
