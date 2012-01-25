@@ -108,7 +108,7 @@ classdef LinkSimulation < Simulation
                 if obj.NumNewPoints ~= 0
                     SNRPoint = randp(ActiveSNRPoints);      % Choose SNR point uniformly.
                     % SNRPoint = randp(RemainingFrameError);% Choose SNR point based on remaining frame errors required.
-                    msg = sprintf('\nMore TRIALS are run for simulation of SNR = %.2f dB.\n', obj.SimParam.SNR(SNRPoint));
+                    msg = sprintf('\nMore TRIALS are run for simulation of SNR = %.2f dB.\n\n', obj.SimParam.SNR(SNRPoint));
                     fprintf( msg );
                     % Loop until either there are enough trials or enough errors or the time is up.
                     while ( ( obj.SimState.Trials( 1, SNRPoint) < obj.SimParam.MaxTrials(SNRPoint) ) && ...
@@ -125,6 +125,7 @@ classdef LinkSimulation < Simulation
                         end
                     end
                     ElapsedTime = toc + ElapsedTime;
+                    fprintf('\n');
                     if(Test), OldActiveSNRPoints = ActiveSNRPoints; end
                 else
                     obj.SimState.StopTime = clock;
