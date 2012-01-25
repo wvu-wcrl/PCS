@@ -136,7 +136,7 @@ while(runningJob)
         % Look to see if there are any .mat files in TaskOut directory.
         D = dir( fullfile(TaskOutDir,'*.mat') );
         
-        while ~isempty(D)
+        if ~isempty(D)
             % Pick a finished task file at random.
             OutFileIndex = randint( 1, 1, [1 length(D)]);
 
@@ -149,70 +149,33 @@ while(runningJob)
             JobFileName = [OutFileName(1:regexpi(OutFileName, '_task_') - 1) '.mat'];
             
             % Try to load the selected output task file.
-            try
-                load( fullfile(TaskOutDir,OutFileName), 'TaskParam', 'TaskState' );
-                msg = sprintf( 'Output task file %s of user %s is loaded.\n', OutFileName(1:end-4), Username );
-                fprintf( msg );
-                success = 1;
+            [TaskContent, success] = LoadFile(OutFileName, TaskOutDir, Username, 'TaskParam', 'TaskState', JobOutDir, JobFileName);
+            % Reassign variables as Local.
+            SimParamLocal = TaskContent.TaskParam.InputParam;
+            SimStateLocal = TaskContent.TaskState;
 
-                % Reassign variables as Local.
-                SimParamLocal = TaskParam.InputParam;
-                SimStateLocal = TaskState;
-                
+            if ~isempty(SimStateLocal)
                 % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save timing info.
                 [eTimeTrial, NodeID_Times] = ExtractETimeTrial( SimStateLocal, NodeID_TimesIn, eTimeTrialIn );
                 eTimeTrialIn = eTimeTrial;
                 NodeID_TimesIn = NodeID_Times;
-                
+
                 try
                     save( fullfile(TempDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
-                    msg = sprintf( 'Timing information for the NODE that has finished the task is saved for job %s and user %s.\n', InFileName(1:end-4), Username );
+                    msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', OutFileName(1:end-4), Username );
                     fprintf( msg );
                 catch
                     TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrial, NodeID_Times);
                     JM_Move(TempfileName, TempDir);
-                    msg = sprintf( 'Timing information for the NODE that has finished the task is saved for job %s and user %s by OS.\n', InFileName(1:end-4), Username );
+                    msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', OutFileName(1:end-4), Username );
                     fprintf( msg );
                 end
-                
-            catch
-                % Selected output task file was bad, kick out of loading loop.
-                msg = sprintf( 'Output Task Load Error: Output task file %s of user %s could not be loaded and will be deleted.\n', OutFileName(1:end-4), Username );
-                fprintf( msg );
-                success = 0;
-                FID_ErrorTaskLoad = fopen( fullfile(JobOutDir,[JobFileName(1:end-4) '_Error_TaskOutLoad.txt']), 'a+');
-                msg = sprintf( ['Output Task Load Error: Output task file \t %s \t of user \t %s \t could not be loaded and will be deleted automatically.\n',...
-                    'Output task should be a .mat file containing two MATLAB structures named TaskParam and SimState.'], OutFileName(1:end-4), Username );
-                fprintf( FID_ErrorTaskLoad, msg );
-                fclose(FID_ErrorTaskLoad);
             end
-
+            
             % Delete the selected output task file from TaskOut directory.
             % if(success)
-            try
-                try
-                    RmStr = ['sudo rm ' TaskOutDir filesep OutFileName];
-                    try
-                        system( RmStr );
-                        msg = sprintf( 'The selected output task file %s of user %s is deleted from its TaskOut directory.\n', OutFileName(1:end-4), Username );
-                        fprintf( msg );
-                    catch
-                    end
-                catch
-                    delete( fullfile(TaskOutDir,OutFileName) );
-                    msg = sprintf( 'The selected output task file %s of user %s is deleted from its TaskOut directory.\n', OutFileName(1:end-4), Username );
-                    fprintf( msg );
-                end
-            catch
-                % Could not delete output task file. Just issue a warning.
-                msg = sprintf( 'Task Delete Error/Warning: Output task file %s of user %s could not be deleted from its TaskOut directory.\n', OutFileName(1:end-4), Username );
-                fprintf( msg );
-                FID_ErrorTaskDel = fopen( fullfile(JobOutDir,[JobFileName(1:end-4) '_Error_TaskOutDel.txt']), 'a+');
-                msg = sprintf( ['Task Delete Error/Warning: Output task file \t %s \t of user \t %s \t could not be deleted from the user TaskOut directory.\n',...
-                    'The user can delete the .mat task file manually.'], OutFileName(1:end-4), Username );
-                fprintf( FID_ErrorTaskDel, msg );
-                fclose(FID_ErrorTaskDel);
-            end
+            DeleteFile(OutFileName, TaskOutDir, Username, JobOutDir, JobFileName);
+            fprintf('\n');
             % end
             
             % Try to load the correspoding JOB file from the JobRunning directory (if it is there).
@@ -227,6 +190,9 @@ while(runningJob)
                     SimStateGlobal = SimState;
                     
                     successJR = 1;
+                    
+                    % Update the Global SimState.
+                    SimStateGlobal = UpdateSimStateGlobal(SimStateGlobal, SimStateLocal);
                 catch
                     % The corresponding job file in JobRunning directory was bad or nonexistent, kick out of its loading loop.
                     % This is a method of killing a job.
@@ -264,13 +230,54 @@ while(runningJob)
             end
             
             if (successJR)
-                % Update the Global SimState.
-                SimStateGlobal.Trials      = SimStateGlobal.Trials      + SimStateLocal.Trials;
-                SimStateGlobal.BitErrors   = SimStateGlobal.BitErrors   + SimStateLocal.BitErrors;
-                SimStateGlobal.FrameErrors = SimStateGlobal.FrameErrors + SimStateLocal.FrameErrors;
-                SimStateGlobal.BER         = SimStateGlobal.BitErrors   ./ ( SimStateGlobal.Trials * SimStateLocal.NumCodewords * SimStateLocal.DataLength );
-                SimStateGlobal.FER         = SimStateGlobal.FrameErrors ./ ( SimStateGlobal.Trials * SimStateLocal.NumCodewords );
+                % Look to see if there are any more related finished .mat task files in TaskOut directory.
+                D = dir( fullfile(TaskOutDir,[JobFileName(1:end-4) '_task_*.mat']) );
 
+                for OutFileIndex = 1:length(D) % Pick finished task files one by one in order of listing.
+                    % Construct the filename.
+                    OutFileName = D(OutFileIndex).name;
+
+                    msg = sprintf( 'Receiving finished task %s of user %s at %s.\n', OutFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+                    fprintf( msg );
+
+                    % Try to load the selected output task file.
+                    % [TaskContent, success] = LoadFile(OutFileName, TaskOutDir, Username, 'TaskParam', 'TaskState', JobOutDir, JobFileName);
+                    TaskContent = LoadFile(OutFileName, TaskOutDir, Username, 'TaskParam', 'TaskState', JobOutDir, JobFileName);
+                    % Reassign variables as Local.
+                    SimParamLocal = TaskContent.TaskParam.InputParam;
+                    SimStateLocal = TaskContent.TaskState;
+
+                    if ~isempty(SimStateLocal)
+                        % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save timing info.
+                        [eTimeTrial, NodeID_Times] = ExtractETimeTrial( SimStateLocal, NodeID_TimesIn, eTimeTrialIn );
+                        eTimeTrialIn = eTimeTrial;
+                        NodeID_TimesIn = NodeID_Times;
+
+                        try
+                            save( fullfile(TempDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
+                            msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', OutFileName(1:end-4), Username );
+                            fprintf( msg );
+                        catch
+                            TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrial, NodeID_Times);
+                            JM_Move(TempfileName, TempDir);
+                            msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', OutFileName(1:end-4), Username );
+                            fprintf( msg );
+                        end
+                    end
+
+                    % Delete the selected output task file from TaskOut directory.
+                    % if(success)
+                    DeleteFile(OutFileName, TaskOutDir, Username, JobOutDir, JobFileName);
+                    if( rem(OutFileIndex,5)==0 ), fprintf( '\n' ); end
+                    % end
+                    
+                    % Update the Global SimState.
+                    SimStateGlobal = UpdateSimStateGlobal(SimStateGlobal, SimStateLocal);
+                    
+                    % Wait before looping for reading the next finished task file in TaskOut directory.
+                    pause( CurrentUser.PauseTime );
+                end
+                
                 % See if the global stopping criteria have been reached.
 
                 % First check to see if minimum number of trials or frame errors has been reached.
@@ -389,9 +396,6 @@ while(runningJob)
                 end
             end
             
-            % Look to see if there are any more .mat files in TaskOut directory.
-            D = dir( fullfile(TaskOutDir,'*.mat') );
-            
             msg = sprintf( '\n\nConsolidating finished tasks for user %s is done at %s. Waiting for its next job or next job division! ...\n\n',...
                 Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
             fprintf( msg );
@@ -424,6 +428,18 @@ SimParamLocal.MaxBitErrors = SimParamGlobal.MaxBitErrors - SimStateGlobal.BitErr
 SimParamLocal.MaxBitErrors(SimParamLocal.MaxBitErrors<0) = 0;
 SimParamLocal.MaxTrials = SimParamGlobal.MaxTrials - SimStateGlobal.Trials;
 SimParamLocal.MaxTrials(SimParamLocal.MaxTrials<0) = 0;
+end
+
+
+function SimStateGlobal = UpdateSimStateGlobal(SimStateGlobalIn, SimStateLocal)
+% Update the Global SimState.
+
+SimStateGlobal = SimStateGlobalIn;
+SimStateGlobal.Trials      = SimStateGlobal.Trials      + SimStateLocal.Trials;
+SimStateGlobal.BitErrors   = SimStateGlobal.BitErrors   + SimStateLocal.BitErrors;
+SimStateGlobal.FrameErrors = SimStateGlobal.FrameErrors + SimStateLocal.FrameErrors;
+SimStateGlobal.BER         = SimStateGlobal.BitErrors   ./ ( SimStateGlobal.Trials * SimStateLocal.NumCodewords * SimStateLocal.DataLength );
+SimStateGlobal.FER         = SimStateGlobal.FrameErrors ./ ( SimStateGlobal.Trials * SimStateLocal.NumCodewords );
 end
 
 
@@ -650,7 +666,7 @@ TaskParam = struct(...
 
 JobFileName = InFileName;
 
-msg = sprintf( 'Generating TASK files corresponding to JOB %s of user %s  and saving them to its TaskIn directory at %s.\n',...
+msg = sprintf( 'Generating TASK files corresponding to JOB %s of user %s  and saving them to its TaskIn directory at %s.\n\n',...
     JobFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
 fprintf( msg );
 
@@ -667,12 +683,12 @@ for TaskCount=1:Tasks
     try
         save( fullfile(TaskInDir,TaskFileName), 'TaskParam' );
         % msg = sprintf( 'Task file %s for user %s is saved to its TaskIn directory.\n', TaskFileName(1:end-4), Username );
-        msg = sprintf('x');
+        msg = sprintf('+');
         fprintf( msg );
     catch
         TempfileName = JM_Save(TaskFileName, TaskParam);
         % msg = sprintf( 'Task file %s for user %s is saved to its TaskIn directory by OS.\n', TaskFileName(1:end-4), Username );
-        msg = sprintf('x');
+        msg = sprintf('+');
         fprintf( msg );
         OS_flag = 1;
     end
@@ -680,7 +696,7 @@ for TaskCount=1:Tasks
     % Pause briefly for flow control.
     pause( PauseTime );
 end
-fprintf( '\n' );
+fprintf( '\n\n' );
 if(OS_flag), JM_Move(TempfileName, TaskInDir); end
 
 else    % TaskInDir is full. No new tasks will be generated.
@@ -830,4 +846,55 @@ end
 
 eTimeTrial(:,ColPos,Ind) = [etime(SimState.StopTime, SimState.StartTime)
     sum(SimState.Trials)];
+end
+
+
+function DeleteFile(FileName, FileDirectory, Username, ResultsFileDir, JobFileName)
+try
+    try
+        RmStr = ['sudo rm ' FileDirectory filesep FileName];
+        try
+            system( RmStr );
+            % msg = sprintf( 'The selected output task file %s of user %s is deleted from its TaskOut directory.\n', FileName(1:end-4), Username );
+            msg = sprintf( 'OTask %s of user %s --\t', FileName(1:end-4), Username );
+            fprintf( msg );
+        catch
+        end
+    catch
+        delete( fullfile(FileDirectory,FileName) );
+        % msg = sprintf( 'The selected output task file %s of user %s is deleted from its TaskOut directory.\n', FileName(1:end-4), Username );
+        msg = sprintf( 'OTask %s of user %s --\t', FileName(1:end-4), Username );
+        fprintf( msg );
+    end
+catch
+    % Could not delete output task file. Just issue a warning.
+    msg = sprintf( 'Task Delete Error/Warning: Output task file %s of user %s could not be deleted from its TaskOut directory.\n', FileName(1:end-4), Username );
+    fprintf( msg );
+    FID_ErrorTaskDel = fopen( fullfile(ResultsFileDir,[JobFileName(1:end-4) '_Error_TaskOutDel.txt']), 'a+');
+    msg = sprintf( ['Task Delete Error/Warning: Output task file \t %s \t of user \t %s \t could not be deleted from the user TaskOut directory.\n',...
+        'The user can delete the .mat task file manually.'], FileName(1:end-4), Username );
+    fprintf( FID_ErrorTaskDel, msg );
+    fclose(FID_ErrorTaskDel);
+end
+end
+
+
+function [FileContent, success] = LoadFile(FileName, FileDirectory, Username, FieldA, FieldB, ResultsFileDir, JobFileName)
+try
+    FileContent = load( fullfile(FileDirectory,FileName), FieldA, FieldB );
+    msg = sprintf( 'Output task file %s of user %s is loaded.\n', FileName(1:end-4), Username );
+    fprintf( msg );
+    success = 1;
+catch
+    FileContent = [];
+    % Selected output task file was bad, kick out of loading loop.
+    msg = sprintf( 'Output Task Load Error: Output task file %s of user %s could not be loaded and will be deleted.\n', FileName(1:end-4), Username );
+    fprintf( msg );
+    success = 0;
+    FID_ErrorTaskLoad = fopen( fullfile(ResultsFileDir,[JobFileName(1:end-4) '_Error_TaskOutLoad.txt']), 'a+');
+    msg = sprintf( ['Output Task Load Error: Output task file \t %s \t of user \t %s \t could not be loaded and will be deleted automatically.\n',...
+        'Output task should be a .mat file containing two MATLAB structures named TaskParam and TaskState.'], FileName(1:end-4), Username );
+    fprintf( FID_ErrorTaskLoad, msg );
+    fclose(FID_ErrorTaskLoad);
+end
 end
