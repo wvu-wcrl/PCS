@@ -51,6 +51,7 @@ classdef LinkSimulation < Simulation
         
         function SimState = SingleSimulate(obj, SimParam)
             obj.SimState.StartTime = clock;
+            try [Status, SimState.NodeID] = system('hostname'); catch end
             if(nargin>=2 && ~isempty(SimParam)), obj.SimParam = SimParam; end
             Test = false;              % Turning off test (scheduler will decide if it needs to run full work unit).
             TestInactivation = false;  % Don't want to deactivate in this method when error rate is below minBER or minFER.
@@ -73,7 +74,7 @@ classdef LinkSimulation < Simulation
             
             % Accumulate errors for different SNR points unitil time is up.
             while ElapsedTime < obj.SimParam.SimTime
-                tic;
+                TaskTime = tic;
                 % Determine the number of remaining frame errors reqiured for each SNR point.
                 RemainingFrameError = obj.SimParam.MaxFrameErrors - obj.SimState.FrameErrors;
                 RemainingFrameError(RemainingFrameError<0) = 0;
@@ -116,7 +117,8 @@ classdef LinkSimulation < Simulation
                         % Increment the trials counter.
                         obj.SimState.Trials(1, SNRPoint) = obj.SimState.Trials(1, SNRPoint) + 1;
                         [NumBitError, NumCodewordError] = obj.Trial(obj.EsN0(SNRPoint));
-                        fprintf('x');
+                        if( sum(NumCodewordError)>0 ), fprintf('x');
+                        else fprintf('.'); end
                         obj.UpdateErrorRate(SNRPoint, NumBitError, NumCodewordError);
 
                         % Determine if it is time to save and exit from while loop (once per CheckPeriod trials).
@@ -124,21 +126,25 @@ classdef LinkSimulation < Simulation
                             break;
                         end
                     end
-                    ElapsedTime = toc + ElapsedTime;
+                    ElapsedTime = toc(TaskTime) + ElapsedTime;
                     fprintf('\n');
                     if(Test), OldActiveSNRPoints = ActiveSNRPoints; end
                 else
                     obj.SimState.StopTime = clock;
                     SimState = obj.SimState;
+                    % Save the results only once when the time for simulation is up.
+                    if ~obj.RunMode % Only do this if running locally.
+                        obj.Save();
+                    end
                     return;
                 end
             end
+            obj.SimState.StopTime = clock;
+            SimState = obj.SimState;
             % Save the results only once when the time for simulation is up.
             if ~obj.RunMode % Only do this if running locally.
                 obj.Save();
             end
-            obj.SimState.StopTime = clock;
-            SimState = obj.SimState;
         end
         
         
@@ -150,8 +156,8 @@ classdef LinkSimulation < Simulation
         
         function UpdateErrorRate(obj, SNRPoint, NumBitError, NumCodewordError)
             % Update bit and codeword error counter.
-            obj.SimState.BitErrors( 1, SNRPoint ) = obj.SimState.BitErrors( 1, SNRPoint ) + NumBitError;
-            obj.SimState.FrameErrors( 1, SNRPoint ) = obj.SimState.FrameErrors( 1, SNRPoint ) + NumCodewordError;
+            obj.SimState.BitErrors( 1, SNRPoint ) = obj.SimState.BitErrors( 1, SNRPoint ) + NumBitError(end);
+            obj.SimState.FrameErrors( 1, SNRPoint ) = obj.SimState.FrameErrors( 1, SNRPoint ) + NumCodewordError(end);
             obj.SimState.BER(1, SNRPoint) = obj.SimState.BitErrors(1, SNRPoint) ./ ( obj.SimState.Trials(1, SNRPoint) * ...
                 obj.SimParam.CodedModObj.NumCodewords * obj.SimParam.CodedModObj.ChannelCodeObject.DataLength );
             obj.SimState.FER(1, SNRPoint) = obj.SimState.FrameErrors(1, SNRPoint) ./ ...

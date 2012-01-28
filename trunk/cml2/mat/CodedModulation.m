@@ -49,16 +49,18 @@ classdef CodedModulation < handle
         end
         
         
-        function EstBits = Decode(obj, SymbolLikelihood, ExtrinsicInfo)
+        function [EstBits, NumBitError, NumCodewordError] = Decode(obj, SymbolLikelihood, ExtrinsicInfo)
             if(nargin<3 || isempty(ExtrinsicInfo))
                 % Extrinsic information is considered to be all zero (DEFAULT).
                 ExtrinsicInfo = zeros( 1, size(SymbolLikelihood,2)*log2(size(SymbolLikelihood,1)) );
             end
             BitLikelihood = obj.Mapper.Demap( SymbolLikelihood, ExtrinsicInfo );
             % Find EstBits which includes padded bits and codeword bits affected by them.
-            EstBits = obj.ChannelCodeObject.Decode(cast(reshape(BitLikelihood,obj.ChannelCodeObject.CodewordLength,[])','double'));
+            [EstBits, obj.NumBitError] = obj.ChannelCodeObject.Decode(cast(reshape(BitLikelihood,obj.ChannelCodeObject.CodewordLength,[])','double'));
             % Assume that the code is systematic.
-            obj.NumBitError = sum( EstBits(obj.PaddingLength+1:obj.ChannelCodeObject.DataLength) ~= obj.ChannelCodeObject.DataBits(obj.PaddingLength+1:end) );
+            % obj.NumBitError = sum( EstBits(obj.PaddingLength+1:obj.ChannelCodeObject.DataLength) ~= obj.ChannelCodeObject.DataBits(obj.PaddingLength+1:end) );
+            NumBitError = obj.NumBitError;
+            NumCodewordError = (NumBitError>0);
         end
         
         
@@ -67,10 +69,9 @@ classdef CodedModulation < handle
                 % Extrinsic information is considered to be all zero (DEFAULT).
                 ExtrinsicInfo = zeros( 1, size(SymbolLikelihood,2)*log2(size(SymbolLikelihood,1)) );
             end
-            EstBits = obj.Decode(SymbolLikelihood, ExtrinsicInfo);
-            NumBitError = sum( EstBits(obj.PaddingLength+1:obj.ChannelCodeObject.DataLength) ~= obj.ChannelCodeObject.DataBits(obj.PaddingLength+1:end) );
-            obj.NumBitError = NumBitError;
-            NumCodewordError = sum(NumBitError>0);
+            [EstBits, NumBitError, NumCodewordError] = obj.Decode(SymbolLikelihood, ExtrinsicInfo);
+            % NumBitError = sum( EstBits(obj.PaddingLength+1:obj.ChannelCodeObject.DataLength) ~= obj.ChannelCodeObject.DataBits(obj.PaddingLength+1:end) );
+            % NumCodewordError = sum(NumBitError>0);
         end
     end
     
