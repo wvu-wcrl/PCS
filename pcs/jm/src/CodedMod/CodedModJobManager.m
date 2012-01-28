@@ -6,6 +6,9 @@ if( nargin<1 || isempty(HomeRootIn) ), HomeRootIn = []; end
 Check4NewUserPeriod = 50;
 UserListPrimary = [];
 
+
+ClusterGlobalTimer = tic;   % Global timer of job manager to keep track of timing information of finished tasks.
+
 NodeID_TimesIn = [];
 eTimeTrialIn = [];
 
@@ -150,22 +153,28 @@ while(runningJob)
             
             % Try to load the selected output task file.
             [TaskContent, success] = LoadFile(OutFileName, TaskOutDir, Username, 'TaskParam', 'TaskState', JobOutDir, JobFileName);
+            
+            CurrentTime = toc(ClusterGlobalTimer); % Keep track of the global time at which the finished task is read.
+            
             % Reassign variables as Local.
             SimParamLocal = TaskContent.TaskParam.InputParam;
             SimStateLocal = TaskContent.TaskState;
 
             if ~isempty(SimStateLocal)
                 % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save timing info.
-                [eTimeTrial, NodeID_Times] = ExtractETimeTrial( SimStateLocal, NodeID_TimesIn, eTimeTrialIn );
+                [eTimeTrial, NodeID_Times] = ExtractETimeTrial( SimStateLocal, NodeID_TimesIn, eTimeTrialIn, CurrentTime );
                 eTimeTrialIn = eTimeTrial;
                 NodeID_TimesIn = NodeID_Times;
-
+                
+                eTimeTrialTemp = eTimeTrial;
+                eTimeTrialTemp( :,all(all(eTimeTrialTemp==0,1),3),: ) = [];
+                
                 try
-                    save( fullfile(TempDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
+                    save( fullfile(TempDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrialTemp', 'NodeID_Times' );
                     msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', OutFileName(1:end-4), Username );
                     fprintf( msg );
                 catch
-                    TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrial, NodeID_Times);
+                    TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrialTemp, NodeID_Times);
                     JM_Move(TempfileName, TempDir);
                     msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', OutFileName(1:end-4), Username );
                     fprintf( msg );
@@ -243,22 +252,28 @@ while(runningJob)
                     % Try to load the selected output task file.
                     % [TaskContent, success] = LoadFile(OutFileName, TaskOutDir, Username, 'TaskParam', 'TaskState', JobOutDir, JobFileName);
                     TaskContent = LoadFile(OutFileName, TaskOutDir, Username, 'TaskParam', 'TaskState', JobOutDir, JobFileName);
+                    
+                    CurrentTime = toc(ClusterGlobalTimer); % Keep track of the global time at which the finished task is read.
+                    
                     % Reassign variables as Local.
                     SimParamLocal = TaskContent.TaskParam.InputParam;
                     SimStateLocal = TaskContent.TaskState;
 
                     if ~isempty(SimStateLocal)
                         % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save timing info.
-                        [eTimeTrial, NodeID_Times] = ExtractETimeTrial( SimStateLocal, NodeID_TimesIn, eTimeTrialIn );
+                        [eTimeTrial, NodeID_Times] = ExtractETimeTrial( SimStateLocal, NodeID_TimesIn, eTimeTrialIn, CurrentTime );
                         eTimeTrialIn = eTimeTrial;
                         NodeID_TimesIn = NodeID_Times;
+                        
+                        eTimeTrialTemp = eTimeTrial;
+                        eTimeTrialTemp( :,all(all(eTimeTrialTemp==0,1),3),: ) = [];
 
                         try
-                            save( fullfile(TempDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
+                            save( fullfile(TempDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrialTemp', 'NodeID_Times' );
                             msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', OutFileName(1:end-4), Username );
                             fprintf( msg );
                         catch
-                            TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrial, NodeID_Times);
+                            TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrialTemp, NodeID_Times);
                             JM_Move(TempfileName, TempDir);
                             msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', OutFileName(1:end-4), Username );
                             fprintf( msg );
@@ -365,9 +380,9 @@ while(runningJob)
                     
                     try system( ChmodStr ); catch end
                     try
-                        movefile(TempFile, fullfile(JobOutDir,JobFileName), 'f');
-                    catch
                         try system( [ MovStr JobFileName ] ); catch end
+                    catch
+                        movefile(TempFile, fullfile(JobOutDir,JobFileName), 'f');
                     end
                         
                     % Remove the finished job from JobRunning queue/directory.
@@ -809,13 +824,14 @@ end
 end
 
 
-function [eTimeTrial, NodeID_Times] = ExtractETimeTrial( SimState, NodeID_TimesIn, eTimeTrialIn )
+function [eTimeTrial, NodeID_Times] = ExtractETimeTrial( SimState, NodeID_TimesIn, eTimeTrialIn, CurrentTime )
 % NodeID_Times is a vector structure with two fields:
 % NodeID and NumTimes (how many times that specific node has generated SimState (run simulations)).
 % The length of this structure is equal to the number of active nodes.
 %
-% eTimeTrial is a 2-by-MaxTimes-by-NodeNum matrix.
-% Its first row contains elapsed times and its second row contains the number of trials completed in the eTime.
+% eTimeTrial is a 3-by-MaxTimes-by-NodeNum matrix.
+% Its first row contains the time calculated globally from the start of the job manager until receiving curret consumed task from TaskOut directory.
+% Its second row contains elapsed times in current task at the worker and its third row contains the number of trials completed in the eTime.
 
 MaxTimes = 500;
 
@@ -840,11 +856,14 @@ end
 if NodeID_Times(Ind).NumTimes <= MaxTimes
     ColPos = NodeID_Times(Ind).NumTimes;
 else
+    % Note that the first row of eTimeTrial is cumulative time from the start of the job manager.
+    eTimeTrial(2:end,2,:) = eTimeTrial(2:end,1,:) + eTimeTrial(2:end,2,:);
     eTimeTrial = circshift(eTimeTrial, [0 -1 0]);
     ColPos = size(eTimeTrial,2);
 end
 
-eTimeTrial(:,ColPos,Ind) = [etime(SimState.StopTime, SimState.StartTime)
+eTimeTrial(:,ColPos,Ind) = [CurrentTime
+    etime(SimState.StopTime, SimState.StartTime)
     sum(SimState.Trials)];
 end
 
