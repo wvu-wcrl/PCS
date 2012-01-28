@@ -152,8 +152,8 @@ classdef TurboCode < ChannelCode
             obj.Codeword = Codeword;
         end
         
-        function [EstBits, ExtBitInf, UpperInUNext] = Decode(obj, ReceivedLLR, UpperU)
-        % Calling syntax: [EstBits, ExtBitInf, UpperInUNext] = Decode(obj, ReceivedLLR [,UpperU])
+        function [EstBits, NErrors, ExtBitInf, UpperInUNext] = Decode(obj, ReceivedLLR, UpperU)
+        % Calling syntax: [EstBits, NErrors, ExtBitInf, UpperInUNext] = Decode(obj, ReceivedLLR [,UpperU])
         % ReceivedLLR could have multiple rows if DataBits is longer than IntPattern.
         % UpperU: OPTIONAL a priori information about systematic data bits.
         % ExtBitInf: Extrinsic information of the code bits generated during the decoding process.
@@ -176,14 +176,14 @@ classdef TurboCode < ChannelCode
                     % fprintf( 'Turbo Iteration = %d\n', TurboIter );
                     % Pass Through Upper Decoder
                     % UpperOutputU and UpperOutputC are the LLRs of the DataBits and Code Bits.
-                    [Useless UpperOutputC UpperOutputU] = obj.Code1.Decode( UpperInC, UpperInU(i,:) );
+                    [Useless Useless UpperOutputC UpperOutputU] = obj.Code1.Decode( UpperInC, UpperInU(i,:) );
                     
                     % Interleaving and Extracting Extrinsic Information
                     T = UpperOutputU - UpperInU(i,:);
                     LowerInU = T(obj.IntPattern+1);
                     
                     % Pass Through Lower Decoder
-                    [Useless LowerOutputC LowerOutputU] = obj.Code2.Decode( LowerInC, LowerInU );
+                    [Useless Useless LowerOutputC LowerOutputU] = obj.Code2.Decode( LowerInC, LowerInU );
                     
                     % Counting the Number of Eerrors
                     Temp1(obj.IntPattern+1)=(LowerOutputU>0);
