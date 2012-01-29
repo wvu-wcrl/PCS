@@ -166,15 +166,14 @@ while(runningJob)
                 eTimeTrialIn = eTimeTrial;
                 NodeID_TimesIn = NodeID_Times;
                 
-                eTimeTrialTemp = eTimeTrial;
-                eTimeTrialTemp( :,all(all(eTimeTrialTemp==0,1),3),: ) = [];
+                eTimeTrial( :,all(all(eTimeTrial==0,1),3),: ) = [];
                 
                 try
-                    save( fullfile(TempDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrialTemp', 'NodeID_Times' );
+                    save( fullfile(TempDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
                     msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', OutFileName(1:end-4), Username );
                     fprintf( msg );
                 catch
-                    TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrialTemp, NodeID_Times);
+                    TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrial, NodeID_Times);
                     JM_Move(TempfileName, TempDir);
                     msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', OutFileName(1:end-4), Username );
                     fprintf( msg );
@@ -265,15 +264,14 @@ while(runningJob)
                         eTimeTrialIn = eTimeTrial;
                         NodeID_TimesIn = NodeID_Times;
                         
-                        eTimeTrialTemp = eTimeTrial;
-                        eTimeTrialTemp( :,all(all(eTimeTrialTemp==0,1),3),: ) = [];
+                        eTimeTrial( :,all(all(eTimeTrial==0,1),3),: ) = [];
 
                         try
-                            save( fullfile(TempDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrialTemp', 'NodeID_Times' );
+                            save( fullfile(TempDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
                             msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', OutFileName(1:end-4), Username );
                             fprintf( msg );
                         catch
-                            TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrialTemp, NodeID_Times);
+                            TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrial, NodeID_Times);
                             JM_Move(TempfileName, TempDir);
                             msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', OutFileName(1:end-4), Username );
                             fprintf( msg );
@@ -298,7 +296,7 @@ while(runningJob)
                 % First check to see if minimum number of trials or frame errors has been reached.
                 RemainingTrials = SimParamGlobal.MaxTrials - SimStateGlobal.Trials;
                 RemainingTrials(RemainingTrials<0) = 0;         % Force to zero if negative.
-                RemainingFrameError = SimParamGlobal.MaxFrameErrors - SimStateGlobal.FrameErrors;
+                RemainingFrameError = SimParamGlobal.MaxFrameErrors - SimStateGlobal.FrameErrors(end,:);
                 RemainingFrameError(RemainingFrameError<0) = 0; % Force to zero if negative.
 
                 % Determine the position of active SNR points based on the number of remaining trials and frame errors.
@@ -315,8 +313,8 @@ while(runningJob)
                     LastInactivePoint = find(ActiveSNRPoints == 0, 1, 'last');
 
                     StoppingCriteriaT = ~isempty(LastInactivePoint) && ...
-                        (SimStateGlobal.BER(1, LastInactivePoint) ~=0) && (SimStateGlobal.BER(1, LastInactivePoint) < SimParamGlobal.minBER) && ...
-                        (SimStateGlobal.FER(1, LastInactivePoint) ~=0) && (SimStateGlobal.FER(1, LastInactivePoint) < SimParamGlobal.minFER);
+                        ( ( (SimStateGlobal.BER(end, LastInactivePoint) ~=0) && (SimStateGlobal.BER(end, LastInactivePoint) < SimParamGlobal.minBER) ) || ...
+                        ( (SimStateGlobal.FER(end, LastInactivePoint) ~=0) && (SimStateGlobal.FER(end, LastInactivePoint) < SimParamGlobal.minFER) ) );
 
                     if StoppingCriteriaT
                         ActiveSNRPoints(LastInactivePoint:end) = 0;
@@ -369,7 +367,7 @@ while(runningJob)
                     % Set strings used to move saved files.
                     TempFile = fullfile(TempDir,'TempSaveJobManager.mat');
                     ChmodStr = ['chmod 666 ' TempFile];     % Allow everyone to read and write to the file, TempFile.
-                    MovStr = ['mv ' TempFile ' ' JobOutDir filesep];
+                    MovStr = ['sudo mv ' TempFile ' ' JobOutDir filesep];
 
                     try
                         save( TempFile, 'SimParam', 'SimState' );
@@ -437,9 +435,9 @@ function SimParamLocal = UpdateSimParamLocal(SimParamGlobal, SimStateGlobal)
 % Initialize the LOCAL SimParam structure.
 SimParamLocal = SimParamGlobal;
 
-SimParamLocal.MaxFrameErrors = SimParamGlobal.MaxFrameErrors - SimStateGlobal.FrameErrors;
+SimParamLocal.MaxFrameErrors = SimParamGlobal.MaxFrameErrors - SimStateGlobal.FrameErrors(end,:);
 SimParamLocal.MaxFrameErrors(SimParamLocal.MaxFrameErrors<0) = 0;
-SimParamLocal.MaxBitErrors = SimParamGlobal.MaxBitErrors - SimStateGlobal.BitErrors;
+SimParamLocal.MaxBitErrors = SimParamGlobal.MaxBitErrors - SimStateGlobal.BitErrors(end,:);
 SimParamLocal.MaxBitErrors(SimParamLocal.MaxBitErrors<0) = 0;
 SimParamLocal.MaxTrials = SimParamGlobal.MaxTrials - SimStateGlobal.Trials;
 SimParamLocal.MaxTrials(SimParamLocal.MaxTrials<0) = 0;
@@ -453,8 +451,10 @@ SimStateGlobal = SimStateGlobalIn;
 SimStateGlobal.Trials      = SimStateGlobal.Trials      + SimStateLocal.Trials;
 SimStateGlobal.BitErrors   = SimStateGlobal.BitErrors   + SimStateLocal.BitErrors;
 SimStateGlobal.FrameErrors = SimStateGlobal.FrameErrors + SimStateLocal.FrameErrors;
-SimStateGlobal.BER         = SimStateGlobal.BitErrors   ./ ( SimStateGlobal.Trials * SimStateLocal.NumCodewords * SimStateLocal.DataLength );
-SimStateGlobal.FER         = SimStateGlobal.FrameErrors ./ ( SimStateGlobal.Trials * SimStateLocal.NumCodewords );
+
+Trials = repmat(SimStateGlobal.Trials,[size(SimStateGlobal.BitErrors,1) 1]);
+SimStateGlobal.BER         = SimStateGlobal.BitErrors   ./ ( Trials * SimStateLocal.NumCodewords * SimStateLocal.DataLength );
+SimStateGlobal.FER         = SimStateGlobal.FrameErrors ./ ( Trials * SimStateLocal.NumCodewords );
 end
 
 
@@ -875,14 +875,16 @@ try
         try
             system( RmStr );
             % msg = sprintf( 'The selected output task file %s of user %s is deleted from its TaskOut directory.\n', FileName(1:end-4), Username );
-            msg = sprintf( 'OTask %s of user %s --\t', FileName(1:end-4), Username );
+            % msg = sprintf( 'OTask %s of user %s --\t', FileName(1:end-4), Username );
+            msg = sprintf( '-' );
             fprintf( msg );
         catch
         end
     catch
         delete( fullfile(FileDirectory,FileName) );
         % msg = sprintf( 'The selected output task file %s of user %s is deleted from its TaskOut directory.\n', FileName(1:end-4), Username );
-        msg = sprintf( 'OTask %s of user %s --\t', FileName(1:end-4), Username );
+        % msg = sprintf( 'OTask %s of user %s --\t', FileName(1:end-4), Username );
+        msg = sprintf( '-' );
         fprintf( msg );
     end
 catch
