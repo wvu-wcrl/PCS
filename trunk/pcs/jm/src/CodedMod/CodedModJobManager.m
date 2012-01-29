@@ -848,7 +848,7 @@ Ind = find(IndT~=0, 1,'first');
 if isempty(Ind)
     NodeID_Times = [NodeID_Times, struct('NodeID',SimState.NodeID, 'NumTimes',1)];
     Ind = length(NodeID_Times);
-    eTimeTrial = cat(3,eTimeTrial,zeros(2,MaxTimes));
+    eTimeTrial = cat(3,eTimeTrial,zeros(3,MaxTimes));
 else
     NodeID_Times(Ind).NumTimes = NodeID_Times(Ind).NumTimes + 1;
 end
