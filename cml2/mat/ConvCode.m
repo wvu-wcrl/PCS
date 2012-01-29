@@ -69,6 +69,7 @@ classdef ConvCode < ChannelCode
         Depth=-1        % OPTIONAL INPUT Wrap depth used for tail-biting decoding (Default is 6 times the constraint length)
         OutU            % OPTIONAL OUTPUT Log-Likelihood Ratios (LLR) of the Data Bits (Only used as an output in all SISO decoding algorithms)
         OutC            % OPTIONAL OUTPUT Log-Likelihood Ratios (LLR) of the Code Bits (Only used as an output in all SISO decoding algorithms)
+        MaxIteration=1  % (Optional) Maximum number of convolutional decoding iterations (Default MaxIteration=1).
     end
 
     methods

@@ -7,7 +7,8 @@ classdef LinkSimulation < Simulation
     
     properties( SetAccess = protected )
         NumNewPoints
-        RunMode = 1;  % Running Mode: 0 = Local, 1 = Cluster.
+        MaxIteration    % Maximum number of decoding iterations.
+        RunMode = 1;    % Running Mode: 0 = Local, 1 = Cluster.
     end
     
     methods
@@ -25,6 +26,8 @@ classdef LinkSimulation < Simulation
                 end
             end
             
+            obj.MaxIteration = SimParam.CodedModObj.ChannelCodeObject.MaxIteration;
+            
             % Determine Es/N0 in linear.
             if( strcmpi(SimParam.SNRType(2), 'b') ) % Eb/N0
                 obj.EbN0 = 10.^(SimParam.SNR/10);
@@ -37,11 +40,11 @@ classdef LinkSimulation < Simulation
         end
         
         function SimStateInit(obj)
-            SimState.Trials = zeros( 1,  obj.NumNewPoints );
-            SimState.BitErrors = SimState.Trials;
-            SimState.FrameErrors = SimState.Trials;
-            SimState.BER = SimState.Trials;
-            SimState.FER = SimState.Trials;
+            SimState.Trials = zeros(1, obj.NumNewPoints);
+            SimState.BitErrors = zeros(obj.MaxIteration, obj.NumNewPoints);
+            SimState.FrameErrors = SimState.BitErrors;
+            SimState.BER = SimState.BitErrors;
+            SimState.FER = SimState.BitErrors;
             try [Status, SimState.NodeID] = system('hostname'); catch end
             SimState.StartTime = 0;
             SimState.StopTime = 0;
@@ -58,7 +61,7 @@ classdef LinkSimulation < Simulation
             ElapsedTime = 0;
             if(Test)
                 % Determine the number of remaining frame errors reqiured for each SNR point.
-                RemainingFrameError = obj.SimParam.MaxFrameErrors - obj.SimState.FrameErrors;
+                RemainingFrameError = obj.SimParam.MaxFrameErrors - obj.SimState.FrameErrors(end,:);
                 RemainingFrameError(RemainingFrameError<0) = 0;
                 % Determine the number of remaining trials reqiured for each SNR point.
                 RemainingTrials = obj.SimParam.MaxTrials - obj.SimState.Trials;
@@ -76,7 +79,7 @@ classdef LinkSimulation < Simulation
             while ElapsedTime < obj.SimParam.SimTime
                 TaskTime = tic;
                 % Determine the number of remaining frame errors reqiured for each SNR point.
-                RemainingFrameError = obj.SimParam.MaxFrameErrors - obj.SimState.FrameErrors;
+                RemainingFrameError = obj.SimParam.MaxFrameErrors - obj.SimState.FrameErrors(end,:);
                 RemainingFrameError(RemainingFrameError<0) = 0;
                 % Determine the number of remaining trials reqiured for each SNR point.
                 RemainingTrials = obj.SimParam.MaxTrials - obj.SimState.Trials;
@@ -87,12 +90,12 @@ classdef LinkSimulation < Simulation
                 % Check if we can discard SNR points whose BER and FER WILL be less than SimParam.minBER and SimParam.minFER.
                 LastInactivePoint = find(ActiveSNRPoints == 0, 1, 'last');
                 if ( ~isempty(LastInactivePoint) && ...
-                     (obj.SimState.BER(1, LastInactivePoint) ~=0) && (obj.SimState.BER(1, LastInactivePoint) < obj.SimParam.minBER) && ...
-                     (obj.SimState.FER(1, LastInactivePoint) ~=0) && (obj.SimState.FER(1, LastInactivePoint) < obj.SimParam.minFER) )
+                     ( ( (obj.SimState.BER(end, LastInactivePoint) ~=0) && (obj.SimState.BER(end, LastInactivePoint) < obj.SimParam.minBER) ) || ...
+                     ( (obj.SimState.FER(end, LastInactivePoint) ~=0) && (obj.SimState.FER(end, LastInactivePoint) < obj.SimParam.minFER) ) ) )
                     ActiveSNRPoints(LastInactivePoint:end) = 0;
                     if(Test && (sum(OldActiveSNRPoints-ActiveSNRPoints) ~= 0) && TestInactivation)
                         fprintf( '\nThe simulation for SNR=%.2f dB and all SNRs above it is not required since BER=%e @ SNR=%.2f dB.\n', ...
-                            obj.SimParam.SNR(LastInactivePoint+1), obj.SimState.BER(1, LastInactivePoint), obj.SimParam.SNR(LastInactivePoint) );
+                            obj.SimParam.SNR(LastInactivePoint+1), obj.SimState.BER(end, LastInactivePoint), obj.SimParam.SNR(LastInactivePoint) );
                         OldActiveSNRPoints = ActiveSNRPoints;
                         TestInactivation = false;
                     end
@@ -113,11 +116,11 @@ classdef LinkSimulation < Simulation
                     fprintf( msg );
                     % Loop until either there are enough trials or enough errors or the time is up.
                     while ( ( obj.SimState.Trials( 1, SNRPoint) < obj.SimParam.MaxTrials(SNRPoint) ) && ...
-                            ( obj.SimState.FrameErrors(1, SNRPoint) < obj.SimParam.MaxFrameErrors(SNRPoint) ) )
+                            ( obj.SimState.FrameErrors(end, SNRPoint) < obj.SimParam.MaxFrameErrors(SNRPoint) ) )
                         % Increment the trials counter.
                         obj.SimState.Trials(1, SNRPoint) = obj.SimState.Trials(1, SNRPoint) + 1;
                         [NumBitError, NumCodewordError] = obj.Trial(obj.EsN0(SNRPoint));
-                        if( sum(NumCodewordError)>0 ), fprintf('x');
+                        if( NumCodewordError(end)>0 ), fprintf('x');
                         else fprintf('.'); end
                         obj.UpdateErrorRate(SNRPoint, NumBitError, NumCodewordError);
 
@@ -156,11 +159,11 @@ classdef LinkSimulation < Simulation
         
         function UpdateErrorRate(obj, SNRPoint, NumBitError, NumCodewordError)
             % Update bit and codeword error counter.
-            obj.SimState.BitErrors( 1, SNRPoint ) = obj.SimState.BitErrors( 1, SNRPoint ) + NumBitError(end);
-            obj.SimState.FrameErrors( 1, SNRPoint ) = obj.SimState.FrameErrors( 1, SNRPoint ) + NumCodewordError(end);
-            obj.SimState.BER(1, SNRPoint) = obj.SimState.BitErrors(1, SNRPoint) ./ ( obj.SimState.Trials(1, SNRPoint) * ...
+            obj.SimState.BitErrors(:, SNRPoint) = obj.SimState.BitErrors(:, SNRPoint) + NumBitError;
+            obj.SimState.FrameErrors(:, SNRPoint) = obj.SimState.FrameErrors(:, SNRPoint) + NumCodewordError;
+            obj.SimState.BER(:, SNRPoint) = obj.SimState.BitErrors(:, SNRPoint) ./ ( obj.SimState.Trials(1, SNRPoint) * ...
                 obj.SimParam.CodedModObj.NumCodewords * obj.SimParam.CodedModObj.ChannelCodeObject.DataLength );
-            obj.SimState.FER(1, SNRPoint) = obj.SimState.FrameErrors(1, SNRPoint) ./ ...
+            obj.SimState.FER(:, SNRPoint) = obj.SimState.FrameErrors(:, SNRPoint) ./ ...
                 ( obj.SimState.Trials(1, SNRPoint) * obj.SimParam.CodedModObj.NumCodewords );
         end
         

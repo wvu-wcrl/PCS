@@ -42,7 +42,7 @@ if( ~isfield(DVBS2Param, 'minFER') || isempty(DVBS2Param.minFER) ), DVBS2Param.m
 if( ~isfield(DVBS2Param, 'SimTime') || isempty(DVBS2Param.SimTime) ), DVBS2Param.SimTime = 300; end
 if( ~isfield(DVBS2Param, 'MaxIteration') || isempty(DVBS2Param.MaxIteration) ), DVBS2Param.MaxIteration = 30; end
 if( ~isfield(DVBS2Param, 'DecoderType') || isempty(DVBS2Param.DecoderType) ), DVBS2Param.DecoderType = 0; end
-if( ~isfield(DVBS2Param, 'ModulationObj') || isempty(DVBS2Param.ModulationObj) ), DVBS2Param.ModulationObj = BPSK(); end
+if( ~isfield(DVBS2Param, 'ModulationObj') || isempty(DVBS2Param.ModulationObj) ), DVBS2Param.ModulationObj = QPSK(); end
 if( ~isfield(DVBS2Param, 'DemodType') || isempty(DVBS2Param.DemodType) ), DVBS2Param.DemodType = 0; end
 if( ~isfield(DVBS2Param, 'ZeroRandFlag') || isempty(DVBS2Param.ZeroRandFlag) ), DVBS2Param.ZeroRandFlag = 0; end
 
