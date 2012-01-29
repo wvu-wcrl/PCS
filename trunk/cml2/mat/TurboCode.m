@@ -41,7 +41,7 @@ classdef TurboCode < ChannelCode
                         % =3 For log-MAP algorithm in which the correction factor is selected from small nonuniform table and interpolation.
                         % =4 For log-MAP algorithm in which the correction factor uses C function calls.
         
-        Iteration=8     % Number of turbo decoding iterations
+        MaxIteration=8  % Number of turbo decoding iterations
     end
     
     
@@ -61,10 +61,10 @@ classdef TurboCode < ChannelCode
     
     methods
         
-        function obj = TurboCode(G1, G2, Interleaver, PuncturePatt, TailPunc, DataLength, DecoderType, Iteration, Type1, Type2)
+        function obj = TurboCode(G1, G2, Interleaver, PuncturePatt, TailPunc, DataLength, DecoderType, MaxIteration, Type1, Type2)
         % Class Constructor: Binary generator matrices and types of both of the convolutional codes, interleaver type or pattern, puncturing
         % pattern for both codeword bits and tail bits and also, length of DataBits to be encoded must be specified.
-        % Calling Syntax: obj = TurboCode(G1, G2, Interleaver, PuncturePatt, TailPunc, DataLength [,DecoderType] [,Iteration] [,Type1] [,Type2])
+        % Calling Syntax: obj = TurboCode(G1, G2, Interleaver, PuncturePatt, TailPunc, DataLength [,DecoderType] [,MaxIteration] [,Type1] [,Type2])
             
             [obj.N1, obj.V1] = size(G1); % Determining the size of the first convolutional code generator.
             [obj.N2, obj.V2] = size(G2);
@@ -74,7 +74,7 @@ classdef TurboCode < ChannelCode
             end
             
             if(nargin>=7 && ~isempty(DecoderType)), obj.DecoderType = DecoderType; end
-            if(nargin>=8 && ~isempty(Iteration)), obj.Iteration = Iteration; end
+            if(nargin>=8 && ~isempty(MaxIteration)), obj.MaxIteration = MaxIteration; end
             if(nargin>=9 && ~isempty(Type1)), obj.Type1 = Type1; end
             if(nargin>=10 && ~isempty(Type2)), obj.Type2 = Type2; end
             obj.G1=G1;
@@ -160,7 +160,7 @@ classdef TurboCode < ChannelCode
             obj.ReceivedLLR = ReceivedLLR;
             
             % Initializing Error Counter
-            NErrors = zeros(obj.Iteration, 1);
+            NErrors = zeros(obj.MaxIteration, 1);
             UpperInU = zeros( obj.NumberCodeword, length(obj.DataBits)/obj.NumberCodeword );
             if(nargin>=3 && ~isempty(UpperU)), UpperInU = UpperU; end
             
@@ -172,7 +172,7 @@ classdef TurboCode < ChannelCode
                 LowerInC = reshape( DepuncOutput(obj.N1+1:obj.N1+obj.N2,:), 1, obj.N2*length(DepuncOutput) );
                 
                 % Decoding Process
-                for TurboIter=1:obj.Iteration
+                for TurboIter=1:obj.MaxIteration
                     % fprintf( 'Turbo Iteration = %d\n', TurboIter );
                     % Pass Through Upper Decoder
                     % UpperOutputU and UpperOutputC are the LLRs of the DataBits and Code Bits.
