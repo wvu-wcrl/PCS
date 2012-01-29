@@ -186,21 +186,34 @@ while(runningJob)
             fprintf('\n');
             % end
             
-            % Try to load the correspoding JOB file from the JobRunning directory (if it is there).
+            % Try to load the correspoding JOB file from the JobRunning (or JobOut) directory (if it is there).
+            JobDirectory = SweepJobRunOutDir(JobRunningDir, JobOutDir, JobFileName);
+            if( ~isempty(JobDirectory) && strcmpi(JobDirectory,JobOutDir) )
+                msg = sprintf( 'Finished JOB %s of user %s is updated in its JobOut directory.\n\n', JobFileName(1:end-4), Username );
+                fprintf( msg );
+                strMsg = 'JobOut';
+            elseif( ~isempty(JobDirectory) && strcmpi(JobDirectory,JobRunningDir) )
+                strMsg = 'JobRunning';
+            end
+            
             if(success)
                 try
-                    load( fullfile(JobRunningDir,JobFileName), 'SimParam', 'SimState' );
-                    msg = sprintf( 'The corresponding job file %s of user %s is loaded from its JobRunning directory.\n', JobFileName(1:end-4), Username );
-                    fprintf( msg );
-                    
-                    % Reassign variables as Global.
-                    SimParamGlobal = SimParam;
-                    SimStateGlobal = SimState;
-                    
-                    successJR = 1;
-                    
-                    % Update the Global SimState.
-                    SimStateGlobal = UpdateSimStateGlobal(SimStateGlobal, SimStateLocal);
+                    if ~isempty(JobDirectory)
+                        load( fullfile(JobDirectory,JobFileName), 'SimParam', 'SimState' );
+                        msg = sprintf( ['The corresponding job file %s of user %s is loaded from its ', strMsg, ' directory.\n'], JobFileName(1:end-4), Username );
+                        fprintf( msg );
+
+                        % Reassign variables as Global.
+                        SimParamGlobal = SimParam;
+                        SimStateGlobal = SimState;
+
+                        successJR = 1;
+
+                        % Update the Global SimState.
+                        SimStateGlobal = UpdateSimStateGlobal(SimStateGlobal, SimStateLocal);
+                    else
+                        error('CodedModJobManager:LoadRJob', 'Job file could not be loaded from either JobRunning or JobOut directory.');
+                    end
                 catch
                     % The corresponding job file in JobRunning directory was bad or nonexistent, kick out of its loading loop.
                     % This is a method of killing a job.
@@ -290,6 +303,8 @@ while(runningJob)
                     % Wait before looping for reading the next finished task file in TaskOut directory.
                     pause( CurrentUser.PauseTime );
                 end
+                
+                if( ~isempty(JobDirectory) && strcmpi(JobDirectory,JobRunningDir) ) % The job is read from JobRunning directory.
                 
                 % See if the global stopping criteria have been reached.
 
@@ -400,12 +415,35 @@ while(runningJob)
                     end
 
                     % Some more associated output tasks could arrive in TaskOut directory. They should also be deleted.
-                    try
-                        RmStr = ['sudo rm ' TaskOutDir filesep JobFileName(1:end-4) '_task_*.mat' ];
-                        try system( RmStr ); catch end
-                    catch
-                        delete( fullfile(TaskOutDir,[JobFileName(1:end-4) '_task_*.mat']) );
-                    end
+                    % try
+                    %     RmStr = ['sudo rm ' TaskOutDir filesep JobFileName(1:end-4) '_task_*.mat' ];
+                    %     try system( RmStr ); catch end
+                    % catch
+                    %     delete( fullfile(TaskOutDir,[JobFileName(1:end-4) '_task_*.mat']) );
+                    % end
+                end
+                
+                else     % The job is read from JobOut directory.
+                % Set SimParam and SimState to their global values.
+                SimParam = SimParamGlobal;
+                SimState = SimStateGlobal;
+                
+                % Cleanup: Any tasks associated with this job should be deleted from TaskIn directory.
+                try
+                    RmStr = ['sudo rm ' TaskInDir filesep JobFileName(1:end-4) '_task_*.mat' ];
+                    try system( RmStr ); catch end
+                catch
+                    delete( fullfile(TaskInDir,[JobFileName(1:end-4) '_task_*.mat']) );
+                end
+                
+                % Save the updated final result in JobOut directory.
+                try
+                    save( fullfile(JobOutDir,JobFileName), 'SimParam', 'SimState' );
+                catch
+                    TempfileName = JM_Save(JobFileName, SimParam, SimState);
+                    JM_Move(TempfileName, JobOutDir);
+                end
+                
                 end
             end
             
@@ -641,6 +679,21 @@ else
     fprintf( msg );
 end
 
+end
+
+
+function JobDirectory = SweepJobRunOutDir(JobRunningDir, JobOutDir, JobFileName)
+
+JobDirectory = [];
+
+DRunning = dir( fullfile(JobRunningDir,JobFileName) );
+DOut = dir( fullfile(JobOutDir,JobFileName) );
+
+if ~isempty(DRunning)
+    JobDirectory = JobRunningDir;
+elseif ~isempty(DOut)
+    JobDirectory = JobOutDir;
+end
 end
 
 
