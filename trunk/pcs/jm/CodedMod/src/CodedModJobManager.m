@@ -685,7 +685,7 @@ end
 function JobDirectory = SweepJobRunOutDir(JobRunningDir, JobOutDir, JobFileName)
 
 JobDirectory = [];
-
+JobRunningDir,JobFileName,JobOutDir
 DRunning = dir( fullfile(JobRunningDir,JobFileName) );
 DOut = dir( fullfile(JobOutDir,JobFileName) );
 
