@@ -68,52 +68,62 @@ while(runningJob)
                 fclose(FID_ErrorLoad);
             end
 
-            % Delete the selected input job file from JobIn directory.
-            % if(success)
+            % Delete or move (to JobRunning directory) the selected input job file from JobIn directory.
             if strcmpi( JobDirectory, JobInDir )
-                try
+                if(success) % Put a copy of the selected input job into JobRunning directory.
                     try
-                        RmStr = ['sudo rm ' JobInDir filesep InFileName];
                         try
-                            system( RmStr );
-                            msg = sprintf( 'Input job file %s of user %s is deleted by OS.\n', InFileName(1:end-4), Username );
-                            fprintf( msg );
+                            MvStr = ['sudo mv ' JobInDir filesep InFileName ' ' JobRunningDir];
+                            try
+                                system( MvStr );
+                                msg = sprintf( 'Input job file %s of user %s is moved from its JobIn to its JobRunning directory by OS.\n', InFileName(1:end-4), Username );
+                                fprintf( msg );
+                            catch
+                            end
                         catch
+                            movefile(fullfile(JobInDir,InFileName), JobRunningDir, 'f');
+                            msg = sprintf( 'Input job file %s of user %s is moved from its JobIn to its JobRunning directory.\n', InFileName(1:end-4), Username );
+                            fprintf( msg );
                         end
                     catch
-                        delete( fullfile(JobInDir,InFileName) );
-                        msg = sprintf( 'Input job file %s of user %s is deleted.\n', InFileName(1:end-4), Username );
+                        % If could not move the selected input job file from JobIn to JobRunning directory, just issue a warning.
+                        msg = sprintf( 'Job Moving Error/Warning: Input job file %s of user %s could not be moved from its JobIn to its JobRunning directory.\n', InFileName(1:end-4), Username );
                         fprintf( msg );
+                        FID_ErrorDel = fopen( fullfile(JobOutDir,[InFileName(1:end-4) '_Error_JobMove.txt']), 'a+');
+                        msg = sprintf( ['Job Moving Error/Warning: Input job file \t %s \t of user \t %s \t could not be moved from the user JobIn directory to its JobRunning directory.\n',...
+                            'The user can delete the .mat job file manually.'], InFileName(1:end-4), Username );
+                        fprintf( FID_ErrorDel, msg );
+                        fclose(FID_ErrorDel);
                     end
-                catch
-                    % If could not delete the selected input job file from JobIn directory, just issue a warning.
-                    msg = sprintf( 'Job Delete Error/Warning: Input job file %s of user %s could not be deleted.\n', InFileName(1:end-4), Username );
-                    fprintf( msg );
-                    FID_ErrorDel = fopen( fullfile(JobOutDir,[InFileName(1:end-4) '_Error_JobDel.txt']), 'a+');
-                    msg = sprintf( ['Job Delete Error/Warning: Input job file \t %s \t of user \t %s \t could not be deleted from the user JobIn directory.\n',...
-                        'The user can delete the .mat job file manually.'], InFileName(1:end-4), Username );
-                    fprintf( FID_ErrorDel, msg );
-                    fclose(FID_ErrorDel);
+                else
+                    try
+                        try
+                            RmStr = ['sudo rm ' JobInDir filesep InFileName];
+                            try
+                                system( RmStr );
+                                msg = sprintf( 'Input job file %s of user %s is deleted by OS.\n', InFileName(1:end-4), Username );
+                                fprintf( msg );
+                            catch
+                            end
+                        catch
+                            delete( fullfile(JobInDir,InFileName) );
+                            msg = sprintf( 'Input job file %s of user %s is deleted.\n', InFileName(1:end-4), Username );
+                            fprintf( msg );
+                        end
+                    catch
+                        % If could not delete the selected input job file from JobIn directory, just issue a warning.
+                        msg = sprintf( 'Job Delete Error/Warning: Input job file %s of user %s could not be deleted.\n', InFileName(1:end-4), Username );
+                        fprintf( msg );
+                        FID_ErrorDel = fopen( fullfile(JobOutDir,[InFileName(1:end-4) '_Error_JobDel.txt']), 'a+');
+                        msg = sprintf( ['Job Delete Error/Warning: Input job file \t %s \t of user \t %s \t could not be deleted from the user JobIn directory.\n',...
+                            'The user can delete the .mat job file manually.'], InFileName(1:end-4), Username );
+                        fprintf( FID_ErrorDel, msg );
+                        fclose(FID_ErrorDel);
+                    end
                 end
             end
-            % end
 
             if(success)
-                % Put a copy of the selected input job into JobRunning directory.
-                % Note that SimParam and SimState are still the "Global Versions".
-                if ~strcmpi( JobDirectory, JobRunningDir )
-                    try
-                        save( fullfile(JobRunningDir,InFileName), 'SimParam', 'SimState' );
-                        msg = sprintf( 'The corresponding JobRunning file %s is created for user %s.\n', InFileName(1:end-4), Username );
-                        fprintf( msg );
-                    catch
-                        TempfileName = JM_Save(InFileName, SimParam, SimState);
-                        JM_Move(TempfileName, JobRunningDir);
-                        msg = sprintf( 'The corresponding JobRunning file %s is created for user %s by OS.\n', InFileName(1:end-4), Username );
-                        fprintf( msg );
-                    end
-                end
-
                 SimParamLocal = UpdateSimParamLocal(SimParamGlobal, SimStateGlobal);
                 
                 % Update the local simulation time.
@@ -146,7 +156,7 @@ while(runningJob)
             % Construct the filename.
             OutFileName = D(OutFileIndex).name;
 
-            msg = sprintf( 'Receiving finished task %s of user %s at %s.\n', OutFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+            msg = sprintf( '\nReceiving finished task %s of user %s at %s.\n', OutFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
             fprintf( msg );
             
             JobFileName = [OutFileName(1:regexpi(OutFileName, '_task_') - 1) '.mat'];
@@ -258,7 +268,7 @@ while(runningJob)
                     % Construct the filename.
                     OutFileName = D(OutFileIndex).name;
 
-                    msg = sprintf( 'Receiving finished task %s of user %s at %s.\n', OutFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+                    msg = sprintf( '\nReceiving finished task %s of user %s at %s.\n', OutFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
                     fprintf( msg );
 
                     % Try to load the selected output task file.
@@ -685,7 +695,7 @@ end
 function JobDirectory = SweepJobRunOutDir(JobRunningDir, JobOutDir, JobFileName)
 
 JobDirectory = [];
-JobRunningDir,JobFileName,JobOutDir
+
 DRunning = dir( fullfile(JobRunningDir,JobFileName) );
 DOut = dir( fullfile(JobOutDir,JobFileName) );
 
