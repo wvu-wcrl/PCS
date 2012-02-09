@@ -11,16 +11,15 @@ classdef LinkSimulation < Simulation
         MaxIteration    % Maximum number of decoding iterations.
     end
     
-    methods
-        function obj = LinkSimulation(SimParam)
-            obj.SimParam = SimParam;
+    methods( Access = protected )
+        function SimParamInit( obj, SimParam )
             if isfield( SimParam, 'SNR' )
                 obj.NumNewPoints = length( SimParam.SNR );
             end
             % Make sure that the number of MaxTrials and number of SNR points are the same.
             if isfield( SimParam, 'MaxTrials' )
                 if isscalar( SimParam.MaxTrials )
-                    obj.SimParam.MaxTrials = SimParam.MaxTrials * ones(size(SimParam.SNR));
+                    SimParam.MaxTrials = SimParam.MaxTrials * ones(size(SimParam.SNR));
                 elseif ( length( SimParam.MaxTrials ) ~= length( SimParam.SNR ) )
                     error( 'LinkSimulation:MaxTrialsLength','The number of MaxTrials must match the number of SNR points or it should be a scalar.' );
                 end
@@ -29,15 +28,18 @@ classdef LinkSimulation < Simulation
             obj.MaxIteration = SimParam.CodedModObj.ChannelCodeObject.MaxIteration;
             
             % Determine Es/N0 in linear.
+            % This was corrected on 02/05/2011. Account for modulation order.
             if( strcmpi(SimParam.SNRType(2), 'b') ) % Eb/N0
                 obj.EbN0 = 10.^(SimParam.SNR/10);
-                obj.EsN0 = obj.EbN0 * SimParam.CodedModObj.ChannelCodeObject.Rate;
+                obj.EsN0 = obj.EbN0 * SimParam.CodedModObj.ChannelCodeObject.Rate * SimParam.CodedModObj.Mapper.NoBitsPerSymb;
             else % Es/N0
                 obj.EsN0 = 10.^(SimParam.SNR/10);
-                obj.EbN0 = obj.EsN0 / SimParam.CodedModObj.ChannelCodeObject.Rate;
+                obj.EbN0 = obj.EsN0 / ( SimParam.CodedModObj.ChannelCodeObject.Rate * SimParam.CodedModObj.Mapper.NoBitsPerSymb );
             end
-            obj.SimStateInit();
+            
+            obj.SimParam = SimParam;
         end
+        
         
         function SimStateInit(obj)
             SimState.Trials = zeros(1, obj.NumNewPoints);
@@ -52,10 +54,30 @@ classdef LinkSimulation < Simulation
             obj.SimState = SimState;
         end
         
+        
+        function Save(obj)
+            % Temporary filename.
+            TempFile = 'TempSave.mat';
+            % In case system crashes during save.
+            SimState = obj.SimState;
+            SimParam = obj.SimParam;
+            save( TempFile, 'SimState', 'SimParam' );
+
+            movefile( TempFile, obj.SimParam.FileName, 'f');
+        end
+    end
+    
+    methods
+        function obj = LinkSimulation(SimParam)
+            obj.SimParamInit( SimParam );
+            obj.SimStateInit();
+        end
+        
+        
         function SimState = SingleSimulate(obj, SimParam)
             obj.SimState.StartTime = clock;
             try [Status, SimState.NodeID] = system('hostname'); catch end
-            if(nargin>=2 && ~isempty(SimParam)), obj.SimParam = SimParam; end
+            if(nargin>=2 && ~isempty(SimParam)), obj.SimParamInit( SimParam ); end
             Test = false;              % Turning off test (scheduler will decide if it needs to run full work unit).
             TestInactivation = false;  % Don't want to deactivate in this method when error rate is below minBER or minFER.
             ElapsedTime = 0;
@@ -157,6 +179,7 @@ classdef LinkSimulation < Simulation
             [NumBitError, NumCodewordError] = obj.SimParam.CodedModObj.ErrorCount(SymbolLikelihood);
         end
         
+        
         function UpdateErrorRate(obj, SNRPoint, NumBitError, NumCodewordError)
             % Update bit and codeword error counter.
             obj.SimState.BitErrors(:, SNRPoint) = obj.SimState.BitErrors(:, SNRPoint) + NumBitError;
@@ -165,17 +188,6 @@ classdef LinkSimulation < Simulation
                 obj.SimParam.CodedModObj.NumCodewords * obj.SimParam.CodedModObj.ChannelCodeObject.DataLength );
             obj.SimState.FER(:, SNRPoint) = obj.SimState.FrameErrors(:, SNRPoint) ./ ...
                 ( obj.SimState.Trials(1, SNRPoint) * obj.SimParam.CodedModObj.NumCodewords );
-        end
-        
-        function Save(obj)
-            % Temporary filename.
-            TempFile = 'TempSave.mat';
-            % In case system crashes during save.
-            SimState = obj.SimState;
-            SimParam = obj.SimParam;
-            save( TempFile, 'SimState', 'SimParam' );
-
-            movefile( TempFile, obj.SimParam.FileName, 'f');
         end
     end
 end
