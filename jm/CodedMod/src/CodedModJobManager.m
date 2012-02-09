@@ -860,7 +860,7 @@ else
 end
 
 Sep = filesep;
-TempDir = [HomeRoot Sep 'pcs' Sep 'jm' Sep 'log' Sep 'CodedMod' Sep 'Temp'];
+TempDir = [HomeRoot Sep 'pcs' Sep 'jm' Sep 'CodedMod' Sep 'Temp'];
 
 if( nargin<3 || isempty(SimState) )
     TaskParam = SimParam;
