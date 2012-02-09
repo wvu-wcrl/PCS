@@ -16,11 +16,12 @@ classdef LDPCCode < ChannelCode
     
     methods
         
-        function obj = LDPCCode( HRows, P, MaxIteration, DecoderType )
-        % Calling Syntax: obj = LDPCCode( HRows, [,P] [,MaxIteration] [,DecoderType] )
-            if(nargin<2 || isempty(P)), P = []; end
-            if(nargin<3 || isempty(MaxIteration)), MaxIteration = 30; end
-            if(nargin<4 || isempty(DecoderType))
+        function obj = LDPCCode( HRows, HCols, P, MaxIteration, DecoderType )
+        % Calling Syntax: obj = LDPCCode( HRows, [,HCols] [,P] [,MaxIteration] [,DecoderType] )
+            if(nargin<2 || isempty(HCols)), HCols = []; end
+            if(nargin<3 || isempty(P)), P = []; end
+            if(nargin<4 || isempty(MaxIteration)), MaxIteration = 30; end
+            if(nargin<5 || isempty(DecoderType))
                 DecoderType = 0;
             elseif isempty( find(DecoderType==[0 1 2], 1) )
                 error('LDPCCode:DecoderType', 'The optional input DecoderType should be either 0 (sum-product), 1 (min-sum), or 2 (approximate min-sum).');
@@ -28,10 +29,14 @@ classdef LDPCCode < ChannelCode
             obj.P = P;
             
             if(ischar(HRows))
-                obj.ReadHRows(HRows);
+                obj.ReadAListFile(HRows);
             else
                 obj.HRows = HRows;
-                obj.HCols = obj.FindHCols();
+                if isempty(HCols)
+                    obj.HCols = obj.FindHCols();
+                else
+                    obj.HCols = HCols;
+                end
                 % HCols has N-M rows for DVBS2 and N-M+z rows for LDPCWiMax, P=[] for DVBS2.
                 % IF THE CODE IS NOT WIMAX OR DVBS2, THIS PART SHOULD BE CHANGED.
                 obj.DataLength = size(obj.HCols,1) - size(obj.P,1);
@@ -82,7 +87,7 @@ classdef LDPCCode < ChannelCode
             obj.MaxColWeight = RealMaxColWeight;
         end
         
-        function ReadHRows(obj, HRowsPath)
+        function ReadAListFile(obj, HRowsPath)
             AlistFile = dlmread(HRowsPath);
             N = AlistFile(1,1);
             obj.CodewordLength = N;

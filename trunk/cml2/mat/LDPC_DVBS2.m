@@ -4,10 +4,10 @@ classdef LDPC_DVBS2 < LDPCCode
         function obj = LDPC_DVBS2(EffectiveRate, FrameSize, MaxIteration, DecoderType)
         % Calling Syntax: obj = LDPC_DVBS2([EffectiveRate] [,FrameSize] [,MaxIteration] [,DecoderType])
         %
-        % EffectiveRate is the effective rate of the concatenated BCH/LDPC code components in DVBS2 standard (Default = 1/2).
+        % EffectiveRate is the effective rate of the concatenated BCH/LDPC code components in DVBS2 standard (DEFAULT = 1/2).
         % For NORMAL frames: EffectiveRate = 1/4, 1/3, 2/5, 1/2, 3/5, 2/3, 3/4, 4/5, 5/6, 8/9, 9/10.
         % For SHORT frames: EffectiveRate = 1/4, 1/3, 2/5, 1/2, 3/5, 2/3, 3/4, 4/5, 5/6, 8/9.
-        % FrameSize=64800 (NORMAL frames) (Default) or 16200 (SHORT frames).
+        % FrameSize=64800 (NORMAL frames) (DEFAULT) or 16200 (SHORT frames).
         % MaxIteration: Maximum number of message passing decoding iterations (Default MaxIteration=30).
         % DecoderType: Message passing decoder type:
         %              0 Sum-product decoding algorithm (DEFAULT).
@@ -19,7 +19,7 @@ classdef LDPC_DVBS2 < LDPCCode
             if( nargin<4 || isempty(DecoderType) ), DecoderType = 0; end
             
             [HRows, HCols] = InitializeDVBS2(EffectiveRate, FrameSize);
-            obj@LDPCCode( HRows, [], MaxIteration, DecoderType );
+            obj@LDPCCode( HRows, HCols, [], MaxIteration, DecoderType );
         end
     end
     

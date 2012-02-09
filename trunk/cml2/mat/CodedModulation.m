@@ -9,7 +9,8 @@ classdef CodedModulation < handle
     end
     
     properties( SetAccess = protected )
-        PaddingLength = 0   % Number of bits required to padd input DataBits to Encode method to make its length an integer  multiple of ChannelCodeObject.DataLength.
+        PaddingLength = 0   % Number of bits required to padd input DataBits to Encode method to make its length an integer multiple of ChannelCodeObject.DataLength.
+        PaddingLengthMapping = 0 % Number of bits required to padd input Codeword to Map method to make its length an integer multiple of Mapper.NoBitsPerSymb.
         NumBitError
         NumCodewords
     end
@@ -34,7 +35,7 @@ classdef CodedModulation < handle
                     obj.NumCodewords = 1;
                     Codeword = zeros(1,obj.ChannelCodeObject.CodewordLength);
                     obj.ChannelCodeObject.Codeword = Codeword;
-                    DataSymbols = obj.Mapper.Map(cast(Codeword,'uint8')); % vector of M-ary symbols as INT32.
+                    DataSymbols = obj.MapCodeword(Codeword); % Vector of M-ary symbols as INT32.
                     return;
                 elseif obj.ZeroRandFlag==1  % DataBits is random.
                     DataBits = round( rand(1,K) );
@@ -45,7 +46,15 @@ classdef CodedModulation < handle
             end
             obj.NumCodewords = length(DataBits)/K;
             Codeword = obj.ChannelCodeObject.Encode(DataBits);
-            DataSymbols = obj.Mapper.Map(cast(reshape(Codeword',1,[]),'uint8')); % vector of M-ary symbols as INT32.
+            DataSymbols = obj.MapCodeword(reshape(Codeword',1,[])); % Vector of M-ary symbols as INT32.
+        end
+        
+        
+        function DataSymbols = MapCodeword(obj, Codeword)
+            NBits = obj.Mapper.NoBitsPerSymb;
+            obj.PaddingLengthMapping = ceil(length(Codeword)/NBits) * NBits - length(Codeword);
+            if(obj.PaddingLengthMapping>0), Codeword = [zeros(1,obj.PaddingLengthMapping) Codeword]; end
+            DataSymbols = obj.Mapper.Map(cast(Codeword,'uint8')); % vector of M-ary symbols as INT32.
         end
         
         
@@ -55,6 +64,7 @@ classdef CodedModulation < handle
                 ExtrinsicInfo = zeros( 1, size(SymbolLikelihood,2)*log2(size(SymbolLikelihood,1)) );
             end
             BitLikelihood = obj.Mapper.Demap( SymbolLikelihood, ExtrinsicInfo );
+            BitLikelihood = BitLikelihood(obj.PaddingLengthMapping+1:end); % Remove zero-paddings that were made for Mapping.
             % Find EstBits which includes padded bits and codeword bits affected by them.
             [EstBits, obj.NumBitError] = obj.ChannelCodeObject.Decode(cast(reshape(BitLikelihood,obj.ChannelCodeObject.CodewordLength,[])','double'));
             % Assume that the code is systematic.
