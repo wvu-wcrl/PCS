@@ -1,14 +1,14 @@
 classdef LinkSimulation < Simulation
     
     properties
-        EsN0    % Es/N0 in Linear.
-        EbN0    % Eb/N0 in Linear.
+        EsN0        % Es/N0 in Linear.
+        EbN0        % Eb/N0 in Linear.
+        RunMode = 1 % Running Mode: 0 = Local, 1 = Cluster.
     end
     
     properties( SetAccess = protected )
         NumNewPoints
         MaxIteration    % Maximum number of decoding iterations.
-        RunMode = 1;    % Running Mode: 0 = Local, 1 = Cluster.
     end
     
     methods
