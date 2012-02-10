@@ -8,14 +8,14 @@
 
 function cSta(obj, varargin)
 
-n = length(obj.workers)
-obj.workers
+n = length(obj.workers);
+obj.workers;
 
 if nargin == 1,   % start all workers unconditionally
     % Loop over all active workers and start worker processes.
     n = length(obj.workers);
     for k = 1:n,
-        staw(obj, obj.workers{k}.wid );
+	      staw(obj, obj.workers{k}.wid );
     end
     
  else

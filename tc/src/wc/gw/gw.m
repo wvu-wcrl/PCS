@@ -13,7 +13,11 @@
 % 12/26/2011
 % Terry Ferrett
 
-function gw(wid, iq, rq, oq)
+function gw(wid, iq, rq, oq, lp)
+
+LOG_PERIOD=7*24*60*60;  % time to rotate log files
+NUM_LOGS = 7;   % number of log files to utilize
+
 
 default_path = path; % the default path will be restored after executing
                      %  the entry function
@@ -29,9 +33,12 @@ default_path = path; % the default path will be restored after executing
 %%% log the worker start time %%%
 [year month day hour min sec] = gettime(); % current time
 ls = ['Worker' ' ' int2str(wid) ' ' 'started at' ' '  year '-' month '-' day ' ' hour ':' min ':' sec];
-fprintf(ls);
+fprintf(ls); fprintf('\n');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+tic;   % start logging timer
+nlog = 0; % intialize log count
 
 
 %%% main worker loop
@@ -105,6 +112,17 @@ ls = [ls 'failed to execute.'];
     
     
     pause(5); % wait 5 seconds before making another pass
+
+
+
+
+    t = toc;
+if(t > LOG_PERIOD) % rotate log file
+		       fprintf('burning log file');
+    rotate_log(lp,nlog);        % rotate the log file
+    nlog = mod(nlog+1, NUM_LOGS);
+tic;
+end
     
 end
 end
@@ -202,5 +220,24 @@ function  task_name = get_task_name(next_input)
 [beg task_name] = strtok(next_input, '_');
 
 task_name = task_name(2:end-4);
+
+end
+
+
+
+
+
+function rotate_log(lp, nlog)
+
+% copy the existing log file to file number nlog
+lfn = [lp '.' int2str(nlog)];
+cs = ['cp' ' ' lp ' ' lfn];
+system(cs);
+
+
+% null existing log file
+cs = ['cat /dev/null' ' ' '>' ' ' lp];
+system(cs);
+
 
 end

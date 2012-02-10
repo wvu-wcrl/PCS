@@ -23,6 +23,8 @@ for k = 1:n,
     wpn{k} = str2double( wrklist{k}{2} ); %workers per node
 end
 
+% store the node list
+    obj.nodes = nl;
 
 % create initial worker structs
 nw = 1; % number of workers
