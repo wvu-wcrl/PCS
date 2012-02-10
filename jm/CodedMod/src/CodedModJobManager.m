@@ -771,10 +771,15 @@ for TaskCount=1:Tasks
         OS_flag = 1;
     end
     
+    if( rem(TaskCount,5) == 0 )
+        fprintf( '\n' );
+        if(OS_flag), JM_Move(TempfileName, TaskInDir); end
+    end
+    
     % Pause briefly for flow control.
     pause( PauseTime );
 end
-fprintf( '\n\n' );
+fprintf( '\n' );
 if(OS_flag), JM_Move(TempfileName, TaskInDir); end
 
 else    % TaskInDir is full. No new tasks will be generated.
@@ -876,12 +881,17 @@ end
 
 function JM_Move(FileTarget, FileDestination)
 TargetDir = dir(FileTarget);
-if length(TargetDir)>2  % Bypass . and .. directories in dir command.
-    RmStr = ['sudo mv ' FileTarget filesep '* ' FileDestination];
-    try system( RmStr ); catch end
+
+if ~isempty(TargetDir)
+    if length(TargetDir)>2  % Bypass . and .. directories in dir command.
+        RmStr = ['sudo mv ' FileTarget filesep '* ' FileDestination];
+        try system( RmStr ); catch end
+    else
+        RmStr = ['sudo mv ' FileTarget  ' ' FileDestination];
+        try system( RmStr ); catch end
+    end
 else
-    RmStr = ['sudo mv ' FileTarget  ' ' FileDestination];
-    try system( RmStr ); catch end
+    return;
 end
 
 end
