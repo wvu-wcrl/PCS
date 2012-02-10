@@ -28,6 +28,8 @@ classdef cwc < handle
                          % wid - worker id
                          % node - node name
                          % pid    - process id
+
+        nodes       % master list of active nodes
                          
         gwp             % generic worker path
         gwn             % generic worker script name
@@ -87,6 +89,9 @@ classdef cwc < handle
         
         % Stop workers on entire cluster.
         cSto(obj, varargin)
+
+	% slay all active workers
+	slay(obj);
                 
         
         % return the number of workers for user 'user'

@@ -16,9 +16,10 @@ oq=$7
 lf=$8
 
 
+
 # Connect to the node and start the worker as a daemon.
-ssh $hostname "export MATLABPATH=$worker_path; nohup matlab -r $worker_exe\($worker_id,\'$iq\',\'$rq\',\'$oq\'\) >> $lf 2>&1 &"
-#ssh $hostname "export MATLABPATH=$worker_path; nohup matlab -r $worker_exe\($worker_id,\'$iq\',\'$rq\',\'$oq\'\)"
+ssh $hostname "export MATLABPATH=$worker_path; nohup matlab -r $worker_exe\($worker_id,\'$iq\',\'$rq\',\'$oq\',\'$lf\'\) >> $lf 2>&1 &"
+
 
 
 

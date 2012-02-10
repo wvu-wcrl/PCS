@@ -9,7 +9,7 @@
 function staw(obj, wid)
 
 % execute shell command to start worker - so -shell out
-[stat pid] = so(obj, wid)
+[stat pid] = so(obj, wid);
 
 % store the pid in the worker object
 obj.workers{wid}.pid = pid;
@@ -34,6 +34,7 @@ oqr = ['/rhome' oqr];
 
 
 cs = [obj.bs{1}  '/start_worker.sh'];
+
 cs = [cs, ' ',...
 	obj.workers{wid}.node, ' ',...
 	obj.gwp{1}, ' ',...
@@ -44,7 +45,8 @@ cs = [cs, ' ',...
         oqr,' '...
         lp];
 
-cs
-  [stat pid] = system(cs);
+
+[stat pid] = system(cs);
+pid
 
 end
