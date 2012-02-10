@@ -18,7 +18,7 @@ nu = length(obj.users);           % number of users
 
 
 while(1) %enter primary loop
-
+	    sprintf('hi')
     [au fl] = scan_user_inputs(obj);                     % scan input directories for new .mat inputs
 
     
@@ -167,19 +167,22 @@ if ~isempty(users_srt)
 	purq = users_srt.rq;
 
         % append username to file
-        afn = [users_srt.username '_' fl_srt{1}(cnt).name];
+	fn = fl_srt{1}(cnt).name;
+        afn = [users_srt.username '_' fn];
+
 
         % copy user file into running queue
-        cmd_str = ['cp' ' ' puif{1} ' ' purq{1} '/' fl_srt{1}(cnt).name];
+        cmd_str = ['sudo cp' ' ' puif{1} ' ' purq{1} '/' fn];
         system(cmd_str);
 
+
+        % change ownership to pcs user
+        cmd_str = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1}]
+        system(cmd_str);   % change ownership back to user      
 
         % move user file into input queue
         cmd_str = ['sudo mv' ' ' puif{1} ' ' pgiq{1} '/' afn];
         system(cmd_str);
-        % change ownership to pcs user
-        cmd_str = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' path2{1} '/' afn]
-        system(cmd_str);   % change ownership back to user      
     end
     
 obj.aw = obj.aw + cnt;
@@ -318,11 +321,14 @@ for k = 1:nf,
 
             [beg on] = strtok(fl(k).name, '_'); on = on(2:end);    % cut the username off of the filename
 
+
             puoq = obj.users{m}.oq{1};                             % path to user output queue
 
-            cmd_str = ['sudo mv' ' ' pgoq '/'  fl(k).name ' ' puoq '/' on];  system(cmd_str); % move file to user output queue
 
-            cmd_str = ['sudo chown' ' ' name ':' name ' ' puoq '/' on]; system(cmd_str);   % change ownership back to user
+            cmd_str = ['sudo chown' ' ' name ':' name ' ' pgoq '/' fl(k).name]; system(cmd_str);   % change ownership back to user
+
+
+            cmd_str = ['sudo mv' ' ' pgoq '/'  fl(k).name ' ' puoq '/' on];  system(cmd_str); % move file to user output queue
 
 	    purq = obj.users{m}.rq{1};
 
