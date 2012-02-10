@@ -23,6 +23,13 @@ function SimState = CodedModTaskInit(CodedModParam)
 %     'MaxIteration', 30,...    % Maximum number of message passing decoding iterations for LDPC decoding (Default MaxIteration=30).
 %     'DecoderType', 0,...      % Message passing LDPC decoding algorithm: =0 (sum-product) (DEFAULT), =1 (min-sum), =2 (approximate min-sum).
 %     'ModulationObj', [],...
+%     'ModulationType', [],...  % Type of modulation as a STRING with exact name of desired modulation.
+%     ...                       % ='BPSK' (DEFAULT),'QPSK','PSK','QAM','APSK','HEX','HSDPA','custom'.
+%     'ModulationParam', [],... % ALL parameters of the selected modulation in the specified order as a STRING.
+%     ...                       % For BPSK or QPSK or HEX=['SignalProb'].
+%     ...                       % For PSK or QAM=['Order,MappingType,SignalProb'].
+%     ...                       % For HSDPA or APSK=['Order,SignalProb'].
+%     ...                       % For custom modulation='SignalSet,SignalProb'.
 %     'DemodType', 0,...        % Type of max_star algorithm that is used in demaping.
 %     ...                       % =0 (linear approximation to log-MAP) (DEFAULT), =1 (max-log-MAP) (i.e. max*(x,y) = max(x,y)).
 %     ...                       % =2 (constant-log-MAP), =3 (log-MAP, correction factor from small nonuniform table and interpolation).
@@ -49,12 +56,25 @@ if( ~isfield(CodedModParam, 'minFER') || isempty(CodedModParam.minFER) ), CodedM
 if( ~isfield(CodedModParam, 'SimTime') || isempty(CodedModParam.SimTime) ), CodedModParam.SimTime = 300; end
 if( ~isfield(CodedModParam, 'MaxIteration') || isempty(CodedModParam.MaxIteration) ), CodedModParam.MaxIteration = 30; end
 if( ~isfield(CodedModParam, 'DecoderType') || isempty(CodedModParam.DecoderType) ), CodedModParam.DecoderType = 0; end
-if( ~isfield(CodedModParam, 'ModulationObj') || isempty(CodedModParam.ModulationObj) ), CodedModParam.ModulationObj = BPSK(); end
 if( ~isfield(CodedModParam, 'DemodType') || isempty(CodedModParam.DemodType) ), CodedModParam.DemodType = 0; end
 if( ~isfield(CodedModParam, 'ZeroRandFlag') || isempty(CodedModParam.ZeroRandFlag) ), CodedModParam.ZeroRandFlag = 0; end
 
 CheckPeriod = 10;   % Checking time in number of Trials to see if the time is up.
-ModOrder = CodedModParam.ModulationObj.Order;
+
+if( isfield(CodedModParam, 'ModulationObj') && ~isempty(CodedModParam.ModulationObj) )
+    ModObj = CodedModParam.ModulationObj;
+else
+    if( ~isfield(CodedModParam, 'ModulationType') || isempty(CodedModParam.ModulationType) ), CodedModParam.ModulationType = 'BPSK'; end
+    if( ~isfield(CodedModParam, 'ModulationParam') || isempty(CodedModParam.ModulationParam) ), CodedModParam.ModulationParam = '[]'; end
+    if( strcmpi(CodedModParam.ModulationType,'custom') )
+        ModGenStr = ['CreateModulation' '(' CodedModParam.ModulationParam ')'];
+    else
+        ModGenStr = [upper(CodedModParam.ModulationType) '(' CodedModParam.ModulationParam ')'];
+    end
+    ModObj = eval(ModGenStr);
+end
+
+ModOrder = ModObj.Order;
 
 switch CodedModParam.CodeType
     case 1  % DVBS2 LDPC code.
@@ -78,11 +98,11 @@ end
 CodedModObj = CodedModulation(ChannelCodeObject, ModOrder, CodedModParam.DemodType, CodedModParam.ZeroRandFlag);
 
 SNRdB = 5;
-ChannelObj = AWGN( CodedModParam.ModulationObj, 10^(SNRdB/10) );
+ChannelObj = AWGN( ModObj, 10^(SNRdB/10) );
 
 SimParam = struct(...
-    'CodedModObj', CodedModObj, ...         % Coded modulation object.
-    'ChannelObj', ChannelObj, ...           % Channel object (Modulation is a property of channel).
+    'CodedModObj', CodedModObj, ...            % Coded modulation object.
+    'ChannelObj', ChannelObj, ...              % Channel object (Modulation is a property of channel).
     'SNRType', CodedModParam.SNRType, ...
     'SNR', CodedModParam.SNR, ...              % Row vector of SNR points in dB.
     'MaxTrials', CodedModParam.MaxTrials, ...  % A vector of integers (or scalar), one for each SNR point. Maximum number of trials to run per point.
