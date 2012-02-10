@@ -156,8 +156,8 @@ while(runningJob)
             % Construct the filename.
             OutFileName = D(OutFileIndex).name;
 
-            msg = sprintf( '\nReceiving finished task %s of user %s at %s.\n', OutFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-            fprintf( msg );
+            % msg = sprintf( '\nReceiving finished task %s of user %s at %s.\n', OutFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+            % fprintf( msg );
             
             JobFileName = [OutFileName(1:regexpi(OutFileName, '_task_') - 1) '.mat'];
             
@@ -180,13 +180,13 @@ while(runningJob)
                 
                 try
                     save( fullfile(TempDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
-                    msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', OutFileName(1:end-4), Username );
-                    fprintf( msg );
+                    % msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', OutFileName(1:end-4), Username );
+                    % fprintf( msg );
                 catch
                     TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrial, NodeID_Times);
                     JM_Move(TempfileName, TempDir);
-                    msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', OutFileName(1:end-4), Username );
-                    fprintf( msg );
+                    % msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', OutFileName(1:end-4), Username );
+                    % fprintf( msg );
                 end
             end
             
@@ -268,8 +268,8 @@ while(runningJob)
                     % Construct the filename.
                     OutFileName = D(OutFileIndex).name;
 
-                    msg = sprintf( '\nReceiving finished task %s of user %s at %s.\n', OutFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-                    fprintf( msg );
+                    % msg = sprintf( '\nReceiving finished task %s of user %s at %s.\n', OutFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+                    % fprintf( msg );
 
                     % Try to load the selected output task file.
                     % [TaskContent, success] = LoadFile(OutFileName, TaskOutDir, Username, 'TaskParam', 'TaskState', JobOutDir, JobFileName);
@@ -291,13 +291,13 @@ while(runningJob)
 
                         try
                             save( fullfile(TempDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
-                            msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', OutFileName(1:end-4), Username );
-                            fprintf( msg );
+                            % msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', OutFileName(1:end-4), Username );
+                            % fprintf( msg );
                         catch
                             TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrial, NodeID_Times);
                             JM_Move(TempfileName, TempDir);
-                            msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', OutFileName(1:end-4), Username );
-                            fprintf( msg );
+                            % msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', OutFileName(1:end-4), Username );
+                            % fprintf( msg );
                         end
                     end
 
@@ -976,8 +976,8 @@ end
 function [FileContent, success] = LoadFile(FileName, FileDirectory, Username, FieldA, FieldB, ResultsFileDir, JobFileName)
 try
     FileContent = load( fullfile(FileDirectory,FileName), FieldA, FieldB );
-    msg = sprintf( 'Output task file %s of user %s is loaded.\n', FileName(1:end-4), Username );
-    fprintf( msg );
+    % msg = sprintf( 'Output task file %s of user %s is loaded.\n', FileName(1:end-4), Username );
+    % fprintf( msg );
     success = 1;
 catch
     FileContent = [];
