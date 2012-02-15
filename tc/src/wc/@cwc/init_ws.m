@@ -40,6 +40,20 @@ for k = 1:n,
 end
 
 
+% read logging parameters
+    heading = '[logging]';
+key = 'log_period';
+out = util.fp(obj.cf, heading, key);
+obj.log_period = out{1}{1};
+
+
+
+key = 'num_logs';
+out = util.fp(obj.cf, heading, key);
+obj.num_logs = out{1}{1};
+
+
+
 end
 
 
