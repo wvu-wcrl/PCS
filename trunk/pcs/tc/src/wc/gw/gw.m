@@ -13,10 +13,10 @@
 % 12/26/2011
 % Terry Ferrett
 
-function gw(wid, iq, rq, oq, lp)
+function gw(wid, iq, rq, oq, lp, LOG_PERIOD, NUM_LOGS)
 
-LOG_PERIOD=7*24*60*60;  % time to rotate log files
-NUM_LOGS = 7;   % number of log files to utilize
+LOG_PERIOD = str2double(LOG_PERIOD);
+NUM_LOGS = str2double(NUM_LOGS);
 
 
 default_path = path; % the default path will be restored after executing
@@ -31,8 +31,8 @@ default_path = path; % the default path will be restored after executing
 
 
 %%% log the worker start time %%%
-[year month day hour min sec] = gettime(); % current time
-ls = ['Worker' ' ' int2str(wid) ' ' 'started at' ' '  year '-' month '-' day ' ' hour ':' min ':' sec];
+[cur_time] = gettime(); % current time
+ls = ['Worker' ' ' int2str(wid) ' ' 'started at' ' '  cur_time];
 fprintf(ls); fprintf('\n');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -63,10 +63,10 @@ while(1)
         
         
         %%% log function start time %       
-        [year month day hour min sec] = gettime(); % current time
+        [cur_time] = gettime(); % current time
         username = strtok(next_running, '_');  % username
         task_name = get_task_name(next_input);
-        ls = ['Executing task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' year '-' month '-' day ' ' hour ':' min ':' sec];
+        ls = ['Executing task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' cur_time];
         fprintf(ls);
         fprintf('\n');
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -78,8 +78,8 @@ while(1)
         
         
         %%% log function end time %
-        [year month day hour min sec] = gettime(); % current time
-        ls = ['Task' ' ' task_name ' ' 'from user'  ' ' username ' ' 'complete' ' ' 'at'  ' ' year '-' month '-' day ' ' hour ':' min ':' sec];
+        [cur_time] = gettime(); % current time
+        ls = ['Task' ' ' task_name ' ' 'from user'  ' ' username ' ' 'complete' ' ' 'at'  ' ' cur_time];
         fprintf(ls);
         fprintf('\n');
         %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -99,9 +99,9 @@ while(1)
             path(default_path); 
         task_name = get_task_name(next_input);
         username = strtok(next_running, '_');  % username
-        [year month day hour min sec] = gettime(); % current time
+        [cur_time] = gettime(); % current time
             
-        ls = ['Task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' year '-' month '-' day ' ' hour ':' min ':' sec];
+        ls = ['Task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' cur_time];
 ls = [ls 'failed to execute.'];
         fprintf(ls);
         fprintf('\n');
@@ -118,8 +118,8 @@ ls = [ls 'failed to execute.'];
 
     t = toc;
 if(t > LOG_PERIOD) % rotate log file
-		       fprintf('burning log file');
-    rotate_log(lp,nlog);        % rotate the log file
+    [cur_time] = gettime(); % current time
+    rotate_log(lp,nlog, cur_time);        % rotate the log file
     nlog = mod(nlog+1, NUM_LOGS);
 tic;
 end
@@ -203,10 +203,12 @@ end
 
 
 
-function [year month day hour min sec] = gettime();
+function [cur_time] = gettime();
 timevec = fix(clock);  % time
 year = int2str(timevec(1)); month = int2str(timevec(2)); day = int2str(timevec(3));
 hour = int2str(timevec(4)); min = int2str(timevec(5)); sec = int2str(timevec(6));
+
+cur_time = [year '-' month '-' day ' ' hour ':' min ':' sec];
 end
 
 
@@ -227,17 +229,46 @@ end
 
 
 
-function rotate_log(lp, nlog)
+function rotate_log(lp, nlog, cur_time)
+
+
+% insert message at end of existing log file regarding rotation
+cs = ['echo' ' ' '''Log file rotated at ' cur_time ''' ' '>>' ' ' lp];
+system(cs);
+
 
 % copy the existing log file to file number nlog
-lfn = [lp '.' int2str(nlog)];
-cs = ['cp' ' ' lp ' ' lfn];
+fnind = strfind(lp, '/');  %tokenize the full path to the log file
+fnind = fnind(end);
+
+lfp = lp(1:fnind-1);
+lfn = lp(fnind+1:end);
+
+af = [lfp '/archive' '/' lfn '.' int2str(nlog)];
+cs = ['cp' ' ' lp ' ' af];
 system(cs);
+%%%%%%%%%%%%%%%%
+
+
+
+%lfn = [lp '.' int2str(nlog)];
+%cs = ['cp' ' ' lp ' ' lfn];
+%system(cs);
 
 
 % null existing log file
 cs = ['cat /dev/null' ' ' '>' ' ' lp];
 system(cs);
+
+
+% prepend first ten lines of previous log file to new
+cs = ['tail ' af ' >> ' lp];
+
+
+% insert message about new log file creation with timestamp
+cs = ['echo' ' ' '''Log file rotated at ' cur_time ''' ' '>>' ' ' lp];
+system(cs);
+
 
 
 end

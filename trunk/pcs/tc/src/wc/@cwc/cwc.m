@@ -47,15 +47,14 @@ classdef cwc < handle
     properties        
         bs       % path to bash scripts
         cf        % config file path
-        
-        %cmlRoot
-	    %srv_root
-	    %proj_root	
-        %workerPath        
-        %svPath
-        %svFile
     end
-    
+ 
+   % logging parameters, added 2/15/2012
+   properties
+      log_period     % how often to archive logs, in seconds
+      num_logs    % number of archives to save
+   end
+   
     
     
     methods
