@@ -4,14 +4,19 @@ function SimState = CodedModTaskInit(CodedModParam)
 % CodedModParam is a structure defining simulation parameters:
 % CodedModParam = struct(...
 %     'CodeType', [],...        % Type of the channel code used.
-%     ...                       % =1 (DVBS2 LDPC code), =2 (WiMax LDPC code).
-%     ...                       % =3 (General LDPC code specified by its parity-check matrix in alist format saved in a file).
+%     ...                       % =00 (Recursive Systematic Convolutional (RSC) code).
+%     ...                       % =01 (Non-Systematic Convolutional (NSC) code), =02 (Tail-biting NSC code).
+%     ...                       % =20 (General LDPC code specified by its parity-check matrix in alist format saved in a file).
+%     ...                       % =21 (DVBS2 LDPC code), =22 (WiMax LDPC code).
 %     'AListFilePath', [],...   
 %     ...                       % FULL path to alist file containing the parity-check matrix of LDPC code.
 %     'EffectiveRate', 1/2,...  % Effective rate of LDPC code for DVBS2 and WiMax standards.
 %     'FrameSize', 64800,...    % Size of the code (number of code bits).
 %     'WiMaxLDPCInd', [],...    % Selects either code ’A’ or code ’B’ for rates 2/3 and 3/4 of WiMax LDPC codes.
 %     ...                       % =0 (code rate type ’A’), =1 (code rate type ’B’), =[empty array] (all other code rates).
+%     'Generator', [],...       % Binary generator matrix for convolutional code.
+%     'ConvDepth', [],...       % Wrap depth used for tail-biting convolutional decoding (Default is 6 times the constraint length).
+%     'DataLength', [],...      % Message data length for convolutional codes.
 %     'SNRType', 'Es/N0 in dB', ...
 %     'SNR', [],...             % Row vector of SNR points in dB.
 %     'MaxTrials', 1e9, ...     % A vector of integers (or scalar), one for each SNR point. Maximum number of trials to run per point.
@@ -77,22 +82,38 @@ end
 ModOrder = ModObj.Order;
 
 switch CodedModParam.CodeType
-    case 1  % DVBS2 LDPC code.
-        if( ~isfield(CodedModParam, 'EffectiveRate') || isempty(CodedModParam.EffectiveRate) ), CodedModParam.EffectiveRate = 1/2; end
-        if( ~isfield(CodedModParam, 'FrameSize') || isempty(CodedModParam.FrameSize) ), CodedModParam.FrameSize = 64800; end
-        ChannelCodeObject = LDPC_DVBS2(CodedModParam.EffectiveRate, CodedModParam.FrameSize, CodedModParam.MaxIteration, CodedModParam.DecoderType);
-    case 2  % WiMax LDPC code.
-        if( ~isfield(CodedModParam, 'EffectiveRate') || isempty(CodedModParam.EffectiveRate) ), CodedModParam.EffectiveRate = 1/2; end
-        if( ~isfield(CodedModParam, 'FrameSize') || isempty(CodedModParam.FrameSize) ), CodedModParam.FrameSize = 576; end
-        if( ~isfield(CodedModParam, 'WiMaxLDPCInd') || isempty(CodedModParam.WiMaxLDPCInd) ), CodedModParam.WiMaxLDPCInd = 0; end
-        ChannelCodeObject = LDPC_WiMax(CodedModParam.EffectiveRate, CodedModParam.FrameSize, CodedModParam.WiMaxLDPCInd, ...
-            CodedModParam.MaxIteration, CodedModParam.DecoderType);
-    case 3  % General LDPC code specified by its parity-check matrix in alist format saved in a file.
+    case 00 % Recursive Systematic Convolutional (RSC) code.
+        % Default generator matrix for convolutional code is the constituent code of UMTS turbo code.
+        if( ~isfield(CodedModParam, 'Generator') || isempty(CodedModParam.Generator) ), CodedModParam.Generator = [1 0 1 1 ; 1 1 0 1]; end
+        if( ~isfield(CodedModParam, 'DataLength') || isempty(CodedModParam.DataLength) ), CodedModParam.DataLength = 512; end
+        ChannelCodeObject = ConvCode(CodedModParam.Generator, CodedModParam.DataLength, 0, CodedModParam.DecoderType);
+    case 01 % Non-Systematic Convolutional (NSC) code.
+        % Default generator matrix for convolutional code is the constituent code of UMTS turbo code.
+        if( ~isfield(CodedModParam, 'Generator') || isempty(CodedModParam.Generator) ), CodedModParam.Generator = [1 0 1 1 ; 1 1 0 1]; end
+        if( ~isfield(CodedModParam, 'DataLength') || isempty(CodedModParam.DataLength) ), CodedModParam.DataLength = 512; end
+        ChannelCodeObject = ConvCode(CodedModParam.Generator, CodedModParam.DataLength, 1, CodedModParam.DecoderType);
+    case 02 % Tail-biting NSC code.
+        % Default generator matrix for convolutional code is the constituent code of UMTS turbo code.
+        if( ~isfield(CodedModParam, 'Generator') || isempty(CodedModParam.Generator) ), CodedModParam.Generator = [1 0 1 1 ; 1 1 0 1]; end
+        if( ~isfield(CodedModParam, 'DataLength') || isempty(CodedModParam.DataLength) ), CodedModParam.DataLength = 512; end
+        if( ~isfield(CodedModParam, 'ConvDepth') || isempty(CodedModParam.ConvDepth) ), CodedModParam.ConvDepth = -1; end
+        ChannelCodeObject = ConvCode(CodedModParam.Generator, CodedModParam.DataLength, 2, CodedModParam.DecoderType, CodedModParam.ConvDepth);
+    case 20	% General LDPC code specified by its parity-check matrix in alist format saved in a file.
         if( ~isfield(CodedModParam, 'AListFilePath') || isempty(CodedModParam.AListFilePath) )
             error('CodedModTaskInit:EmptyAListFilePath',...
                 'The FULL path to the alist file containing the parity-check matrix of LDPC code should be specified.');
         end
         ChannelCodeObject = LDPCCode( CodedModParam.AListFilePath, [], [], CodedModParam.MaxIteration, CodedModParam.DecoderType );
+    case 21	% DVBS2 LDPC code.
+        if( ~isfield(CodedModParam, 'EffectiveRate') || isempty(CodedModParam.EffectiveRate) ), CodedModParam.EffectiveRate = 1/2; end
+        if( ~isfield(CodedModParam, 'FrameSize') || isempty(CodedModParam.FrameSize) ), CodedModParam.FrameSize = 64800; end
+        ChannelCodeObject = LDPC_DVBS2(CodedModParam.EffectiveRate, CodedModParam.FrameSize, CodedModParam.MaxIteration, CodedModParam.DecoderType);
+    case 22	% WiMax LDPC code.
+        if( ~isfield(CodedModParam, 'EffectiveRate') || isempty(CodedModParam.EffectiveRate) ), CodedModParam.EffectiveRate = 1/2; end
+        if( ~isfield(CodedModParam, 'FrameSize') || isempty(CodedModParam.FrameSize) ), CodedModParam.FrameSize = 576; end
+        if( ~isfield(CodedModParam, 'WiMaxLDPCInd') || isempty(CodedModParam.WiMaxLDPCInd) ), CodedModParam.WiMaxLDPCInd = 0; end
+        ChannelCodeObject = LDPC_WiMax(CodedModParam.EffectiveRate, CodedModParam.FrameSize, CodedModParam.WiMaxLDPCInd, ...
+            CodedModParam.MaxIteration, CodedModParam.DecoderType);
 end
 
 CodedModObj = CodedModulation(ChannelCodeObject, ModOrder, CodedModParam.DemodType, CodedModParam.ZeroRandFlag);
