@@ -29,10 +29,10 @@ classdef LinkSimulation < Simulation
             
             % Determine Es/N0 in linear.
             % This was corrected on 02/05/2011. Account for modulation order.
-            if( strcmpi(SimParam.SNRType(2), 'b') ) % Eb/N0
+            if( strcmpi(SimParam.SNRType(2), 'b') )     % Eb/N0
                 obj.EbN0 = 10.^(SimParam.SNR/10);
                 obj.EsN0 = obj.EbN0 * SimParam.CodedModObj.ChannelCodeObject.Rate * SimParam.CodedModObj.Mapper.NoBitsPerSymb;
-            else % Es/N0
+            elseif( strcmpi(SimParam.SNRType(2), 's') ) % Es/N0
                 obj.EsN0 = 10.^(SimParam.SNR/10);
                 obj.EbN0 = obj.EsN0 / ( SimParam.CodedModObj.ChannelCodeObject.Rate * SimParam.CodedModObj.Mapper.NoBitsPerSymb );
             end
