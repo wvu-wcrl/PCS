@@ -53,7 +53,7 @@ while(runningJob)
                 % Reassign variables as Global.
                 SimParamGlobal = SimParam;
                 SimStateGlobal = SimState;
-                msg = sprintf( 'Input job file %s for user %s is loaded.\n', InFileName(1:end-4), Username );
+                msg = sprintf( 'Input job file %s for user %s is loaded at %s.\n\n', InFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
                 fprintf( msg );
                 success = 1;
             catch
@@ -156,8 +156,9 @@ while(runningJob)
             % Construct the filename.
             OutFileName = D(OutFileIndex).name;
 
-            % msg = sprintf( '\nReceiving finished task %s of user %s at %s.\n', OutFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+            msg = sprintf( '\nReceiving finished task %s of user %s at %s.\n', OutFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
             % fprintf( msg );
+            PrintOut( msg );
             
             JobFileName = [OutFileName(1:regexpi(OutFileName, '_task_') - 1) '.mat'];
             
@@ -180,13 +181,15 @@ while(runningJob)
                 
                 try
                     save( fullfile(TempDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
-                    % msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', OutFileName(1:end-4), Username );
+                    msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', OutFileName(1:end-4), Username );
                     % fprintf( msg );
+                    PrintOut( msg );
                 catch
                     TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrial, NodeID_Times);
                     JM_Move(TempfileName, TempDir);
-                    % msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', OutFileName(1:end-4), Username );
+                    msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', OutFileName(1:end-4), Username );
                     % fprintf( msg );
+                    PrintOut( msg );
                 end
             end
             
@@ -211,7 +214,8 @@ while(runningJob)
                     if ~isempty(JobDirectory)
                         load( fullfile(JobDirectory,JobFileName), 'SimParam', 'SimState' );
                         msg = sprintf( ['The corresponding job file %s of user %s is loaded from its ', strMsg, ' directory.\n'], JobFileName(1:end-4), Username );
-                        fprintf( msg );
+                        % fprintf( msg );
+                        PrintOut( msg );
 
                         % Reassign variables as Global.
                         SimParamGlobal = SimParam;
@@ -268,8 +272,9 @@ while(runningJob)
                     % Construct the filename.
                     OutFileName = D(OutFileIndex).name;
 
-                    % msg = sprintf( '\nReceiving finished task %s of user %s at %s.\n', OutFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+                    msg = sprintf( '\nReceiving finished task %s of user %s at %s.\n', OutFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
                     % fprintf( msg );
+                    PrintOut( msg );
 
                     % Try to load the selected output task file.
                     % [TaskContent, success] = LoadFile(OutFileName, TaskOutDir, Username, 'TaskParam', 'TaskState', JobOutDir, JobFileName);
@@ -291,13 +296,15 @@ while(runningJob)
 
                         try
                             save( fullfile(TempDir,[JobFileName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
-                            % msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', OutFileName(1:end-4), Username );
+                            msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', OutFileName(1:end-4), Username );
                             % fprintf( msg );
+                            PrintOut( msg );
                         catch
                             TempfileName = JM_Save([JobFileName(1:end-4) '_eTimeTrial.mat'], eTimeTrial, NodeID_Times);
                             JM_Move(TempfileName, TempDir);
-                            % msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', OutFileName(1:end-4), Username );
+                            msg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', OutFileName(1:end-4), Username );
                             % fprintf( msg );
+                            PrintOut( msg );
                         end
                     end
 
@@ -760,12 +767,14 @@ for TaskCount=1:Tasks
     % Save the new task in TaskIn queue.
     try
         save( fullfile(TaskInDir,TaskFileName), 'TaskParam' );
-        % msg = sprintf( 'Task file %s for user %s is saved to its TaskIn directory.\n', TaskFileName(1:end-4), Username );
+        msg = sprintf( 'Task file %s for user %s is saved to its TaskIn directory.\n', TaskFileName(1:end-4), Username );
+        PrintOut( msg );
         msg = sprintf('+');
         fprintf( msg );
     catch
         TempfileName = JM_Save(TaskFileName, TaskParam);
-        % msg = sprintf( 'Task file %s for user %s is saved to its TaskIn directory by OS.\n', TaskFileName(1:end-4), Username );
+        msg = sprintf( 'Task file %s for user %s is saved to its TaskIn directory by OS.\n', TaskFileName(1:end-4), Username );
+        PrintOut( msg );
         msg = sprintf('+');
         fprintf( msg );
         OS_flag = 1;
@@ -774,6 +783,7 @@ for TaskCount=1:Tasks
     if( rem(TaskCount,5) == 0 )
         fprintf( '\n' );
         if(OS_flag), JM_Move(TempfileName, TaskInDir); end
+        OS_flag = 0;
     end
     
     % Pause briefly for flow control.
@@ -947,16 +957,18 @@ try
         RmStr = ['sudo rm ' FileDirectory filesep FileName];
         try
             system( RmStr );
-            % msg = sprintf( 'The selected output task file %s of user %s is deleted from its TaskOut directory.\n', FileName(1:end-4), Username );
+            msg = sprintf( 'The selected output task file %s of user %s is deleted from its TaskOut directory.\n', FileName(1:end-4), Username );
             % msg = sprintf( 'OTask %s of user %s --\t', FileName(1:end-4), Username );
+            PrintOut( msg );
             msg = sprintf( '-' );
             fprintf( msg );
         catch
         end
     catch
         delete( fullfile(FileDirectory,FileName) );
-        % msg = sprintf( 'The selected output task file %s of user %s is deleted from its TaskOut directory.\n', FileName(1:end-4), Username );
+        msg = sprintf( 'The selected output task file %s of user %s is deleted from its TaskOut directory.\n', FileName(1:end-4), Username );
         % msg = sprintf( 'OTask %s of user %s --\t', FileName(1:end-4), Username );
+        PrintOut( msg );
         msg = sprintf( '-' );
         fprintf( msg );
     end
@@ -976,8 +988,9 @@ end
 function [FileContent, success] = LoadFile(FileName, FileDirectory, Username, FieldA, FieldB, ResultsFileDir, JobFileName)
 try
     FileContent = load( fullfile(FileDirectory,FileName), FieldA, FieldB );
-    % msg = sprintf( 'Output task file %s of user %s is loaded.\n', FileName(1:end-4), Username );
+    msg = sprintf( 'Output task file %s of user %s is loaded.\n', FileName(1:end-4), Username );
     % fprintf( msg );
+    PrintOut( msg );
     success = 1;
 catch
     FileContent = [];
@@ -990,5 +1003,16 @@ catch
         'Output task should be a .mat file containing two MATLAB structures named TaskParam and TaskState.'], FileName(1:end-4), Username );
     fprintf( FID_ErrorTaskLoad, msg );
     fclose(FID_ErrorTaskLoad);
+end
+end
+
+
+function PrintOut( msg )
+vgFlag = 'verbose'; % If vgFlag='verbose', all detailed intermediate messages are printed out.
+                    % If vgFlag='quiet', just important intermediate  messages are printed out.
+if strcmpi(vgFlag, 'verbose')
+    fprintf( msg );
+elseif strcmpi(vgFlag, 'quiet')
+    return;
 end
 end
