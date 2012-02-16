@@ -40,7 +40,6 @@ while(runningJob)
         [JobInDir, JobRunningDir, JobOutDir, TaskInDir, TaskOutDir, TempDir] = SetPaths(UserRoot);
 
         % MONITOR THE JOB INPUT AND JOB RUNNING QUEUES/DIRECTORIES OF CURRENT USER.
-        
         MaxRunningJobs = CurrentUser.MaxRunningJobs;
         % Look to see if there are any old .mat files in JobRunningDir and new .mat files in JobInDir.
         [InFileName, JobDirectory] = SweepJobInRunDir(JobInDir, JobRunningDir, Username, MaxRunningJobs);
@@ -321,6 +320,10 @@ while(runningJob)
                     pause( CurrentUser.PauseTime );
                 end
                 
+                msg = sprintf( '\n\nConsolidating finished tasks associated with job %s for user %s is done at %s. \n\n',...
+                    JobFileName, Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+                fprintf( msg );
+                
                 if( ~isempty(JobDirectory) && strcmpi(JobDirectory,JobRunningDir) ) % The job is read from JobRunning directory.
                 
                 % See if the global stopping criteria have been reached.
@@ -463,10 +466,6 @@ while(runningJob)
                 
                 end
             end
-            
-            msg = sprintf( '\n\nConsolidating finished tasks for user %s is done at %s. Waiting for its next job or next job division! ...\n\n',...
-                Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-            fprintf( msg );
         end
         
         msg = sprintf( '\n\nSweeping JobIn, JobRunning, and TaskOut directories of user %s is finished at %s.\n\n',...
