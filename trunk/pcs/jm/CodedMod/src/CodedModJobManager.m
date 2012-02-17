@@ -804,8 +804,8 @@ end
 function out = fp(filename, heading, key)
 % General-Purpose File Parser.
 %
-% Version 1, 20/27/2011, Terry Ferrett.
-% Version 2, 10/07/2012, Mohammad Fanaei.
+% Version 1, 10/27/2011, Terry Ferrett.
+% Version 2, 01/07/2012, Mohammad Fanaei.
 %
 % Function Steps:
 % 1. Open the file specified by filename.
