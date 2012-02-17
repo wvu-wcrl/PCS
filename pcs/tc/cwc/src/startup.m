@@ -1,6 +1,6 @@
 % initialize the worker controller
 rootdir = pwd;
-cd ..; cd ..; cd ..;
+cd ..; cd ..;
 cd util/;
 addpath(pwd);
 
