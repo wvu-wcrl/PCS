@@ -53,6 +53,7 @@ classdef cwc < handle
    properties
       log_period     % how often to archive logs, in seconds
       num_logs    % number of archives to save
+      verbose_mode   % 1- verbose logging in generic worker, 0 - non verbose
    end
    
     

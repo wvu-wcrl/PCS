@@ -10,7 +10,7 @@ cd ..; cd ..; cd util/; addpath(pwd);  % add file parser code to path
 cd(rootdir);
 
 
-cd ..; cd ..; cd cfg/; cfg_file = strcat(pwd,'/','pcs_test_3.cfg'); % current config file
+cd ..; cd ..; cd cfg/; cfg_file = strcat(pwd,'/','pcs_test_224.cfg'); % current config file
 
 
 
