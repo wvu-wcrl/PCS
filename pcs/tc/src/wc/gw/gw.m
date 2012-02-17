@@ -9,31 +9,32 @@
 %
 % executes entry function and saves results
 %
-% Version 1
-% 12/26/2011
+% Version 2
+% 2/16/2012
 % Terry Ferrett
 
-function gw(wid, iq, rq, oq, lp, LOG_PERIOD, NUM_LOGS)
+function gw(wid, iq, rq, oq, lp, LOG_PERIOD, NUM_LOGS, VERBOSE_MODE)
 
 LOG_PERIOD = str2double(LOG_PERIOD);
 NUM_LOGS = str2double(NUM_LOGS);
-
+IS_VERBOSE = 1;  % flag verbose log messages
+IS_NOT_VERBOSE = 0;
 
 default_path = path; % the default path will be restored after executing
                      %  the entry function
 
 % global task controller directories
-%iq = gq.iq;     %input
+%iq = gq.iq;    %input
 %rq = gq.rq;    % running
-%oq = gq.oq;  %output
+%oq = gq.oq;    %output
 %ld = gq.ld;    %log dir
 
 
 
 %%% log the worker start time %%%
 [cur_time] = gettime(); % current time
-ls = ['Worker' ' ' int2str(wid) ' ' 'started at' ' '  cur_time];
-fprintf(ls); fprintf('\n');
+msg = ['Worker' ' ' int2str(wid) ' ' 'started at' ' '  cur_time];
+log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -66,9 +67,8 @@ while(1)
         [cur_time] = gettime(); % current time
         username = strtok(next_running, '_');  % username
         task_name = get_task_name(next_input);
-        ls = ['Executing task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' cur_time];
-        fprintf(ls);
-        fprintf('\n');
+        msg = ['Executing task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' cur_time];
+        log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -79,12 +79,10 @@ while(1)
         
         %%% log function end time %
         [cur_time] = gettime(); % current time
-        ls = ['Task' ' ' task_name ' ' 'from user'  ' ' username ' ' 'complete' ' ' 'at'  ' ' cur_time];
-        fprintf(ls);
-        fprintf('\n');
+        msg = ['Task' ' ' task_name ' ' 'from user'  ' ' username ' ' 'complete' ' ' 'at'  ' ' cur_time];
+        log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        
+                
         
         consume_running_queue(next_running, rq); % delete file from running queue
         write_output(TaskParam, TaskState, next_input, oq); % write to output queue
@@ -101,19 +99,15 @@ while(1)
         username = strtok(next_running, '_');  % username
         [cur_time] = gettime(); % current time
             
-        ls = ['Task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' cur_time];
-ls = [ls 'failed to execute.'];
-        fprintf(ls);
-        fprintf('\n');
-        fprintf(exception.message);
-        
+        msg = ['Task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' cur_time];
+        msg = [msg 'failed to execute.'];
+        log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
+        log_msg(exception.message, IS_NOT_VERBOSE, VERBOSE_MODE);
         end
     end
     
     
     pause(5); % wait 5 seconds before making another pass
-
-
 
 
     t = toc;
@@ -271,4 +265,17 @@ system(cs);
 
 
 
+end
+
+
+
+% logging function
+% inputs
+%  msg               - string to output to logs
+%  msg_verbose       - is this a verbose message?
+%  log_mode_verbose  - is the logging mode verbose?
+function log_msg(msg, msg_verbose, log_mode_verbose)
+if ~(msg_verbose == 1 & log_mode_verbose == 0), 
+  fprintf(msg); fprintf('\n');
+end
 end

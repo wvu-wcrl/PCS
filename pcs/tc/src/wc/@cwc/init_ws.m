@@ -53,6 +53,11 @@ out = util.fp(obj.cf, heading, key);
 obj.num_logs = out{1}{1};
 
 
+key = 'verbose_mode';
+out = util.fp(obj.cf, heading, key);
+obj.verbose_mode = out{1}{1};
+
+
 
 end
 
