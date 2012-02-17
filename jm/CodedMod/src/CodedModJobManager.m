@@ -14,7 +14,7 @@ eTimeTrialIn = [];
 
 % Echo out starting time of running coded-modulation simulation job manager.
 msg = sprintf( '\nCoded-modulation simulation JOB MANAGER started at %s.\n\n', datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-fprintf( msg );
+PrintOut(msg, 0);
 
 runningJob = 1;
 running = 1;
@@ -22,7 +22,7 @@ running = 1;
 while(runningJob)
     Check4NewUser = 0;
     msg = sprintf( '\n\n\nThe list of ACTIVE users is extracted and updated at %s.\n\n\n', datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-    fprintf( msg );
+    PrintOut(msg, 0);
     UserList = InitUsers(HomeRootIn,UserListPrimary);
     nActiveUsers = length(UserList);
     
@@ -53,12 +53,12 @@ while(runningJob)
                 SimParamGlobal = SimParam;
                 SimStateGlobal = SimState;
                 msg = sprintf( 'Input job file %s for user %s is loaded at %s.\n\n', InFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-                fprintf( msg );
+                PrintOut(msg, 0);
                 success = 1;
             catch
                 % Selected input job file was bad, kick out of loading loop.
                 msg = sprintf( 'Job Load Error: Input job file %s of user %s could not be loaded. It will be deleted automatically.\n', InFileName(1:end-4), Username );
-                fprintf( msg );
+                PrintOut(msg, 0);
                 success = 0;
                 FID_ErrorLoad = fopen( fullfile(JobOutDir,[InFileName(1:end-4) '_Error_JobLoad.txt']), 'a+');
                 msg = sprintf( ['Job Load Error: Input job file \t %s \t of user \t %s \t could not be loaded. It will be deleted automatically.\n',...
@@ -76,18 +76,18 @@ while(runningJob)
                             try
                                 system( MvStr );
                                 msg = sprintf( 'Input job file %s of user %s is moved from its JobIn to its JobRunning directory by OS.\n', InFileName(1:end-4), Username );
-                                fprintf( msg );
+                                PrintOut(msg);
                             catch
                             end
                         catch
                             movefile(fullfile(JobInDir,InFileName), JobRunningDir, 'f');
                             msg = sprintf( 'Input job file %s of user %s is moved from its JobIn to its JobRunning directory.\n', InFileName(1:end-4), Username );
-                            fprintf( msg );
+                            PrintOut(msg);
                         end
                     catch
                         % If could not move the selected input job file from JobIn to JobRunning directory, just issue a warning.
                         msg = sprintf( 'Job Moving Error/Warning: Input job file %s of user %s could not be moved from its JobIn to its JobRunning directory.\n', InFileName(1:end-4), Username );
-                        fprintf( msg );
+                        PrintOut(msg, 0);
                         FID_ErrorDel = fopen( fullfile(JobOutDir,[InFileName(1:end-4) '_Error_JobMove.txt']), 'a+');
                         msg = sprintf( ['Job Moving Error/Warning: Input job file \t %s \t of user \t %s \t could not be moved from the user JobIn directory to its JobRunning directory.\n',...
                             'The user can delete the .mat job file manually.'], InFileName(1:end-4), Username );
@@ -101,18 +101,18 @@ while(runningJob)
                             try
                                 system( RmStr );
                                 msg = sprintf( 'Input job file %s of user %s is deleted by OS.\n', InFileName(1:end-4), Username );
-                                fprintf( msg );
+                                PrintOut(msg, 0);
                             catch
                             end
                         catch
                             delete( fullfile(JobInDir,InFileName) );
                             msg = sprintf( 'Input job file %s of user %s is deleted.\n', InFileName(1:end-4), Username );
-                            fprintf( msg );
+                            PrintOut(msg, 0);
                         end
                     catch
                         % If could not delete the selected input job file from JobIn directory, just issue a warning.
                         msg = sprintf( 'Job Delete Error/Warning: Input job file %s of user %s could not be deleted.\n', InFileName(1:end-4), Username );
-                        fprintf( msg );
+                        PrintOut(msg, 0);
                         FID_ErrorDel = fopen( fullfile(JobOutDir,[InFileName(1:end-4) '_Error_JobDel.txt']), 'a+');
                         msg = sprintf( ['Job Delete Error/Warning: Input job file \t %s \t of user \t %s \t could not be deleted from the user JobIn directory.\n',...
                             'The user can delete the .mat job file manually.'], InFileName(1:end-4), Username );
@@ -140,7 +140,7 @@ while(runningJob)
             % Done!
             msg = sprintf( '\n\nDividing job to tasks for user %s is done at %s. Waiting for its next job or next job division! ...\n\n',...
                 Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-            fprintf( msg );
+            PrintOut(msg, 0);
         end
         
         % MONITOR THE TASK OUTPUT QUEUE/DIRECTORY OF CURRENT USER.
@@ -195,14 +195,14 @@ while(runningJob)
             % Delete the selected output task file from TaskOut directory.
             % if(success)
             DeleteFile(OutFileName, TaskOutDir, Username, JobOutDir, JobFileName);
-            fprintf('\n');
+            PrintOut('\n', 0);
             % end
             
             % Try to load the correspoding JOB file from the JobRunning (or JobOut) directory (if it is there).
             JobDirectory = SweepJobRunOutDir(JobRunningDir, JobOutDir, JobFileName);
             if( ~isempty(JobDirectory) && strcmpi(JobDirectory,JobOutDir) )
                 msg = sprintf( 'Finished JOB %s of user %s is updated in its JobOut directory.\n\n', JobFileName(1:end-4), Username );
-                fprintf( msg );
+                PrintOut(msg, 0);
                 strMsg = 'JobOut';
             elseif( ~isempty(JobDirectory) && strcmpi(JobDirectory,JobRunningDir) )
                 strMsg = 'JobRunning';
@@ -232,7 +232,7 @@ while(runningJob)
                     % This is a method of killing a job.
                     msg = sprintf( 'Running Job Load Error: The corresponding job file %s of user %s could not be loaded from its JobRunning directory.\n',...
                         JobFileName(1:end-4), Username );
-                    fprintf( msg );
+                    PrintOut(msg, 0);
                     
                     FID_ErrorRunningJobLoad = fopen( fullfile(JobOutDir,[JobFileName(1:end-4) '_Error_RunningJobLoad.txt']), 'a+');
                     msg = sprintf( ['Running Job Load Error: The corresponding job file \t %s \t of user \t %s \t could not be loaded from its JobRunning directory\n',...
@@ -310,7 +310,7 @@ while(runningJob)
                     % Delete the selected output task file from TaskOut directory.
                     % if(success)
                     DeleteFile(OutFileName, TaskOutDir, Username, JobOutDir, JobFileName);
-                    if( rem(OutFileIndex,5)==0 ), fprintf( '\n' ); end
+                    if( rem(OutFileIndex,5)==0 ), PrintOut('\n', 0); end
                     % end
                     
                     % Update the Global SimState.
@@ -322,7 +322,7 @@ while(runningJob)
                 
                 msg = sprintf( '\n\nConsolidating finished tasks associated with job %s for user %s is done at %s. \n\n',...
                     JobFileName, Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-                fprintf( msg );
+                PrintOut(msg, 0);
                 
                 if( ~isempty(JobDirectory) && strcmpi(JobDirectory,JobRunningDir) ) % The job is read from JobRunning directory.
                 
@@ -342,7 +342,7 @@ while(runningJob)
                 if StoppingCriteria
                     msg = sprintf( '\nStopping simulation of job %s for user %s because enough trials and/or frame errors are observed for ALL SNR points.\n\n',...
                         JobFileName(1:end-4), Username );
-                    fprintf( msg );
+                    PrintOut(msg, 0);
                 else
                     % Determine if we can discard some SNR points whose BER WILL be less than SimParam.minBER.
                     LastInactivePoint = find(ActiveSNRPoints == 0, 1, 'last');
@@ -355,7 +355,7 @@ while(runningJob)
                         ActiveSNRPoints(LastInactivePoint:end) = 0;
                         msg = sprintf( ['Stopping simulation of job %s for user %s for SOME SNR points because their BER and' ...
                             'FER is below the required mimimum BER and FER.\n'], JobFileName(1:end-4), Username );
-                        fprintf( msg );
+                        PrintOut(msg, 0);
                     end
                     
                     % Set the stopping criteria flag again.
@@ -367,7 +367,7 @@ while(runningJob)
                 Completed = sum( SimStateGlobal.Trials );
                 msg = sprintf( '\nPROGRESS UPDATE for job %s user %s:\n\t%d\t Trials Completed\n\t%d\t Trials Remaining\n\t%2.4f Percent Completed.\n\n',...
                     JobFileName(1:end-4), Username, Completed, Remaining, 100*Completed/(Completed+Remaining) );
-                fprintf( msg );
+                PrintOut(msg, 0);
                 
                 % Set SimParam and SimState to their global values.
                 SimParam = SimParamGlobal;
@@ -377,12 +377,12 @@ while(runningJob)
                     try
                         save( fullfile(JobRunningDir,JobFileName), 'SimParam', 'SimState' );
                         msg = sprintf( 'The corresponding job file %s of user %s is updated in the JobRunning directory.\n', JobFileName(1:end-4), Username );
-                        fprintf( msg );
+                        PrintOut(msg, 0);
                     catch
                         TempfileName = JM_Save(JobFileName, SimParam, SimState);
                         JM_Move(TempfileName, JobRunningDir);
                         msg = sprintf( 'The corresponding job file %s of user %s is updated in the JobRunning directory by OS.\n', JobFileName(1:end-4), Username );
-                        fprintf( msg );
+                        PrintOut(msg, 0);
                     end
                     
                     SimParamLocal = UpdateSimParamLocal(SimParamGlobal, SimStateGlobal);
@@ -470,7 +470,7 @@ while(runningJob)
         
         msg = sprintf( '\n\nSweeping JobIn, JobRunning, and TaskOut directories of user %s is finished at %s.\n\n',...
             Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-        fprintf( msg );
+        PrintOut(msg, 0);
         % Wait before looping for the next active user.
         pause( CurrentUser.PauseTime );
         UserList{User} = CurrentUser;
@@ -520,7 +520,7 @@ function UserList = InitUsers(HomeRootIn,UserListPrimary)
 %       UserPath(Full Path),FunctionName,FunctionPath,MaxTasks,MaxTasksFactor,
 %       NumTasks,MaxRunningJobs,InitialSimTime,SimTime,PauseTime,TaskID.
 %
-% Version 1, 12/07/2011, Terry Ferrett.
+% Version 1, 02/07/2011, Terry Ferrett.
 % Version 2, 01/11/2012, Mohammad Fanaei.
 
 % Named constants.
@@ -578,6 +578,7 @@ for k = 1:n
         % Read name and full path of function to be executed for running each task.
         key = 'FunctionName';
         out = fp(cur_file, heading1, key);
+        % out = cell2mat([out{:}]);
         UserList{usr_cnt}.FunctionName = eval(out);
         
         key = 'FunctionPath';
@@ -666,7 +667,7 @@ if( (length(DRunning) >= MaxRunningJobs) && ~isempty(DRunning) )
     InFileName = DRunning(InFileIndex).name;
     msg = sprintf( '\nCONTINUING coded-modulation simulation for user %s job %s at %s by FURTHER generation of its tasks.\n', ...
         Username, InFileName(1:end-4), datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-    fprintf( msg );
+    PrintOut(msg, 0);
     JobDirectory = JobRunningDir;
 elseif( length(DRunning) < MaxRunningJobs )
     if ~isempty(DIn)
@@ -677,7 +678,7 @@ elseif( length(DRunning) < MaxRunningJobs )
         InFileName = DIn(InFileIndex).name;
         msg = sprintf( '\nLaunching coded-modulation simulation for user %s NEW job %s at %s.\n', ...
             Username, InFileName(1:end-4), datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-        fprintf( msg );
+        PrintOut(msg, 0);
         JobDirectory = JobInDir;
     elseif ~isempty(DRunning)
         % Pick a running job AT RANDOM.
@@ -686,13 +687,13 @@ elseif( length(DRunning) < MaxRunningJobs )
         InFileName = DRunning(InFileIndex).name;
         msg = sprintf( '\nCONTINUING coded-modulation simulation for user %s job %s at %s by FURTHER generation of its tasks.\n', ...
             Username, InFileName(1:end-4), datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-        fprintf( msg );
+        PrintOut(msg, 0);
         JobDirectory = JobRunningDir;
     end
 else
     msg = sprintf( '\nNo new tasks for user %s was generated at %s. Both JobIn and JobRunning directories are emty of job files.\n', ...
         Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-    fprintf( msg );
+    PrintOut(msg, 0);
 end
 
 end
@@ -752,7 +753,7 @@ JobFileName = InFileName;
 
 msg = sprintf( 'Generating TASK files corresponding to JOB %s of user %s  and saving them to its TaskIn directory at %s.\n\n',...
     JobFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-fprintf( msg );
+PrintOut(msg, 0);
 
 OS_flag = 0;
 
@@ -769,18 +770,18 @@ for TaskCount=1:Tasks
         msg = sprintf( 'Task file %s for user %s is saved to its TaskIn directory.\n', TaskFileName(1:end-4), Username );
         PrintOut( msg );
         msg = sprintf('+');
-        fprintf( msg );
+        PrintOut(msg, 0);
     catch
         TempfileName = JM_Save(TaskFileName, TaskParam);
         msg = sprintf( 'Task file %s for user %s is saved to its TaskIn directory by OS.\n', TaskFileName(1:end-4), Username );
         PrintOut( msg );
         msg = sprintf('+');
-        fprintf( msg );
+        PrintOut(msg, 0);
         OS_flag = 1;
     end
     
     if( rem(TaskCount,5) == 0 )
-        fprintf( '\n' );
+        PrintOut('\n', 0);
         if(OS_flag), JM_Move(TempfileName, TaskInDir); end
         OS_flag = 0;
     end
@@ -788,12 +789,12 @@ for TaskCount=1:Tasks
     % Pause briefly for flow control.
     pause( PauseTime );
 end
-fprintf( '\n' );
+PrintOut('\n', 0);
 if(OS_flag), JM_Move(TempfileName, TaskInDir); end
 
 else    % TaskInDir is full. No new tasks will be generated.
 msg = sprintf('No new task is generated for user %s since its TaskIn directory is full.\n', Username);
-fprintf( msg );
+PrintOut(msg, 0);
 end
 
 FinalTaskID = TaskID;
@@ -960,7 +961,7 @@ try
             % msg = sprintf( 'OTask %s of user %s --\t', FileName(1:end-4), Username );
             PrintOut( msg );
             msg = sprintf( '-' );
-            fprintf( msg );
+            PrintOut(msg, 0);
         catch
         end
     catch
@@ -969,12 +970,12 @@ try
         % msg = sprintf( 'OTask %s of user %s --\t', FileName(1:end-4), Username );
         PrintOut( msg );
         msg = sprintf( '-' );
-        fprintf( msg );
+        PrintOut(msg, 0);
     end
 catch
     % Could not delete output task file. Just issue a warning.
     msg = sprintf( 'Task Delete Error/Warning: Output task file %s of user %s could not be deleted from its TaskOut directory.\n', FileName(1:end-4), Username );
-    fprintf( msg );
+    PrintOut(msg, 0);
     FID_ErrorTaskDel = fopen( fullfile(ResultsFileDir,[JobFileName(1:end-4) '_Error_TaskOutDel.txt']), 'a+');
     msg = sprintf( ['Task Delete Error/Warning: Output task file \t %s \t of user \t %s \t could not be deleted from the user TaskOut directory.\n',...
         'The user can delete the .mat task file manually.'], FileName(1:end-4), Username );
@@ -995,7 +996,7 @@ catch
     FileContent = [];
     % Selected output task file was bad, kick out of loading loop.
     msg = sprintf( 'Output Task Load Error: Output task file %s of user %s could not be loaded and will be deleted.\n', FileName(1:end-4), Username );
-    fprintf( msg );
+    PrintOut(msg, 0);
     success = 0;
     FID_ErrorTaskLoad = fopen( fullfile(ResultsFileDir,[JobFileName(1:end-4) '_Error_TaskOutLoad.txt']), 'a+');
     msg = sprintf( ['Output Task Load Error: Output task file \t %s \t of user \t %s \t could not be loaded and will be deleted automatically.\n',...
@@ -1006,12 +1007,20 @@ end
 end
 
 
-function PrintOut( msg )
-vgFlag = 'verbose'; % If vgFlag='verbose', all detailed intermediate messages are printed out.
-                    % If vgFlag='quiet', just important intermediate  messages are printed out.
-if strcmpi(vgFlag, 'verbose')
+function PrintOut( msg, vgFlagIn )
+% If vgFlag=0 (verbose mode), all detailed intermediate messages are printed out.
+% If vgFlag=1 (quiet mode), just important intermediate  messages are printed out.
+global vgFlag;
+if( nargin>=2 && ~isempty(vgFlagIn) )
+    Temp = vgFlagIn;
+    vgFlagIn = vgFlag;
+    vgFlag = Temp;
+end
+
+if( vgFlag == 0 )
     fprintf( msg );
-elseif strcmpi(vgFlag, 'quiet')
+elseif( vgFlag == 1 )
     return;
 end
+if( nargin>=2 && ~isempty(vgFlagIn) ), vgFlag = vgFlagIn; end
 end
