@@ -12,12 +12,12 @@
 %     Required inputs:
 %     input  = the decoder input in LLR form
 %	  H_cols = a N row matrix specifying the locations of the nonzero entries in each column of the H matrix.
-%	           The number or columns in the matrix is the max column weight.
+%	           The number of columns in the matrix is the max column weight.
 %	           OR
 %	           a K row matrix specifying locations of the nonzero entries in each coulmn of an extended IRA type 
 %	           sparse H1 matrix	           
 %	  H_rows = a N-K row matrix specifying the locations of the nonzero entries in each row of the H matrix.
-%	           The number or columns in the matrix is the max row weight, unless this is for an H1 matrix,
+%	           The number of columns in the matrix is the max row weight, unless this is for an H1 matrix,
 %			   in which case the last n-k columns of the H matrix are equal to a known H2 matrix.
 %
 %     Optional inputs:

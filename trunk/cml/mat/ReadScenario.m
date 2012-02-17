@@ -1,5 +1,5 @@
-function [sim_param_output, sim_state_output] = ReadScenario( varargin );
-% ReadScenario reads simulation parameters from a list of scenario files and the simulation 
+function [sim_param_output, sim_state_output] = ReadScenario( varargin )
+% ReadScenario reads simulation parameters from a list of scenario files and the simulation
 % results from the corresponding stored data files
 %
 % The calling syntax is:
@@ -16,7 +16,7 @@ function [sim_param_output, sim_state_output] = ReadScenario( varargin );
 %     Note: Multiple scenario files can be specified.  In this case, the argument list
 %     should contain each scenario file to be used followed by the list of array indices
 %     to read from that file.
-%     
+%
 %     Example:
 %     [sim_param, sim_state] = ReadScenario( 'Scenario1', [1 2 5], 'Scenario2', [1 4 6] );
 %
@@ -25,12 +25,12 @@ function [sim_param_output, sim_state_output] = ReadScenario( varargin );
 % Last updated on Oct. 12, 2007
 %
 % Function ReadScenario is part of the Iterative Solutions Coded Modulation
-% Library (ISCML).  
+% Library (ISCML).
 %
 % The Iterative Solutions Coded Modulation Library is free software;
-% you can redistribute it and/or modify it under the terms of 
-% the GNU Lesser General Public License as published by the 
-% Free Software Foundation; either version 2.1 of the License, 
+% you can redistribute it and/or modify it under the terms of
+% the GNU Lesser General Public License as published by the
+% Free Software Foundation; either version 2.1 of the License,
 % or (at your option) any later version.
 %
 % This library is distributed in the hope that it will be useful,
@@ -53,45 +53,44 @@ end
 
 % loop over each Scenario file
 offset = 0;
-for file=1:number_of_files    
+for file=1:number_of_files
     scenario_filename = varargin{file*2-1};
     cases = varargin{file*2};
-    
+
     % clear, then initialize sim_param and sim_state structures
     clear sim_param sim_state
-    
-    % load the scenario file    
-    eval( scenario_filename );    
-    
+
+    % load the scenario file
+    eval( scenario_filename );
+
     % set cases to 'all' to read all parameters
-    if isstr(cases)
+    if ischar(cases)
         sim_param = sim_param;
         cases=1:length(sim_param);
     else
         sim_param = sim_param( cases );
     end
-    
+
     % load/initialize each scenario
     num_cases = length( cases );
-    
-    for (case_number=1:num_cases)  
-        fprintf( strcat( 'Initializing case (%d):\t', sim_param(case_number).comment, '\n'  ), cases( case_number ) );                        
-        
-        if ( ( strcmpi( sim_param(case_number).sim_type, 'throughput' ) )|...
-                ( strcmpi( sim_param(case_number).sim_type, 'bwcapacity' ) ) | ...
+
+    for case_number=1:num_cases
+        fprintf( strcat( 'Initializing case (%d):\t', sim_param(case_number).comment, '\n'  ), cases( case_number ) );
+
+        if ( ( strcmpi( sim_param(case_number).sim_type, 'throughput' ) )||...
+                ( strcmpi( sim_param(case_number).sim_type, 'bwcapacity' ) ) || ...
                 ( strcmpi( sim_param(case_number).sim_type, 'minSNRvsB' ) ) )
             sim_param(case_number).reset = 1;
         end
-        
-        if dont_reset 
+
+        if dont_reset
             sim_param(case_number).reset = 0;
         end
-        
-        [sim_param_out(case_number), sim_state(case_number)] = SingleRead( sim_param(case_number) );      
-        
+
+        [sim_param_out(case_number), sim_state(case_number)] = SingleRead( sim_param(case_number) );
+
     end
     sim_param_output(offset+1:offset+num_cases) = sim_param_out(1:num_cases);
     sim_state_output(offset+1:offset+num_cases) = sim_state(1:num_cases);
-    offset = offset + num_cases;    
+    offset = offset + num_cases;
 end
-    
