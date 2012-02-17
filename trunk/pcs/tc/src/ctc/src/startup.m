@@ -4,7 +4,8 @@ rootdir = pwd;
 addpath(rootdir);
 
 
-cd ..; cd ..; cd util/; addpath(pwd);  % add file parser code to path
+cd ..; cd ..; cd ..; cd ..;
+cd util/; addpath(pwd);  % add file parser code to path
 
 
 cd(rootdir);
