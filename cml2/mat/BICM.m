@@ -28,9 +28,12 @@ classdef BICM < Modulation
     
     methods
         
-        function obj = BICM( SignalSet, Channel_Code, varargin )
-        % Class constructor: obj = BICM( SignalSet, Channel_Code, [,Iteration] [,Interleaver] )
-            obj@Modulation(SignalSet);
+        function obj = BICM( ModObject, Channel_Code, varargin )
+        % Class constructor: obj = BICM( ModObject, Channel_Code, [,Iteration] [,Interleaver] )
+            obj@Modulation(ModObject.SignalSet);
+            obj.Type = ModObject.Type;
+            obj.MappingType = ModObject.MappingType;
+            
             obj.Channel_Code = Channel_Code;
             if (length(varargin)>=1)
                 obj.Interleaver = varargin{1};
@@ -51,13 +54,13 @@ classdef BICM < Modulation
 
                 switch InterleaverType
                     case 0
-                        Pattern = randperm(obj.Channel_Code.DataLength)-1;
+                        Pattern = randperm(obj.Channel_Code.CodewordLength)-1;
                     case 1
-                        Pattern = CreateCcsdsInterleaver(obj.Channel_Code.DataLength);
+                        Pattern = CreateCcsdsInterleaver(obj.Channel_Code.CodewordLength);
                     case 2
-                        Pattern = CreateLTEInterleaver(obj.Channel_Code.DataLength);
+                        Pattern = CreateLTEInterleaver(obj.Channel_Code.CodewordLength);
                     case 3
-                        Pattern = CreateUmtsInterleaver(obj.Channel_Code.DataLength);
+                        Pattern = CreateUmtsInterleaver(obj.Channel_Code.CodewordLength);
                     otherwise
                         error('The type of the interleaver used in the BICM has to be one of the integers between -1 and 3, inclusively.', 'Invalid Interleaver Type');
                 end
@@ -81,7 +84,7 @@ classdef BICM < Modulation
         end
         
         
-        function BitLikelihood = Demodulate(obj, RecievedSignal, varargin)
+        function EstBits = Demodulate(obj, RecievedSignal, varargin)
         % Demodulate Method: BitLikelihood=Demodulate(RecievedSignal [,EsN0], [,FadingCoef] [,DemodType])
             obj.RecievedSignal=RecievedSignal;
             obj.FadingCoef=ones(1,length(obj.RecievedSignal)); % Fading Coefficients for AWGN Channel
@@ -111,8 +114,9 @@ classdef BICM < Modulation
                     BitLikelihood = obj.SymbolLikelihood;
                     Input_Decoder_C = BitLikelihood;
                 else
-                    BitLikelihood = obj.Mapper.Demap( obj.SymbolLikelihood, obj.DemodType, Input_Demap_C );size(BitLikelihood), obj.Channel_Code.CodewordLength
-                    Input_Decoder_C = BitLikelihood( 1:obj.Channel_Code.CodewordLength );
+                    BitLikelihood = obj.Mapper.Demap( obj.SymbolLikelihood, obj.DemodType, Input_Demap_C );
+                    obj.BitLikelihood = BitLikelihood;
+                    Input_Decoder_C = BitLikelihood( 1:size(obj.SymbolLikelihood,2) * log2(obj.Order) );
                 end
                 
                 % Deinterleave (if needed).
@@ -140,23 +144,13 @@ classdef BICM < Modulation
                 Input_Decoder_U = Output_Decoder_U;
 
                 % Turn Bit LLR into extrinsic information for the soft demapper.
-                Input_Demap_C = Output_Decoder_C - Input_Decoder_U;
+                Input_Demap_C = Output_Decoder_C - Input_Decoder_C;
 
                 % Interleave (if needed).
                 if obj.Interleaver ~= -1
                     Input_Demap_C = Input_Demap_C( obj.IntPattern+1 );
                 end
             end
-
-            % The following if statement was commented on July 16, 2010.
-%             if ( strcmpi(obj.Type, 'BPSK') )
-%                 BitLikelihood = obj.SymbolLikelihood;
-%             else
-% OLDER VERSION                BitLikelihood = Somap(obj.SymbolLikelihood, obj.DemodType); % Extrinsic information is considered to be all zero (DEFAULT).
-% OLD VERSION                BitLikelihood = Demap(obj.SymbolLikelihood, obj.DemodType); % Extrinsic information is considered to be all zero (DEFAULT).
-                BitLikelihood = obj.Mapper.Demap( obj.SymbolLikelihood, obj.DemodType ); % Extrinsic information is considered to be all zero (DEFAULT).
-%             end
-            obj.BitLikelihood=BitLikelihood;
         end
     end    
 end
