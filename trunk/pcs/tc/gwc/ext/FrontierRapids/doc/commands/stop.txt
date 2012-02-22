@@ -1,0 +1,13 @@
+
+NAME
+    stop - stop a job listener
+
+SYNOPSIS
+    stop job-no
+
+DESCRIPTION
+    This command sends a stop signal to the jobs listener for the job 
+    identified by job-no. The stop signal causes the listener to exit,
+    but the job will continue to run on Frontier.  If a listener is not 
+    running for the job, the signal will have no effect.
+

@@ -1,0 +1,22 @@
+
+NAME
+    kill - kill a job
+
+SYNOPSIS
+    kill job-no
+    kill job-no task-no
+
+DESCRIPTION
+    This first form of this command sends a kill job signal to a jobs 
+    listener for the job identified by job-no. The kill signal causes 
+    the job to be terminated and removed from the Frontier server. The 
+    local state and results of the job will not be removed. 
+
+    The second form of this command sends a kill task signal to the job 
+    listener for the job identified by job-no. The kill task signal causes 
+    the task identified by task-no to be terminated. TaskIDs can be obtained
+    from the status command.
+
+    If a listener is not running for the job when the kill signal is sent, 
+    the signal will not be handled until a listener is started.
+
