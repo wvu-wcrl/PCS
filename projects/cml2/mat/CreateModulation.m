@@ -38,7 +38,7 @@ classdef CreateModulation < handle
         
         function [PAPR, SignalEnergy] = NormalizeSignalSet(obj, SignalSet)
             % Es will be normalized to one for the SignalSet.
-            SignalEnergy = sum( abs(SignalSet).^2 );
+            SignalEnergy = sum( abs(SignalSet).^2,1 );
             EsAvg = sum( obj.SignalProb .* SignalEnergy );
             obj.SignalSet = SignalSet / sqrt(EsAvg);
             PAPR = max(SignalEnergy) / EsAvg;
