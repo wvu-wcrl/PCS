@@ -23,6 +23,8 @@ classdef gwc < handle
     
     % worker controller state
     properties
+    rtc    % rapids task vector - track state of rapids tasks
+    mrt    % maximum number of simultaneous rapids tasks
     end
     
     
@@ -36,6 +38,8 @@ classdef gwc < handle
         lp     % log path - read from config file
         bs     % path to bash scripts
         cf     % config file path
+
+        tp     % path to rapids template
     end
  
 
