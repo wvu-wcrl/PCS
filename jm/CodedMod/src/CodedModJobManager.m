@@ -185,13 +185,13 @@ while(runningJob)
             % Try to load the selected output task file.
             [TaskContent, success] = LoadFile(OutFileName, TaskOutDir, Username, 'TaskParam', 'TaskState', JobOutDir, JobFileName);
             
-            CurrentTime = toc(ClusterGlobalTimer); % Keep track of the global time at which the finished task is read.
-            
-            % Reassign variables as Local.
-            SimParamLocal = TaskContent.TaskParam.InputParam;
-            SimStateLocal = TaskContent.TaskState;
+            if ~isempty(TaskContent)
+                CurrentTime = toc(ClusterGlobalTimer); % Keep track of the global time at which the finished task is read.
 
-            if ~isempty(SimStateLocal)
+                % Reassign variables as Local.
+                SimParamLocal = TaskContent.TaskParam.InputParam;
+                SimStateLocal = TaskContent.TaskState;
+
                 % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save timing info.
                 [eTimeTrial, NodeID_Times] = ExtractETimeTrial( SimStateLocal, NodeID_TimesIn, eTimeTrialIn, CurrentTime );
                 eTimeTrialIn = eTimeTrial;
@@ -287,6 +287,8 @@ while(runningJob)
 
                     successJR = 0;
                 end
+            else
+                successJR = 0;
             end
             
             if (successJR)
@@ -305,13 +307,16 @@ while(runningJob)
                     % [TaskContent, success] = LoadFile(OutFileName, TaskOutDir, Username, 'TaskParam', 'TaskState', JobOutDir, JobFileName);
                     TaskContent = LoadFile(OutFileName, TaskOutDir, Username, 'TaskParam', 'TaskState', JobOutDir, JobFileName);
                     
-                    CurrentTime = toc(ClusterGlobalTimer); % Keep track of the global time at which the finished task is read.
-                    
-                    % Reassign variables as Local.
-                    SimParamLocal = TaskContent.TaskParam.InputParam;
-                    SimStateLocal = TaskContent.TaskState;
+                    if ~isempty(TaskContent)
+                        CurrentTime = toc(ClusterGlobalTimer); % Keep track of the global time at which the finished task is read.
 
-                    if ~isempty(SimStateLocal)
+                        % Reassign variables as Local.
+                        SimParamLocal = TaskContent.TaskParam.InputParam;
+                        SimStateLocal = TaskContent.TaskState;
+                        
+                        % Update the Global SimState.
+                        SimStateGlobal = UpdateSimStateGlobal(SimStateGlobal, SimStateLocal);
+
                         % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save timing info.
                         [eTimeTrial, NodeID_Times] = ExtractETimeTrial( SimStateLocal, NodeID_TimesIn, eTimeTrialIn, CurrentTime );
                         eTimeTrialIn = eTimeTrial;
@@ -338,9 +343,6 @@ while(runningJob)
                     DeleteFile(OutFileName, TaskOutDir, Username, JobOutDir, JobFileName);
                     if( rem(OutFileIndex,5)==0 ), PrintOut('\n', 0); end
                     % end
-                    
-                    % Update the Global SimState.
-                    SimStateGlobal = UpdateSimStateGlobal(SimStateGlobal, SimStateLocal);
                     
                     % Wait before looping for reading the next finished task file in TaskOut directory.
                     pause( 0.1*CurrentUser.PauseTime );
