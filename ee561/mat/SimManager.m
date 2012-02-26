@@ -1,15 +1,15 @@
 function SimManager( ProjectRoot )
-% EE561 Simulation Manager.  
+% EE561 Simulation Manager.
 
 % properties
-MaxTasks = 500; % maximimum number of tasks in the input queue
-NumTasks = 10; % Number taks to submit at a time
-InitialSimTime = 30; % Quick Initial Sime time to quickly get results
-SimTime = 300; % Longer sim time in the long term
-PauseTime = 0.01; % Time to wait between task submissions
+MaxTasks = 500; % maximimum number of tasks in the input queue.
+NumTasks = 10; % Number taks to submit at a time.
+InitialSimTime = 30; % Quick Initial Sime time to quickly get results.
+SimTime = 300; % Longer sim time in the long term.
+PauseTime = 0.01; % Time to wait between task submissions.
 
 % build directories
-TaskInDir = [ProjectRoot '/TaskIn/' ];
+TaskInDir = [ProjectRoot '/TaskIn/'];
 TaskOutDir = [ProjectRoot '/TaskOut/'];
 JobInDir = [ProjectRoot, '/JobIn/'];
 JobRunningDir = [ProjectRoot, '/JobRunning/'];
@@ -39,14 +39,14 @@ while( running )
     % reset the stopping criteria flag
     StoppingCriteria = 0;
     
-    if ~isempty(D) 
+    if ~isempty(D)
        
         % pick a file at random
         InFileIndex = randint( 1, 1, [1 length(D)]);
         
         % construct the filename
         InFile = D(InFileIndex).name;
-       
+        
         msg = sprintf( 'Lauching job %s at %s\n', InFile, datestr(clock) );
         fprintf( msg );
 
@@ -61,7 +61,7 @@ while( running )
             success = 1;
         catch
             % file was bad, kick out of loop
-            msg = sprintf( 'Error: Input File could not be loaded\n' );
+            msg = sprintf( 'Error: Input File could not be loaded.\n' );
             fprintf( msg );
             success = 0;
         end
@@ -69,12 +69,12 @@ while( running )
         % delete the input job file
         if (success)
             try
-                msg = sprintf( 'Deleting input job file\n' );
+                msg = sprintf( 'Deleting input job file.\n' );
                 fprintf( msg );
                 delete( [JobInDir InFile] );
             catch
-                % fcould not delete, just a warning
-                msg = sprintf( 'Warning: Input job file could not be deleted\n' );
+                % if could not delete, just a warning
+                msg = sprintf( 'Warning: Input job file could not be deleted.\n' );
                 fprintf( msg );
             end        
         end
@@ -82,7 +82,7 @@ while( running )
         if (success)
             % Put a copy of the Job into JobRunning directory
             % Note that SimParam and SimState are still the "Global Versions"
-            msg = sprintf( 'Creating the corresponding JobsRunning file %s\n', InFile );
+            msg = sprintf( 'Creating the corresponding JobsRunning file %s.\n', InFile );
             fprintf( msg );
             save( [JobRunningDir InFile], 'SimParam', 'SimState' );
             
@@ -117,10 +117,10 @@ while( running )
                 % Increment the TaskID counter
                 TaskID = TaskID + 1;
                 
-                % Create the name of the task, which includes the job name
+                % Create the name of the task, which includes the job name.
                 TaskFileName = [JobFile(1:end-4) '_task_' int2str(TaskID) '.mat'];
                 
-                msg = sprintf( 'Saving File %s to TaskInput queue (initial)\n', TaskFileName );
+                msg = sprintf( 'Saving File %s to TaskInput queue (initial).\n', TaskFileName );
                 fprintf( msg );
                 
                 % Save in the task input queue

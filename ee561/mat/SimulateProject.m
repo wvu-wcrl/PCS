@@ -35,7 +35,7 @@ ModObj = CreateModulation( S, SymbolProb );
 ChannelObj = AWGN( ModObj, 1 );
 
 % create CM obj
-BlockLength = 1000;  % number of symbols per block
+BlockLength = 1000;  % number of symbols per block.
 CodedModObj = UncodedModulation( M, SymbolProb, BlockLength );
 
 % Deterine the SNR vector
@@ -186,4 +186,3 @@ end
 
 duration = toc( stime );
 fprintf( 'Simulation complete.  Took %f seconds at a rate of %f trials/second\n', duration, (CompletedTrials-InitialTrials)/duration );
-

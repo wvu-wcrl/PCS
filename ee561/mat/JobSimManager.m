@@ -11,7 +11,7 @@ function status = JobSimManager( varargin )
 
 % default location
 % my local location is:
-TomcatDir = '/Users/mvalenti/Dropbox/web/webapps/CommunicationTheory/'
+TomcatDir = '/Users/mvalenti/Dropbox/web/webapps/CommunicationTheory/';
 TomcatDir = '/usr/share/tomcat5.5/webapps/EE561/';
 MatlabDir = '/home/mvalenti/svn/ee561';
 
@@ -316,4 +316,3 @@ while running
     pause(1);
     
 end
-
