@@ -1,0 +1,33 @@
+
+NAME
+    newjob - creates a new job from a template
+
+SYNOPSIS
+    newjob template-name num-tasks result-set [keep-running] 
+    newjob template-name data-set result-set [keep-running]
+
+DESCRIPTION
+    The first form of of the command is used creating jobs from templates
+    that don't include input parameters (parameters.txt) or input files
+    (inputFiles.txt). In this situation, there is no need for an input data
+    set. All tasks will have the same inputs. The number of tasks in the
+    job is determined by num-tasks. The result-set parameter identifies the
+    result set that will hold the job results.
+
+    The second form of of the command is used creating jobs from templates
+    that include input parameters (parameters.txt) and/or input files
+    (inputFiles.txt). In this case, data-set specifies the name of the 
+    input data set where the input files and/or parameter file can be found.
+    The number of tasks in the job is determined by the number or input files
+    or the number of lines in the parameter file. The result-set parameter 
+    identifies the result set that will hold the job results.
+
+    If the keep-running flag is specified, the job will not automatically
+    terminate when the last task is completed. Normally this is used if you
+    plan to add new tasks to a job as it is running (see the update command). 
+    If you us the keep-running flag, you must explicitly kill the job using
+    the kill command when you are done.
+
+    The newjob command returns a unique job number (job-no) that is used as
+    a handle for the job.
+
