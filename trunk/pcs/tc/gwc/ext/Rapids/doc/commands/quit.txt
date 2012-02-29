@@ -1,0 +1,12 @@
+
+NAME
+    quit - exit interactive mode
+
+SYNOPSIS
+    quit
+    q
+
+DESCRIPTION
+     This command is used to exit the Rapids program when running in 
+     interactive mode.
+
