@@ -3,12 +3,13 @@
 % primary loop for grid worker controller
 %
 % process which reads the grid input queue and launches
-%  grid tasks using Rapids as the tasks become available
+%  grid tasks using Rapids
 %
 %
 % Version 1
 % 2/22/2012
 % Terry Ferrett
+
 
 function gw(obj)
 
@@ -29,33 +30,32 @@ tic;       % start logging timer
 nlog = 0;  % initialize log count
 
 
-
+iq = obj.iq; % assign the input queue path to a local variable for easy reference
+rq = obj.rq;
 
 while(1)  %%% main worker loop
 
-		iq = obj.iq;
 		next_input = read_input_queue(iq);    % read a random file from the input queue
 
 		if( ~isempty(next_input) )
-		  
 		  try
-		    rq = obj.rq;
+		    
 		    next_running = feed_running_queue(next_input, iq, rq)   % move input file to running queue
                     
-		      launch_rapids_task(obj, next_running, rq); % launch on Rapids
-
+		    launch_rapids_task(obj, rq, next_running); % launch on Rapids
                     		    
 		  catch exception
 		  end
-
-		    
-
-
                 end
 
 		% check for completed job
 
-                % if job completed, delete from running queue and move to output queue
+		next_output = read_rapids_output(obj);
+                if( ~isempty(next_output) )
+		  consume_rapids_queue( obj, next_output );
+		  end
+
+                
 
   pause(5);   % wait five seconds before making another pass
 
