@@ -1,0 +1,13 @@
+
+NAME
+    listen - listen to a job
+
+SYNOPSIS
+    listen job-no
+
+DESCRIPTION
+    This command listens to a running or completed job identified by job-no,
+    where job-no is a job handle returned by newjob. If there is no listener
+    running for the identified job, a listener is started and runs in
+    background. 
+

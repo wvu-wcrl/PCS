@@ -1,0 +1,555 @@
+__________________________________________________________________________
+
+Thu Feb 23 14:55:18 EST 2012
+
+Free Memory: 108982 kB
+Total Memory: 118080 kB
+
+7 Command Line Args:
+0:  -DFRONTIER_SERVER_HOST=server.frontier.dfw1.parabon.com
+1:  -DFRONTIER_SERVER_PORT=443
+2:  -DFRONTIER_REGISTER_HOST=server.frontier.dfw1.parabon.com
+3:  -DFRONTIER_REGISTER_PORT=443
+4:  -DFRONTIER_WEB_SITE_URL=http://server.frontier.dfw1.parabon.com:8080
+5:  -DSERVICE_ID=
+6:  -DIS_ENTERPRISE=false
+
+java.class.path:
+    /tmp/install.dir.22714/InstallerData
+    /tmp/install.dir.22714/InstallerData/installer.zip
+
+ZGUtil.CLASS_PATH:
+    /tmp/install.dir.22714/InstallerData
+    /tmp/install.dir.22714/InstallerData/installer.zip
+
+sun.boot.class.path:
+    /usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/resources.jar
+    /usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/rt.jar
+    /usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/sunrsasign.jar
+    /usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/jsse.jar
+    /usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/jce.jar
+    /usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/charsets.jar
+    /usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/modules/jdk.boot.jar
+    /usr/lib/jvm/java-6-sun-1.6.0.26/jre/classes
+
+java.ext.dirs:
+    /usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/ext
+    /usr/java/packages/lib/ext
+
+java.version                  == 1.6.0_26 (Java 1)
+java.vm.name                  == Java HotSpot(TM) 64-Bit Server VM
+java.vm.vendor                == Sun Microsystems Inc.
+java.vm.version               == 20.1-b02
+java.vm.specification.name    == Java Virtual Machine Specification
+java.vm.specification.vendor  == Sun Microsystems Inc.
+java.vm.specification.version == 1.0
+java.specification.name       == Java Platform API Specification
+java.specification.vendor     == Sun Microsystems Inc.
+java.specification.version    == 1.6
+java.vendor                   == Sun Microsystems Inc.
+java.vendor.url               == http://java.sun.com/
+java.class.version            == 50.0
+java.compiler                 == null
+java.home                     == /usr/lib/jvm/java-6-sun-1.6.0.26/jre
+java.io.tmpdir                == /tmp
+os.name                       == Linux
+os.arch                       == amd64
+os.version                    == 2.6.26-2-amd64
+path.separator                == :
+file.separator                == /
+file.encoding                 == UTF-8
+user.name                     == pcs
+user.home                     == /home/pcs
+user.dir                      == /tmp/install.dir.22714
+user.language                 == en
+user.region                   == null
+__________________________________________________________________________
+
+Install Begin: Thu Feb 23 14:54:43 EST 2012
+Install End: Thu Feb 23 14:55:14 EST 2012
+
+Installed by InstallAnywhere 9.0 Enterprise Build 3431, by Macrovision
+
+
+User Interactions
+-----------------
+
+
+#Choose Install Folder
+#---------------------
+USER_INSTALL_DIR=/home/pcs/tc/gwc/ext/Rapids
+
+Summary
+-------
+
+Installation: Successful.
+
+154 Successes
+0 Warnings
+0 NonFatalErrors
+0 FatalErrors
+
+Action Notes:
+
+None
+
+Install Log Detail:
+
+Install Action:           InstallAnywhere Variable
+                          Status: SUCCESSFUL
+
+Install Action:           InstallAnywhere Variable
+                          Status: SUCCESSFUL
+
+Install Action:           InstallAnywhere Variable
+                          Status: SUCCESSFUL
+
+Check Disk Space:         /home/pcs/tc/gwc/ext/Rapids
+                          Status: SUCCESSFUL
+                          Additional Notes: NOTE - Required Disk Space: 7,727,990; Free Disk Space: 92,747,698,176
+
+Install Directory:        /home/pcs/tc/gwc/ext/Rapids/
+                          Status: SUCCESSFUL
+
+Install Directory:        /home/pcs/tc/gwc/ext/Rapids/installer/
+                          Status: SUCCESSFUL
+
+Install Directory:        /home/pcs/tc/gwc/ext/Rapids/installer/Uninstall_Frontier Rapids/
+                          Status: SUCCESSFUL
+
+Install Uninstaller:      Frontier Rapids (Install All Uninstaller Components)
+                          Status: SUCCESSFUL
+
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/installer/Uninstall_Frontier Rapids/Uninstall_Frontier_Rapids.lax
+                          Status: SUCCESSFUL
+
+Install Uninstaller:      Frontier Rapids (Install All Uninstaller Components)
+                          Status: SUCCESSFUL
+
+Install Directory:        /home/pcs/tc/gwc/ext/Rapids/certs/
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/certs/client.truststore
+                          Status: SUCCESSFUL
+
+Install Directory:        /home/pcs/tc/gwc/ext/Rapids/conf/
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/conf/platformGraph.xml
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/conf/server-settings.tmpl
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/conf/frontier.properties.tmpl
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/lib/frontier-sdk.jar
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/lib/jaxb-impl.jar
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/lib/RapidsTask.jar
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/lib/activation.jar
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/lib/jline-0.9.94.jar
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/lib/jsr173_1.0_api.jar
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/lib/jaxb-api.jar
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/lib/Rapids.jar
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/param.managed/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/param.managed/datasets/ds1/parameters.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/param.managed/common/job_elements/param.sh
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/output.managed/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/output.managed/README.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/clientelement.managed/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/output.unmanaged/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/bundle.unmanaged/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/bundle.unmanaged/common/job_elements/startup.cmd/WIN/startup.cmd.win
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/bundle.unmanaged/common/job_elements/startup.cmd/LINUX/startup.cmd.linux
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/bundle.unmanaged/common/job_elements/startup.cmd/MACOSX/startup.cmd.linux
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/interim.managed/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/interim.managed/common/job_elements/interim.sh
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/datasets/ds1/job_elements/startup.cmd/WIN/startup.cmd.win
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/datasets/ds1/job_elements/startup.cmd/LINUX/startup.cmd.linux
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/datasets/ds1/job_elements/startup.cmd/MACOSX/startup.cmd.linux
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/datasets/ds1/task_elements/input.txt/input2.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/datasets/ds1/task_elements/input.txt/input3.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/datasets/ds1/task_elements/input.txt/input4.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/datasets/ds1/task_elements/input.txt/input0.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/datasets/ds1/task_elements/input.txt/input1.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskbundle.unmanaged/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskbundle.unmanaged/datasets/ds1/task_elements/input.txt/input0.txt/WIN/input0.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskbundle.unmanaged/datasets/ds1/task_elements/input.txt/input0.txt/LINUX/input0.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskbundle.unmanaged/datasets/ds1/task_elements/input.txt/input1.txt/WIN/input1.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskbundle.unmanaged/datasets/ds1/task_elements/input.txt/input1.txt/LINUX/input1.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/env.managed/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/env.managed/common/job_elements/env.sh
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dsjobelement.managed/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dsjobelement.managed/datasets/ds1/job_elements/param.sh
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dsjobelement.managed/datasets/ds1/parameters.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/clientbundle.unmanaged/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dsjobelement.unmanaged/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dsjobelement.unmanaged/datasets/ds1/job_elements/param.sh
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dsjobelement.unmanaged/datasets/ds1/parameters.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds1/task_elements/input.txt/input2.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds1/task_elements/input.txt/input3.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds1/task_elements/input.txt/input4.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds1/task_elements/input.txt/input0.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds1/task_elements/input.txt/input1.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds2/task_elements/input.txt/input2.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds2/task_elements/input.txt/input3.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds2/task_elements/input.txt/input4.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds2/task_elements/input.txt/input0.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds2/task_elements/input.txt/input1.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/noelements.managed/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/element.unmanaged/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/element.unmanaged/common/job_elements/startup.sh
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds1/task_elements/input.txt/input2.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds1/task_elements/input.txt/input3.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds1/task_elements/input.txt/input4.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds1/task_elements/input.txt/input0.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds1/task_elements/input.txt/input1.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds2/task_elements/input.txt/input2.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds2/task_elements/input.txt/input3.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds2/task_elements/input.txt/input4.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds2/task_elements/input.txt/input0.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds2/task_elements/input.txt/input1.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/netaccess.managed/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/client_elements/startup.cmd/WIN/startup.cmd.win
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/client_elements/startup.cmd/LINUX/startup.cmd.linux
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/client_elements/startup.cmd/MACOSX/startup.cmd.linux
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/client_elements/client.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/progress.managed/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/progress.managed/common/job_elements/progress.sh
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/param.unmanaged/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/param.unmanaged/datasets/ds1/parameters.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/param.unmanaged/common/job_elements/param.sh
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/noelements.unmanaged/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/clientelement.unmanaged/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/element.managed/job.properties
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/element.managed/common/job_elements/startup.sh
+                          Status: SUCCESSFUL
+
+Install Directory:        /home/pcs/tc/gwc/ext/Rapids/bin/
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/bin/rapids.sh
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/bin/configure.sh
+                          Status: SUCCESSFUL
+
+Install Directory:        /home/pcs/tc/gwc/ext/Rapids/doc/
+                          Status: SUCCESSFUL
+
+Install Directory:        /home/pcs/tc/gwc/ext/Rapids/doc/commands/
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/commands/delete.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/commands/help.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/commands/kill.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/commands/launch.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/commands/list.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/commands/listen.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/commands/log.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/commands/newjob.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/commands/quit.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/commands/remove.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/commands/status.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/commands/stop.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/commands/update.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/commands/upload.txt
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/index.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/constant-values.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/deprecated-list.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/allclasses-noframe.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/package-list
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/stylesheet.css
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/index-all.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/allclasses-frame.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/help-doc.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/overview-tree.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/resources/inherit.gif
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/TaskStatus.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/FrontierServer.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/package-frame.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/class-use/TaskStatus.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/class-use/FrontierServer.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/class-use/Job.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/class-use/JobStatus.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/class-use/FrontierServer.JobIdType.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/package-summary.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/package-use.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/Job.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/JobStatus.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/FrontierServer.JobIdType.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/package-tree.html
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/RapidsUserGuide.pdf
+                          Status: SUCCESSFUL
+
+Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/README.txt
+                          Status: SUCCESSFUL
+
+Create Link:              /home/pcs/tc/gwc/ext/Rapids/Uninstall
+                          Status: SUCCESSFUL
+
+
+Modify Text File - Single File:   frontier.properties.tmpl
+                          Status: SUCCESSFUL
+
+Modify Text File - Single File:   server-settings.tmpl
+                          Status: SUCCESSFUL
+
+Move File:                Destination: /home/pcs/tc/gwc/ext/Rapids/conf/frontier.properties.tmpl
+                          Status: SUCCESSFUL
+
+Move File:                Destination: /home/pcs/tc/gwc/ext/Rapids/conf/server-settings.tmpl
+                          Status: SUCCESSFUL
+
+Install Directory:        /home/pcs/
+                          Status: SUCCESSFUL
+                          Additional Notes: NOTE - Directory already existed
+
+
