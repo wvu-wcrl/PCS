@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<registry install_date="2012-02-23 14:55:13" version="1.1" last_modified="2012-02-23 14:55:15">
+<registry install_date="2012-02-23 14:55:13" version="1.1" last_modified="2012-03-01 18:23:37">
 	<products>
 		<product name="Frontier Rapids" id="a95f6717-1eea-11b2-bb80-a89eed1b55a0" version="1.3.0.0" copyright="2008" info_url="www.parabon.com" support_url="www.parabon.com" location="/home/pcs/tc/gwc/ext/Rapids" last_modified="2012-02-23 14:55:13">
 			<vendor name="Parabon Computation, Inc." id="a95f6716-1eea-11b2-bb80-a89eed1b55a0" home_page="www.parabon.com" email="support@parabon.com"/>
-			<feature name="Application" last_modified="2012-02-23 14:55:13">
+			<feature name="Application" last_modified="2012-03-01 18:23:35">
 			<![CDATA[This installs the application feature.]]>
 				<component ref_id="a95f6765-1eea-11b2-bba3-a89eed1b55a0" version="1.0.0.0" location="/home/pcs/tc/gwc/ext/Rapids/installer/Uninstall_Frontier Rapids/Uninstall_Frontier_Rapids"/>
 				<component ref_id="a95f6764-1eea-11b2-bba1-a89eed1b55a0" version="1.0.0.0" location="/home/pcs/tc/gwc/ext/Rapids/conf/platformGraph.xml"/>
 			</feature>
-			<feature name="Help" last_modified="2012-02-23 14:55:13">
+			<feature name="Help" last_modified="2012-03-01 18:23:35">
 			<![CDATA[This installs the help feature.]]>
 				<component ref_id="a95f6765-1eea-11b2-bba3-a89eed1b55a0" version="1.0.0.0" location="/home/pcs/tc/gwc/ext/Rapids/installer/Uninstall_Frontier Rapids/Uninstall_Frontier_Rapids"/>
 				<component ref_id="a95f6764-1eea-11b2-bba1-a89eed1b55a0" version="1.0.0.0" location="/home/pcs/tc/gwc/ext/Rapids/conf/platformGraph.xml"/>
@@ -30,7 +30,7 @@
 			<resource keyfile="false" name="conf" location="/home/pcs/tc/gwc/ext/Rapids/conf" type="directory" uninstall="true">
 			<![CDATA[false]]>
 			</resource>
-			<resource keyfile="true" name="platformGraph.xml" location="/home/pcs/tc/gwc/ext/Rapids/conf/platformGraph.xml" type="file" uninstall="true"/>
+			<resource keyfile="false" name="platformGraph.xml" location="/home/pcs/tc/gwc/ext/Rapids/conf/platformGraph.xml" type="file" uninstall="true"/>
 			<resource keyfile="false" name="server-settings.tmpl" location="/home/pcs/tc/gwc/ext/Rapids/conf/server-settings.tmpl" type="file" uninstall="true"/>
 			<resource keyfile="false" name="frontier.properties.tmpl" location="/home/pcs/tc/gwc/ext/Rapids/conf/frontier.properties.tmpl" type="file" uninstall="true"/>
 			<resource keyfile="false" name="lib" location="/home/pcs/tc/gwc/ext/Rapids/lib" type="directory" uninstall="true">
@@ -114,12 +114,174 @@
 			</resource>
 			<resource keyfile="false" name="frontier.properties" location="/home/pcs/tc/gwc/ext/Rapids/conf/frontier.properties" type="file" uninstall="true"/>
 			<resource keyfile="false" name="server-settings.sh" location="/home/pcs/tc/gwc/ext/Rapids/conf/server-settings.sh" type="file" uninstall="true"/>
+			<resource keyfile="false" name="installer" location="/home/pcs/tc/gwc/ext/Rapids/installer" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="Uninstall_Frontier Rapids" location="/home/pcs/tc/gwc/ext/Rapids/installer/Uninstall_Frontier Rapids" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="certs" location="/home/pcs/tc/gwc/ext/Rapids/certs" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="client.truststore" location="/home/pcs/tc/gwc/ext/Rapids/certs/client.truststore" type="file" uninstall="true"/>
+			<resource keyfile="false" name="conf" location="/home/pcs/tc/gwc/ext/Rapids/conf" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="true" name="platformGraph.xml" location="/home/pcs/tc/gwc/ext/Rapids/conf/platformGraph.xml" type="file" uninstall="true"/>
+			<resource keyfile="false" name="server-settings.tmpl" location="/home/pcs/tc/gwc/ext/Rapids/conf/server-settings.tmpl" type="file" uninstall="true"/>
+			<resource keyfile="false" name="frontier.properties.tmpl" location="/home/pcs/tc/gwc/ext/Rapids/conf/frontier.properties.tmpl" type="file" uninstall="true"/>
+			<resource keyfile="false" name="lib" location="/home/pcs/tc/gwc/ext/Rapids/lib" type="directory" uninstall="true">
+			<![CDATA[true]]>
+			</resource>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/param.managed/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="parameters.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/param.managed/datasets/ds1/parameters.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="param.sh" location="/home/pcs/tc/gwc/ext/Rapids/templates/param.managed/common/job_elements/param.sh" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/output.managed/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="README.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/output.managed/README.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/clientelement.managed/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/output.unmanaged/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/bundle.unmanaged/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="startup.cmd.win" location="/home/pcs/tc/gwc/ext/Rapids/templates/bundle.unmanaged/common/job_elements/startup.cmd/WIN/startup.cmd.win" type="file" uninstall="true"/>
+			<resource keyfile="false" name="startup.cmd.linux" location="/home/pcs/tc/gwc/ext/Rapids/templates/bundle.unmanaged/common/job_elements/startup.cmd/LINUX/startup.cmd.linux" type="file" uninstall="true"/>
+			<resource keyfile="false" name="startup.cmd.linux" location="/home/pcs/tc/gwc/ext/Rapids/templates/bundle.unmanaged/common/job_elements/startup.cmd/MACOSX/startup.cmd.linux" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/interim.managed/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="interim.sh" location="/home/pcs/tc/gwc/ext/Rapids/templates/interim.managed/common/job_elements/interim.sh" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="startup.cmd.win" location="/home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/datasets/ds1/job_elements/startup.cmd/WIN/startup.cmd.win" type="file" uninstall="true"/>
+			<resource keyfile="false" name="startup.cmd.linux" location="/home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/datasets/ds1/job_elements/startup.cmd/LINUX/startup.cmd.linux" type="file" uninstall="true"/>
+			<resource keyfile="false" name="startup.cmd.linux" location="/home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/datasets/ds1/job_elements/startup.cmd/MACOSX/startup.cmd.linux" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input2.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/datasets/ds1/task_elements/input.txt/input2.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input3.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/datasets/ds1/task_elements/input.txt/input3.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input4.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/datasets/ds1/task_elements/input.txt/input4.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input0.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/datasets/ds1/task_elements/input.txt/input0.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input1.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dsjobbundle.unmanaged/datasets/ds1/task_elements/input.txt/input1.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskbundle.unmanaged/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input0.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskbundle.unmanaged/datasets/ds1/task_elements/input.txt/input0.txt/WIN/input0.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input0.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskbundle.unmanaged/datasets/ds1/task_elements/input.txt/input0.txt/LINUX/input0.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input1.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskbundle.unmanaged/datasets/ds1/task_elements/input.txt/input1.txt/WIN/input1.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input1.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskbundle.unmanaged/datasets/ds1/task_elements/input.txt/input1.txt/LINUX/input1.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/env.managed/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="env.sh" location="/home/pcs/tc/gwc/ext/Rapids/templates/env.managed/common/job_elements/env.sh" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/dsjobelement.managed/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="param.sh" location="/home/pcs/tc/gwc/ext/Rapids/templates/dsjobelement.managed/datasets/ds1/job_elements/param.sh" type="file" uninstall="true"/>
+			<resource keyfile="false" name="parameters.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dsjobelement.managed/datasets/ds1/parameters.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/clientbundle.unmanaged/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/dsjobelement.unmanaged/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="param.sh" location="/home/pcs/tc/gwc/ext/Rapids/templates/dsjobelement.unmanaged/datasets/ds1/job_elements/param.sh" type="file" uninstall="true"/>
+			<resource keyfile="false" name="parameters.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dsjobelement.unmanaged/datasets/ds1/parameters.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input2.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds1/task_elements/input.txt/input2.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input3.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds1/task_elements/input.txt/input3.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input4.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds1/task_elements/input.txt/input4.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input0.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds1/task_elements/input.txt/input0.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input1.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds1/task_elements/input.txt/input1.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input2.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds2/task_elements/input.txt/input2.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input3.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds2/task_elements/input.txt/input3.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input4.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds2/task_elements/input.txt/input4.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input0.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds2/task_elements/input.txt/input0.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input1.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.managed/datasets/ds2/task_elements/input.txt/input1.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/noelements.managed/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/element.unmanaged/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="startup.sh" location="/home/pcs/tc/gwc/ext/Rapids/templates/element.unmanaged/common/job_elements/startup.sh" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input2.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds1/task_elements/input.txt/input2.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input3.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds1/task_elements/input.txt/input3.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input4.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds1/task_elements/input.txt/input4.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input0.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds1/task_elements/input.txt/input0.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input1.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds1/task_elements/input.txt/input1.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input2.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds2/task_elements/input.txt/input2.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input3.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds2/task_elements/input.txt/input3.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input4.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds2/task_elements/input.txt/input4.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input0.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds2/task_elements/input.txt/input0.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="input1.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/dstaskelement.unmanaged/datasets/ds2/task_elements/input.txt/input1.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/netaccess.managed/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="startup.cmd.win" location="/home/pcs/tc/gwc/ext/Rapids/templates/client_elements/startup.cmd/WIN/startup.cmd.win" type="file" uninstall="true"/>
+			<resource keyfile="false" name="startup.cmd.linux" location="/home/pcs/tc/gwc/ext/Rapids/templates/client_elements/startup.cmd/LINUX/startup.cmd.linux" type="file" uninstall="true"/>
+			<resource keyfile="false" name="startup.cmd.linux" location="/home/pcs/tc/gwc/ext/Rapids/templates/client_elements/startup.cmd/MACOSX/startup.cmd.linux" type="file" uninstall="true"/>
+			<resource keyfile="false" name="client.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/client_elements/client.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/progress.managed/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="progress.sh" location="/home/pcs/tc/gwc/ext/Rapids/templates/progress.managed/common/job_elements/progress.sh" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/param.unmanaged/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="parameters.txt" location="/home/pcs/tc/gwc/ext/Rapids/templates/param.unmanaged/datasets/ds1/parameters.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="param.sh" location="/home/pcs/tc/gwc/ext/Rapids/templates/param.unmanaged/common/job_elements/param.sh" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/noelements.unmanaged/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/clientelement.unmanaged/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="job.properties" location="/home/pcs/tc/gwc/ext/Rapids/templates/element.managed/job.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="startup.sh" location="/home/pcs/tc/gwc/ext/Rapids/templates/element.managed/common/job_elements/startup.sh" type="file" uninstall="true"/>
+			<resource keyfile="false" name="bin" location="/home/pcs/tc/gwc/ext/Rapids/bin" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="rapids.sh" location="/home/pcs/tc/gwc/ext/Rapids/bin/rapids.sh" type="file" uninstall="true"/>
+			<resource keyfile="false" name="configure.sh" location="/home/pcs/tc/gwc/ext/Rapids/bin/configure.sh" type="file" uninstall="true"/>
+			<resource keyfile="false" name="doc" location="/home/pcs/tc/gwc/ext/Rapids/doc" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="commands" location="/home/pcs/tc/gwc/ext/Rapids/doc/commands" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="delete.txt" location="/home/pcs/tc/gwc/ext/Rapids/doc/commands/delete.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="help.txt" location="/home/pcs/tc/gwc/ext/Rapids/doc/commands/help.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="kill.txt" location="/home/pcs/tc/gwc/ext/Rapids/doc/commands/kill.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="launch.txt" location="/home/pcs/tc/gwc/ext/Rapids/doc/commands/launch.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="list.txt" location="/home/pcs/tc/gwc/ext/Rapids/doc/commands/list.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="listen.txt" location="/home/pcs/tc/gwc/ext/Rapids/doc/commands/listen.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="log.txt" location="/home/pcs/tc/gwc/ext/Rapids/doc/commands/log.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="newjob.txt" location="/home/pcs/tc/gwc/ext/Rapids/doc/commands/newjob.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="quit.txt" location="/home/pcs/tc/gwc/ext/Rapids/doc/commands/quit.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="remove.txt" location="/home/pcs/tc/gwc/ext/Rapids/doc/commands/remove.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="status.txt" location="/home/pcs/tc/gwc/ext/Rapids/doc/commands/status.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="stop.txt" location="/home/pcs/tc/gwc/ext/Rapids/doc/commands/stop.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="update.txt" location="/home/pcs/tc/gwc/ext/Rapids/doc/commands/update.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="upload.txt" location="/home/pcs/tc/gwc/ext/Rapids/doc/commands/upload.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="index.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/index.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="constant-values.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/constant-values.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="deprecated-list.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/deprecated-list.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="allclasses-noframe.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/allclasses-noframe.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="package-list" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/package-list" type="file" uninstall="true"/>
+			<resource keyfile="false" name="stylesheet.css" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/stylesheet.css" type="file" uninstall="true"/>
+			<resource keyfile="false" name="index-all.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/index-all.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="allclasses-frame.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/allclasses-frame.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="help-doc.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/help-doc.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="overview-tree.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/overview-tree.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="inherit.gif" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/resources/inherit.gif" type="file" uninstall="true"/>
+			<resource keyfile="false" name="TaskStatus.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/TaskStatus.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="FrontierServer.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/FrontierServer.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="package-frame.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/package-frame.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="TaskStatus.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/class-use/TaskStatus.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="FrontierServer.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/class-use/FrontierServer.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="Job.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/class-use/Job.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="JobStatus.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/class-use/JobStatus.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="FrontierServer.JobIdType.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/class-use/FrontierServer.JobIdType.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="package-summary.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/package-summary.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="package-use.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/package-use.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="Job.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/Job.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="JobStatus.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/JobStatus.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="FrontierServer.JobIdType.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/FrontierServer.JobIdType.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="package-tree.html" location="/home/pcs/tc/gwc/ext/Rapids/doc/rapidsapi/com/parabon/rapids/package-tree.html" type="file" uninstall="true"/>
+			<resource keyfile="false" name="RapidsUserGuide.pdf" location="/home/pcs/tc/gwc/ext/Rapids/doc/RapidsUserGuide.pdf" type="file" uninstall="true"/>
+			<resource keyfile="false" name="README.txt" location="/home/pcs/tc/gwc/ext/Rapids/doc/README.txt" type="file" uninstall="true"/>
+			<resource keyfile="false" name="Uninstall" location="/home/pcs/tc/gwc/ext/Rapids/Uninstall" type="shortcut" uninstall="true">
+			<![CDATA[]]>
+			</resource>
+			<resource keyfile="false" name="frontier.properties" location="/home/pcs/tc/gwc/ext/Rapids/conf/frontier.properties" type="file" uninstall="true"/>
+			<resource keyfile="false" name="server-settings.sh" location="/home/pcs/tc/gwc/ext/Rapids/conf/server-settings.sh" type="file" uninstall="true"/>
 		</component>
 		<component id="a95f6765-1eea-11b2-bba3-a89eed1b55a0" version="1.0.0.0" name="InstallAnywhere Uninstall Component" location="/home/pcs/tc/gwc/ext/Rapids/installer/Uninstall_Frontier Rapids/Uninstall_Frontier_Rapids" vendor="Parabon Computation, Inc.">
 			<resource keyfile="false" name="Frontier_Rapids_InstallLog.log" location="/home/pcs/tc/gwc/ext/Rapids/Frontier_Rapids_InstallLog.log" type="file" uninstall="true"/>
 			<resource keyfile="false" name="Rapids" location="/home/pcs/tc/gwc/ext/Rapids" type="directory" uninstall="true">
 			<![CDATA[false]]>
 			</resource>
+			<resource keyfile="false" name="installer" location="/home/pcs/tc/gwc/ext/Rapids/installer" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="Uninstall_Frontier Rapids" location="/home/pcs/tc/gwc/ext/Rapids/installer/Uninstall_Frontier Rapids" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="uninstaller.jar" location="/home/pcs/tc/gwc/ext/Rapids/installer/Uninstall_Frontier Rapids/uninstaller.jar" type="file" uninstall="true"/>
+			<resource keyfile="false" name="Uninstall_Frontier_Rapids" location="/home/pcs/tc/gwc/ext/Rapids/installer/Uninstall_Frontier Rapids/Uninstall_Frontier_Rapids" type="executable" uninstall="true"/>
+			<resource keyfile="false" name="Uninstall_Frontier_Rapids.lax" location="/home/pcs/tc/gwc/ext/Rapids/installer/Uninstall_Frontier Rapids/Uninstall_Frontier_Rapids.lax" type="file" uninstall="true"/>
+			<resource keyfile="false" name=".com.zerog.registry.xml" location="/home/pcs/tc/gwc/ext/Rapids/installer/Uninstall_Frontier Rapids/.com.zerog.registry.xml" type="file" uninstall="true"/>
+			<resource keyfile="false" name="Frontier_Rapids_InstallLog.log" location="/home/pcs/tc/gwc/ext/Rapids/Frontier_Rapids_InstallLog.log" type="file" uninstall="true"/>
 			<resource keyfile="false" name="installer" location="/home/pcs/tc/gwc/ext/Rapids/installer" type="directory" uninstall="true">
 			<![CDATA[false]]>
 			</resource>

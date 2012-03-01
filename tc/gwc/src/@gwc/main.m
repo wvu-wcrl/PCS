@@ -138,12 +138,12 @@ tp = obj.tp;      % Rapids template path
 rtn = obj.rtn;   % Rapids template name
 tez = [obj.rtp '/' 'elements.zip'];
 
-frtn = [tp '/' rtn];   % full rapids template name
+frtn = [tp '/' rtn '/common/job_elements' ];   % full rapids template name
 
 ExecutablePath = TaskParam.ExecutablePath;
 
 % zip executable
-cmd = ['zip -r ' tez ExecutablePath];
+cmd = ['zip -r ' tez ' ' ExecutablePath];
 system(cmd);
 
 % move to Rapids template directory
@@ -156,12 +156,13 @@ end
 
 function create_job_properties(obj)   
 
-pjp = [obj.tp '/' obj.pjp];  % path to job.properties
+pjp = [obj.tp '/' obj.pjp 'compiled_fsk/job.properties'];  % path to job.properties
 
 cmd = ['echo RUNTIME=.*ubuntu-11.04-2.* >> ' pjp]; system(cmd);
 cmd = ['echo REQUIRED_EXTENSIONS=mcr2010a-1b.shar >> ' pjp]; system(cmd);
 cmd = ['echo ELEMENTS=elements.zip >> ' pjp]; system(cmd);
 cmd = ['echo COMMAND_LINE= /bin/sh -c "\"unzip elements.zip && chmod +x SingleSimulate && ./SingleSimulate"\" >> ' pjp]; system(cmd);
+cmd = ['echo OUTPUT_FILES=NFSK8AWGNCSI.mat >> ' pjp]; system(cmd);
 
 end
 
@@ -169,14 +170,14 @@ end
 
 
 
-function obj = run_rapids_job(obj)   
+function obj = create_rapids_job(obj)   
 
 pre = obj.pre;
 rtn = obj.rtn;
 
 % call Rapids
 job_name = obj.jc;
-cmd = [pre ' '  'newjob' ' ' rtn '1' job_name]; system(cmd);  % create new job
+cmd = [pre ' '  'newjob' ' ' rtn ' 1 ' int2str(job_name)]; system(cmd);  % create new job
 cmd = [pre ' ' 'launch' ' ' job_name]; system(cmd);              % launch job
 cmd = [pre ' ' 'listen' ' ' job_name]; system(cmd);              % listen to job
 obj.jc = obj.jc + 1;

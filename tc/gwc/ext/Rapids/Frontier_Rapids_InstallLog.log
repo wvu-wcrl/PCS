@@ -1,9 +1,9 @@
 __________________________________________________________________________
 
-Thu Feb 23 14:55:18 EST 2012
+Thu Mar 01 18:23:39 EST 2012
 
-Free Memory: 108982 kB
-Total Memory: 118080 kB
+Free Memory: 109854 kB
+Total Memory: 122752 kB
 
 7 Command Line Args:
 0:  -DFRONTIER_SERVER_HOST=server.frontier.dfw1.parabon.com
@@ -15,12 +15,12 @@ Total Memory: 118080 kB
 6:  -DIS_ENTERPRISE=false
 
 java.class.path:
-    /tmp/install.dir.22714/InstallerData
-    /tmp/install.dir.22714/InstallerData/installer.zip
+    /tmp/install.dir.31993/InstallerData
+    /tmp/install.dir.31993/InstallerData/installer.zip
 
 ZGUtil.CLASS_PATH:
-    /tmp/install.dir.22714/InstallerData
-    /tmp/install.dir.22714/InstallerData/installer.zip
+    /tmp/install.dir.31993/InstallerData
+    /tmp/install.dir.31993/InstallerData/installer.zip
 
 sun.boot.class.path:
     /usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/resources.jar
@@ -60,13 +60,13 @@ file.separator                == /
 file.encoding                 == UTF-8
 user.name                     == pcs
 user.home                     == /home/pcs
-user.dir                      == /tmp/install.dir.22714
+user.dir                      == /tmp/install.dir.31993
 user.language                 == en
 user.region                   == null
 __________________________________________________________________________
 
-Install Begin: Thu Feb 23 14:54:43 EST 2012
-Install End: Thu Feb 23 14:55:14 EST 2012
+Install Begin: Thu Mar 01 18:22:27 EST 2012
+Install End: Thu Mar 01 18:23:36 EST 2012
 
 Installed by InstallAnywhere 9.0 Enterprise Build 3431, by Macrovision
 
@@ -106,16 +106,19 @@ Install Action:           InstallAnywhere Variable
 
 Check Disk Space:         /home/pcs/tc/gwc/ext/Rapids
                           Status: SUCCESSFUL
-                          Additional Notes: NOTE - Required Disk Space: 7,727,990; Free Disk Space: 92,747,698,176
+                          Additional Notes: NOTE - Required Disk Space: 7,727,990; Free Disk Space: 92,700,852,224
 
 Install Directory:        /home/pcs/tc/gwc/ext/Rapids/
                           Status: SUCCESSFUL
+                          Additional Notes: NOTE - Directory already existed
 
 Install Directory:        /home/pcs/tc/gwc/ext/Rapids/installer/
                           Status: SUCCESSFUL
+                          Additional Notes: NOTE - Directory already existed
 
 Install Directory:        /home/pcs/tc/gwc/ext/Rapids/installer/Uninstall_Frontier Rapids/
                           Status: SUCCESSFUL
+                          Additional Notes: NOTE - Directory already existed
 
 Install Uninstaller:      Frontier Rapids (Install All Uninstaller Components)
                           Status: SUCCESSFUL
@@ -129,12 +132,14 @@ Install Uninstaller:      Frontier Rapids (Install All Uninstaller Components)
 
 Install Directory:        /home/pcs/tc/gwc/ext/Rapids/certs/
                           Status: SUCCESSFUL
+                          Additional Notes: NOTE - Directory already existed
 
 Install File:             /home/pcs/tc/gwc/ext/Rapids/certs/client.truststore
                           Status: SUCCESSFUL
 
 Install Directory:        /home/pcs/tc/gwc/ext/Rapids/conf/
                           Status: SUCCESSFUL
+                          Additional Notes: NOTE - Directory already existed
 
 Install File:             /home/pcs/tc/gwc/ext/Rapids/conf/platformGraph.xml
                           Status: SUCCESSFUL
@@ -396,6 +401,7 @@ Install File:             /home/pcs/tc/gwc/ext/Rapids/templates/element.managed/
 
 Install Directory:        /home/pcs/tc/gwc/ext/Rapids/bin/
                           Status: SUCCESSFUL
+                          Additional Notes: NOTE - Directory already existed
 
 Install File:             /home/pcs/tc/gwc/ext/Rapids/bin/rapids.sh
                           Status: SUCCESSFUL
@@ -405,9 +411,11 @@ Install File:             /home/pcs/tc/gwc/ext/Rapids/bin/configure.sh
 
 Install Directory:        /home/pcs/tc/gwc/ext/Rapids/doc/
                           Status: SUCCESSFUL
+                          Additional Notes: NOTE - Directory already existed
 
 Install Directory:        /home/pcs/tc/gwc/ext/Rapids/doc/commands/
                           Status: SUCCESSFUL
+                          Additional Notes: NOTE - Directory already existed
 
 Install File:             /home/pcs/tc/gwc/ext/Rapids/doc/commands/delete.txt
                           Status: SUCCESSFUL

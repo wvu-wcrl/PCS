@@ -14,6 +14,7 @@ function init_ws(obj)
 % init job counter
 
 obj.jc = 0;
+obj.rtn = 'compiled_fsk';
 
 % read logging parameters
     heading = '[logging]';
