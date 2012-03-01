@@ -16,6 +16,7 @@ LOG_PERIOD = str2double(obj.log_period);
 NUM_LOGS = str2double(obj.num_logs);
 IS_VERBOSE = 1;
 IS_NOT_VERBOSE = 0;
+VERBOSE_MODE = 0;
 
 % log the worker start time %%%%%%%%
 [cur_time] = gettime(); % current time
@@ -26,16 +27,17 @@ log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
 tic;       % start logging timer
 nlog = 0;  % initialize log count
 
-iq = obj.iq; % assign the input queue path to a local variable for easy reference
-rq = obj.rq;
+iq = obj.gq.iq; % assign the input queue path to a local variable for easy reference
+rq = obj.gq.rq;
 
 while(1)  %%% main worker loop
     next_input = read_input_queue(iq);    % read a random file from the input queue
     if( ~isempty(next_input) )
         try
             next_running = feed_running_queue(next_input, iq, rq)   % move input file to running queue
-            obj = launch_rapids_task(obj, rq, next_running); % launch on Rapids
+            obj = launch_rapids_task(obj, rq, next_running, next_input); % launch on Rapids
         catch exception
+            sprintf(exception.message)
         end
     end
     
@@ -64,8 +66,45 @@ end
 
 
 
+function next_input = read_input_queue(iq)
 
-function obj = launch_rapids_task(obj, next_running)
+srch = strcat(iq, '/*.mat');      % form full directory string
+
+fl = dir( srch );    % get list of .mat files in input queue directory
+
+nf = length(fl);  % how many input files does this user have?
+
+fn = ceil(rand*nf); % pick file randomly
+if fn ~= 0,
+    next_input = fl(fn).name;
+else
+    next_input = '';
+end
+
+end
+
+
+
+
+function next_running = feed_running_queue(next_input, iq,  rq, wid)
+
+% move the file to the running queue and tag with the worker id
+[beg en] = strtok(next_input,'_');
+%next_running = [beg '_' int2str(wid) en];
+next_running = [beg '_' en];
+
+cs = ['mv' ' ' iq '/' next_input ' ' rq '/' next_running ];
+system(cs);
+
+end
+
+
+
+
+
+
+
+function obj = launch_rapids_task(obj, rq, next_running, next_input)
 % load task file
 TaskParam = read_input_file(rq, next_running);
 % based on contents of task file, compress program into elements.zip
@@ -75,7 +114,7 @@ create_job_properties(obj);
 % create new job using Rapids interface
 create_rapids_job(obj);
 % increment rapids queue
-increment_rapids_queue();
+consume_rapids_output(obj,TaskParam, next_input);
 end
 
 
@@ -84,7 +123,8 @@ end
 function TaskParam = read_input_file(rq, next_running)   % read task from grid input queue
 path_to_task_file = [rq '/' next_running];
 load(path_to_task_file);
-obj.rtn = 'test_template';    % rapids template name.  hard-code it for now
+
+obj.rtn = 'compiled_fsk';    % rapids template name.  hard-code it for now
 obj.pjp  = [obj.rtn '/' 'job.properties'];
 end
 
@@ -96,7 +136,7 @@ end
 function create_job_elements(obj, TaskParam)   
 tp = obj.tp;      % Rapids template path
 rtn = obj.rtn;   % Rapids template name
-tez = obj.tez;  % temporary path to elements.zip
+tez = [obj.rtp '/' 'elements.zip'];
 
 frtn = [tp '/' rtn];   % full rapids template name
 
@@ -121,7 +161,7 @@ pjp = [obj.tp '/' obj.pjp];  % path to job.properties
 cmd = ['echo RUNTIME=.*ubuntu-11.04-2.* >> ' pjp]; system(cmd);
 cmd = ['echo REQUIRED_EXTENSIONS=mcr2010a-1b.shar >> ' pjp]; system(cmd);
 cmd = ['echo ELEMENTS=elements.zip >> ' pjp]; system(cmd);
-cmd = ['echo COMMAND_LINE= /bin/sh -c "\"unzip elements.zip && chmod +x RunTask && ./RunTask"\" >> ' pjp]; system(cmd);
+cmd = ['echo COMMAND_LINE= /bin/sh -c "\"unzip elements.zip && chmod +x SingleSimulate && ./SingleSimulate"\" >> ' pjp]; system(cmd);
 
 end
 
@@ -151,13 +191,13 @@ function tpp = read_rapids_output(obj)
 % scan for output file in active job directories
 tp = obj.tp;      % Rapids template path
 rtn = obj.rtn;   % Rapids template name
-tez = obj.tez;  % temporary path to elements.zip
+
 
 % need to associate jobs, tasks, job names, and 
 
-tpp = [tp '/' rtn '/' 'resultsets' '/' '1' '/' 'TaskParam.mat'];   % task param path
+op = [tp '/' rtn '/' 'resultsets' '/' '0' '/' 'NFSK8AWGNCSI0.mat'];   % output path
 
-tpe = dir(tpp); % task param exists
+tpe = dir(op); % task param exists
 if length(tpe) ~= 1,  % if task param does not exist, return empty string
 tpp = '';
 end
@@ -167,10 +207,46 @@ end
 
 
 
-function consume_rapids_output(obj)
-% read TaskParam.mat
+function consume_rapids_output(obj, TaskParam, next_input)
+
+rtn = obj.rtn;
+tp = obj.tp;
+
+op = [tp '/' rtn '/' 'resultsets' '/' '0' '/' 'NFSK8AWGNCSI0.mat']; % read NFSK8AWGNCSI0.mat
+load(op);
+
+TaskState.save_param = save_param;
+TaskState.save_state = save_state;
 
 % create name for output file
+oq = obj.oq;
+fn = [oq '/' next_input];
 
-% save to output queue
+save(fn, 'TaskParam', 'TaskState');   % save to output queue
+
 end
+
+
+function [cur_time] = gettime();
+timevec = fix(clock);  % time
+year = int2str(timevec(1)); month = int2str(timevec(2)); day = int2str(timevec(3));
+hour = int2str(timevec(4)); min = int2str(timevec(5)); sec = int2str(timevec(6));
+
+cur_time = [year '-' month '-' day ' ' hour ':' min ':' sec];
+end
+
+
+
+
+% logging function
+% inputs
+%  msg               - string to output to logs
+%  msg_verbose       - is this a verbose message?
+%  log_mode_verbose  - is the logging mode verbose?
+function log_msg(msg, msg_verbose, log_mode_verbose)
+if ~(msg_verbose == 1 & log_mode_verbose == 0),
+  fprintf(msg); fprintf('\n');
+end
+end
+
+

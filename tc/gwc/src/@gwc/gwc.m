@@ -28,9 +28,10 @@ classdef gwc < handle
     jc       % job counter - increments as rapids jobs are launched
     end
     
-    
-    % Cluster controller paths.
+       
+    % grid worker controller paths.
     properties        
+        cf     % config file path
         rp     % path to rapids
         gq     % global queue paths - read from config file
                % iq - input 
@@ -38,11 +39,11 @@ classdef gwc < handle
                % rq - running        
         lp     % log path - read from config file
         bs     % path to bash scripts
-        cf     % config file path
-
+       
         pre  % path to Rapids executable - hard coded for now
         tp     % path to rapids template
         rtn    % rapids template name
+        rtp    % rapids temporary path - scratch area
         tez    % temporary elements.zip path
         pjp    % path to job.properties
        
@@ -58,17 +59,15 @@ classdef gwc < handle
        
     
     methods
-        function obj = cwc(cf)
+        function obj = gwc(cf)
                                        
             % get config file path
             obj.cf = cf;
                         
             % initialize the grid worker controller
-            init(obj);            
+            init(obj);                       
             
-            
-            
-            main(obj);
+            %main(obj);
       end
     end
     

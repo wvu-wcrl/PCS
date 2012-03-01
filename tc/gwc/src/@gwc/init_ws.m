@@ -13,14 +13,13 @@ function init_ws(obj)
 
 % init job counter
 
-obj.jc = 1;
+obj.jc = 0;
 
 % read logging parameters
     heading = '[logging]';
 key = 'log_period';
 out = util.fp(obj.cf, heading, key);
-obj.log_period = out{1}{1};
-
+obj.log_period = out{1}{1}
 
 
 key = 'num_logs';
