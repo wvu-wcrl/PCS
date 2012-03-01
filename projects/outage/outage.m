@@ -7,11 +7,13 @@
 
 function output_struct=outage(input_struct)
 
-IndicesDir =  '/rhome/stalarico/ahfh/indices/';
-NetworksDir =  '/rhome/stalarico/ahfh/networks/';
-      
+IndicesDir =  input_struct.IndicesPath;
+NetworksDir = input_struct.NetworksPath;
+     
 %load Network
 NetworkFile = input_struct.NetworkFileName;
+
+
 try
     msg = sprintf( 'Loading Network file\n' );
     fprintf( msg );
