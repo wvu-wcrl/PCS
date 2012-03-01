@@ -21,10 +21,11 @@
 
 classdef gwc < handle
     
-    % worker controller state
+    % grid worker controller state
     properties
     rtc    % rapids task vector - track state of rapids tasks
     mrt    % maximum number of simultaneous rapids tasks
+    jc       % job counter - increments as rapids jobs are launched
     end
     
     
@@ -39,7 +40,12 @@ classdef gwc < handle
         bs     % path to bash scripts
         cf     % config file path
 
+        pre  % path to Rapids executable - hard coded for now
         tp     % path to rapids template
+        rtn    % rapids template name
+        tez    % temporary elements.zip path
+        pjp    % path to job.properties
+       
     end
  
 
@@ -57,8 +63,12 @@ classdef gwc < handle
             % get config file path
             obj.cf = cf;
                         
-            % initialize the cluster worker controller
+            % initialize the grid worker controller
             init(obj);            
+            
+            
+            
+            main(obj);
       end
     end
     
