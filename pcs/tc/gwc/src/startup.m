@@ -6,7 +6,7 @@ addpath(pwd);
 
 
 
-cfg_file = 'pcs_test_224.cfg';
+cfg_file = 'grid_worker.cfg';
 
 cd(rootdir); cd ..; cd ..; cd cfg/;
 
@@ -14,4 +14,4 @@ cfg_file = strcat(pwd, '/', cfg_file);
 
 cd(rootdir);
 
-cwcobj = cwc(cfg_file);
+gwcobj = gwc(cfg_file);

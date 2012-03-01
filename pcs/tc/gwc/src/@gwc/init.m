@@ -9,10 +9,10 @@
 
 function init(obj)
 
-% init global paths
+% init grid worker paths
 init_paths(obj);
 
-% init worker state structures
+% init worker state
 init_ws(obj);
 
 end
