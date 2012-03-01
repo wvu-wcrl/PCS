@@ -1,41 +1,85 @@
 % init_paths.m
 %
-% read configuration file for task controller
+% read paths from configuration file for grid worker
 %
 % Version 1
-% 12/7/2011
+% 3/1/2012
 % Terry Ferrett
+
 
 
 function init_paths(obj)
  
 
+
+
+
+  % root directory of Rapids
+  heading = '[paths]';
+  key = 'rapids_root';
+  out = util.fp(obj.cf, heading, key);
+  obj.rp = out{1}{1};
+
+  
+  % path to root of rapids templates
+  heading = '[paths]';
+  key = 'rapids_templates';
+  out = util.fp(obj.cf, heading, key);
+  obj.tp = out{1}{1};
+
+
+  
+  % path to root of rapids templates
+  heading = '[paths]';
+  key = 'rapids_executable';
+  out = util.fp(obj.cf, heading, key);
+  obj.pre = out{1}{1};
+  
+  
+  
+  % path to root of rapids templates
+  heading = '[paths]';
+  key = 'rapids_templates';
+  out = util.fp(obj.cf, heading, key);
+  obj.tp = out{1}{1};
+  
+  % path to root of rapids templates
+  heading = '[paths]';
+  key = 'rapids_temp';
+  out = util.fp(obj.cf, heading, key);
+  obj.rtp = out{1}{1};
+  
+  
+  
+  
+  
+  
   % input path
   heading = '[paths]';
   key = 'input_queue';
   out = util.fp(obj.cf, heading, key);
-  obj.gq.iq = out{1};
+  obj.gq.iq = out{1}{1};
 
   
   % output path
   heading = '[paths]';
   key = 'output_queue';
   out = util.fp(obj.cf, heading, key);
-  obj.gq.oq = out{1};
+  obj.gq.oq = out{1}{1};
 
   
   % running path
   heading = '[paths]';
   key = 'run_queue';
   out = util.fp(obj.cf, heading, key);
-  obj.gq.rq = out{1};
+  obj.gq.rq = out{1}{1};
   
   
   % bash script path
   heading = '[paths]';
   key = 'bash_scripts';
   out = util.fp(obj.cf, heading, key);
-  obj.bs = out{1};
+  obj.bs = out{1}{1};
 
 
   
@@ -43,22 +87,9 @@ function init_paths(obj)
   heading = '[paths]';
   key = 'log';
   out = util.fp(obj.cf, heading, key);
-  obj.lp = out{1};
+  obj.lp = out{1}{1};
 
 
-  % worker script path
-  heading = '[workerscript]';
-  key = 'path';
-  out = util.fp(obj.cf, heading, key);
-  obj.gwp = out{1};
-
-
-  % worker script
-  heading = '[workerscript]';
-  key = 'script';
-  out = util.fp(obj.cf, heading, key);
-  obj.gwn = out{1};
-  
   
 
 end
