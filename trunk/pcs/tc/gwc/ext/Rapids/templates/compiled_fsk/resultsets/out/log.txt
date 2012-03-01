@@ -1,0 +1,22 @@
+log4j:WARN No appenders could be found for logger (com.parabon.client).
+log4j:WARN Please initialize the log4j system properly.
+Feb 24, 2012 2:31:59 PM: Reestablishing manager...
+Feb 24, 2012 2:31:59 PM: Launching job 12...
+Feb 24, 2012 2:31:59 PM: Template: compiled_fsk
+Feb 24, 2012 2:31:59 PM: Posting job scope data element: elements.zip, URI: https://fds01.frontier.parabon.com:443/fcfs/clients/terry.ferrett%40gmail.com/jobs/61302_0/data/elements.zip
+Feb 24, 2012 2:31:59 PM: Creating task: 0
+Feb 24, 2012 2:31:59 PM: Setting runtime ID to: .*ubuntu-11.04-2.*
+Feb 24, 2012 2:31:59 PM: Task 0: adding output file: NFSK8AWGNCSI.mat
+Feb 24, 2012 2:31:59 PM: Task 0: command line: "/bin/sh" "-c" "unzip elements.zip && chmod +x SingleSimulate && ./SingleSimulate && ls && pwd" 
+Feb 24, 2012 2:31:59 PM: Task 0: environment: 
+Feb 24, 2012 2:31:59 PM: Task 0: require network access: false
+Feb 24, 2012 2:31:59 PM: Task 0: adding required extension: mcr2010a-1b.shar
+Feb 24, 2012 2:31:59 PM: Listening to job 12[61302_0]...
+Feb 24, 2012 2:48:29 PM: Task 0 reported progress: 0.0 and run mode: RUNNING
+Feb 24, 2012 2:55:39 PM: Received final result for task: 0
+Feb 24, 2012 2:55:39 PM: Saving to: /home/tferrett/FrontierRapids/templates/compiled_fsk/resultsets/out/NFSK8AWGNCSI0.mat
+Feb 24, 2012 2:55:39 PM: Saving stdout to: /home/tferrett/FrontierRapids/templates/compiled_fsk/resultsets/out/stdout0.txt
+Feb 24, 2012 2:55:39 PM: All tasks have been completed... removing job
+Feb 24, 2012 2:55:39 PM: Job removed. 
+Feb 24, 2012 2:55:41 PM: Disconnected from server.
+Feb 24, 2012 2:55:41 PM: Exiting listener.
