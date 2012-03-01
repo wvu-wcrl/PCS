@@ -1,0 +1,15 @@
+log4j:WARN No appenders could be found for logger (com.parabon.client).
+log4j:WARN Please initialize the log4j system properly.
+Mar 1, 2012 12:18:18 AM: Reestablishing manager...
+Mar 1, 2012 12:18:19 AM: Launching job 3...
+Mar 1, 2012 12:18:19 AM: Template: compiled_fsk
+Mar 1, 2012 12:18:19 AM: Posting job scope data element: elements.zip, URI: https://fds01.frontier.parabon.com:443/fcfs/clients/terry.ferrett%40gmail.com/jobs/61428_0/data/elements.zip
+Mar 1, 2012 12:18:19 AM: Creating task: 0
+Mar 1, 2012 12:18:19 AM: Setting runtime ID to: .*ubuntu-11.04-2.*
+Mar 1, 2012 12:18:19 AM: Task 0: adding output file: NFSK8AWGNCSI.mat
+Mar 1, 2012 12:18:19 AM: Task 0: command line: "/bin/sh" "-c" "unzip elements.zip && chmod +x SingleSimulate && ./SingleSimulate && ls && pwd" 
+Mar 1, 2012 12:18:19 AM: Task 0: environment: 
+Mar 1, 2012 12:18:19 AM: Task 0: require network access: false
+Mar 1, 2012 12:18:19 AM: Task 0: adding required extension: mcr2010a-1b.shar
+Mar 1, 2012 12:18:19 AM: Listening to job 3[61428_0]...
+Mar 1, 2012 12:59:55 AM: Task 0 reported progress: 0.0 and run mode: RUNNING
