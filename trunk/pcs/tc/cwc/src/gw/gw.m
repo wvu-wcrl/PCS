@@ -89,7 +89,7 @@ while(1)
         
         
         path(default_path); % restore the default path
-       
+	clear functions;    % without this statement, updates to the code will not take effect 3/2/2012
         
         catch exception
             % an error occurred in file loading or function execution.
@@ -153,11 +153,14 @@ function next_running = feed_running_queue(next_input, iq,  rq, wid)
 next_running = [beg '_' int2str(wid) en];
 
 
+
 cs = ['mv' ' ' iq '/' next_input ' ' rq '/' next_running ];
 
 
-
-system(cs);
+% capture the output of the system command to keep errors from
+%  flooding the log files.  need more elegant solution
+%  to input queue file locking problem
+[not_used not_used] = system(cs);
 
 end
 
