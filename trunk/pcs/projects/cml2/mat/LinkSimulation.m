@@ -47,7 +47,7 @@ classdef LinkSimulation < Simulation
             SimState.FrameErrors = SimState.BitErrors;
             SimState.BER = SimState.BitErrors;
             SimState.FER = SimState.BitErrors;
-            try [Status, SimState.NodeID] = system('hostname'); catch end
+            [Status, SimState.NodeID] = system('hostname');
             SimState.StartTime = 0;
             SimState.StopTime = 0;
 
@@ -76,7 +76,7 @@ classdef LinkSimulation < Simulation
         
         function SimState = SingleSimulate(obj, SimParam)
             obj.SimState.StartTime = clock;
-            try [Status, SimState.NodeID] = system('hostname'); catch end
+            [Status, SimState.NodeID] = system('hostname');
             if(nargin>=2 && ~isempty(SimParam)), obj.SimParamInit( SimParam ); end
             Test = false;              % Turning off test (scheduler will decide if it needs to run full work unit).
             TestInactivation = false;  % Don't want to deactivate in this method when error rate is below minBER or minFER.
@@ -111,9 +111,11 @@ classdef LinkSimulation < Simulation
                 
                 % Check if we can discard SNR points whose BER and FER WILL be less than SimParam.minBER and SimParam.minFER.
                 LastInactivePoint = find(ActiveSNRPoints == 0, 1, 'last');
-                if ( ~isempty(LastInactivePoint) && ...
-                     ( ( (obj.SimState.BER(end, LastInactivePoint) ~=0) && (obj.SimState.BER(end, LastInactivePoint) < obj.SimParam.minBER) ) || ...
-                     ( (obj.SimState.FER(end, LastInactivePoint) ~=0) && (obj.SimState.FER(end, LastInactivePoint) < obj.SimParam.minFER) ) ) )
+                if( ~isempty(LastInactivePoint) && ...
+                        ... % Changed on February 24, 2012. When SNR point is inactive, its BER or FER CAN be ZERO.
+                        ...( ( (obj.SimState.BER(end, LastInactivePoint) ~=0) && (obj.SimState.BER(end, LastInactivePoint) < obj.SimParam.minBER) ) || ...
+                        ...( (obj.SimState.FER(end, LastInactivePoint) ~=0) && (obj.SimState.FER(end, LastInactivePoint) < obj.SimParam.minFER) ) ) )
+                        ( obj.SimState.BER(end,LastInactivePoint) < obj.SimParam.minBER || obj.SimState.FER(end,LastInactivePoint) < obj.SimParam.minFER ) )
                     ActiveSNRPoints(LastInactivePoint:end) = 0;
                     if(Test && (sum(OldActiveSNRPoints-ActiveSNRPoints) ~= 0) && TestInactivation)
                         fprintf( '\nThe simulation for SNR=%.2f dB and all SNRs above it is not required since BER=%e @ SNR=%.2f dB.\n', ...
@@ -137,17 +139,17 @@ classdef LinkSimulation < Simulation
                     msg = sprintf('\nMore TRIALS are run for simulation of SNR = %.2f dB.\n\n', obj.SimParam.SNR(SNRPoint));
                     fprintf( msg );
                     % Loop until either there are enough trials or enough errors or the time is up.
-                    while ( ( obj.SimState.Trials( 1, SNRPoint) < obj.SimParam.MaxTrials(SNRPoint) ) && ...
+                    while ( ( obj.SimState.Trials(SNRPoint) < obj.SimParam.MaxTrials(SNRPoint) ) && ...
                             ( obj.SimState.FrameErrors(end, SNRPoint) < obj.SimParam.MaxFrameErrors(SNRPoint) ) )
                         % Increment the trials counter.
-                        obj.SimState.Trials(1, SNRPoint) = obj.SimState.Trials(1, SNRPoint) + 1;
+                        obj.SimState.Trials(SNRPoint) = obj.SimState.Trials(SNRPoint) + 1;
                         [NumBitError, NumCodewordError] = obj.Trial(obj.EsN0(SNRPoint));
                         if( NumCodewordError(end)>0 ), fprintf('x');
                         else fprintf('.'); end
                         obj.UpdateErrorRate(SNRPoint, NumBitError, NumCodewordError);
 
                         % Determine if it is time to save and exit from while loop (once per CheckPeriod trials).
-                        if ~rem(obj.SimState.Trials(1, SNRPoint), obj.SimParam.CheckPeriod)
+                        if ~rem(obj.SimState.Trials(SNRPoint), obj.SimParam.CheckPeriod)
                             break;
                         end
                     end
