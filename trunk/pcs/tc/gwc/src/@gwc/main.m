@@ -45,7 +45,7 @@ while(1)  %%% main worker loop
     % check for completed job
     next_output = read_rapids_output(obj);
     if( ~isempty(next_output) )
-        consume_rapids_output( obj, next_output );
+        consume_rapids_outpu( obj, next_output );
     end
     
     pause(5);   % wait five seconds before making another pass
@@ -113,8 +113,7 @@ create_job_elements(obj, TaskParam);
 create_job_properties(obj);
 % create new job using Rapids interface
 create_rapids_job(obj);
-% increment rapids queue
-consume_rapids_output(obj,TaskParam, next_input);
+
 end
 
 
@@ -176,8 +175,8 @@ pre = obj.pre;
 rtn = obj.rtn;
 
 % call Rapids
-job_name = obj.jc;
-cmd = [pre ' '  'newjob' ' ' rtn ' 1 ' int2str(job_name)]; system(cmd);  % create new job
+job_name = int2str(obj.jc);
+cmd = [pre ' '  'newjob' ' ' rtn ' 1 ' job_name]; system(cmd);  % create new job
 cmd = [pre ' ' 'launch' ' ' job_name]; system(cmd);              % launch job
 cmd = [pre ' ' 'listen' ' ' job_name]; system(cmd);              % listen to job
 obj.jc = obj.jc + 1;
@@ -186,24 +185,6 @@ end
 
 
 
-
-function tpp = read_rapids_output(obj)
-
-% scan for output file in active job directories
-tp = obj.tp;      % Rapids template path
-rtn = obj.rtn;   % Rapids template name
-
-
-% need to associate jobs, tasks, job names, and 
-
-op = [tp '/' rtn '/' 'resultsets' '/' '0' '/' 'NFSK8AWGNCSI0.mat'];   % output path
-
-tpe = dir(op); % task param exists
-if length(tpe) ~= 1,  % if task param does not exist, return empty string
-tpp = '';
-end
-
-end
 
 
 
