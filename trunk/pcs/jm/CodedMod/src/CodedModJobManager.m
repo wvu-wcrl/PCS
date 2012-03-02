@@ -243,8 +243,10 @@ while(runningJob)
 
                         successJR = 1;
 
-                        % Update the Global SimState.
-                        SimStateGlobal = UpdateSimStateGlobal(SimStateGlobal, SimStateLocal);
+                        % Update the Global SimState if the received Task has done some trials.
+                        if sum(SimStateLocal.Trials)~=0
+                            SimStateGlobal = UpdateSimStateGlobal(SimStateGlobal, SimStateLocal);
+                        end
                     else
                         error('CodedModJobManager:LoadRJob', 'Job file could not be loaded from either JobRunning or JobOut directory.');
                     end
@@ -314,8 +316,10 @@ while(runningJob)
                         SimParamLocal = TaskContent.TaskParam.InputParam;
                         SimStateLocal = TaskContent.TaskState;
                         
-                        % Update the Global SimState.
-                        SimStateGlobal = UpdateSimStateGlobal(SimStateGlobal, SimStateLocal);
+                        % Update the Global SimState if the received Task has done some trials.
+                        if sum(SimStateLocal.Trials)~=0
+                            SimStateGlobal = UpdateSimStateGlobal(SimStateGlobal, SimStateLocal);
+                        end
 
                         % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save timing info.
                         [eTimeTrial, NodeID_Times] = ExtractETimeTrial( SimStateLocal, NodeID_TimesIn, eTimeTrialIn, CurrentTime );
