@@ -19,8 +19,6 @@ UserListPrimary = [];
 NodeID_TimesIn = [];
 eTimeTrialIn = [];
 
-ClusterGlobalTimer = tic;   % Global timer of job manager to keep track of timing information of finished tasks.
-
 % Echo out starting time of running coded-modulation simulation job manager.
 msg = sprintf( '\nCoded-modulation simulation JOB MANAGER started at %s.\n\n', datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
 PrintOut(msg, 0);
@@ -29,6 +27,8 @@ runningJob = 1;
 running = 1;
 
 while(runningJob)
+    ClusterGlobalTimer = tic;   % Global timer of job manager to keep track of timing information of finished tasks.
+    
     Check4NewUser = 0;
     msg = sprintf( '\n\n\nThe list of ACTIVE users is extracted and updated at %s.\n\n\n', datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
     PrintOut(msg, 0);
@@ -379,8 +379,10 @@ while(runningJob)
                     LastInactivePoint = find(ActiveSNRPoints == 0, 1, 'last');
 
                     StoppingCriteriaT = ~isempty(LastInactivePoint) && ...
-                        ( ( (SimStateGlobal.BER(end, LastInactivePoint) ~=0) && (SimStateGlobal.BER(end, LastInactivePoint) < SimParamGlobal.minBER) ) || ...
-                        ( (SimStateGlobal.FER(end, LastInactivePoint) ~=0) && (SimStateGlobal.FER(end, LastInactivePoint) < SimParamGlobal.minFER) ) );
+                        ... % Changed on February 24, 2012. When SNR point is inactive, its BER or FER CAN be ZERO.
+                        ... ( ( (SimStateGlobal.BER(end, LastInactivePoint) ~=0) && (SimStateGlobal.BER(end, LastInactivePoint) < SimParamGlobal.minBER) ) || ...
+                        ... ( (SimStateGlobal.FER(end, LastInactivePoint) ~=0) && (SimStateGlobal.FER(end, LastInactivePoint) < SimParamGlobal.minFER) ) );
+                        (SimStateGlobal.BER(end,LastInactivePoint) < SimParamGlobal.minBER || SimStateGlobal.FER(end,LastInactivePoint) < SimParamGlobal.minFER);
 
                     if StoppingCriteriaT
                         ActiveSNRPoints(LastInactivePoint:end) = 0;
