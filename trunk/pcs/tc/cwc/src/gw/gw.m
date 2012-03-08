@@ -89,7 +89,7 @@ while(1)
         
         
         path(default_path); % restore the default path
-	clear functions;    % without this statement, updates to the code will not take effect 3/2/2012
+       
         
         catch exception
             % an error occurred in file loading or function execution.
@@ -103,6 +103,19 @@ while(1)
         msg = [msg 'failed to execute.'];
         log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
         log_msg(exception.message, IS_NOT_VERBOSE, VERBOSE_MODE);
+
+
+
+
+        % append "_failed" to the task filename and move to output queue
+	task_name_failed = str_append(next_input, '_failed');
+        write_output(TaskParam, struct(), task_name_failed, oq);
+        consume_running_queue(next_running, rq);
+
+        fprintf(task_name_failed)
+        fprintf(next_running)
+
+
         end
     end
     
@@ -153,14 +166,11 @@ function next_running = feed_running_queue(next_input, iq,  rq, wid)
 next_running = [beg '_' int2str(wid) en];
 
 
-
 cs = ['mv' ' ' iq '/' next_input ' ' rq '/' next_running ];
 
 
-% capture the output of the system command to keep errors from
-%  flooding the log files.  need more elegant solution
-%  to input queue file locking problem
-[not_used not_used] = system(cs);
+
+system(cs);
 
 end
 
@@ -281,4 +291,14 @@ function log_msg(msg, msg_verbose, log_mode_verbose)
 if ~(msg_verbose == 1 & log_mode_verbose == 0), 
   fprintf(msg); fprintf('\n');
 end
+end
+
+
+% append 'append_str' to old_str to form new_str
+function new_str = str_append(old_str, append_str)
+
+  prefix = old_str(1:end-4);
+  suffix = old_str(end-3:end);
+  new_str = strcat(prefix, append_str, suffix);
+
 end
