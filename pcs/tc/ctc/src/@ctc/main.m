@@ -319,6 +319,7 @@ for k = 1:nf,
 
         if findstr( fl(k).name, name )
 
+	% remove username from filename
             [beg on] = strtok(fl(k).name, '_'); on = on(2:end);    % cut the username off of the filename
 
 
@@ -332,7 +333,16 @@ for k = 1:nf,
 
 	    purq = obj.users{m}.rq{1};
 
+
+%%%%%%% functionalize %%%
+        % remove 'failed' from filename, if exists	    
+	if findstr( on, 'failed')
+          prefix = on(1:end-11);
+          suffix = '.mat';
+          on = [prefix suffix];
+        end
 	    cmd_str = ['sudo rm' ' ' purq '/'  on]; system(cmd_str); % remove file from user running queue
+%%%%%%%%%%%%%%%%%%%%%%%%%
 
 	    
         end

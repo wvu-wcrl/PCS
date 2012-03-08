@@ -103,6 +103,19 @@ while(1)
         msg = [msg 'failed to execute.'];
         log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
         log_msg(exception.message, IS_NOT_VERBOSE, VERBOSE_MODE);
+
+
+
+
+        % append "_failed" to the task filename and move to output queue
+	task_name_failed = str_append(next_input, '_failed');
+        write_output(TaskParam, struct(), task_name_failed, oq);
+        consume_running_queue(next_running, rq);
+
+        fprintf(task_name_failed)
+        fprintf(next_running)
+
+
         end
     end
     
@@ -278,4 +291,14 @@ function log_msg(msg, msg_verbose, log_mode_verbose)
 if ~(msg_verbose == 1 & log_mode_verbose == 0), 
   fprintf(msg); fprintf('\n');
 end
+end
+
+
+% append 'append_str' to old_str to form new_str
+new_str = str_append(old_str, append_str)
+
+  prefix = old_str(1:end-4);
+  suffix = old_str(end-4:end);
+  new_str = strcat(prefix, append_str, suffix);
+
 end
