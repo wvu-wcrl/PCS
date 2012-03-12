@@ -13,7 +13,7 @@ system(cs);
 
 % start generic worker
 cd(rootdir);
-gw(1, iq, rq, oq);
+gw(1, iq, rq, oq, iq, 10000, 1, 0);
 
 
 % observe queues
