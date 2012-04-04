@@ -21,12 +21,6 @@
 
 classdef gwc < handle
     
-    % grid worker controller state
-    properties
-    rtc    % rapids task vector - track state of rapids tasks
-    mrt    % maximum number of simultaneous rapids tasks
-    jc       % job counter - increments as rapids jobs are launched
-    end
     
        
     % grid worker controller paths.
@@ -41,12 +35,10 @@ classdef gwc < handle
         bs     % path to bash scripts
        
         pre  % path to Rapids executable - hard coded for now
-        tp     % path to rapids template
-        rtn    % rapids template name
+        tp     % path to rapids templates
         rtp    % rapids temporary path - scratch area
         tez    % temporary elements.zip path
         pjp    % path to job.properties
-       
     end
  
 
@@ -77,25 +69,11 @@ classdef gwc < handle
     methods
 
         main(obj)   % primary control loop
+ 
+        jobid = start_job(obj, job_name, dataset, resultset)     % create new rapids job
         
+        update_job(obj, job_name, task_name)    % add new task to existing rapids job
         
-
-        % Start single worker.
-        %staw(obj, worker)
-        
-        % Start workers on entire cluster.
-        %cSta(obj, varargin)
-        
-        % Stop single worker.
-        %stow(obj, worker)
-        
-        % Stop workers on entire cluster.
-        %cSto(obj, varargin)
-
-	% slay all active workers
-	%slay(obj);
-                
-                
         
     end
     
