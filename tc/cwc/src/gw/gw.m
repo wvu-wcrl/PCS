@@ -7,7 +7,7 @@
 % outline of main loop
 %  1. look for task files in input queue
 %  2. if files exist, pick one randomly
-$  3. read task execution information from randomly selected file
+%  3. read task execution information from randomly selected file
 %  4. execute task
 %
 % Version 3

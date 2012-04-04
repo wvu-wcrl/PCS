@@ -6,9 +6,49 @@
 %  grid tasks using Rapids
 %
 %
-% Version 1
-% 2/22/2012
+% Version 2
+% 4/2/2012
 % Terry Ferrett
+
+
+
+function obj = main(obj)
+
+
+   while(1)
+
+     scan_for_input();            % scan user directores for input
+
+     if( USER_INPUT_EXISTS )
+    
+           schedule();                  % schedule discovered user tasks
+
+	   if( NEW_JOB_REQUESTED )
+
+              start_job();                 % if a task requesting a new job is discovered, start the job
+
+           else
+
+              update_job();                  % add task to existing job
+
+           end
+      end
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function obj = main(obj)
 
