@@ -1,16 +1,14 @@
-classdef MeanOutageNakagami< handle
+classdef MeanOutageNakagami< OutageNakagami
     
-    % Computes average outage probability for N networks, each of size M
+    % Computes outage probability averaged over a BPP given the size of the
+    % annular network arena and the number of nodes, placed there
+    
+    % by S. Talarico
     
     properties
         Beta              % SINR threshold
         Gamma             % Average signal-to-noise ratio(SNR) at unit distance (Vector)
         p                 % Probability of collisions
-        m                 % Nakagami shape factor for the source link
-        m_i               % Nakagami factor for the interfereres (length M vector)
-        M                 % Number of nodes
-        indices           % The set of indices summing to r
-        coefficients      % The multinomial coefficients used inside the outage probability's product
         integral          % Computation of the integral 
         integralFibp      % Computation of the integral for the adjacent channels
         alpha             % path loss exponent
@@ -20,7 +18,14 @@ classdef MeanOutageNakagami< handle
         c_i               % takes into account DS spread-spectrum by c_i=(G/h)*(P_0/P_i), where:
         % - G: processing Gain;
         % - h: Chip factor.
-        Fibp              % fractional in-band power
+        Fibp              % fractional in-band power       
+%%%%%%%%% These properties are inherited from OutageNakagami %%%%%%%%%             
+%       m                 % Nakagami shape factor for the source link
+%       m_i               % Nakagami factor for the interfereres (length M vector)
+%       M                 % Number of nodes
+%       indices           % The set of indices summing to r
+%       coefficients      % The multinomial coefficients used inside the outage probability's product
+%%%%%%%%%    
     end
     
     properties (GetAccess='private' , SetAccess='private')
@@ -30,82 +35,23 @@ classdef MeanOutageNakagami< handle
     methods
         % constructor
         function obj = MeanOutageNakagami( r_net ,r_ex,alpha,m,m_i,M,PG, varargin )
+
+            if nargin==7
+                TableDir=[];
+            else
+                TableDir=varargin{1};
+            end          
             
-            % later, we should change to allow the object to accept a "network" object as input
+            % calling it, automatically indices and coefficients are created
+            obj@OutageNakagami(zeros(1,M),m,m_i,TableDir);
+            
             obj.r_net = r_net;
             obj.r_ex  = r_ex;
             obj.alpha = alpha;
-            obj.m = m;
-            obj.m_i = m_i;
-            obj.M   = M;
             obj.c_i=PG;
             
-            if nargin==7
-                % no directory specified, create the index tables
-                obj.ComputeIndices( );
-            else
-                obj.TableDir = varargin{1};
-                
-                % build the name of the index table
-                IndexTable = [obj.TableDir 'IndicesM' int2str( obj.M ) 'm' int2str(obj.m) '.mat'];
-                
-                % either create or load the file
-                try
-                    % try to load the file
-                    load( IndexTable, 'indices' );
-                    
-                    % it loaded, assign results to indices
-                    obj.indices = indices;
-                    
-                catch
-                    
-                    % it did not load, so create the index tables
-                    obj.ComputeIndices( );
-                    
-                    % save it
-                    indices = obj.indices;
-                    save( IndexTable, 'indices');
-                end
-            end
-            obj.ComputeCoefficients( );
         end
-        
-        function obj = ComputeIndices( obj )
-            % create the indices structure
-            % for r+1=1, the only set of indices is all zeros
-            obj.indices{1} = zeros( 1, obj.M );
-            
-            for r=1:(obj.m-1)
-                obj.indices{r+1} = allVL1(obj.M,r);
-            end
-        end
-        
-        function obj = ComputeCoefficients( obj )
-            % create the coefficients structure
-            obj.coefficients{1} = ones( 1, obj.M );
-            
-            for r=1:(obj.m-1)
-                % initialize this member of the cell arrays
-                obj.coefficients{r+1} = ones( size( obj.indices{r+1} ) );
-                for ell=1:r
-                    if ( size( obj.m_i ) == 1)
-                        % all m_i are the same
-                        this_coef = gamma( ell + obj.m_i )/factorial(ell)/gamma( obj.m_i );
-                        % the following line requires m_i to be integer valued
-                        % this_coef = nchoosek( ell + obj.m_i - 1, obj.m_i - 1);
-                        obj.coefficients{r+1}( obj.indices{r+1} == ell ) = this_coef;
-                    else
-                        for node=1:obj.M
-                            this_coef = gamma( ell + obj.m_i(node) )/factorial(ell)/gamma( obj.m_i(node) );
-                            % the following line requires m_i to be integer valued
-                            % this_coef = nchoosek( ell + obj.m_i(node) - 1, obj.m_i(node) - 1);
-                            obj.coefficients{r+1}( (obj.indices{r+1}(:,node) == ell), node ) = this_coef;
-                        end
-                    end
-                end
-            end
-        end      
-                
+                       
         function obj = ComputeIntegral( obj, Beta )
             % creates a structure with the value of the integrals
             elli=unique(obj.indices{1});
@@ -207,17 +153,13 @@ classdef MeanOutageNakagami< handle
                         % it loaded, assign results to integral_elli
                         obj.integral = integral;
                     end
-                    
-                catch
-                    
+                catch 
                     if Fibp~=1
-                        
                         obj.ComputeIntegralFibp(Beta,Fibp);
                         integralFibp = obj.integralFibp ;
                         integral = obj.integral;
                         
                         save( IntegralTable, 'integral','integralFibp' );
-                        
                     else
                         % it did not load, so create the integral tables
                         obj.ComputeIntegral(Beta );
@@ -225,7 +167,6 @@ classdef MeanOutageNakagami< handle
                         integral = obj.integral;
                         save( IntegralTable, 'integral' );
                     end
-                    
                 end
             end
             
@@ -341,19 +282,19 @@ classdef MeanOutageNakagami< handle
             if (nargin==5)
                 Fibp = varargin{1}; % fraction of inband power
                 D4 = length( Fibp );
-                epsilon = zeros( D1, D2, D3, D4 ); % preallocate
+                epsilon = zeros( D3,D1, D2,  D4 ); % preallocate
             else
-                epsilon = zeros(D1,D2,D3);  % preallocate
+                epsilon = zeros(D3,D1,D2);  % preallocate
             end
 
             for j=1:D1
                 for i=1:D2
                     if (nargin==5)
                         for q=1:D4
-                            epsilon(j,i,:,q) = obj.ComputeSingleOutageSplatter( Gamma(j), Beta(i), p, Fibp(q) ) ;
+                            epsilon(:,j,i,q) = obj.ComputeSingleOutageSplatter( Gamma(j), Beta(i), p, Fibp(q) ) ;
                         end
                     else
-                        epsilon(j,i,:) = obj.ComputeSingleOutage( Gamma(j), Beta(i), p ) ;
+                        epsilon(:,j,i) =  obj.ComputeSingleOutage( Gamma(j), Beta(i), p ) ;
                     end
                 end
             end

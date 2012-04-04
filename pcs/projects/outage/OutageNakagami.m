@@ -30,7 +30,7 @@ classdef OutageNakagami < handle
             
             % determine the number of networks and nodes
             [obj.N obj.M] = size( obj.Omega_i );
-            
+                       
             % fourth argument is the location of the directory of index tables
             if (nargin == 4)
                 TableDir = varargin{4};
@@ -51,8 +51,10 @@ classdef OutageNakagami < handle
                     obj.ComputeIndices( );
                     
                     % save it
-                    indices = obj.indices;
-                    save( IndexTable, 'indices' );                    
+                    if TableDir~=[]
+                        indices = obj.indices;
+                        save( IndexTable, 'indices' );
+                    end
                 end               
                 
             else
