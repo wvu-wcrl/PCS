@@ -92,7 +92,9 @@ classdef cwc < handle
 
 	% slay all active workers
 	slay(obj);
-                
+
+        % monitor and revive workers which die
+	status(obj);
         
         % return the number of workers for user 'user'
         %[NumberWorkers nodes] = cstat(obj, user)
