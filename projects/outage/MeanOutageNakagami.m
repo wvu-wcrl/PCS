@@ -190,8 +190,8 @@ classdef MeanOutageNakagami< OutageNakagami
                         factors = coef.*coef_integral;
                         if Fibp~=1
                             coef_integral1 = obj.integralFibp{r+1}(ellset,:);
-                            factors1 = (2/p-2)*coef.*coef_integral1;
-                            sum_ell = sum_ell + prod( ((repmat(p',1,obj.M).*repmat(factors,length(p),1)+ (repmat((p.^2)',1,obj.M).*repmat(factors1,length(p),1))).*(2/(obj.alpha*obj.c_i^(2/obj.alpha)*(obj.r_net^2-obj.r_ex^2))) + repmat((1-(3*p-2*p^2))',1,obj.M).*repmat((elli==0),length(p),1))');
+                            factors1 = coef.*coef_integral1;
+                            sum_ell = sum_ell + prod( ((repmat(p',1,obj.M).*repmat(factors,length(p),1)+ (repmat((2*p-2*p.^2)',1,obj.M).*repmat(factors1,length(p),1))).*(2/(obj.alpha*obj.c_i^(2/obj.alpha)*(obj.r_net^2-obj.r_ex^2))) + repmat((1-(3*p-2*p.^2))',1,obj.M).*repmat((elli==0),length(p),1))');
                         else
                             sum_ell = sum_ell + prod( (repmat(p',1,obj.M).*repmat(factors*(2/(obj.alpha*obj.c_i^(2/obj.alpha)*(obj.r_net^2-obj.r_ex^2))),length(p),1)+ repmat((1-p)',1,obj.M).*repmat((elli==0),length(p),1))') ;
                         end
@@ -291,9 +291,11 @@ classdef MeanOutageNakagami< OutageNakagami
                 for i=1:D2
                     if (nargin==5)
                         for q=1:D4
+                            % p is given as a vector
                             epsilon(:,j,i,q) = obj.ComputeSingleOutageSplatter( Gamma(j), Beta(i), p, Fibp(q) ) ;
                         end
                     else
+                            % p is given as a vector
                         epsilon(:,j,i) =  obj.ComputeSingleOutage( Gamma(j), Beta(i), p ) ;
                     end
                 end
