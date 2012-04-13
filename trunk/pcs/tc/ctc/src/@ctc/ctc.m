@@ -26,6 +26,8 @@ classdef ctc < handle
     
     properties       % cluster state
         cfp    % config file path
+
+        ucfg   % user configuration filename
         
         gq     % global queue paths - read from config file
                % iq - input 
@@ -43,11 +45,12 @@ classdef ctc < handle
         aw % active workers
         
         users  % cell array of structs containg active users
-        % username -                           .name
+        % username -                           username
         % input queue path -                 iq
         % running path -                       rq
         % output path -                         oq
-        % active workers for this user- aw        
+        % active workers for this user-        aw
+        % user location - web or local        user_location        
   
         
     end

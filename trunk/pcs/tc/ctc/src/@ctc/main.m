@@ -97,8 +97,9 @@ end
 
 
 
-
-function [users_srt fl_srt] = schedule(obj, au, fl)   % sort the users by number of active workers in use
+% sort the users by number of active workers possessed by each
+%   number of workers for each user taken from user 
+function [users_srt fl_srt] = schedule(obj, au, fl)  
 
 ntu = length(obj.users);    % total number of users
 
@@ -255,11 +256,32 @@ end
 
 function calculate_active_workers(obj) % scan the global running queue and count the active workers for each user
 
+
+%%%%%%%% get list of files in running and input queues %%%
+%% read the files in the global running queue%%%
+srch = strcat(obj.gq.rq{1}, '/*.mat');
+rqf = dir( srch ); 
+
+%% read the files in the global input queue
+srch = strcat(obj.gq.iq{1}, '/*.mat');  
+iqf = dir( srch ); 
+
+%% concatenate the two file lists
+bqf = struct_cat(rqf,iqf);  % file list concatenated from both queues
+
+
+%% calculate the resulting length
+nf = length(bqf);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
 %% read files in global running queue %%
-srch = strcat(obj.gq.rq{1}, '/*.mat');  
-fl = dir( srch ); 
-nf = length(fl);
+%srch = strcat(obj.gq.rq{1}, '/*.mat');  
+%nf = length(fl);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 nu = length(obj.users);                % loop over all users
@@ -272,7 +294,7 @@ for k = 1:nu,
 
     for m = 1:nf,                      % loop over all files and determine the user
 
-        isuser = findstr(fl(m).name, name);  % find the username embedded in the filename and compare
+        isuser = findstr(bqf(m).name, name);  % find the username embedded in the filename and compare
 
         if isempty(isuser),
         elseif isuser == 1,            % pattern matches. add user.
@@ -284,6 +306,7 @@ for k = 1:nu,
     obj.users{k}.aw = nw;  % update active user count
 
 end
+
 
 nw = 0;         % add up all active workers for all users
 for k = 1:nu,
@@ -315,7 +338,18 @@ for k = 1:nf,
 
     for m = 1:nu,
 
-        name = obj.users{m}.username;           % shorten the name
+        % names for file ownership
+	if( strcmp(obj.users{m}.user_location, 'WEB') )
+	ownership_name = 'tomcat55';
+	ownership_group = 'tomcatusers';
+        elseif( strcmp(obj.users{m}.user_location, 'LOCAL') )
+        ownership_name = obj.users{m}.username;           % shorten the name
+	ownership_group = obj.users{m}.username;
+        end
+
+	% name for task ownership
+	name = obj.users{m}.username;
+        
 
         if findstr( fl(k).name, name )
 
@@ -326,7 +360,7 @@ for k = 1:nf,
             puoq = obj.users{m}.oq{1};                             % path to user output queue
 
 
-            cmd_str = ['sudo chown' ' ' name ':' name ' ' pgoq '/' fl(k).name]; system(cmd_str);   % change ownership back to user
+            cmd_str = ['sudo chown' ' ' ownership_name ':' ownership_group ' ' pgoq '/' fl(k).name]; system(cmd_str);   % change ownership back to user
 
 
             cmd_str = ['sudo mv' ' ' pgoq '/'  fl(k).name ' ' puoq '/' on];  system(cmd_str); % move file to user output queue
@@ -352,3 +386,22 @@ end
 end
 
 
+
+
+% concatenate two structs having identical fields
+function bqf = struct_cat(rqf,iqf)
+
+% get the length of both structs
+l1 = length(rqf);
+l2 = length(iqf);
+
+% concatenate the structs
+bqf = rqf;
+
+for k = 1:l2,
+bqf(l1+k) = iqf(k);
+end
+
+
+
+end
