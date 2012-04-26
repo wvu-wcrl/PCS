@@ -1,0 +1,38 @@
+[GeneralSpec]
+
+% Read name and FULL path to user's project directory.
+% JobIn, JobRunning, and JobOut directories are under this full path.
+ProjectRoot = '/home/mfanaei/Projects/CodedMod';
+% ProjectRoot = '/home/web_users/mohammad.fanaei/Projects/CodedMod';
+
+% Read name and FULL path to user's task directory. TaskIn and TaskOut directories are under this path.
+% TasksRoot = '/home/mfanaei/Tasks';
+% TasksRoot = '/home/web_users/mohammad.fanaei/Tasks';
+
+% Name and full path of function to be executed for running each task.
+FunctionName = 'CodedModTaskInit';
+FunctionPath = [filesep 'rhome' filesep 'pcs' filesep 'projects' filesep 'cml2' filesep 'mat' filesep];
+
+
+[TasksInSpec]
+
+% Maximum number of input tasks in TaskIn queue/directory.
+MaxInputTasks = 1000;
+% Number of input tasks in TaskIn queue/directory beyond which generation of new tasks is slowed down until it reaches the maximum of MaxInputTasks.
+TaskGenDecelerate = 750;
+% Maximum number of input tasks to be submitted to TaskIn at a time/each step.
+MaxTaskGenStep = 60;
+% Number of new input tasks saved in temporary directory (TempJMDir) that should be moved to TaskIn directory of user at a time.
+TaskInFlushRate = 10;
+% Maximum number of parallel jobs running at a time.
+MaxRunningJobs = 3;
+
+
+[RunTimeSpec]
+
+% Quick initial running time of each task to quickly get initial results back.
+InitialRunTime = 30;
+% Longer running time of each task in the long term.
+RunTime = 120;
+% Pause time to wait between task submissions.
+PauseTime = 0.5;

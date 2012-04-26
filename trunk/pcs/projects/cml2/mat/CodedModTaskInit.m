@@ -1,15 +1,14 @@
-function SimState = CodedModTaskInit(CodedModParam)
+function TaskState = CodedModTaskInit(CodedModParam)
 % This function uses LinkSimulation class to simulate the performance of a coded-modulation communication system.
 %
-% CodedModParam is a structure defining simulation parameters:
+% CodedModParam is a structure defining simulation parameters.
 % CodedModParam = struct(...
 %     'CodeType', [],...        % Type of the channel code used.
 %     ...                       % =00 (Recursive Systematic Convolutional (RSC) code).
 %     ...                       % =01 (Non-Systematic Convolutional (NSC) code), =02 (Tail-biting NSC code).
 %     ...                       % =20 (General LDPC code specified by its parity-check matrix in alist format saved in a file).
 %     ...                       % =21 (DVBS2 LDPC code), =22 (WiMax LDPC code).
-%     'AListFilePath', [],...   
-%     ...                       % FULL path to alist file containing the parity-check matrix of LDPC code.
+%     'AListFilePath', [],...   % FULL path to alist file containing the parity-check matrix of LDPC code.
 %     'EffectiveRate', 1/2,...  % Effective rate of LDPC code for DVBS2 and WiMax standards.
 %     'FrameSize', 64800,...    % Size of the code (number of code bits).
 %     'WiMaxLDPCInd', [],...    % Selects either code ’A’ or code ’B’ for rates 2/3 and 3/4 of WiMax LDPC codes.
@@ -24,7 +23,7 @@ function SimState = CodedModTaskInit(CodedModParam)
 %     'MaxFrameErrors', 100*ones(size(SNR)), ...
 %     'minBER', 1e-5, ...
 %     'minFER', 1e-5, ...
-%     'SimTime', 300, ...       % Simulation time in Seconds.
+%     'RunTime', 300, ...       % Simulation time in Seconds.
 %     'MaxIteration', 30,...    % Maximum number of message passing decoding iterations for LDPC decoding (Default MaxIteration=30).
 %     'DecoderType', 0,...      % Message passing LDPC decoding algorithm: =0 (sum-product) (DEFAULT), =1 (min-sum), =2 (approximate min-sum).
 %     'ModulationObj', [],...
@@ -39,8 +38,9 @@ function SimState = CodedModTaskInit(CodedModParam)
 %     ...                       % =0 (linear approximation to log-MAP) (DEFAULT), =1 (max-log-MAP) (i.e. max*(x,y) = max(x,y)).
 %     ...                       % =2 (constant-log-MAP), =3 (log-MAP, correction factor from small nonuniform table and interpolation).
 %     ...                       % =4 (log-MAP, correction factor uses C function calls).
-%     'ZeroRandFlag', 0);       % A binary flag which is used when input vector to the encoder DataBits is not given to Encode method of CodedModulation class.
+%     'ZeroRandFlag', 0,...     % A binary flag which is used when input vector to the encoder DataBits is not given to Encode method of CodedModulation class.
 %     	                        % =0 generate a vector of ALL ZEROS (Default), =1 generate a RANDOM vector of bits.
+%     'RandSeed',1000*sum(clock));  % New seed for the random generator of current worker.
 %
 % For NORMAL frames in DVBS2 standard: EffectiveRate = 1/4, 1/3, 2/5, 1/2, 3/5, 2/3, 3/4, 4/5, 5/6, 8/9, 9/10.
 % For SHORT  frames in DVBS2 standard: EffectiveRate = 1/4, 1/3, 2/5, 1/2, 3/5, 2/3, 3/4, 4/5, 5/6, 8/9.
@@ -51,18 +51,19 @@ function SimState = CodedModTaskInit(CodedModParam)
 % First, set the path.
 OldPath = SetPath();
 
-if( ~isfield(CodedModParam, 'CodeType') || isempty(CodedModParam.CodeType) ), CodedModParam.CodeType = 1; end
+if( ~isfield(CodedModParam, 'CodeType') || isempty(CodedModParam.CodeType) ), CodedModParam.CodeType = 21; end
 if( ~isfield(CodedModParam, 'SNRType') || isempty(CodedModParam.SNRType) ), CodedModParam.SNRType = 'Es/N0 in dB'; end
 if( ~isfield(CodedModParam, 'MaxTrials') || isempty(CodedModParam.MaxTrials) ), CodedModParam.MaxTrials = 1e9; end
-if( ~isfield(CodedModParam, 'MaxBitErrors') || isempty(CodedModParam.MaxBitErrors) ), CodedModParam.MaxBitErrors = 5e15*ones(size(CodedModParam.SNR)); end
+if( ~isfield(CodedModParam, 'MaxBitErrors') || isempty(CodedModParam.MaxBitErrors) ), CodedModParam.MaxBitErrors = 5e10*ones(size(CodedModParam.SNR)); end
 if( ~isfield(CodedModParam, 'MaxFrameErrors') || isempty(CodedModParam.MaxFrameErrors) ), CodedModParam.MaxFrameErrors = 100*ones(size(CodedModParam.SNR)); end
 if( ~isfield(CodedModParam, 'minBER') || isempty(CodedModParam.minBER) ), CodedModParam.minBER = 1e-5; end
 if( ~isfield(CodedModParam, 'minFER') || isempty(CodedModParam.minFER) ), CodedModParam.minFER = 1e-5; end
-if( ~isfield(CodedModParam, 'SimTime') || isempty(CodedModParam.SimTime) ), CodedModParam.SimTime = 300; end
+if( ~isfield(CodedModParam, 'RunTime') || isempty(CodedModParam.RunTime) ), CodedModParam.RunTime = 300; end
 if( ~isfield(CodedModParam, 'MaxIteration') || isempty(CodedModParam.MaxIteration) ), CodedModParam.MaxIteration = 30; end
 if( ~isfield(CodedModParam, 'DecoderType') || isempty(CodedModParam.DecoderType) ), CodedModParam.DecoderType = 0; end
 if( ~isfield(CodedModParam, 'DemodType') || isempty(CodedModParam.DemodType) ), CodedModParam.DemodType = 0; end
 if( ~isfield(CodedModParam, 'ZeroRandFlag') || isempty(CodedModParam.ZeroRandFlag) ), CodedModParam.ZeroRandFlag = 0; end
+if( ~isfield(CodedModParam, 'RandSeed') || isempty(CodedModParam.RandSeed) ), CodedModParam.RandSeed = 1000*sum(clock); end
 
 CheckPeriod = 10;   % Checking time in number of Trials to see if the time is up.
 
@@ -100,8 +101,9 @@ switch CodedModParam.CodeType
         ChannelCodeObject = ConvCode(CodedModParam.Generator, CodedModParam.DataLength, 2, CodedModParam.DecoderType, CodedModParam.ConvDepth);
     case 20	% General LDPC code specified by its parity-check matrix in alist format saved in a file.
         if( ~isfield(CodedModParam, 'AListFilePath') || isempty(CodedModParam.AListFilePath) )
-            error('CodedModTaskInit:EmptyAListFilePath',...
-                'The FULL path to the alist file containing the parity-check matrix of LDPC code should be specified.');
+            % error('CodedModTaskInit:EmptyAListFilePath',...
+            %    'The FULL path to the alist file containing the parity-check matrix of LDPC code should be specified.');
+            CodedModParam.AListFilePath = input('What is the FULL path to the ALIST file representing the parity-check matrix of your LDPC code?\n\n','s');
         end
         ChannelCodeObject = LDPCCode( CodedModParam.AListFilePath, [], [], CodedModParam.MaxIteration, CodedModParam.DecoderType );
     case 21	% DVBS2 LDPC code.
@@ -121,24 +123,25 @@ CodedModObj = CodedModulation(ChannelCodeObject, ModOrder, CodedModParam.DemodTy
 SNRdB = 5;
 ChannelObj = AWGN( ModObj, 10^(SNRdB/10) );
 
-SimParam = struct(...
+TaskParam = struct(...
     'CodedModObj', CodedModObj, ...            % Coded modulation object.
     'ChannelObj', ChannelObj, ...              % Channel object (Modulation is a property of channel).
     'SNRType', CodedModParam.SNRType, ...
     'SNR', CodedModParam.SNR, ...              % Row vector of SNR points in dB.
     'MaxTrials', CodedModParam.MaxTrials, ...  % A vector of integers (or scalar), one for each SNR point. Maximum number of trials to run per point.
-    'SimTime', CodedModParam.SimTime, ...      % Simulation time in Seconds.
+    'RunTime', CodedModParam.RunTime, ...      % Simulation time in Seconds.
     'CheckPeriod', CheckPeriod, ...            % Checking time in number of Trials.
     'MaxBitErrors', CodedModParam.MaxBitErrors, ...
     'MaxFrameErrors', CodedModParam.MaxFrameErrors, ...
     'minBER', CodedModParam.minBER, ...
-    'minFER', CodedModParam.minFER );
+    'minFER', CodedModParam.minFER, ...
+    'RandSeed', CodedModParam.RandSeed);
 
-Link = LinkSimulation(SimParam);
-SimState = Link.SingleSimulate();
+Link = LinkSimulation(TaskParam);
+TaskState = Link.SingleSimulate();
 
-SimState.NumCodewords = Link.SimParam.CodedModObj.NumCodewords;
-SimState.DataLength = Link.SimParam.CodedModObj.ChannelCodeObject.DataLength;
+TaskState.NumCodewords = Link.SimParam.CodedModObj.NumCodewords;
+TaskState.DataLength = Link.SimParam.CodedModObj.ChannelCodeObject.DataLength;
 
 RemovePath(OldPath);
 
