@@ -11,7 +11,49 @@ classdef LinkSimulation < Simulation
         MaxIteration    % Maximum number of decoding iterations.
     end
     
+    methods( Static )
+        function PrevStream = SetRandSeed(SeedValue)
+            if( nargin<1 || isempty(SeedValue) ), SeedValue = 1000*sum(clock); end
+            if( verLessThan('matlab','7.7') || ~exist('RandStream','class') )
+                % RandStream class was added to MATLAB Version 7.7 Release (R2008b).
+                PrevStream = rand('twister');
+                rand('twister',SeedValue);
+                randn('state',SeedValue);
+            else
+                % In newer than Version 7.7 Release (R2008b) of MATLAB, it is recommended to use RandStream class.
+                CurRndStream = RandStream('mt19937ar','Seed',SeedValue);
+                MethodList = methods(CurRndStream);
+                if sum( strcmpi(MethodList,'setGlobalStream') )==1
+                    PrevStream = RandStream.setGlobalStream(CurRndStream);
+                elseif sum( strcmpi(MethodList,'setDefaultStream') )==1
+                    PrevStream = RandStream.setDefaultStream(CurRndStream);
+                end
+            end
+        end
+    end
+        
     methods( Access = protected )
+        function SimStateInit(obj)
+            SimState.Trials = zeros(1, obj.NumNewPoints);
+            SimState.BitErrors = zeros(obj.MaxIteration, obj.NumNewPoints);
+            SimState.FrameErrors = SimState.BitErrors;
+            SimState.BER = SimState.BitErrors;
+            SimState.FER = SimState.BitErrors;
+            % [Status, SimState.NodeID] = system('hostname');
+
+            obj.SimState = SimState;
+        end
+    end
+    
+    methods
+        function obj = LinkSimulation(SimParam)
+            obj.SimParamInit( SimParam );
+            obj.SimStateInit();
+            if( ~isfield(SimParam, 'RandSeed') || isempty(SimParam.RandSeed) ), SimParam.RandSeed = []; end
+            obj.SetRandSeed( SimParam.RandSeed );
+        end
+        
+        
         function SimParamInit( obj, SimParam )
             if isfield( SimParam, 'SNR' )
                 obj.NumNewPoints = length( SimParam.SNR );
@@ -41,43 +83,10 @@ classdef LinkSimulation < Simulation
         end
         
         
-        function SimStateInit(obj)
-            SimState.Trials = zeros(1, obj.NumNewPoints);
-            SimState.BitErrors = zeros(obj.MaxIteration, obj.NumNewPoints);
-            SimState.FrameErrors = SimState.BitErrors;
-            SimState.BER = SimState.BitErrors;
-            SimState.FER = SimState.BitErrors;
-            [Status, SimState.NodeID] = system('hostname');
-            SimState.StartTime = 0;
-            SimState.StopTime = 0;
-
-            obj.SimState = SimState;
-        end
-        
-        
-        function Save(obj)
-            % Temporary filename.
-            TempFile = 'TempSave.mat';
-            % In case system crashes during save.
-            SimState = obj.SimState;
-            SimParam = obj.SimParam;
-            save( TempFile, 'SimState', 'SimParam' );
-
-            movefile( TempFile, obj.SimParam.FileName, 'f');
-        end
-    end
-    
-    methods
-        function obj = LinkSimulation(SimParam)
-            obj.SimParamInit( SimParam );
-            obj.SimStateInit();
-        end
-        
-        
         function SimState = SingleSimulate(obj, SimParam)
-            obj.SimState.StartTime = clock;
-            [Status, SimState.NodeID] = system('hostname');
             if(nargin>=2 && ~isempty(SimParam)), obj.SimParamInit( SimParam ); end
+            if( ~isfield(obj.SimParam, 'RandSeed') || isempty(obj.SimParam.RandSeed) ), obj.SimParam.RandSeed = []; end
+            obj.SetRandSeed(obj.SimParam.RandSeed);
             Test = false;              % Turning off test (scheduler will decide if it needs to run full work unit).
             TestInactivation = false;  % Don't want to deactivate in this method when error rate is below minBER or minFER.
             ElapsedTime = 0;
@@ -98,7 +107,7 @@ classdef LinkSimulation < Simulation
 %             end
             
             % Accumulate errors for different SNR points unitil time is up.
-            while ElapsedTime < obj.SimParam.SimTime
+            while ElapsedTime < obj.SimParam.RunTime
                 TaskTime = tic;
                 % Determine the number of remaining frame errors reqiured for each SNR point.
                 RemainingFrameError = obj.SimParam.MaxFrameErrors - obj.SimState.FrameErrors(end,:);
@@ -157,7 +166,6 @@ classdef LinkSimulation < Simulation
                     fprintf('\n');
                     if(Test), OldActiveSNRPoints = ActiveSNRPoints; end
                 else
-                    obj.SimState.StopTime = clock;
                     SimState = obj.SimState;
                     % Save the results only once when the time for simulation is up.
                     if ~obj.RunMode % Only do this if running locally.
@@ -166,7 +174,6 @@ classdef LinkSimulation < Simulation
                     return;
                 end
             end
-            obj.SimState.StopTime = clock;
             SimState = obj.SimState;
             % Save the results only once when the time for simulation is up.
             if ~obj.RunMode % Only do this if running locally.
@@ -190,6 +197,18 @@ classdef LinkSimulation < Simulation
                 obj.SimParam.CodedModObj.NumCodewords * obj.SimParam.CodedModObj.ChannelCodeObject.DataLength );
             obj.SimState.FER(:, SNRPoint) = obj.SimState.FrameErrors(:, SNRPoint) ./ ...
                 ( obj.SimState.Trials(1, SNRPoint) * obj.SimParam.CodedModObj.NumCodewords );
+        end
+        
+        
+        function Save(obj)
+            % Temporary filename.
+            TempFile = 'TempSave.mat';
+            % In case system crashes during save.
+            SimState = obj.SimState;
+            SimParam = obj.SimParam;
+            save( TempFile, 'SimState', 'SimParam' );
+
+            movefile( TempFile, obj.SimParam.FileName, 'f');
         end
     end
 end
