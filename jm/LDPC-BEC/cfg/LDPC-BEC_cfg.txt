@@ -2,8 +2,8 @@
 
 % Read name and FULL path to user's project directory.
 % JobIn, JobRunning, and JobOut directories are under this full path.
-ProjectRoot = '/home/mfanaei/Projects/LDPC-BEC';
-% ProjectRoot = '/home/web_users/mohammad.fanaei/Projects/LDPC-BEC';
+% ProjectRoot = '/home/mfanaei/Projects/LDPC-BEC';
+ProjectRoot = '/home/web_users/mohammad.fanaei/Projects/LDPC-BEC';
 
 % Read name and FULL path to user's task directory. TaskIn and TaskOut directories are under this path.
 % TasksRoot = '/home/mfanaei/Tasks';
