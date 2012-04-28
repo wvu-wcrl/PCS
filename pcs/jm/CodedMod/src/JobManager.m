@@ -228,7 +228,7 @@ classdef JobManager < handle
                                     end
                                     
                                     % Divide the JOB into multiple TASKs.
-                                    obj.DivideJob2Tasks(JobParam, JobState, CurrentUser, JobName, TaskRunTime);
+                                    CurrentUser.TaskID = obj.DivideJob2Tasks(JobParam, JobState, CurrentUser, JobName, TaskRunTime);
                                 end
                                 % Done!
                                 msg = sprintf( '\n\nDividing Input/Running job to tasks for user %s is done at %s. Waiting for its next job or next job division! ...\n\n',...
@@ -448,7 +448,7 @@ classdef JobManager < handle
                                             TaskRunTime = CurrentUser.RunTime;
                                             
                                             % Divide the JOB into multiple TASKs.
-                                            obj.DivideJob2Tasks(JobParam, JobState, CurrentUser, JobName, TaskRunTime);
+                                            CurrentUser.TaskID = obj.DivideJob2Tasks(JobParam, JobState, CurrentUser, JobName, TaskRunTime);
                                             
                                         else % If simulation of this job is done, save the result in JobOut queue/directory.
                                             try
@@ -1010,7 +1010,7 @@ classdef JobManager < handle
         end
 
 
-        function SaveTaskInFiles(obj, TaskInputParam, UserParam, JobName, TaskRunTime)
+        function FinalTaskID = SaveTaskInFiles(obj, TaskInputParam, UserParam, JobName, TaskRunTime)
             % TaskInputParam is NumNewTasks-by-1 vector of structures each one of them associated with one TaskInputParam.
             if( nargin<5 || isempty(TaskRunTime) ), TaskRunTime = UserParam.RunTime; end
 
@@ -1074,13 +1074,15 @@ classdef JobManager < handle
                 % SuccessFlag = obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']), TaskInDir, SuccessMsg, ErrorMsg);
                 obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']), TaskInDir);
             end
+            FinalTaskID = UserParam.TaskID;
         end
         
         
-        function DivideJob2Tasks(obj, JobParam, JobState, UserParam, JobName, TaskRunTime)
+        function FinalTaskID = DivideJob2Tasks(obj, JobParam, JobState, UserParam, JobName, TaskRunTime)
             % Divide the JOB into multiple TASKs.
             % Calling syntax: obj.DivideJob2Tasks(JobParam, JobState, UserParam, JobName [,TaskRunTime])
             if( nargin<6 || isempty(TaskRunTime) ), TaskRunTime = UserParam.RunTime; end
+            FinalTaskID = UserParam.TaskID;
 
             % [HomeRoot, Username, Extension, Version] = fileparts(UserParam.UserPath);
             [Dummy, Username] = fileparts(UserParam.UserPath);
@@ -1100,7 +1102,7 @@ classdef JobManager < handle
                 end
                 if ~isempty(TaskInputParam)
                     % Save new task files.
-                    obj.SaveTaskInFiles(TaskInputParam, UserParam, JobName, TaskRunTime);
+                    FinalTaskID = obj.SaveTaskInFiles(TaskInputParam, UserParam, JobName, TaskRunTime);
                 end
             else    % TaskInDir of the current user is full. No new tasks will be generated.
                 msg = sprintf('No new task is generated for user %s since its TaskIn directory is full.\n', Username);
