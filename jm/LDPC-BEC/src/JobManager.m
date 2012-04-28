@@ -324,30 +324,30 @@ classdef JobManager < handle
                                     if ~isempty(JobDirectory)
                                         SuccessMsg = sprintf( ['The corresponding job file %s of user %s is loaded from its ', strMsg, ' directory.\n'], JobName(1:end-4), Username );
                                         [JobContent, successJR] = obj.LoadFile(fullfile(JobDirectory,JobName), 'JobParam', 'JobState', SuccessMsg, ErrorMsg);
-                                        if successJR == 1
-                                            JobParam = JobContent.JobParam;
-                                            JobState = JobContent.JobState;
-                                            % Update JobState if the received output Task has done some trials.
-                                            if sum(TaskState.Trials)~=0
-                                                JobState = obj.UpdateJobState(JobState, TaskState);
-                                            else
-                                                msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
-                                                obj.PrintOut( msg, 0 );
-                                            end
+                                    end
+                                    if( ~isempty(JobDirectory) && (successJR == 1) )
+                                        JobParam = JobContent.JobParam;
+                                        JobState = JobContent.JobState;
+                                        % Update JobState if the received output Task has done some trials.
+                                        if sum(TaskState.Trials)~=0
+                                            JobState = obj.UpdateJobState(JobState, TaskState);
                                         else
-                                            % The corresponding job file in JobRunning or JobOut directory was bad or nonexistent. Kick out of its loading loop.
-                                            % This is a method of KILLING a job.
-                                            msg = sprintf( ['ErrorType=2\r\nErrorMsg=The corresponding job file %s could not be loaded from JobRunning or JobOut directory\r\n',...
-                                                'and will be deleted automatically. All corresponding task files will be deleted from TaskIn and TaskOut directories.\r\n',...
-                                                'Job files in JobRunning and JobOut directories should be .mat files containing two MATLAB structures named JobParam and JobState.'],...
-                                                JobName(1:end-4) );
-                                            % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'w+');
-                                            obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'w+');
-                                            
-                                            % Destroy/Delete any other input and output task files associated with this job from TaskIn and TaskOut directories.
-                                            obj.DeleteFile( fullfile(TaskInDir, [obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) );
-                                            obj.DeleteFile( fullfile(TaskOutDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) );
+                                            msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
+                                            obj.PrintOut( msg, 0 );
                                         end
+                                    elseif( (~isempty(JobDirectory) && successJR ~= 1) || isempty(JobDirectory) )
+                                        % The corresponding job file in JobRunning or JobOut directory was bad or nonexistent. Kick out of its loading loop.
+                                        % This is a method of KILLING a job.
+                                        msg = sprintf( ['ErrorType=2\r\nErrorMsg=The corresponding job file %s could not be loaded from JobRunning or JobOut directory\r\n',...
+                                            'and will be deleted automatically. All corresponding task files will be deleted from TaskIn and TaskOut directories.\r\n',...
+                                            'Job files in JobRunning and JobOut directories should be .mat files containing two MATLAB structures named JobParam and JobState.'],...
+                                            JobName(1:end-4) );
+                                        % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'w+');
+                                        obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'w+');
+
+                                        % Destroy/Delete any other input and output task files associated with this job from TaskIn and TaskOut directories.
+                                        obj.DeleteFile( fullfile(TaskInDir, [obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) );
+                                        obj.DeleteFile( fullfile(TaskOutDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) );
                                     end
                                 end
                                 
