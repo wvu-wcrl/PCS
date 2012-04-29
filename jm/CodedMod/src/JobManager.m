@@ -928,19 +928,25 @@ classdef JobManager < handle
         function [FileContent, SuccessFlag] = LoadFile(obj, FullFileName, FieldA, FieldB, SuccessMsg, ErrorMsg, FieldC)
             % Calling Syntax: [FileContent, SuccessFlag] = obj.LoadFile(FullFileName, FieldA, FieldB [,SuccessMsg] [,ErrorMsg] [,FieldC])
             % FieldC is only used for loading TASK files.
-            try
-                if( nargin<7 || isempty(FieldC) )
-                    FileContent = load( FullFileName, FieldA, FieldB );
+            if( nargin<7 || isempty(FieldC) )
+                FileContent = load( FullFileName, FieldA, FieldB );
+                if( isfield(FileContent,FieldA) && isfield(FileContent,FieldB) )
+                    SuccessFlag = 1;
                 else
-                    FileContent = load( FullFileName, FieldA, FieldB, FieldC );
+                    SuccessFlag = 0;
                 end
-                SuccessFlag = 1;
-                if( nargin>=5 && ~isempty(SuccessMsg) )
-                    obj.PrintOut( SuccessMsg );
+            else
+                FileContent = load( FullFileName, FieldA, FieldB, FieldC );
+                if( isfield(FileContent,FieldA) && isfield(FileContent,FieldB) && isfield(FileContent,FieldC) )
+                    SuccessFlag = 1;
+                else
+                    SuccessFlag = 0;
                 end
-            catch % FullFileName was bad, kick out of loading loop.
+            end
+            if( (SuccessFlag == 1) && nargin>=5 && ~isempty(SuccessMsg) )
+                obj.PrintOut( SuccessMsg );
+            elseif(SuccessFlag == 0) % FullFileName was bad, kick out of loading loop.
                 FileContent = [];
-                SuccessFlag = 0;
                 if( nargin>=6 && ~isempty(ErrorMsg) )
                     obj.PrintOut( ErrorMsg, 0 );
                 end
