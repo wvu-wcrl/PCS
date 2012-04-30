@@ -103,16 +103,16 @@ classdef CodedModJobManager < JobManager
             msgStatus = sprintf( ['PROGRESS UPDATE', MsgStr, ':\r\nTotal Trials Completed=%d\r\nTotal Trials Remaining=%d\r\nPercentage of Trials Completed=%2.4f'],...
                 CompletedTJob, RemainingTJob, 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
             obj.PrintOut(['\n\n', msgStatus, '\n\n'], 0);
-            msgResults = sprintf( 'SNR Points Completed=%.1f\t', JobParam.SNR(ActiveSNRPoints==0) );
+            msgResults = sprintf( 'SNR Points Completed=%.2f\n', JobParam.SNR(ActiveSNRPoints==0) );
 
             % Save simulation progress in STATUS file. Update Results file.
             if( nargin>=4 && ~isempty(JobName) && ~isempty(JobRunningDir) )
-                msgStatusFile = sprintf( '%2.2f%% of Trials Completed', 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
+                msgStatusFile = sprintf( '%2.2f%% of Trials Completed.', 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
                 % SuccessFlagStatus = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
                 obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
 
-                % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n\r\n' msgStatus], 'w+');
-                obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n\r\n' msgStatus], 'w+');
+                % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
+                obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
             end
 
             varargout{1} = JobParam;
