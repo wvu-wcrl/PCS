@@ -55,19 +55,42 @@ classdef BECJobManager < CodedModJobManager
             msgStatus = sprintf( ['PROGRESS UPDATE', MsgStr, ':\r\nTotal Trials Completed=%d\r\nTotal Trials Remaining=%d\r\nPercentage of Trials Completed=%2.4f'],...
                 CompletedTJob, RemainingTJob, 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
             obj.PrintOut(['\n\n', msgStatus, '\n\n'], 0);
-            msgResults = sprintf( 'Epsilon Points Completed=%.4f\t', JobParam.Epsilon(ActiveEpsilonPoints==0) );
+            % msgResults = sprintf( 'Epsilon Points Completed=%.4f\n', JobParam.Epsilon(ActiveEpsilonPoints==0) );
+            if JobParam.HStructInfo.FullRankFlag == 1
+                FullRank = 'Yes';
+            else
+                FullRank = 'NO';
+            end
+            msgResults = sprintf( 'DataLength (k)=%d\r\nCodewordLength (n)=%d\r\nCodeRate=%.4f\r\nFullRank=%s\r\nEpsilonStarDE=%.8f',...
+                JobParam.HStructInfo.DataLength, JobParam.HStructInfo.CodewordLength, JobParam.HStructInfo.CodeRate, FullRank, JobParam.HStructInfo.EpsilonStarDE );
 
             % Save simulation progress in STATUS file. Update Results file.
             if( nargin>=4 && ~isempty(JobName) && ~isempty(JobRunningDir) )
-                msgStatusFile = sprintf( '%2.4f%% of Trials Completed', 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
+                msgStatusFile = sprintf( '%2.4f%% of Trials Completed.', 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
                 % SuccessFlagStatus = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
                 obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
 
-                % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n\r\n' msgStatus], 'w+');
-                obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n\r\n' msgStatus], 'w+');
+                % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
+                % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
+                obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msgResults, 'w+');
             end
             varargout{1} = JobParam;
-        end 
+            
+            % Plot the results.
+            FigH = figure;
+            semilogy(JobParam.Epsilon,JobState.BER(end,:),'-sb', 'LineWidth',1.5, 'MarkerSize',3)
+            hold on, grid on, box on, set(gca,'FontSize',12)
+            % set(gca,'FontSize',12, 'FontName','Times', 'FontWeight','normal')
+            xlim([min(JobParam.Epsilon) max(JobParam.Epsilon)])
+            xlabel('Channel Erasure Probability (\epsilon_0)')
+            ylabel('Channel Erasure Probability After 100 Iterations (\epsilon_{100})')
+            try
+                saveas( FigH, fullfile(JobRunningDir, [JobName(1:end-4) '_FigResults.pdf']) );
+            catch
+                saveas( FigH, fullfile(obj.JobManagerParam.TempJMDir, [JobName(1:end-4) '_FigResults.pdf']) );
+                obj.MoveFile( fullfile(obj.JobManagerParam.TempJMDir, [JobName(1:end-4) '_FigResults.pdf']), JobRunningDir);
+            end
+        end
     end
 
 end
