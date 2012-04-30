@@ -4,7 +4,7 @@ function [EpsilonStarDE, CodeRate, FullRank] = GenerateJob(InFullFilePath, Epsil
 % The generated .mat file is suitable for being uploaded to the web interface to complete the Monte-Carlo simulation of an LDPC code over binary
 % erasure channel for EE567 course project at WVU.
 %
-% Calling syntax: GenerateJob(InFullFilePath [,Epsilon] [,JobName])
+% Calling syntax: [EpsilonStarDE, CodeRate, FullRank] = GenerateJob(InFullFilePath [,Epsilon] [,JobName])
 %
 % InFullFilePath is the FULL (RELATIVE or ABSOLUTE) path to the file containing either JobParam (and possibly JobState) structure
 % or HStruct associated with the H matrix. It must be a string (enclosed in single quotes).
