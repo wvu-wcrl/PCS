@@ -183,7 +183,7 @@ classdef JobManager < handle
                                     JobState = JobContent.JobState;
                                 else
                                     % Selected input job file was bad. Issue an error and exit loading loop.
-                                    msg = sprintf( ['ErrorType=1\r\nErrorMsg=Job Load Error: Input job file %s could not be loaded. It will be deleted automatically.\r\n',...
+                                    msg = sprintf( ['ErrorType=1\r\nErrorMsg=Job Load Error: Input job file %s could not be loaded. It will be deleted automatically.',...
                                         'Input job should be a .mat file containing two MATLAB structures named JobParam and JobState.'], JobName(1:end-4) );
                                     % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'w+');
                                     obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'w+');
@@ -198,7 +198,7 @@ classdef JobManager < handle
                                             'The user can delete the .mat job file manually.'], JobName(1:end-4), Username );
                                         mvSuccess = obj.MoveFile(fullfile(JobInDir,JobName), JobRunningDir, SuccessMsg, ErrorMsg);
                                         if mvSuccess == 0
-                                            msg = sprintf( ['WarningType=1\r\nWarningMsg=Input job file %s could not be moved from JobIn to JobRunning directory.\r\n',...
+                                            msg = sprintf( ['WarningType=1\r\nWarningMsg=Input job file %s could not be moved from JobIn to JobRunning directory.',...
                                                 'The user can delete the .mat job file manually.'], JobName(1:end-4) );
                                             % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'a+');
                                             obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'a+');
@@ -212,7 +212,7 @@ classdef JobManager < handle
                                             'The user can delete the .mat job file manually.'], JobName(1:end-4), Username );
                                         obj.DeleteFile( fullfile(JobInDir,JobName), SuccessMsg, ErrorMsg );
                                         obj.JobManagerParam.vqFlag = T;
-                                        % msg = sprintf( ['WarningType=2\r\nWarningMsg=Input job file %s could not be deleted from JobIn directory.\r\n',...
+                                        % msg = sprintf( ['WarningType=2\r\nWarningMsg=Input job file %s could not be deleted from JobIn directory.',...
                                         %     'The user can delete the .mat job file manually.'], JobName(1:end-4) );
                                         % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'a+');
                                         % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'a+');
@@ -257,7 +257,7 @@ classdef JobManager < handle
                                     TaskOutFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
                                 ErrorMsg = sprintf( ['Type-THREE Warning (Output Task Load Warning): Output task file %s of user %s could not be loaded and will be deleted automatically.\n',...
                                     'Output task should be a .mat file containing two MATLAB structures named TaskParam and TaskState.'], TaskOutFileName(1:end-4), Username );
-                                % msg = sprintf( ['WarningType=3\r\nWarningMsg=Output task file %s could not be loaded and will be deleted automatically.\r\n',...
+                                % msg = sprintf( ['WarningType=3\r\nWarningMsg=Output task file %s could not be loaded and will be deleted automatically.',...
                                 %     'Output task should be a .mat file containing two MATLAB structures named TaskParam and TaskState.'], TaskOutFileName(1:end-4) );
                                 % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'a+');
                                 % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'a+');
@@ -291,7 +291,7 @@ classdef JobManager < handle
                                     ErrorMsg = sprintf( ['Type-FOUR Warning (Output Task Delete Warning): Output task file %s of user %s could not be deleted',...
                                         'from user TaskOut directory.\nThe user can delete the .mat output task file manually.\n'], TaskOutFileName(1:end-4), Username );
                                     obj.DeleteFile( fullfile(TaskOutDir,TaskOutFileName), SuccessMsg, ErrorMsg );
-                                    % msg = sprintf( ['WarningType=4\r\nWarningMsg=Output task file %s could not be deleted from TaskOut directory.\r\n',...
+                                    % msg = sprintf( ['WarningType=4\r\nWarningMsg=Output task file %s could not be deleted from TaskOut directory.',...
                                     %     'The user can delete the .mat output task file manually.'], TaskOutFileName(1:end-4) );
                                     % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'a+');
                                     % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'a+');
@@ -338,8 +338,8 @@ classdef JobManager < handle
                                     elseif( (~isempty(JobDirectory) && successJR ~= 1) || isempty(JobDirectory) )
                                         % The corresponding job file in JobRunning or JobOut directory was bad or nonexistent. Kick out of its loading loop.
                                         % This is a method of KILLING a job.
-                                        msg = sprintf( ['ErrorType=2\r\nErrorMsg=The corresponding job file %s could not be loaded from JobRunning or JobOut directory\r\n',...
-                                            'and will be deleted automatically. All corresponding task files will be deleted from TaskIn and TaskOut directories.\r\n',...
+                                        msg = sprintf( ['ErrorType=2\r\nErrorMsg=The corresponding job file %s could not be loaded from JobRunning or JobOut directory',...
+                                            'and will be deleted automatically. All corresponding task files will be deleted from TaskIn and TaskOut directories.',...
                                             'Job files in JobRunning and JobOut directories should be .mat files containing two MATLAB structures named JobParam and JobState.'],...
                                             JobName(1:end-4) );
                                         % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'w+');
@@ -364,7 +364,7 @@ classdef JobManager < handle
                                             TaskOutFileName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
                                         ErrorMsg = sprintf( ['Type-THREE Warning (Output Task Load Warning): Output task file %s of user %s could not be loaded and will be deleted automatically.\n',...
                                             'Output task should be a .mat file containing two MATLAB structures named TaskParam and TaskState.'], TaskOutFileName(1:end-4), Username );
-                                        % msg = sprintf( ['WarningType=3\r\nWarningMsg=Output task file %s could not be loaded and will be deleted automatically.\r\n',...
+                                        % msg = sprintf( ['WarningType=3\r\nWarningMsg=Output task file %s could not be loaded and will be deleted automatically.',...
                                         %     'Output task should be a .mat file containing two MATLAB structures named TaskParam and TaskState.'], TaskOutFileName(1:end-4) );
                                         % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'a+');
                                         % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'a+');
@@ -407,7 +407,7 @@ classdef JobManager < handle
                                                 'could not be deleted from user TaskOut directory.\nThe user can delete the .mat output task file manually.\n'],...
                                                 TaskOutFileName(1:end-4), Username );
                                             obj.DeleteFile( fullfile(TaskOutDir,TaskOutFileName), SuccessMsg, ErrorMsg );
-                                            % msg = sprintf( ['WarningType=4\r\nWarningMsg=Output task file %s could not be deleted from TaskOut directory.\r\n',...
+                                            % msg = sprintf( ['WarningType=4\r\nWarningMsg=Output task file %s could not be deleted from TaskOut directory.',...
                                             %     'The user can delete the .mat output task file manually.'], TaskOutFileName(1:end-4) );
                                             % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'a+');
                                             % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'a+');
@@ -530,7 +530,7 @@ classdef JobManager < handle
                 else
                     cfgRoot = fullfile(filesep,'home','pcs','jm',JobManagerParam.ProjectName,'cfg');
                 end
-                CFG_Filename = input('What is the name of the CONFIGURATION file for this Job Manager?\n\n','s');
+                CFG_Filename = input('What is the name of the CONFIGURATION file for this Job Manager?\nExample: <ProjectName>JobManager_cfg.txt\n\n','s');
                 % Find CFG_Filename file, i.e. job manager's configuration file.
                 cfgFullFile = fullfile(cfgRoot, CFG_Filename);
             end
@@ -648,7 +648,7 @@ classdef JobManager < handle
             HomeRoot = obj.JobManagerParam.HomeRoot;
             if( ~isfield(obj.JobManagerParam,'UserCfgFilename') || isempty(obj.JobManagerParam.UserCfgFilename) )
                 obj.JobManagerParam.UserCfgFilename = input(['What is the name of CONFIGURATION file for USERs?\n',...
-                    'The job manager looks for this file in the users home directories to find active users.\nExample: CodedMod_cfg.txt\n\n'],'s');
+                    'The job manager looks for this file in the users home directories to find active users.\nExample: <ProjectName>User_cfg.txt\n\n'],'s');
             end
             CFG_Filename = obj.JobManagerParam.UserCfgFilename;
             
