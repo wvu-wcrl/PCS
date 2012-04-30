@@ -72,6 +72,7 @@ classdef BECLinkSimulation < Simulation
                     error( 'BECLinkSimulation:MaxTrialsLength','The number of MaxTrials must match the number of Epsilon points or it should be a scalar.' );
                 end
             end
+            % Make sure that the number of MaxFrameErrors and number of Epsilon points are the same.
             if isfield( SimParam, 'MaxFrameErrors' )
                 if isscalar( SimParam.MaxFrameErrors )
                     SimParam.MaxFrameErrors = SimParam.MaxFrameErrors * ones(size(SimParam.Epsilon));

@@ -9,6 +9,7 @@ classdef BECJobManager < CodedModJobManager
             % ProjectName = 'LDPC-BEC';
             % CFG_Filename = 'LDPC-BECJobManager_cfg.txt';
             if( nargin<1 || isempty(cfgRoot) ), cfgRoot = []; end
+            addpath(fullfile(filesep,'home','pcs','jm','CodedMod','src'));
             obj@CodedModJobManager(cfgRoot);
         end
 
@@ -29,7 +30,7 @@ classdef BECJobManager < CodedModJobManager
             % Determine the position of active Epsilon points based on the number of remaining trials and frame errors.
             ActiveEpsilonPoints  = ( (RemainingTrials>0) & (RemainingFrameErrors>0) );
 
-            JobParam.MaxTrials(ActiveEpsilonPoints==0) = JobState.Trials(ActiveEpsilonPoints==0);
+            % JobParam.MaxTrials(ActiveEpsilonPoints==0) = JobState.Trials(ActiveEpsilonPoints==0);
 
             % Set the stopping flag.
             StopFlag = ( sum(ActiveEpsilonPoints) == 0 );
