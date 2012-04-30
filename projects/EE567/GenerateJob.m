@@ -1,79 +1,79 @@
-function [EpsilonStarDE, CodeRate, FullRank] = GenerateJob(InFullFilePath, Epsilon, JobName)
-% GenerateJob generates a .mat file called JobName that contains two structures called JobParam and JobState based on the contents of the input file
-% InFullFilePath.
-% The generated .mat file is suitable for being uploaded to the web interface to complete the Monte-Carlo simulation of an LDPC code over binary
+function [EpsilonStarDE, CodeRate, FullRank] = GenerateJob(HStruct, JobFileName, Epsilon_JobParam)
+% GenerateJob generates a .mat file called 'JobFileName' that contains two structures called JobParam and JobState based on its inputs.
+% The generated .mat file is suitable for being uploaded to WCRL web interface to complete the Monte-Carlo simulation of an LDPC code over binary
 % erasure channel for EE567 course project at WVU.
 %
-% Calling syntax: [EpsilonStarDE, CodeRate, FullRank] = GenerateJob(InFullFilePath [,Epsilon] [,JobName])
+% Calling syntax: [EpsilonStarDE, CodeRate, FullRank] = GenerateJob(HStruct [,JobFileName] [,Epsilon_JobParam])
 %
-% InFullFilePath is the FULL (RELATIVE or ABSOLUTE) path to the file containing either JobParam (and possibly JobState) structure
-% or HStruct associated with the H matrix. It must be a string (enclosed in single quotes).
+% Inputs
+%       HStruct         A structure array corresponding to the parity-check matrix.
+%                       H(j).loc_ones gives the location of ones in the jth row of H matrix.
+%       JobFileName     (OPTIONAL) Name of the .mat job file that the user wants this function to generate.
+%       Epsilon_JobParam    This OPTIONAL input can be either a vector or a structure.
+%                           If it is a VECTOR, it specifies the vector of Epsilon points (channel erasure probabilities).
+%                           If it is a STRUCTURE, it specifies the JobParam structure with the following fields:
+%                           Epsilon,MaxTrials,MaxFrameErrors,MaxIteration,RunTime. All of these fields are OPTIONAL.
+%
+% Outputs
+%       EpsilonStarDE   Theoretical maximum channel erasure probability for the given parity-check matrix based on Density Evolution.
+%       CodeRate
+%       FullRank        A flag which is either YES or NO depending on whether the parity-check matrix is full-rank or not.
 
-if( nargin<3 || isempty(JobName) )
-    JobName = ['LDPC_BEC_Ver' num2str(round(1000*rand)) '_' datestr(clock,'mmmdd_HHMM') '.mat'];
+HStructInfo = FindHInfo(HStruct);
+
+if( nargin<2 || isempty(JobFileName) )
+    JobFileName = ['LDPC_BEC_Ver' num2str(round(100*rand)) '_' datestr(clock,'mmmdd_HHMM') '.mat'];
 end
 
-FileContent = load(InFullFilePath);
-if isfield(FileContent, 'JobParam') % JobParam is specified.
-    JobParam = FileContent.JobParam;
-    if( ~isfield(JobParam, 'HStructInfo') || isempty(JobParam.HStructInfo) )
-        HStructInfo = FindHInfo(JobParam.HStruct);
-        JobParam.HStructInfo = HStructInfo;
-    end
+if( nargin<3 || isempty(Epsilon_JobParam) )
+    % EpsilonResolution = 0.001;
+    % Epsilon = 0.5*HStructInfo.EpsilonStarDE : EpsilonResolution : 1.5*HStructInfo.EpsilonStarDE;
+    Epsilon = 0.1:0.002:0.25;
+    JobParamFlag = 1; % We need to generate the JobParam structure.
+
+elseif( isstruct(Epsilon_JobParam) )% JobParam is specified in Epsilon_JobParam as a STRUCTURE.
+    JobParam = Epsilon_JobParam;
+    JobParam.HStruct = HStruct;
+    JobParam.HStructInfo = HStructInfo;
+    if( ~isfield(JobParam, 'Epsilon') || isempty(JobParam.Epsilon) ), JobParam.Epsilon = 0.1:0.002:0.25; end
     if( ~isfield(JobParam, 'MaxTrials') || isempty(JobParam.MaxTrials) ), JobParam.MaxTrials = 0.25e5; end
     if( ~isfield(JobParam, 'MaxFrameErrors') || isempty(JobParam.MaxFrameErrors) ), JobParam.MaxFrameErrors = 1e3; end
     if( ~isfield(JobParam, 'MaxIteration') || isempty(JobParam.MaxIteration) ), JobParam.MaxIteration = 100; end
-    if ~isfield(FileContent, 'JobState') % Jobstate is not specified.
-        ZR = zeros(JobParam.MaxIteration,length(JobParam.Epsilon));
-        JobState = struct(...
-            'BitErrors', ZR, ...
-            'FrameErrors', ZR, ...
-            'Trials', ZR(1,:), ...
-            'BER', ZR, ...
-            'FER', ZR );
-    else % Jobstate is specified.
-        JobState = FileContent.JobState;
-    end
-elseif( isfield(FileContent, 'HStruct') || isfield(FileContent, 'H_Struct') || isfield(FileContent, 'H_struct') )
-    % HStruct is specified. JobParam and Jobstate are generated.
-    if isfield(FileContent, 'HStruct')
-        HStruct = FileContent.HStruct;
-    elseif isfield(FileContent, 'H_Struct')
-        HStruct = FileContent.H_Struct;
-    elseif isfield(FileContent, 'H_struct')
-        HStruct = FileContent.H_struct;
-    end
-    HStructInfo = FindHInfo(HStruct);
+    if( ~isfield(JobParam, 'RunTime') || isempty(JobParam.RunTime) ), JobParam.RunTime = 300; end
+    if( ~isfield(JobParam, 'MaxBitErrors') || isempty(JobParam.MaxBitErrors) ), JobParam.MaxBitErrors = 0; end
+    if( ~isfield(JobParam, 'CheckPeriod') || isempty(JobParam.CheckPeriod) ), JobParam.CheckPeriod = 100; end
+    JobParamFlag = 0; % We do NOT need to generate the JobParam structure.
 
-    EpsilonResolution = 0.001;
-    if( nargin<2 || isempty(Epsilon) )
-        % Epsilon = 0.5*HStructInfo.EpsilonStarDE : EpsilonResolution : 1.5*HStructInfo.EpsilonStarDE;
-        Epsilon = 0.1:0.002:0.25;
-    end
+elseif( isvector(Epsilon_JobParam) )% Epsilon is specified in Epsilon_JobParam as a VECTOR.
+    Epsilon = Epsilon_JobParam;
+    JobParamFlag = 1; % We need to generate the JobParam structure.
+else
+    error('GenerateJob:InvalidInput','The OPTIONAL THIRD input to the function could either be a VECTOR containing EPSILON points or a STRUCTURE containing JobParam.');
+end
+
+if JobParamFlag == 1
     JobParam = struct(...
         'Epsilon', Epsilon, ...     % Row vector of channel erasure probabilities. ([0.10:0.002:0.25])
-        'MaxTrials', 0.25e5, ...    % Maximum number of trials to run per point. A vector of integers (or a scalar), one for each Epsilon point. (0.25e5)
+        'MaxTrials', 0.25e5, ...    % Max number of trials to run per point. A vector of integers (or a scalar), one for each Epsilon point. (0.25e5)
         'MaxFrameErrors', 1e3, ...	% Max number of frame errors. A vector of integers (or a scalar), one for each Epsilon point.
-        'MaxIteration', 100, ...	% Maximum number of decoding iterations.
+        'MaxIteration', 100, ...	% Max number of decoding iterations.
         'HStruct', HStruct, ...     % A structure array corresponding to the parity-check matrix.
         ...                         % H(j).loc_ones gives the location of ones in the jth row of H matrix.
         'HStructInfo', HStructInfo, ...
         'RunTime', 300, ...         % Simulation time in Seconds.
         'MaxBitErrors', 0, ...
         'CheckPeriod', 100 );       % Checking time in number of Trials.
-
-    ZR = zeros(JobParam.MaxIteration,length(Epsilon));
-    JobState = struct(...
-        'BitErrors', ZR, ...
-        'FrameErrors', ZR, ...
-        'Trials', ZR(1,:), ...
-        'BER', ZR, ...
-        'FER', ZR );
-else
-    error('The input JOB specification file should either contain a structure called JobParam or a structure array called HStruct (or H_Struct or H_struct).')
 end
 
-save(JobName,'JobParam','JobState');
+ZR = zeros(JobParam.MaxIteration,length(JobParam.Epsilon));
+JobState = struct(...
+    'BitErrors', ZR, ...
+    'FrameErrors', ZR, ...
+    'Trials', ZR(1,:), ...
+    'BER', ZR, ...
+    'FER', ZR );
+
+save(JobFileName,'JobParam','JobState');
 
 EpsilonStarDE = JobParam.HStructInfo.EpsilonStarDE;
 CodeRate = JobParam.HStructInfo.CodeRate;
