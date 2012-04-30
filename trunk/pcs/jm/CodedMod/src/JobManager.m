@@ -461,7 +461,10 @@ classdef JobManager < handle
                                                 SuccessMsg = sprintf( 'The FINISHED job file %s of user %s is moved to JobOut directory by OS.\n', JobName(1:end-4), Username );
                                                 obj.PrintOut(SuccessMsg, 0);
                                             end
-                                            
+                                            % Move all pdf files containing figures to JobOut directory.
+                                            if ~isempty( dir(fullfile(JobRunningDir,[JobName(1:end-4) '*.pdf'])) )
+                                                obj.MoveFile(fullfile(JobRunningDir,[JobName(1:end-4) '*.pdf']), JobOutDir);
+                                            end
                                             % ChmodStr = ['chmod 666 ' FileName];   % Allow everyone to read and write to the file, FileName.
                                             % system( ChmodStr );
                                             

@@ -86,7 +86,7 @@ classdef BECJobManager < CodedModJobManager
             xlabel('Channel Erasure Probability (\epsilon_0)')
             ylabel('Channel Erasure Probability After 100 Iterations (\epsilon_{100})')
             try
-                saveas( FigH, fullfile(JobRunningDir, [JobName(1:end-4) '_FigResults.pdf']) );
+                saveas( FigH, fullfile(JobRunningDir, [JobName(1:end-4) '_Fig.pdf']) );
             catch
                 saveas( FigH, fullfile(obj.JobManagerParam.TempJMDir, [JobName(1:end-4) '_FigResults.pdf']) );
                 obj.MoveFile( fullfile(obj.JobManagerParam.TempJMDir, [JobName(1:end-4) '_FigResults.pdf']), JobRunningDir);
