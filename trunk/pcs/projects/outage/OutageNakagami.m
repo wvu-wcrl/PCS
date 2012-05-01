@@ -87,10 +87,10 @@ classdef OutageNakagami < handle
             
             % Set the shadowing for the desired signal
             fprintf( 'ShadowStd = %f\n', ShadowStd );
-            obj.Omega0 = 10.^( sqrt( ShadowStd )*randn(1,obj.N)/10 );    
+            obj.Omega0 = 10.^( ShadowStd *randn(1,obj.N)/10 );    
                        
             % Set the shadowing for the interferers
-            zeta = sqrt( ShadowStd )*randn(obj.N,obj.M);
+            zeta =  ShadowStd *randn(obj.N,obj.M);
             % convert from log to linear
             power_gain = 10.^(zeta/10);
             
