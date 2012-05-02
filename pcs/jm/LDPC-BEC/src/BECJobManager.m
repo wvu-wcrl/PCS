@@ -62,8 +62,17 @@ classdef BECJobManager < CodedModJobManager
             else
                 FullRank = 'NO';
             end
-            msgResults = sprintf( 'DataLength (k)=%d\r\nCodewordLength (n)=%d\r\nCodeRate=%.4f\r\nFullRank=%s\r\nEpsilonStarDE=%.8f',...
-                JobParam.HStructInfo.DataLength, JobParam.HStructInfo.CodewordLength, JobParam.HStructInfo.CodeRate, FullRank, JobParam.HStructInfo.EpsilonStarDE );
+            
+            % Determine the largest value of Epsilon for which the BER is less than 10^-2 after JobParam.MaxIteration decoding iterations.
+            EpsilonStarSim = JobParam.Epsilon( find( JobState.BER(end,:) < 1e-2, 1, 'last' ) );
+            if isempty(EpsilonStarSim)
+                EpsilonStarSimMsg = sprintf('The BER after MaxIteration decoding iterations in the specified range of Epsilon from %.4f to %.4f is always greater than 10^-2.',...
+                    min(JobParam.Epsilon), max(JobParam.Epsilon));
+            else
+                EpsilonStarSimMsg = num2str(EpsilonStarSim);
+            end
+            msgResults = sprintf( 'DataLength (k)=%d\r\nCodewordLength (n)=%d\r\nCodeRate=%.4f\r\nFullRank=%s\r\nEpsilonStarDE=%.8f\r\nEpsilonStarSimulation=%s',...
+                JobParam.HStructInfo.DataLength, JobParam.HStructInfo.CodewordLength, JobParam.HStructInfo.CodeRate, FullRank, JobParam.HStructInfo.EpsilonStarDE, EpsilonStarSimMsg );
 
             % Save simulation progress in STATUS file. Update Results file.
             if( nargin>=4 && ~isempty(JobName) && ~isempty(JobRunningDir) )
