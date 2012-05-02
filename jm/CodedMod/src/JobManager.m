@@ -931,19 +931,22 @@ classdef JobManager < handle
         function [FileContent, SuccessFlag] = LoadFile(obj, FullFileName, FieldA, FieldB, SuccessMsg, ErrorMsg, FieldC)
             % Calling Syntax: [FileContent, SuccessFlag] = obj.LoadFile(FullFileName, FieldA, FieldB [,SuccessMsg] [,ErrorMsg] [,FieldC])
             % FieldC is only used for loading TASK files.
+            SuccessFlag = 0;
             if( nargin<7 || isempty(FieldC) )
-                FileContent = load( FullFileName, FieldA, FieldB );
-                if( isfield(FileContent,FieldA) && isfield(FileContent,FieldB) )
-                    SuccessFlag = 1;
-                else
-                    SuccessFlag = 0;
+                try
+                    FileContent = load( FullFileName, FieldA, FieldB );
+                    if( isfield(FileContent,FieldA) && isfield(FileContent,FieldB) )
+                        SuccessFlag = 1;
+                    end
+                catch
                 end
             else
-                FileContent = load( FullFileName, FieldA, FieldB, FieldC );
-                if( isfield(FileContent,FieldA) && isfield(FileContent,FieldB) && isfield(FileContent,FieldC) )
-                    SuccessFlag = 1;
-                else
-                    SuccessFlag = 0;
+                try
+                    FileContent = load( FullFileName, FieldA, FieldB, FieldC );
+                    if( isfield(FileContent,FieldA) && isfield(FileContent,FieldB) && isfield(FileContent,FieldC) )
+                        SuccessFlag = 1;
+                    end
+                catch
                 end
             end
             if( (SuccessFlag == 1) && nargin>=5 && ~isempty(SuccessMsg) )
