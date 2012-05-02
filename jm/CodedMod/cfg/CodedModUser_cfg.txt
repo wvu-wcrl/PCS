@@ -31,8 +31,8 @@ MaxRunningJobs = 3;
 [RunTimeSpec]
 
 % Quick initial running time of each task to quickly get initial results back.
-InitialRunTime = 30;
+InitialRunTime = 60;
 % Longer running time of each task in the long term.
-RunTime = 120;
+RunTime = 300;
 % Pause time to wait between task submissions.
 PauseTime = 0.5;

@@ -86,7 +86,7 @@ RunDuration = toc(GlobalRunTime);
 fprintf( '\n\nSimulation is COMPLETE.\nIt took %.4f seconds at a rate of %.4f trials/second.\n', RunDuration, (CompletedTrials-InitialTrials)/RunDuration );
 
 % Determine the largest value of Epsilon for which the BER is less than 10^-2 after MaxIteration decoding iterations.
-EpsSimThresh = BECLink.SimParam.Epsilon( find( BECLink.SimState.BER(end,:) < 1e-2, 'last' ) );
+EpsSimThresh = BECLink.SimParam.Epsilon( find( BECLink.SimState.BER(end,:) < 1e-2, 1, 'last' ) );
 fprintf('\nThe largest value of Epsilon (channel erasure probability) for which the BER is less than 1e-2 after %d decoding iterations is \n%.5f.\n\n', ...
     BECLink.SimState.MaxIteration, EpsSimThresh);
 end
