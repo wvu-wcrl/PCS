@@ -36,6 +36,7 @@ end
 
 
 
+
 function obj = scan_user_dirs(obj, CFG_FILENAME, USR_ROOT)
 
 usrdirs = dir(USR_ROOT);   % perform a directory listing in home to list users
@@ -80,9 +81,9 @@ for k = 1:n,
 
 % specify whether this is a web or cluster user
 if( strcmp(USR_ROOT, '/home/web_users') )
-  user_location = 'WEB';
+  user_location = 'web';
  elseif ( strcmp(USR_ROOT, '/home') )
-  user_location = 'LOCAL';
+  user_location = 'local';
 end
 
         tmp.username = users{cur_usr_cnt};

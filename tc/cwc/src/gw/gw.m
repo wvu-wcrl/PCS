@@ -15,7 +15,9 @@
 % Terry Ferrett
 
 
+
 function gw(wid, iq, rq, oq, lp, LOG_PERIOD, NUM_LOGS, VERBOSE_MODE)
+
 
 
 %%% place logging variables into local workspace for easy access %%%
@@ -26,10 +28,14 @@ IS_NOT_VERBOSE = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
+
 %%% save base path information %%%
 default_path = path; % the default path will be restored after executing
                      %  the entry function
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 
 
 %%% log the worker start time %%%
@@ -39,10 +45,16 @@ log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
+
+
 %%% initialize logging information %%%
 tic;   % start logging timer
 nlog = 0; % intialize log count
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
 
 
 %%% main worker loop
@@ -53,6 +65,8 @@ while(1)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
+
     %%% if a task exists in input queue, execute it %%%
     if( ~isempty(next_input) )
     
@@ -61,26 +75,37 @@ while(1)
         next_running = feed_running_queue(next_input, iq, rq, wid); % move the input file to the running queue
 
 
+
 	clear TaskParam;
         TaskParam = read_input_file(rq, next_running); % read the input struct from the running queue
         
+
         
         % break the input struct into local variables
         InputParam = TaskParam.InputParam;     % simulation parameters
         FunctionPath = TaskParam.FunctionPath; % path to simulation code
         FunctionName = TaskParam.FunctionName; % entry routine into simulation code
+
         
 
         addpath(FunctionPath);   % add simulation code path to working paths
         
+
         
         %%% log function start time %%%       
         [cur_time] = gettime(); % current time
-        username = strtok(next_running, '_');  % username
+%        username = strtok(next_running, '_');  % username
+
+        [name_loc en] = get_name_loc(next_running);
+
+
+
         task_name = get_task_name(next_input);
-        msg = ['Executing task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' cur_time];
+        msg = ['Executing task' ' ' task_name ' ' 'from user' ' ' name_loc  ' ' 'at'  ' ' cur_time];
         log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 
 
 	% place function start time into TaskInfo struct
@@ -88,33 +113,46 @@ while(1)
         TaskInfo = create_task_info(cur_time, hostname, wid);
 
 
+
+
         % run the function with its input parameters        
 	clear TaskState;
         FunctionName = str2func(FunctionName);
         TaskState = feval(FunctionName, InputParam);
+
         
+
         
         %%% log function end time %
         [cur_time] = gettime(); % current time
-        msg = ['Task' ' ' task_name ' ' 'from user'  ' ' username ' ' 'complete' ' ' 'at'  ' ' cur_time];
+        msg = ['Task' ' ' task_name ' ' 'from user'  ' ' name_loc ' ' 'complete' ' ' 'at'  ' ' cur_time];
         log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
         %  place task stop time into the task information data structure
 	TaskInfo.StopTime = clock;
+
                 
         
         consume_running_queue(next_running, rq); % delete file from running queue
         write_output(TaskParam, TaskState, TaskInfo,  next_input, oq); % write to output queue
         
+
         
         path(default_path); % restore the default path
         
+
         
         catch exception
             % an error occurred in file loading or function execution.
-            % perform cleanup by resetting the default path
+            %   perform cleanup 
+            %   reset the default path
+	    %   if another worker consumed the file before this worker got there,
+            %      write nothing to the log file
+            %        
+	        
 
 
         path(default_path); 
@@ -134,6 +172,10 @@ while(1)
 
         end
     end
+
+
+
+
     
     
     pause(5); % wait 5 seconds before making another pass
@@ -172,18 +214,24 @@ end
 
 
 
+
+
+
 function next_running = feed_running_queue(next_input, iq,  rq, wid)
 
+
 % move the file to the running queue and tag with the worker id
-[beg en] = strtok(next_input,'_');
-next_running = [beg '_' int2str(wid) en];
+[beg en]  =   get_name_loc(next_input)
+next_running = [beg '_' int2str(wid) en]
+next_input
 
 
 cs = ['mv' ' ' iq '/' next_input ' ' rq '/' next_running ];
 
-system(cs);
+[dont care] = system(cs);
 
 end
+
 
 
 
@@ -194,6 +242,7 @@ lf = [rq '/' next_running];
     load(lf);
 
 end
+
 
 
 
@@ -244,6 +293,8 @@ end
 
 
 
+
+
 function rotate_log(lp, nlog, cur_time)
 
 
@@ -283,6 +334,9 @@ end
 
 
 
+
+
+
 % logging function
 % inputs
 %  msg               - string to output to logs
@@ -293,6 +347,8 @@ if ~(msg_verbose == 1 & log_mode_verbose == 0),
   fprintf(msg); fprintf('\n');
 end
 end
+
+
 
 
 
@@ -312,15 +368,18 @@ function write_task_failed_to_log(next_input, next_running, IS_NOT_VERBOSE,...
                  VERBOSE_MODE, username, message )
 
         task_name = get_task_name(next_input);
-        username = strtok(next_running, '_');  % username
+
+	name_loc = get_name_loc(next_running);
         [cur_time] = gettime(); % current time
 
 	
-        msg = ['Task' ' ' task_name ' ' 'from user' ' ' username  ' ' 'at'  ' ' cur_time];
+        msg = ['Task' ' ' task_name ' ' 'from user' ' ' name_loc  ' ' 'at'  ' ' cur_time];
         msg = [msg 'failed to execute.'];
         log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
         log_msg(message, IS_NOT_VERBOSE, VERBOSE_MODE);
 end
+
+
 
 
 
@@ -333,12 +392,16 @@ end
 
 
 
+
+
 % get the system hostname
 function hostname = get_hostname()
 
 [dont_care hostname] = system('hostname');
 
 end
+
+
 
 
 
@@ -349,5 +412,21 @@ function TaskInfo = create_task_info(cur_time, hostname, wid)
                                   %   start and stop
    TaskInfo.HostName = get_hostname();
    TaskInfo.WorkerID = wid;
+
+end
+
+
+
+
+
+% get username and location
+function [name_loc en] = get_name_loc(filein)
+
+
+[name entmp] = strtok(filein, '_');
+[loc  en]  = strtok(entmp,'_');
+
+
+name_loc = [name '_' loc];
 
 end
