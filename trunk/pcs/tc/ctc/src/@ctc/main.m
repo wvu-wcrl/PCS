@@ -19,7 +19,7 @@ nu = length(obj.users);           % number of users
 
 while(1) %enter primary loop
 	    sprintf('hi')
-    [au fl] = scan_user_inputs(obj);                     % scan input directories for new .mat inputs
+    [au fl] = scan_user_inputs(obj);                     % scan user input directories for new .mat inputs
 
     
     [users_srt fl_srt] = schedule(obj, au, fl);          % decide which user to service
@@ -98,7 +98,7 @@ end
 
 
 % sort the users by number of active workers possessed by each
-%   number of workers for each user taken from user 
+%  user 
 function [users_srt fl_srt] = schedule(obj, au, fl)  
 
 ntu = length(obj.users);    % total number of users
@@ -111,14 +111,16 @@ users_srt = {};             % users sorted by number of active users
 
 fl_srt = {};                % sorted list
 
+
 for k =1:nau,
 
     for l = 1:ntu,
 
-        if strcmp(au{k}.username, obj.users{l}.username)
+        USER_MATCH = strcmp(au{k}.username, obj.users{l}.username);
+        LOCATION_MATCH = strcmp(au{k}.user_location, obj.users{l}.user_location);
 
+        if USER_MATCH & LOCATION_MATCH,
             nw(k) = obj.users{k}.aw;      % number of workers for this user
-
         end
 
     end
@@ -149,7 +151,6 @@ end
 
 
 
-
 function place_user_input_in_queue(obj, users_srt, fl_srt)
 
 PCSUSER = 'pcs';
@@ -167,12 +168,13 @@ if ~isempty(users_srt)
         pgiq = obj.gq.iq;
 	purq = users_srt.rq;
 
-        % append username to file
+
+        % append username to file   
 	fn = fl_srt{1}(cnt).name;
-        afn = [users_srt.username '_' fn];
+        afn = [users_srt.username '_' users_srt.user_location '_' fn];
 
 
-        % copy user file into running queue
+        % copy user input file into user running queue
         cmd_str = ['sudo cp' ' ' puif{1} ' ' purq{1} '/' fn];
         system(cmd_str);
 
@@ -257,6 +259,7 @@ end
 function calculate_active_workers(obj) % scan the global running queue and count the active workers for each user
 
 
+
 %%%%%%%% get list of files in running and input queues %%%
 %% read the files in the global running queue%%%
 srch = strcat(obj.gq.rq{1}, '/*.mat');
@@ -277,6 +280,7 @@ nf = length(bqf);
 
 
 
+
 %% read files in global running queue %%
 %srch = strcat(obj.gq.rq{1}, '/*.mat');  
 %nf = length(fl);
@@ -290,7 +294,10 @@ for k = 1:nu,
 
     nw = 0;                            % set the number of workers to 0
 
-    name = obj.users{k}.username;      % shorter notation for this user
+    %name = obj.users{k}.username;      % shorter notation for this user
+    name = [obj.users{k}.username '_' obj.users{k}.user_location];      % shorter notation for this user, include location
+    
+
 
     for m = 1:nf,                      % loop over all files and determine the user
 
@@ -323,7 +330,9 @@ end
 
 
 
+
 function consume_output(obj)
+
 
 %% get files in output queue %%
 pgoq = obj.gq.oq{1};
@@ -332,6 +341,7 @@ fl = dir( srch );    % get list of .mat files in output queue
 nf = length(fl);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
 nu = length(obj.users);
 
 for k = 1:nf,
@@ -339,23 +349,29 @@ for k = 1:nf,
     for m = 1:nu,
 
         % names for file ownership
-	if( strcmp(obj.users{m}.user_location, 'WEB') )
+	if( strcmp(obj.users{m}.user_location, 'web') )
 	ownership_name = 'tomcat55';
 	ownership_group = 'tomcatusers';
-        elseif( strcmp(obj.users{m}.user_location, 'LOCAL') )
+        elseif( strcmp(obj.users{m}.user_location, 'local') )
         ownership_name = obj.users{m}.username;           % shorten the name
 	ownership_group = obj.users{m}.username;
         end
 
+
+
+                   %%%% form name string 
 	% name for task ownership
-	name = obj.users{m}.username;
+	% name = obj.users{m}.username;
+        un_loc = [obj.users{m}.username '_' obj.users{m}.user_location];      % shorter notation for this user, include location
+	len_un_loc = length(un_loc);
         
 
-        if findstr( fl(k).name, name )
 
-	% remove username from filename
-            [beg on] = strtok(fl(k).name, '_'); on = on(2:end);    % cut the username off of the filename
+        if findstr( fl(k).name, un_loc )
 
+	% remove username from filename         %%%%%%
+            %[beg on] = strtok(fl(k).name, '_'); on = on(2:end);    % cut the username off of the filename
+            on = fl(k).name(len_un_loc+2:end);
 
             puoq = obj.users{m}.oq{1};                             % path to user output queue
 
