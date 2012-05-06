@@ -308,6 +308,7 @@ classdef JobManager < handle
 
                                 % If the corresponding job file in JobRunning or JobOut directory was bad or nonexistent, kick out of its loading loop.
                                 % This is a method of KILLING a job.
+                                successJR = 0;
                                 if(TaskSuccess == 1)
                                     ErrorMsg = sprintf( ['Type-TWO Error (Invalid/Nonexistent Running or Output Job Error):',...
                                         'The corresponding job file %s of user %s could not be loaded/does not exist from/in JobRunning or JobOut directory.\n',...
@@ -316,7 +317,6 @@ classdef JobManager < handle
                                         JobName(1:end-4), Username );
                                     JobDirectory = obj.FindRunningOutJob(JobRunningDir, JobOutDir, JobName, ErrorMsg);
 
-                                    successJR = 0;
                                     if ~isempty(JobDirectory)
                                         if strcmpi(JobDirectory,JobOutDir)
                                             msg = sprintf( 'Finished JOB %s of user %s is updated in its JobOut directory.\n\n', JobName(1:end-4), Username );
