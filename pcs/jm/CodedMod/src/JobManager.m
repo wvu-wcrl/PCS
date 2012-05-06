@@ -316,6 +316,7 @@ classdef JobManager < handle
                                         JobName(1:end-4), Username );
                                     JobDirectory = obj.FindRunningOutJob(JobRunningDir, JobOutDir, JobName, ErrorMsg);
 
+                                    successJR = 0;
                                     if ~isempty(JobDirectory)
                                         if strcmpi(JobDirectory,JobOutDir)
                                             msg = sprintf( 'Finished JOB %s of user %s is updated in its JobOut directory.\n\n', JobName(1:end-4), Username );
