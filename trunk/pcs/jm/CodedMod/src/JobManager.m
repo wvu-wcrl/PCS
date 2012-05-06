@@ -224,7 +224,11 @@ classdef JobManager < handle
                                     if strcmpi( JobDirectory, JobInDir )
                                         TaskRunTime = CurrentUser.InitialRunTime;
                                     elseif strcmpi( JobDirectory, JobRunningDir )
-                                        TaskRunTime = CurrentUser.RunTime;
+                                        if isfield(JobParam, 'RunTime')
+                                            TaskRunTime = JobParam.RunTime;
+                                        else
+                                            TaskRunTime = CurrentUser.RunTime;
+                                        end
                                     end
                                     
                                     % Divide the JOB into multiple TASKs.
@@ -285,7 +289,7 @@ classdef JobManager < handle
                                 end
                                 
                                 % Delete the selected output task file from TaskOut directory.
-                                if TaskSuccess == 1
+                                % if TaskSuccess == 1
                                     SuccessMsg = sprintf( 'The selected output task file %s of user %s is deleted from its TaskOut directory.\n', TaskOutFileName(1:end-4), Username );
                                     % If could not delete output task file, just issue a warning.
                                     ErrorMsg = sprintf( ['Type-FOUR Warning (Output Task Delete Warning): Output task file %s of user %s could not be deleted',...
@@ -298,44 +302,45 @@ classdef JobManager < handle
                                     if obj.JobManagerParam.vqFlag == 1  % Quiet mode.
                                         obj.PrintOut( '-', 0 );
                                     end
-                                end
+                                % end
                                 
                                 % Try to load the correspoding JOB file from the user's JobRunning or JobOut directory (if it is there).
-                                
+
                                 % If the corresponding job file in JobRunning or JobOut directory was bad or nonexistent, kick out of its loading loop.
                                 % This is a method of KILLING a job.
-                                ErrorMsg = sprintf( ['Type-TWO Error (Invalid/Nonexistent Running or Output Job Error):',...
-                                    'The corresponding job file %s of user %s could not be loaded/does not exist from/in JobRunning or JobOut directory.\n',...
-                                    'All corresponding task files will be deleted from TaskIn and TaskOut directories.\n',...
-                                    'Job files in JobRunning and JobOut directories should be .mat files containing two MATLAB structures named JobParam and JobState.'],...
-                                    JobName(1:end-4), Username );
-                                JobDirectory = obj.FindRunningOutJob(JobRunningDir, JobOutDir, JobName, ErrorMsg);
-                                
-                                if( ~isempty(JobDirectory) && strcmpi(JobDirectory,JobOutDir) )
-                                    msg = sprintf( 'Finished JOB %s of user %s is updated in its JobOut directory.\n\n', JobName(1:end-4), Username );
-                                    obj.PrintOut(msg, 0);
-                                    strMsg = 'JobOut';
-                                elseif( ~isempty(JobDirectory) && strcmpi(JobDirectory,JobRunningDir) )
-                                    strMsg = 'JobRunning';
-                                end
-                                
-                                successJR = 0;
-                                if TaskSuccess == 1
+                                if(TaskSuccess == 1)
+                                    ErrorMsg = sprintf( ['Type-TWO Error (Invalid/Nonexistent Running or Output Job Error):',...
+                                        'The corresponding job file %s of user %s could not be loaded/does not exist from/in JobRunning or JobOut directory.\n',...
+                                        'All corresponding task files will be deleted from TaskIn and TaskOut directories.\n',...
+                                        'Job files in JobRunning and JobOut directories should be .mat files containing two MATLAB structures named JobParam and JobState.'],...
+                                        JobName(1:end-4), Username );
+                                    JobDirectory = obj.FindRunningOutJob(JobRunningDir, JobOutDir, JobName, ErrorMsg);
+
                                     if ~isempty(JobDirectory)
+                                        if strcmpi(JobDirectory,JobOutDir)
+                                            msg = sprintf( 'Finished JOB %s of user %s is updated in its JobOut directory.\n\n', JobName(1:end-4), Username );
+                                            obj.PrintOut(msg, 0);
+                                            strMsg = 'JobOut';
+                                        elseif strcmpi(JobDirectory,JobRunningDir)
+                                            strMsg = 'JobRunning';
+                                        end
+
                                         SuccessMsg = sprintf( ['The corresponding job file %s of user %s is loaded from its ', strMsg, ' directory.\n'], JobName(1:end-4), Username );
                                         [JobContent, successJR] = obj.LoadFile(fullfile(JobDirectory,JobName), 'JobParam', 'JobState', SuccessMsg, ErrorMsg);
-                                    end
-                                    if( ~isempty(JobDirectory) && (successJR == 1) )
-                                        JobParam = JobContent.JobParam;
-                                        JobState = JobContent.JobState;
-                                        % Update JobState if the received output Task has done some trials.
-                                        if sum(TaskState.Trials)~=0
-                                            JobState = obj.UpdateJobState(JobState, TaskState);
-                                        else
-                                            msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
-                                            obj.PrintOut( msg, 0 );
+                                        if(successJR == 1)
+                                            JobParam = JobContent.JobParam;
+                                            JobState = JobContent.JobState;
+                                            % Update JobState if the received output Task has done some trials.
+                                            if sum(TaskState.Trials)~=0
+                                                JobState = obj.UpdateJobState(JobState, TaskState);
+                                            else
+                                                msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
+                                                obj.PrintOut( msg, 0 );
+                                            end
                                         end
-                                    elseif( (~isempty(JobDirectory) && successJR ~= 1) || isempty(JobDirectory) )
+                                    end
+
+                                    if( (~isempty(JobDirectory) && successJR == 0) || isempty(JobDirectory) )
                                         % The corresponding job file in JobRunning or JobOut directory was bad or nonexistent. Kick out of its loading loop.
                                         % This is a method of KILLING a job.
                                         msg = sprintf( ['ErrorType=2\r\nErrorMsg=The corresponding job file %s could not be loaded from JobRunning or JobOut directory',...
@@ -350,7 +355,7 @@ classdef JobManager < handle
                                         obj.DeleteFile( fullfile(TaskOutDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) );
                                     end
                                 end
-                                
+
                                 if successJR == 1
                                     % Look to see if there are any more related finished .mat task files with the loaded JOB file in TaskOut directory.
                                     DTaskOut = dir( fullfile(TaskOutDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) );
@@ -400,7 +405,7 @@ classdef JobManager < handle
                                         end
                                         
                                         % Delete the selected output task file from TaskOut directory.
-                                        if TaskSuccess == 1
+                                        % if TaskSuccess == 1
                                             SuccessMsg = sprintf( 'The selected output task file %s of user %s is deleted from its TaskOut directory.\n', TaskOutFileName(1:end-4), Username );
                                             % If could not delete output task file, just issue a warning.
                                             ErrorMsg = sprintf( ['Type-FOUR Warning (Output Task Delete Warning): Output task file %s of user %s ',...
@@ -416,7 +421,7 @@ classdef JobManager < handle
                                                 obj.PrintOut( '-', 0 );
                                             end
                                             if( rem(TaskOutFileIndex,CurrentUser.TaskInFlushRate)==0 ), obj.PrintOut('\n', 0); end
-                                        end
+                                        % end
                                         
                                         % Wait briefly before looping for reading the next finished task file from TaskOut directory.
                                         pause( 0.1*CurrentUser.PauseTime );
@@ -445,7 +450,11 @@ classdef JobManager < handle
                                             end
                                             
                                             % Limit the simulation runtime of each task.
-                                            TaskRunTime = CurrentUser.RunTime;
+                                            if isfield(JobParam, 'RunTime')
+                                                TaskRunTime = JobParam.RunTime;
+                                            else
+                                                TaskRunTime = CurrentUser.RunTime;
+                                            end
                                             
                                             % Divide the JOB into multiple TASKs.
                                             CurrentUser.TaskID = obj.DivideJob2Tasks(JobParam, JobState, CurrentUser, JobName, TaskRunTime);
@@ -1042,7 +1051,7 @@ classdef JobManager < handle
                 % Increment TaskID counter.
                 UserParam.TaskID = UserParam.TaskID + 1;
                 TaskInputParam(TaskCount).RunTime = TaskRunTime;
-                TaskInputParam(TaskCount).RandSeed = 100*UserParam.TaskID*sum(clock);
+                TaskInputParam(TaskCount).RandSeed = mod(100*UserParam.TaskID*sum(clock), 2^32);
 
                 TaskParam.InputParam = TaskInputParam(TaskCount);
 
@@ -1093,7 +1102,13 @@ classdef JobManager < handle
         function FinalTaskID = DivideJob2Tasks(obj, JobParam, JobState, UserParam, JobName, TaskRunTime)
             % Divide the JOB into multiple TASKs.
             % Calling syntax: obj.DivideJob2Tasks(JobParam, JobState, UserParam, JobName [,TaskRunTime])
-            if( nargin<6 || isempty(TaskRunTime) ), TaskRunTime = UserParam.RunTime; end
+            if( nargin<6 || isempty(TaskRunTime) )
+                if isfield(JobParam, 'RunTime')
+                    TaskRunTime = JobParam.RunTime;
+                else
+                    TaskRunTime = UserParam.RunTime;
+                end
+            end
             FinalTaskID = UserParam.TaskID;
 
             % [HomeRoot, Username, Extension, Version] = fileparts(UserParam.UserPath);
