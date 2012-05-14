@@ -165,6 +165,11 @@ while(1)
         write_task_failed_to_log(next_input, next_running, IS_NOT_VERBOSE,...
                                   VERBOSE_MODE, name_loc, exception.message );
 
+
+        % write error message to TaskInfo
+        TaskInfo.ErrorMsg = exception.message;
+
+
         % append "_failed" to the task filename and move to output queue
         move_failed_task_to_output_queue(next_input, TaskParam, TaskInfo, oq, next_running, rq);
         end
