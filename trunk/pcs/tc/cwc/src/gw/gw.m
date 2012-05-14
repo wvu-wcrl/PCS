@@ -163,7 +163,7 @@ while(1)
 	% the task failed to execute.  write the appropriate log message,
         % including MATLAB's exception message, allowing debugging.
         write_task_failed_to_log(next_input, next_running, IS_NOT_VERBOSE,...
-                                  VERBOSE_MODE, username, exception.message );
+                                  VERBOSE_MODE, name_loc, exception.message );
 
         % append "_failed" to the task filename and move to output queue
         move_failed_task_to_output_queue(next_input, TaskParam, TaskInfo, oq, next_running, rq);
@@ -221,9 +221,9 @@ function next_running = feed_running_queue(next_input, iq,  rq, wid)
 
 
 % move the file to the running queue and tag with the worker id
-[beg en]  =   get_name_loc(next_input)
-next_running = [beg '_' int2str(wid) en]
-next_input
+[beg en]  =   get_name_loc(next_input);
+next_running = [beg '_' int2str(wid) en];
+
 
 
 cs = ['mv' ' ' iq '/' next_input ' ' rq '/' next_running ];
