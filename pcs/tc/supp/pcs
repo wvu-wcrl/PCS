@@ -1,12 +1,60 @@
 #!/bin/bash
 ### BEGIN INIT INFO                                                                                                 
-# Provides:        tc                                                                                              
+# Provides:        pcs                                                                                              
 # Required-Start:  
 # Required-Stop:   
 # Default-Start:   2 3 4 5                                                                                          
 # Default-Stop:                                                                                                     
-# Short-Description: Start task and worker controller.  start worker                                                                               
+# Short-Description: Management script for pcs suite                                                                               
 ### END INIT INFO 
+
+
+#####  Commands
+
+COMMAND      DESCRIPTION
+
+pcs start     clear all global queues
+              start task controllers, worker controllers, workers
+             
+
+
+pcs stop      stop all controllers and workers
+              save state of global queues
+
+
+
+pcs resume    restore state of global queues at time of last stop
+              start all controllers and workers
+
+
+pcs shutdown  allow tasks in global queue to complete
+              stop all controllers and workers
+
+#####
+
+
+
+##### Examples
+
+1. Start pcs with cleared queues.
+  > pcs start
+
+
+
+2. Stop pcs
+  > pcs stop
+
+
+
+3.  Stop pcs and then resume previous state.
+  > pcs stop
+  > pcs resume
+
+
+4. Stop pcs allowing global queues to empty.
+  > pcs shutdown
+
+#####
 
 
 
@@ -272,7 +320,7 @@ strip_worker_id $PATH_SQR$PATH_STATE
 
 
         *)
-                echo "Usage: $0 {start|stop|restart|status}"
+                echo "Usage: $0 {start|stop|restart|resume|shutdown}"
                 exit 2
                 ;;
 esac
