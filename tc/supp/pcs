@@ -1,0 +1,286 @@
+#!/bin/bash
+### BEGIN INIT INFO                                                                                                 
+# Provides:        tc                                                                                              
+# Required-Start:  
+# Required-Stop:   
+# Default-Start:   2 3 4 5                                                                                          
+# Default-Stop:                                                                                                     
+# Short-Description: Start task and worker controller.  start worker                                                                               
+### END INIT INFO 
+
+
+
+
+
+### paths #########
+# task and worker controllers
+PATH_TC=/home/pcs/tc/ctc/src
+PATH_WC=/home/pcs/tc/cwc/src
+
+# short queues
+PATH_SQI=/home/pcs/tc/queue/cluster/short/iq  # input queue
+PATH_SQR=/home/pcs/tc/queue/cluster/short/rq  # running queue
+PATH_SQO=/home/pcs/tc/queue/cluster/short/oq  # output queue
+
+PATH_LQI=/home/pcs/tc/queue/cluster/long/iq   # input queue
+PATH_LQR=/home/pcs/tc/queue/cluster/long/rq   # running queue
+PATH_LQO=/home/pcs/tc/queue/cluster/long/oq   # output queue
+
+PATH_STATE=/state                       # subdir of queues where state is saved before shutdown
+######################
+
+
+
+
+
+# names for screen sessions
+STC=stc    # short task controller 
+LTC=ltc    # long task controller
+SWC=swc    # short worker controller
+LWC=lwc    # long worker controller
+##########################
+
+
+
+#### functions
+start_controllers_workers(){
+
+screen -S $STC -m -d matlab -r "cd $PATH_TC; startup_short"
+screen -S $LTC -m -d matlab -r "cd $PATH_TC; startup_long"
+
+screen -S $SWC -m -d matlab -r "cd $PATH_WC; startup_short; cwcobj.cSta"
+screen -S $LWC -m -d matlab -r "cd $PATH_WC; startup_long; cwcobj.cSta"
+}
+
+
+
+stop_workers(){
+screen -S $SWC -p 0 -X eval 'stuff "\003"'
+screen -S $SWC -p 0 -X eval 'stuff "cwcobj.slay\015"'
+sleep 3
+}
+
+
+# function to stop screen sessions containing task and worker controllers
+stop_screen_session(){
+screen -S $1 -p 0 -X eval 'stuff $"\003"'
+
+sleep $2
+screen -S $1 -p 0 -X eval 'stuff "exit\015"'
+screen -S $1 -p 0 -X eval 'stuff "exit\015"'
+}
+
+                    
+
+# given file tokenized by underscores, remove third field                                                                                               
+strip_worker_id()
+{
+input_dir=$1
+
+(for i in $input_dir/*.mat;
+do
+IFS='_';
+unset newname
+cnt=1
+
+
+  for word in $i
+  do
+
+
+  if [ $cnt -eq 1 ]
+     then
+        newname=$word
+     elif [ $cnt -eq 3 ]
+     then
+        newname=$newname
+     else
+        newname=$newname\_$word
+  fi
+
+  cnt=$(($cnt+1))
+
+  done
+
+  # move to new filename                                                                                                                                
+IFS=' ';
+   mv $i $newname
+
+ done
+)
+}
+
+
+
+#####################
+
+
+
+
+
+case $1 in
+
+
+
+        start) # clear queues, start workers, start controllers
+# clear all global queues
+rm $PATH_SQI/*.mat &>/dev/null
+rm $PATH_SQI$PATH_STATE/*.mat &>/dev/null
+rm $PATH_SQR/*.mat &>/dev/null
+rm $PATH_SQR$PATH_STATE/*.mat &>/dev/null
+rm $PATH_SQO/*.mat &>/dev/null
+rm $PATH_SQO$PATH_STATE/*.mat &>/dev/null
+
+
+rm $PATH_LQI/*.mat &>/dev/null
+rm $PATH_LQI$PATH_STATE/*.mat &>/dev/null
+rm $PATH_LQR/*.mat &>/dev/null
+rm $PATH_LQR$PATH_STATE/*.mat &>/dev/null
+rm $PATH_LQO/*.mat &>/dev/null
+rm $PATH_LQO$PATH_STATE/*.mat &>/dev/null
+#######################
+
+start_controllers_workers
+                ;;
+
+
+
+
+
+
+        stop)  # stop all workers and task controllers
+# stop running workers
+stop_workers
+
+
+
+stop_screen_session $SWC 1
+stop_screen_session $LWC 1
+stop_screen_session $STC 2
+stop_screen_session $LTC 2
+
+
+
+# move files in gq to state
+mv $PATH_SQI/*.mat $PATH_SQI$PATH_STATE &>/dev/null
+mv $PATH_SQR/*.mat $PATH_SQR$PATH_STATE &>/dev/null
+mv $PATH_SQO/*.mat $PATH_SQO$PATH_STATE &>/dev/null
+
+mv $PATH_LQI/*.mat $PATH_LQI$PATH_STATE &>/dev/null
+mv $PATH_LQR/*.mat $PATH_LQR$PATH_STATE &>/dev/null
+mv $PATH_LQO/*.mat $PATH_LQO$PATH_STATE &>/dev/null
+############################
+
+# strip worker id from tasks in running queue state
+strip_worker_id $PATH_SQR$PATH_STATE
+
+                ;;
+
+
+
+
+
+
+        restart|force-reload) 
+                $0 stop && sleep 5 && $0 start
+                ;;
+
+
+
+
+
+
+        resume)       # restore global queue state and restart
+         # move state files into queues
+	 mv $PATH_SQI$PATH_STATE/*.mat $PATH_SQI  &>/dev/null
+	 mv $PATH_SQR$PATH_STATE/*.mat $PATH_SQI  &>/dev/null
+	 mv $PATH_SQO$PATH_STATE/*.mat $PATH_SQO  &>/dev/null
+
+	 mv $PATH_LQI$PATH_STATE/*.mat $PATH_LQI  &>/dev/null
+	 mv $PATH_LQR$PATH_STATE/*.mat $PATH_LQI  &>/dev/null
+	 mv $PATH_LQO$PATH_STATE/*.mat $PATH_LQO  &>/dev/null
+
+
+         # start workers and controllers
+         start_controllers_workers
+                ;;
+
+
+
+
+
+
+        shutdown)  # allow queues to empty and stop system
+
+
+         # stop task controllers
+         stop_screen_session $STC 2
+         stop_screen_session $LTC 2
+
+         # wait until global queues are empty ####
+	 while [ "$(ls -A  $PATH_SQI/*.mat)" ]
+         do
+	 sleep 2
+         done
+
+         while [ "$(ls -A  $PATH_SQR/*.mat)" ]
+         do
+	 sleep 2
+         done
+
+
+
+
+	 while [ "$(ls -A  $PATH_LQI/*.mat)" ]
+         do
+	 sleep 2
+         done
+
+         while [ "$(ls -A  $PATH_LQR/*.mat)" ]
+         do
+	 sleep 2
+         done
+
+
+
+         ##########################################
+
+
+         # stop worker controllers
+         stop_screen_session $SWC 1
+         stop_screen_session $LWC 1
+                ;;
+
+
+
+
+
+
+
+
+        try-restart)
+                if $0 status >/dev/null; then
+                        $0 restart
+                else
+                        exit 0
+                fi
+                ;;
+
+
+
+
+
+
+        *)
+                echo "Usage: $0 {start|stop|restart|status}"
+                exit 2
+                ;;
+esac
+
+
+
+
+
+
+
+
