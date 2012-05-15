@@ -11,14 +11,24 @@
 % 2. decide which user to service
 % 3. launch tasks for the user with the least active tasks
 
-function main(obj)
+function main(obj, ss)
 
 
 nu = length(obj.users);           % number of users
 
 
+IS_START = strcmp(ss, 'start');
+IS_RESUME = strcmp(ss, 'resume');
+IS_SHUTDOWN = strcmp(ss, 'shutdown');
+
+
 while(1) %enter primary loop
 	    sprintf('hi')
+
+
+            
+	    if IS_START || IS_RESUME
+
     [au fl] = scan_user_inputs(obj);                     % scan user input directories for new .mat inputs
 
     
@@ -29,13 +39,37 @@ while(1) %enter primary loop
 
     
     calculate_active_workers(obj);                       % scan the global running queue and count the active workers for each user
+          end
+   
 
-    
+
+         if IS_START || IS_RESUME || IS_SHUTDOWN
     consume_output(obj);                                 % scan global output queue and place completed work in user output directory
-
+         end
     
     pause(5);                                            % pause for 5 seconds before making another pass
-    
+
+
+
+%% get files in output and running queue %%
+pgoq = obj.gq.oq{1};
+srch = strcat(pgoq, '/*.mat');      % form full dir string
+fl = dir( srch );    % get list of .mat files in output queue
+nfoq = length(fl);
+
+pgrq = obj.gq.rq{1};
+srch = strcat(pgrq, '/*.mat');      % form full dir string
+fl = dir( srch );    % get list of .mat files in output queue
+nfrq = length(fl);
+
+Q_EMPTY = (nfoq == 0)&&(nfrq == 0);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+    % if no files are left in the output queue and the tc is in shutdown mode, break out of the loop    
+    if IS_SHUTDOWN && Q_EMPTY
+       break;
+    end
     
 end
 
