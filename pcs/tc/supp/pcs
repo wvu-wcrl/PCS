@@ -10,50 +10,49 @@
 
 
 #####  Commands
-
-COMMAND      DESCRIPTION
-
-pcs start     clear all global queues
-              start task controllers, worker controllers, workers
-             
-
-
-pcs stop      stop all controllers and workers
-              save state of global queues
-
-
-
-pcs resume    restore state of global queues at time of last stop
-              start all controllers and workers
-
-
-pcs shutdown  allow tasks in global queue to complete
-              stop all controllers and workers
-
+#
+#COMMAND      DESCRIPTION
+#
+#pcs start     clear all global queues
+#              start task controllers, worker controllers, workers
+#             
+#
+#
+#pcs stop      stop all controllers and workers
+#              save state of global queues
+#
+#
+#
+#pcs resume    restore state of global queues at time of last stop
+#              start all controllers and workers
+#
+#
+#pcs shutdown  allow tasks in global queue to complete
+#              stop all controllers and workers
+#
 #####
 
 
 
 ##### Examples
-
-1. Start pcs with cleared queues.
-  > pcs start
-
-
-
-2. Stop pcs
-  > pcs stop
-
-
-
-3.  Stop pcs and then resume previous state.
-  > pcs stop
-  > pcs resume
-
-
-4. Stop pcs allowing global queues to empty.
-  > pcs shutdown
-
+#
+#1. Start pcs with cleared queues.
+#  > pcs start
+#
+#
+#
+#2. Stop pcs
+#  > pcs stop
+#
+#
+##3.  Stop pcs and then resume previous state.
+#  > pcs stop
+#  > pcs resume
+#
+#
+#4. Stop pcs allowing global queues to empty.
+#  > pcs shutdown
+#
 #####
 
 
@@ -74,7 +73,7 @@ PATH_LQI=/home/pcs/tc/queue/cluster/long/iq   # input queue
 PATH_LQR=/home/pcs/tc/queue/cluster/long/rq   # running queue
 PATH_LQO=/home/pcs/tc/queue/cluster/long/oq   # output queue
 
-PATH_STATE=/state                       # subdir of queues where state is saved before shutdown
+#PATH_STATE=/state                       # subdir of queues where state is saved before shutdown
 ######################
 
 
@@ -88,14 +87,17 @@ SWC=swc    # short worker controller
 LWC=lwc    # long worker controller
 ##########################
 
+# configuration files
+scfg='pcs_short_224.cfg'   # short queue
+lcfg='pcs_long_224.cfg'    # long queue
+#####################
+
+
 
 
 #### functions
-start_controllers_workers(){
 
-screen -S $STC -m -d matlab -r "cd $PATH_TC; startup_short"
-screen -S $LTC -m -d matlab -r "cd $PATH_TC; startup_long"
-
+start_workers(){
 screen -S $SWC -m -d matlab -r "cd $PATH_WC; startup_short; cwcobj.cSta"
 screen -S $LWC -m -d matlab -r "cd $PATH_WC; startup_long; cwcobj.cSta"
 }
@@ -109,53 +111,24 @@ sleep 3
 }
 
 
-# function to stop screen sessions containing task and worker controllers
+
+
+manage_controllers(){
+ss=$1
+
+screen -S $STC -m -d matlab -r "cd $PATH_TC;tc_startup('$scfg','$ss')"
+screen -S $LTC -m -d matlab -r "cd $PATH_TC;tc_startup('$lcfg','$ss')"
+}
+
+
+
+
 stop_screen_session(){
 screen -S $1 -p 0 -X eval 'stuff $"\003"'
 
 sleep $2
 screen -S $1 -p 0 -X eval 'stuff "exit\015"'
 screen -S $1 -p 0 -X eval 'stuff "exit\015"'
-}
-
-                    
-
-# given file tokenized by underscores, remove third field                                                                                               
-strip_worker_id()
-{
-input_dir=$1
-
-(for i in $input_dir/*.mat;
-do
-IFS='_';
-unset newname
-cnt=1
-
-
-  for word in $i
-  do
-
-
-  if [ $cnt -eq 1 ]
-     then
-        newname=$word
-     elif [ $cnt -eq 3 ]
-     then
-        newname=$newname
-     else
-        newname=$newname\_$word
-  fi
-
-  cnt=$(($cnt+1))
-
-  done
-
-  # move to new filename                                                                                                                                
-IFS=' ';
-   mv $i $newname
-
- done
-)
 }
 
 
@@ -168,31 +141,13 @@ IFS=' ';
 
 case $1 in
 
+        start) #
 
 
-        start) # clear queues, start workers, start controllers
-# clear all global queues
-rm $PATH_SQI/*.mat &>/dev/null
-rm $PATH_SQI$PATH_STATE/*.mat &>/dev/null
-rm $PATH_SQR/*.mat &>/dev/null
-rm $PATH_SQR$PATH_STATE/*.mat &>/dev/null
-rm $PATH_SQO/*.mat &>/dev/null
-rm $PATH_SQO$PATH_STATE/*.mat &>/dev/null
+	start_workers
 
-
-rm $PATH_LQI/*.mat &>/dev/null
-rm $PATH_LQI$PATH_STATE/*.mat &>/dev/null
-rm $PATH_LQR/*.mat &>/dev/null
-rm $PATH_LQR$PATH_STATE/*.mat &>/dev/null
-rm $PATH_LQO/*.mat &>/dev/null
-rm $PATH_LQO$PATH_STATE/*.mat &>/dev/null
-#######################
-
-start_controllers_workers
+        manage_controllers start 
                 ;;
-
-
-
 
 
 
@@ -200,8 +155,7 @@ start_controllers_workers
 # stop running workers
 stop_workers
 
-
-
+# stop screen sessions
 stop_screen_session $SWC 1
 stop_screen_session $LWC 1
 stop_screen_session $STC 2
@@ -209,23 +163,9 @@ stop_screen_session $LTC 2
 
 
 
-# move files in gq to state
-mv $PATH_SQI/*.mat $PATH_SQI$PATH_STATE &>/dev/null
-mv $PATH_SQR/*.mat $PATH_SQR$PATH_STATE &>/dev/null
-mv $PATH_SQO/*.mat $PATH_SQO$PATH_STATE &>/dev/null
-
-mv $PATH_LQI/*.mat $PATH_LQI$PATH_STATE &>/dev/null
-mv $PATH_LQR/*.mat $PATH_LQR$PATH_STATE &>/dev/null
-mv $PATH_LQO/*.mat $PATH_LQO$PATH_STATE &>/dev/null
-############################
-
-# strip worker id from tasks in running queue state
-strip_worker_id $PATH_SQR$PATH_STATE
-
+# call controllers with stop argument
+manage_controllers stop
                 ;;
-
-
-
 
 
 
@@ -239,21 +179,11 @@ strip_worker_id $PATH_SQR$PATH_STATE
 
 
         resume)       # restore global queue state and restart
-         # move state files into queues
-	 mv $PATH_SQI$PATH_STATE/*.mat $PATH_SQI  &>/dev/null
-	 mv $PATH_SQR$PATH_STATE/*.mat $PATH_SQI  &>/dev/null
-	 mv $PATH_SQO$PATH_STATE/*.mat $PATH_SQO  &>/dev/null
 
-	 mv $PATH_LQI$PATH_STATE/*.mat $PATH_LQI  &>/dev/null
-	 mv $PATH_LQR$PATH_STATE/*.mat $PATH_LQI  &>/dev/null
-	 mv $PATH_LQO$PATH_STATE/*.mat $PATH_LQO  &>/dev/null
+	start_workers
 
-
-         # start workers and controllers
-         start_controllers_workers
+        manage_controllers resume
                 ;;
-
-
 
 
 
@@ -265,36 +195,47 @@ strip_worker_id $PATH_SQR$PATH_STATE
          stop_screen_session $STC 2
          stop_screen_session $LTC 2
 
-         # wait until global queues are empty ####
-	 while [ "$(ls -A  $PATH_SQI/*.mat)" ]
+
+         manage_controllers shutdown 
+         # wait for global queues to empty
+
+         while [ "$(ls -A  $PATH_SQI/*.mat)" ]
          do
-	 sleep 2
+	       sleep 2
          done
+
 
          while [ "$(ls -A  $PATH_SQR/*.mat)" ]
          do
-	 sleep 2
+	       sleep 2
+         done
+
+         while [ "$(ls -A  $PATH_SQO/*.mat)" ]
+         do
+	      sleep 2
          done
 
 
 
 
-	 while [ "$(ls -A  $PATH_LQI/*.mat)" ]
+         while [ "$(ls -A  $PATH_LQI/*.mat)" ]
          do
-	 sleep 2
+	       sleep 2
          done
 
          while [ "$(ls -A  $PATH_LQR/*.mat)" ]
          do
-	 sleep 2
+	       sleep 2
          done
 
+         while [ "$(ls -A  $PATH_LQO/*.mat)" ]
+         do
+	      sleep 2
+         done
+         # stop workers and worker controllers
 
 
-         ##########################################
-
-
-         # stop worker controllers
+         stop_workers
          stop_screen_session $SWC 1
          stop_screen_session $LWC 1
                 ;;
