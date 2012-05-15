@@ -39,6 +39,13 @@ function init_paths(obj)
   obj.gq.log = out{1};
 
 
+  % bash scripts
+  heading = '[paths]';
+  key = 'bash_scripts';
+  out = util.fp(obj.cfp, heading, key);
+  obj.bs = out{1};
+
+
 end
 
 

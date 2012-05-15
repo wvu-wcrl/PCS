@@ -51,7 +51,8 @@ classdef ctc < handle
         % output path -                         oq
         % active workers for this user-        aw
         % user location - web or local        user_location        
-  
+
+	bs        % bash script path
         
     end
     
@@ -63,16 +64,26 @@ classdef ctc < handle
         
     
     methods
-           function obj = ctc(cfp) % ctc constructor
-                        
+	function obj = ctc(cfp, ss) % ctc constructor
+            
+   IS_STOP = strcmp(ss, 'stop');  % if the controller is stopping, do not enter main lolop
+            
+
             % get config file path
             obj.cfp = cfp;
                         
-            % initialize the cluster task controller
+            % initialize paths, worker states, and user structures
             init(obj);            
        
+            % manipulate queues based startup state
+            manage_queues(obj, ss);
+
+          
+            if ~IS_STOP
             %  enter main control loop
-            main(obj);
+            main(obj, ss);
+            end
+
         end
     end
     
@@ -81,7 +92,7 @@ classdef ctc < handle
     methods % called by class constructor
         init(obj) % initialize ctc
         
-        main(obj) % main control loop
+	    main(obj, ss) % main control loop
         
     end
 
