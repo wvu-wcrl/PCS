@@ -15,28 +15,29 @@
 
 
 == File Layout ==
-{{{
+
 The logging function filename is 
 
-   PrintOut.m
+{{{   PrintOut.m }}}
 
 The file is contained in
 
-   pcs/tc/util/log/
+{{{  pcs/tc/util/log/ }}}
 
-}}}
+
 The archive class filename is
 
 
 
 
 == Module Logging Process ==
+
 {{{
 Modules implementing logging add pcs/tc/util/log to path and
 call the function PrintOut() as
 
 
-PrintOut(msg, vq, filename, at)
+ PrintOut(msg, vq, filename, at)
 
 where
 msg - cell array of strings containing log messages
