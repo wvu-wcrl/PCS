@@ -61,26 +61,40 @@ classdef ctc < handle
         wrklist
         qp        
     end
+    
+    
+    properties   % logging properties
+        ctc_logfile
+    end
         
+    
     
     methods
 	function obj = ctc(cfp, ss) % ctc constructor
             
-   IS_STOP = strcmp(ss, 'stop');  % if the controller is stopping, do not enter main lolop
+   IS_STOP = strcmp(ss, 'stop');  % if the controller is stopping, do not enter main loop
             
-
+ 
+   
             % get config file path
             obj.cfp = cfp;
                         
             % initialize paths, worker states, and user structures
+            
             init(obj);            
-       
+            msg = ['Cluster task controller initialized.'];
+            PrintOut(msg, 0, obj.cwc_logfile{1}, 1);
+            
+            
             % manipulate queues based startup state
             manage_queues(obj, ss);
 
           
             if ~IS_STOP
             %  enter main control loop
+            
+            msg = ['Entering main task controller loop.'];
+            PrintOut(msg, 0, obj.cwc_logfile{1}, 1);
             main(obj, ss);
             end
 

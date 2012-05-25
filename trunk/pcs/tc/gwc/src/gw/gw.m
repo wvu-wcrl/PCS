@@ -2,7 +2,7 @@
 %
 % generic worker function
 %
-% reads struct containing
+% reads task input file containing struc with the following entries
 %  entry function
 %  path to code
 %  struct containing parameters
@@ -12,6 +12,8 @@
 % Version 2
 % 2/16/2012
 % Terry Ferrett
+
+
 
 function gw(wid, iq, rq, oq, lp, LOG_PERIOD, NUM_LOGS, VERBOSE_MODE)
 
@@ -23,11 +25,6 @@ IS_NOT_VERBOSE = 0;
 default_path = path; % the default path will be restored after executing
                      %  the entry function
 
-% global task controller directories
-%iq = gq.iq;    %input
-%rq = gq.rq;    % running
-%oq = gq.oq;    %output
-%ld = gq.ld;    %log dir
 
 
 

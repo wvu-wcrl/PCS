@@ -1,5 +1,10 @@
 function slay(obj)
 
+
+% log message about slaying workers
+    msg = ['Slaying all workers.'];
+            PrintOut(msg, 0, obj.cwc_logfile{1}, 1);
+
 % Loop over all active nodes and end worker processes.
 n = length(obj.workers);
 m = length(obj.nodes);

@@ -39,11 +39,25 @@ function init_paths(obj)
 
 
   
-  % bash script path
+  % worker logging directory path
   heading = '[paths]';
   key = 'log';
   out = util.fp(obj.cf, heading, key);
   obj.lp = out{1};
+    
+  
+  % logging function path
+  heading = '[paths]';
+  key = 'log_function';
+  out = util.fp(obj.cf, heading, key);
+  obj.lfup = out{1};
+  addpath(obj.lfup{1}); 
+  
+   % cwc logfile path
+  heading = '[paths]';
+  key = 'cwc_logfile';
+  out = util.fp(obj.cf, heading, key);
+  obj.cwc_logfile = out{1};
 
 
   % worker script path
