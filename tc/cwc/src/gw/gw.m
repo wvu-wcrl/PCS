@@ -14,34 +14,53 @@
 % 3/12/2012
 % Terry Ferrett
 
+%%%%  Inputs %%%%
+%   wid    worker id
+%  
+%   % Paths %
+%   iq       global input queue
+%   rq       global running queue
+%   oq      global output queue
+%   lfup    logging function
+%   lfip     log file
+%
+%  % Logging parameters %
+%    LOG_PERIOD       time between log rotations, seconds
+%    NUM_LOGS         number of log files to archive before deleting old files
+%    VERBOSE_MODE  logging verbosity level
 
 
-function gw(wid, iq, rq, oq, lp, LOG_PERIOD, NUM_LOGS, VERBOSE_MODE)
+function gw(wid, iq, rq, oq, lfup, lfip, LOG_PERIOD, NUM_LOGS, VERBOSE_MODE)
 
 
 
 %%% place logging variables into local workspace for easy access %%%
 LOG_PERIOD = str2double(LOG_PERIOD);
 NUM_LOGS = str2double(NUM_LOGS);
+
 IS_VERBOSE = 1;  % flag verbose log messages
 IS_NOT_VERBOSE = 0;
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+STDOUT = 1;         % print to standard out
+
+APPEND_TIME = 1; % append time to message written to log file
+DONT_APPEND_TIME = 0;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
-
-%%% save base path information %%%
+%%% add logging function to path, and save base path information %%%
+addpath(lfup);
 default_path = path; % the default path will be restored after executing
                      %  the entry function
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
-
 %%% log the worker start time %%%
-[cur_time] = gettime(); % current time
-msg = ['Worker' ' ' int2str(wid) ' ' 'started at' ' '  cur_time];
-log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
+% [cur_time] = gettime(); % current time
+%msg = ['Worker' ' ' int2str(wid) ' ' 'started at' ' '  cur_time];
+%log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
+msg = ['Worker' ' ' int2str(wid) ' ' 'started.'];
+PrintOut(msg, IS_NOT_VERBOSE, STDOUT, APPEND_TIME);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -93,7 +112,7 @@ while(1)
 
         
         %%% log function start time %%%       
-        [cur_time] = gettime(); % current time
+        % [cur_time] = gettime(); % current time
 %        username = strtok(next_running, '_');  % username
 
         [name_loc en] = get_name_loc(next_running);
@@ -101,8 +120,10 @@ while(1)
 
 
         task_name = get_task_name(next_input);
-        msg = ['Executing task' ' ' task_name ' ' 'from user' ' ' name_loc  ' ' 'at'  ' ' cur_time];
-        log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
+        %msg = ['Executing task' ' ' task_name ' ' 'from user' ' ' name_loc  ' ' 'at'  ' ' cur_time];
+        %log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
+        msg = ['Executing task' ' ' task_name ' ' 'from user' ' ' name_loc];
+        PrintOut(msg, IS_NOT_VERBOSE, STDOUT, APPEND_TIME);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -124,15 +145,17 @@ while(1)
 
         
         %%% log function end time %
-        [cur_time] = gettime(); % current time
-        msg = ['Task' ' ' task_name ' ' 'from user'  ' ' name_loc ' ' 'complete' ' ' 'at'  ' ' cur_time];
-        log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
+        % [cur_time] = gettime(); % current time
+        %msg = ['Task' ' ' task_name ' ' 'from user'  ' ' name_loc ' ' 'complete' ' ' 'at'  ' ' cur_time];
+        %log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
+        msg = ['Task' ' ' task_name ' ' 'from user'  ' ' name_loc ' ' 'complete'];
+        PrintOut(msg, IS_NOT_VERBOSE, STDOUT, APPEND_TIME);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
         %  place task stop time into the task information data structure
-	TaskInfo.StopTime = clock;
+	    TaskInfo.StopTime = clock;
 
                 
         
@@ -189,7 +212,7 @@ while(1)
     t = toc;
 if(t > LOG_PERIOD) % rotate log file
     [cur_time] = gettime(); % current time
-    rotate_log(lp,nlog, cur_time);        % rotate the log file
+    rotate_log(lfip,nlog, cur_time);        % rotate the log file
     nlog = mod(nlog+1, NUM_LOGS);
 tic;
 end
@@ -300,38 +323,38 @@ end
 
 
 
-function rotate_log(lp, nlog, cur_time)
+function rotate_log(lfip, nlog, cur_time)
 
 
 % insert message at end of existing log file regarding rotation
-cs = ['echo' ' ' '''Log file rotated at ' cur_time ''' ' '>>' ' ' lp];
+cs = ['echo' ' ' '''Log file rotated at ' cur_time ''' ' '>>' ' ' lfip];
 system(cs);
 
 
 % copy the existing log file to file number nlog
-fnind = strfind(lp, '/');  %tokenize the full path to the log file
+fnind = strfind(lfip, '/');  %tokenize the full path to the log file
 fnind = fnind(end);
 
-lfp = lp(1:fnind-1);
-lfn = lp(fnind+1:end);
+lfp = lfip(1:fnind-1);
+lfn = lfip(fnind+1:end);
 
 af = [lfp '/archive' '/' lfn '.' int2str(nlog)];
-cs = ['cp' ' ' lp ' ' af];
+cs = ['cp' ' ' lfip ' ' af];
 system(cs);
 %%%%%%%%%%%%%%%%
 
 
 % null existing log file
-cs = ['cat /dev/null' ' ' '>' ' ' lp];
+cs = ['cat /dev/null' ' ' '>' ' ' lfip];
 system(cs);
 
 
 % prepend first ten lines of previous log file to new
-cs = ['tail ' af ' >> ' lp];
+cs = ['tail ' af ' >> ' lfip];
 
 
 % insert message about new log file creation with timestamp
-cs = ['echo' ' ' '''Log file rotated at ' cur_time ''' ' '>>' ' ' lp];
+cs = ['echo' ' ' '''Log file rotated at ' cur_time ''' ' '>>' ' ' lfip];
 system(cs);
 
 
@@ -347,11 +370,11 @@ end
 %  msg               - string to output to logs
 %  msg_verbose       - is this a verbose message?
 %  log_mode_verbose  - is the logging mode verbose?
-function log_msg(msg, msg_verbose, log_mode_verbose)
-if ~(msg_verbose == 1 & log_mode_verbose == 0), 
-  fprintf(msg); fprintf('\n');
-end
-end
+%function log_msg(msg, msg_verbose, log_mode_verbose)
+%if ~(msg_verbose == 1 & log_mode_verbose == 0), 
+%  fprintf(msg); fprintf('\n');
+%end
+%end
 
 
 
@@ -375,13 +398,17 @@ function write_task_failed_to_log(next_input, next_running, IS_NOT_VERBOSE,...
         task_name = get_task_name(next_input);
 
 	name_loc = get_name_loc(next_running);
-        [cur_time] = gettime(); % current time
+        %[cur_time] = gettime(); % current time
 
 	
-        msg = ['Task' ' ' task_name ' ' 'from user' ' ' name_loc  ' ' 'at'  ' ' cur_time];
+        %msg = ['Task' ' ' task_name ' ' 'from user' ' ' name_loc  ' ' 'at'  ' ' cur_time];
+        msg = ['Task' ' ' task_name ' ' 'from user' ' ' name_loc ' '];
         msg = [msg 'failed to execute.'];
-        log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
-        log_msg(message, IS_NOT_VERBOSE, VERBOSE_MODE);
+        PrintOut(msg, IS_NOT_VERBOSE, STDOUT, APPEND_TIME);
+        PrintOut(message, IS_NOT_VERBOSE, STDOUT, APPEND_TIME);
+        %log_msg(msg, IS_NOT_VERBOSE, VERBOSE_MODE);
+        %log_msg(message, IS_NOT_VERBOSE, VERBOSE_MODE);
+        
 end
 
 

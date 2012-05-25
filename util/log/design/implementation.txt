@@ -1,0 +1,5 @@
+1. Write general purpose logging class.
+
+2. Modify generic worker to utilize class as test.
+
+3. Modify all workers and controllers to utilize class.

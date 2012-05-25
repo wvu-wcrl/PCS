@@ -11,10 +11,18 @@
 
 function cSto(obj,varargin)
 
+% log message about stopping workers across entire cluster
+msg = ['Workers stopping across entire cluster.'];
+PrintOut(msg, 0, obj.cwc_logfile{1}, 1);
+
+
 if nargin == 1,   % kill all workers unconditionally
     % Loop over all active workers and end worker processes.
     n = length(obj.workers);
     for k = 1:n,
+        % log message about stopping individual worker
+            msg = ['Worker' ' ' int2str(obj.workers{k}.wid) ' ' 'stopping on' ' ' obj.workers{k}.node];
+            PrintOut(msg, 0, obj.cwc_logfile{1}, 1);
         stow(obj, obj.workers{k}.wid);
     end
     %

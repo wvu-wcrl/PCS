@@ -23,7 +23,8 @@ switch lower(ss)
 
  
 case 'start'   % clear global queues and user running queues
-
+   msg = ['Task controller starting.  Clearing global queues.'];
+            PrintOut(msg, 0, obj.cwc_logfile{1}, 1);
 
 % clear global queues
 cmd = ['rm ' obj.gq.iq{1} '/*.mat &>/dev/null'];  system(cmd);
@@ -42,6 +43,9 @@ end
 
 case 'stop'      % move running queue files to input queue
 % move global running queue .mat files to input queue
+
+msg = ['Task controller stopping.  Moving contents of global running queue to input queue.'];
+PrintOut(msg, 0, obj.cwc_logfile{1}, 1);
 mv_rq_to_iq(obj);
 
 
