@@ -39,7 +39,7 @@ classdef BECJobManager < CodedModJobManager
                 if( nargin>=4 && ~isempty(JobName) && ~isempty(Username) )
                     StopMsg = sprintf( ['\n\nRunning job %s for user %s is STOPPED completely because enough trials and/or ',...
                         'frame errors are observed for ALL Epsilon points.\n\n'], JobName(1:end-4), Username );
-                    obj.PrintOut(StopMsg, 0);
+                    PrintOut(StopMsg, 0, obj.JobManagerParam.LogFileName);
                 end
             end
 
@@ -55,7 +55,7 @@ classdef BECJobManager < CodedModJobManager
             end
             msgStatus = sprintf( ['PROGRESS UPDATE', MsgStr, ':\r\nTotal Trials Completed=%d\r\nTotal Trials Remaining=%d\r\nPercentage of Trials Completed=%2.4f'],...
                 CompletedTJob, RemainingTJob, 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
-            obj.PrintOut(['\n\n', msgStatus, '\n\n'], 0);
+            PrintOut(['\n\n', msgStatus, '\n\n'], 0, obj.JobManagerParam.LogFileName);
             % msgResults = sprintf( 'Epsilon Points Completed=%.4f\n', JobParam.Epsilon(ActiveEpsilonPoints==0) );
             if JobParam.HStructInfo.FullRankFlag == 1
                 FullRank = 'Yes';
