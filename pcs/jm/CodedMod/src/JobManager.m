@@ -117,9 +117,9 @@ classdef JobManager < handle
             if( nargin<1 || isempty(cfgRoot) ), cfgRoot = []; end
             obj.JobManagerParam = obj.InitJobManager(cfgRoot);
             obj.UserList = obj.InitUsers();
-            msg = sprintf( '\n\n\nThe list of ACTIVE users is extracted at %s.\n\nThere are %d ACTIVE users in the system.\n\n',...
+            Msg = sprintf( '\n\n\nThe list of ACTIVE users is extracted at %s.\n\nThere are %d ACTIVE users in the system.\n\n',...
                 datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM'), length(obj.UserList) );
-            obj.PrintOut(msg, 0);
+            PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
         end
         
         
@@ -127,8 +127,8 @@ classdef JobManager < handle
             % Main function that runs the whole Job Manager.
             
             % Echo out starting time of running the Job Manager.
-            msg = sprintf( '\nThe JOB MANAGER for the current project started at %s.\n\n', datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-            obj.PrintOut(msg, 0);
+            Msg = sprintf( '\nThe JOB MANAGER for the current project started at %s.\n\n', datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+            PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
             
             RunningJobManager = 1;
             RunningUsers = 1;
@@ -138,12 +138,12 @@ classdef JobManager < handle
             while RunningJobManager
                 
                 Check4NewUser = 0;
-                msg = sprintf( '\n\n\nThe list of all ACTIVE users is extracted and updated at %s.\n', datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-                obj.PrintOut(msg, 0);
+                Msg = sprintf( '\n\n\nThe list of all ACTIVE users is extracted and updated at %s.\n', datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+                PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                 obj.UserList = obj.InitUsers();
                 nActiveUsers = length(obj.UserList);
-                msg = sprintf( 'There are %d ACTIVE users in the system.\n\n\n', nActiveUsers );
-                obj.PrintOut(msg, 0);
+                Msg = sprintf( 'There are %d ACTIVE users in the system.\n\n\n', nActiveUsers );
+                PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                 
                 if nActiveUsers>0
                     
@@ -235,9 +235,9 @@ classdef JobManager < handle
                                     CurrentUser.TaskID = obj.DivideJob2Tasks(JobParam, JobState, CurrentUser, JobName, TaskRunTime);
                                 end
                                 % Done!
-                                msg = sprintf( '\n\nDividing Input/Running job to tasks for user %s is done at %s. Waiting for its next job or next job division! ...\n\n',...
+                                Msg = sprintf( '\n\nDividing Input/Running job to tasks for user %s is done at %s. Waiting for its next job or next job division! ...\n\n',...
                                     Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-                                obj.PrintOut(msg, 0);
+                                PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                             end
                             
                             %******************************************************************
@@ -280,7 +280,7 @@ classdef JobManager < handle
                                     try
                                         save( fullfile(TempDir,[JobName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
                                         SuccessMsg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', TaskOutFileName(1:end-4), Username );
-                                        obj.PrintOut( SuccessMsg );
+                                        PrintOut(SuccessMsg, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
                                     catch
                                         save( fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
                                         SuccessMsg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', TaskOutFileName(1:end-4), Username );
@@ -299,9 +299,7 @@ classdef JobManager < handle
                                     %     'The user can delete the .mat output task file manually.'], TaskOutFileName(1:end-4) );
                                     % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'a+');
                                     % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'a+');
-                                    if obj.JobManagerParam.vqFlag == 1  % Quiet mode.
-                                        obj.PrintOut( '-', 0 );
-                                    end
+                                    PrintOut({'' ; '-'}, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
                                 % end
                                 
                                 % Try to load the correspoding JOB file from the user's JobRunning or JobOut directory (if it is there).
@@ -319,8 +317,8 @@ classdef JobManager < handle
 
                                     if ~isempty(JobDirectory)
                                         if strcmpi(JobDirectory,JobOutDir)
-                                            msg = sprintf( 'Finished JOB %s of user %s is updated in its JobOut directory.\n\n', JobName(1:end-4), Username );
-                                            obj.PrintOut(msg, 0);
+                                            Msg = sprintf( 'Finished JOB %s of user %s is updated in its JobOut directory.\n\n', JobName(1:end-4), Username );
+                                            PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                                             strMsg = 'JobOut';
                                         elseif strcmpi(JobDirectory,JobRunningDir)
                                             strMsg = 'JobRunning';
@@ -335,8 +333,8 @@ classdef JobManager < handle
                                             if sum(TaskState.Trials)~=0
                                                 JobState = obj.UpdateJobState(JobState, TaskState);
                                             else
-                                                msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
-                                                obj.PrintOut( msg, 0 );
+                                                Msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
+                                                PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                                             end
                                         end
                                     end
@@ -388,8 +386,8 @@ classdef JobManager < handle
                                             if sum(TaskState.Trials)~=0
                                                 JobState = obj.UpdateJobState(JobState, TaskState);
                                             else
-                                                msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
-                                                obj.PrintOut( msg, 0 );
+                                                Msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
+                                                PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                                             end
                                             
                                             % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save Timing Info.
@@ -397,7 +395,7 @@ classdef JobManager < handle
                                             try
                                                 save( fullfile(TempDir,[JobName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
                                                 SuccessMsg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', TaskOutFileName(1:end-4), Username );
-                                                obj.PrintOut( SuccessMsg );
+                                                PrintOut(SuccessMsg, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
                                             catch
                                                 save( fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
                                                 SuccessMsg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', TaskOutFileName(1:end-4), Username );
@@ -418,19 +416,19 @@ classdef JobManager < handle
                                             % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'a+');
                                             % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msg, 'a+');
 
-                                            if obj.JobManagerParam.vqFlag == 1  % Quiet mode.
-                                                obj.PrintOut( '-', 0 );
+                                            PrintOut({'' ; '-'}, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
+                                            if( rem(TaskOutFileIndex,CurrentUser.TaskInFlushRate)==0 )
+                                                PrintOut('\n', 0, obj.JobManagerParam.LogFileName);
                                             end
-                                            if( rem(TaskOutFileIndex,CurrentUser.TaskInFlushRate)==0 ), obj.PrintOut('\n', 0); end
                                         % end
                                         
                                         % Wait briefly before looping for reading the next finished task file from TaskOut directory.
                                         pause( 0.1*CurrentUser.PauseTime );
                                     end
                                     
-                                    msg = sprintf( '\n\n\nConsolidating finished tasks associated with job %s for user %s is DONE at %s!\n\n\n',...
+                                    Msg = sprintf( '\n\n\nConsolidating finished tasks associated with job %s for user %s is DONE at %s!\n\n\n',...
                                         JobName, Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-                                    obj.PrintOut(msg, 0);
+                                    PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                                     
                                     if( ~isempty(JobDirectory) && strcmpi(JobDirectory,JobRunningDir) ) % The job is loaded from JobRunning directory.
                                         % Determine if the global stopping criteria have been reached/met. Moreover, determine and echo progress of running JobName.
@@ -442,12 +440,12 @@ classdef JobManager < handle
                                             try
                                                 save( fullfile(JobRunningDir,JobName), 'JobParam', 'JobState' );
                                                 SuccessMsg = sprintf( 'The corresponding job file %s of user %s is updated in the JobRunning directory.\n', JobName(1:end-4), Username );
-                                                obj.PrintOut(SuccessMsg, 0);
+                                                PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
                                             catch
                                                 save( fullfile(obj.JobManagerParam.TempJMDir,JobName), 'JobParam', 'JobState' );
                                                 obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,JobName), JobRunningDir);
                                                 SuccessMsg = sprintf( 'The corresponding job file %s of user %s is updated in the JobRunning directory by OS.\n', JobName(1:end-4), Username );
-                                                obj.PrintOut(SuccessMsg, 0);
+                                                PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
                                             end
                                             
                                             % Limit the simulation runtime of each task.
@@ -464,12 +462,12 @@ classdef JobManager < handle
                                             try
                                                 save( fullfile(JobOutDir,JobName), 'JobParam', 'JobState' );
                                                 SuccessMsg = sprintf( 'The FINISHED job file %s of user %s is moved to JobOut directory.\n', JobName(1:end-4), Username );
-                                                obj.PrintOut(SuccessMsg, 0);
+                                                PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
                                             catch
                                                 save( fullfile(obj.JobManagerParam.TempJMDir,JobName), 'JobParam', 'JobState' );
                                                 obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,JobName), JobOutDir);
                                                 SuccessMsg = sprintf( 'The FINISHED job file %s of user %s is moved to JobOut directory by OS.\n', JobName(1:end-4), Username );
-                                                obj.PrintOut(SuccessMsg, 0);
+                                                PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
                                             end
                                             % Move all pdf files containing figures to JobOut directory.
                                             if ~isempty( dir(fullfile(JobRunningDir,[JobName(1:end-4) '*.pdf'])) )
@@ -505,9 +503,9 @@ classdef JobManager < handle
                                 end
                             end
                             
-                            msg = sprintf( '\n\n\nSweeping JobIn, JobRunning, and TaskOut directories of user %s is finished at %s.\n\n\n',...
+                            Msg = sprintf( '\n\n\nSweeping JobIn, JobRunning, and TaskOut directories of user %s is finished at %s.\n\n\n',...
                                 Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-                            obj.PrintOut(msg, 0);
+                            PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                             % Wait briefly before looping for the next active user.
                             pause( CurrentUser.PauseTime );
                             obj.UserList{User} = CurrentUser;
@@ -811,8 +809,8 @@ classdef JobManager < handle
                 % Construct the filename.
                 JobName = DRunning(JobFileIndex).name;
                 if( nargin>=6 && ~isempty(SuccessMsgRunning) )
-                    msg = [SuccessMsgRunning sprintf('Selected JOB name: %s.\n', JobName(1:end-4))];
-                    obj.PrintOut(msg, 0);
+                    Msg = [SuccessMsgRunning sprintf('Selected JOB name: %s.\n', JobName(1:end-4))];
+                    PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                 end
             else
                 if ~isempty(DIn)
@@ -823,8 +821,8 @@ classdef JobManager < handle
                     % Construct the filename.
                     JobName = DIn(JobFileIndex).name;
                     if( nargin>=5 && ~isempty(SuccessMsgIn) )
-                        msg = [SuccessMsgIn sprintf('Selected JOB name: %s.\n', JobName(1:end-4))];
-                        obj.PrintOut(msg, 0);
+                        Msg = [SuccessMsgIn sprintf('Selected JOB name: %s.\n', JobName(1:end-4))];
+                        PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                     end
                 elseif ~isempty(DRunning)
                     % Pick a running job AT RANDOM.
@@ -833,13 +831,15 @@ classdef JobManager < handle
                     % Construct the filename.
                     JobName = DRunning(JobFileIndex).name;
                     if( nargin>=6 && ~isempty(SuccessMsgRunning) )
-                        msg = [SuccessMsgRunning sprintf('Selected JOB name: %s.\n', JobName(1:end-4))];
-                        obj.PrintOut(msg, 0);
+                        Msg = [SuccessMsgRunning sprintf('Selected JOB name: %s.\n', JobName(1:end-4))];
+                        PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                     end
                 else
                     JobDirectory = [];
                     JobName = [];
-                    if( nargin>=7 && ~isempty(NoJobMsg) ), obj.PrintOut(NoJobMsg, 0); end
+                    if( nargin>=7 && ~isempty(NoJobMsg) )
+                        PrintOut(NoJobMsg, 0, obj.JobManagerParam.LogFileName);
+                    end
                 end
             end
         end
@@ -858,7 +858,7 @@ classdef JobManager < handle
             else
                 JobDirectory = [];
                 if( nargin>=5 && ~isempty(ErrorMsg) )
-                    obj.PrintOut(ErrorMsg, 0);
+                    PrintOut(ErrorMsg, 0, obj.JobManagerParam.LogFileName);
                 end
             end
         end
@@ -922,17 +922,17 @@ classdef JobManager < handle
                 sysStatus = system( RmStr );
                 if sysStatus==0     % Successful deletion of FullFileName.
                     if( (nargin>=3) && ~isempty(SuccessMsg) )
-                        obj.PrintOut( SuccessMsg );
+                        PrintOut(SuccessMsg, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
                     end
                 else
                     delete( FullFileName );
                     if( (nargin>=3) && ~isempty(SuccessMsg) )
-                        obj.PrintOut( SuccessMsg );
+                        PrintOut(SuccessMsg, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
                     end
                 end
             catch % Unsuccessful deletion of FullFileName.
                 if( (nargin>=4) && ~isempty(ErrorMsg) )
-                    obj.PrintOut(ErrorMsg, 0);
+                    PrintOut(ErrorMsg, 0, obj.JobManagerParam.LogFileName);
                 end
             end
         end
@@ -960,11 +960,11 @@ classdef JobManager < handle
                 end
             end
             if( (SuccessFlag == 1) && nargin>=5 && ~isempty(SuccessMsg) )
-                obj.PrintOut( SuccessMsg );
+                PrintOut(SuccessMsg, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
             elseif(SuccessFlag == 0) % FullFileName was bad, kick out of loading loop.
                 FileContent = [];
                 if( nargin>=6 && ~isempty(ErrorMsg) )
-                    obj.PrintOut( ErrorMsg, 0 );
+                    PrintOut(ErrorMsg, 0, obj.JobManagerParam.LogFileName);
                 end
             end
         end
@@ -976,7 +976,7 @@ classdef JobManager < handle
             if( (mvStatus==1) && isempty(mvMsg) ) % Successful moving of FullFileName to FullDestination.
                 SuccessFlag = 1;
                 if( nargin>=4 && ~isempty(SuccessMsg) )
-                    obj.PrintOut(SuccessMsg);
+                    PrintOut(SuccessMsg, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
                 end
             else % Unsuccessful moving of FullFileName to FullDestination using MATLAB's built-in movefile function.
                 MvStr = ['sudo mv ' FullFileName ' ' FullDestination];
@@ -984,36 +984,14 @@ classdef JobManager < handle
                 if sysStatus==0 % Successful moving of FullFileName to FullDestination by OS.
                     SuccessFlag = 1;
                     if( nargin>=4 && ~isempty(SuccessMsg) )
-                        obj.PrintOut(SuccessMsg);
+                        PrintOut(SuccessMsg, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
                     end
                 else % Unsuccessful moving of FullFileName to FullDestination by both MATLAB and OS.
                     SuccessFlag = 0;
                     if( nargin>=5 && ~isempty(ErrorMsg) )
-                        obj.PrintOut(ErrorMsg, 0);
+                        PrintOut(ErrorMsg, 0, obj.JobManagerParam.LogFileName);
                     end
                 end
-            end
-        end
-        
-        
-        function PrintOut(obj, Msg, vqFlag)
-            % Calling Syntax: obj.PrintOut(Msg [,vqFlag])
-            % If vqFlag=0 (verbose mode), message Msg is printed out.
-            % If vqFlag=1 (quiet mode), message Msg is not printed out.
-            if( nargin<3 || isempty(vqFlag) )
-                vqFlag = obj.JobManagerParam.vqFlag;
-            end
-            
-            if( vqFlag == 0 )
-                if ischar(obj.JobManagerParam.LogFileName)
-                    FID_JMLogFile = fopen( obj.JobManagerParam.LogFileName, 'a+');
-                    fprintf( FID_JMLogFile, Msg );
-                    fclose(FID_JMLogFile);
-                else
-                    fprintf( Msg );
-                end
-            elseif( vqFlag == 1 )
-                return;
             end
         end
         
@@ -1060,27 +1038,20 @@ classdef JobManager < handle
                 TaskName = [obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_' int2str(UserParam.TaskID) '.mat'];
 
                 % Save the new task in TaskIn queue/directory.
+                MsgQuiet = '+';
                 try
                     save( fullfile(TaskInDir,TaskName), 'TaskParam' );
-                    if obj.JobManagerParam.vqFlag == 0 % Verbose mode.
-                        msg = sprintf( 'Task file %s for user %s is saved to its TaskIn directory.\n', TaskName(1:end-4), Username );
-                        obj.PrintOut( msg );
-                    else % Quiet mode.
-                        obj.PrintOut( '+', 0 );
-                    end
+                    MsgVerbose = sprintf( 'Task file %s for user %s is saved to its TaskIn directory.\n', TaskName(1:end-4), Username );
+                    PrintOut({MsgVerbose ; MsgQuiet}, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
                 catch
                     save( fullfile(obj.JobManagerParam.TempJMDir,TaskName), 'TaskParam' );
-                    if obj.JobManagerParam.vqFlag == 0 % Verbose mode.
-                        msg = sprintf( 'Task file %s for user %s is saved to its TaskIn directory by OS.\n', TaskName(1:end-4), Username );
-                        obj.PrintOut( msg );
-                    else % Quiet mode.
-                        obj.PrintOut( '+', 0 );
-                    end
+                    MsgVerbose = sprintf( 'Task file %s for user %s is saved to its TaskIn directory by OS.\n', TaskName(1:end-4), Username );
+                    PrintOut({MsgVerbose ; MsgQuiet}, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
                     OS_flag = 1;
                 end
 
                 if( rem(TaskCount,UserParam.TaskInFlushRate) == 0 )
-                    obj.PrintOut('\n', 0);
+                    PrintOut('\n', 0, obj.JobManagerParam.LogFileName);
                     if OS_flag ==1
                         % SuccessFlag = obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,'*.mat'), TaskInDir, SuccessMsg, ErrorMsg);
                         obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']), TaskInDir);
@@ -1091,7 +1062,7 @@ classdef JobManager < handle
                 % Pause briefly for flow control.
                 pause( UserParam.PauseTime );
             end
-            obj.PrintOut('\n', 0);
+            PrintOut('\n', 0, obj.JobManagerParam.LogFileName);
             if OS_flag == 1
                 % SuccessFlag = obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']), TaskInDir, SuccessMsg, ErrorMsg);
                 obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']), TaskInDir);
@@ -1119,9 +1090,9 @@ classdef JobManager < handle
             NumNewTasks = obj.FindNumNewTasks(UserParam);
             
             if NumNewTasks > 0
-                msg = sprintf( 'Generating %d NEW TASK files corresponding to JOB %s of user %s and saving them to its TaskIn directory at %s.\n\n',...
+                Msg = sprintf( 'Generating %d NEW TASK files corresponding to JOB %s of user %s and saving them to its TaskIn directory at %s.\n\n',...
                     NumNewTasks, JobName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-                obj.PrintOut(msg, 0);
+                PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                 
                 % Calculate TaskInputParam vector for NumNewTasks new input tasks.
                 TaskInputParam = obj.CalcTaskInputParam(JobParam, JobState, NumNewTasks);
@@ -1133,8 +1104,8 @@ classdef JobManager < handle
                     FinalTaskID = obj.SaveTaskInFiles(TaskInputParam, UserParam, JobName, TaskRunTime);
                 end
             else    % TaskInDir of the current user is full. No new tasks will be generated.
-                msg = sprintf('No new task is generated for user %s since its TaskIn directory is full.\n', Username);
-                obj.PrintOut(msg, 0);
+                Msg = sprintf('No new task is generated for user %s since its TaskIn directory is full.\n', Username);
+                PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
             end
         end
     end

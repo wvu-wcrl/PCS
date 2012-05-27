@@ -71,9 +71,9 @@ classdef CodedModJobManager < JobManager
             if StopFlagT == 1
                 ActiveSNRPoints(LastInactivePoint:end) = 0;
                 if( nargin>=4 && ~isempty(JobName) && ~isempty(Username) )
-                    msg = sprintf( ['\n\nRunning job %s for user %s is STOPPED for SOME SNR points above %.2f dB because their BER or' ...
+                    Msg = sprintf( ['\n\nRunning job %s for user %s is STOPPED for SOME SNR points above %.2f dB because their BER or' ...
                         'FER is below the required mimimum BER or FER.\n\n'], JobName(1:end-4), Username, JobParam.SNR(LastInactivePoint) );
-                    obj.PrintOut(msg, 0);
+                    PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                 end
             end
 
@@ -86,7 +86,7 @@ classdef CodedModJobManager < JobManager
                 if( nargin>=4 && ~isempty(JobName) && ~isempty(Username) )
                     StopMsg = sprintf( ['\n\nRunning job %s for user %s is STOPPED completely because enough trials and/or ',...
                         'frame errors are observed for ALL SNR points.\n\n'], JobName(1:end-4), Username );
-                    obj.PrintOut(StopMsg, 0);
+                    PrintOut(StopMsg, 0, obj.JobManagerParam.LogFileName);
                 end
             end
             
@@ -102,7 +102,7 @@ classdef CodedModJobManager < JobManager
             end
             msgStatus = sprintf( ['PROGRESS UPDATE', MsgStr, ':\r\nTotal Trials Completed=%d\r\nTotal Trials Remaining=%d\r\nPercentage of Trials Completed=%2.4f'],...
                 CompletedTJob, RemainingTJob, 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
-            obj.PrintOut(['\n\n', msgStatus, '\n\n'], 0);
+            PrintOut(['\n\n', msgStatus, '\n\n'], 0, obj.JobManagerParam.LogFileName);
             msgResults = sprintf( 'SNR Points Completed=%.2f\n', JobParam.SNR(ActiveSNRPoints==0) );
 
             % Save simulation progress in STATUS file. Update Results file.
