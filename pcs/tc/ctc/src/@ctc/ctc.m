@@ -64,7 +64,8 @@ classdef ctc < handle
     
     
     properties   % logging properties
-        ctc_logfile
+        lfup     % log function path
+        ctc_logfile % log file path
     end
         
     
@@ -83,7 +84,7 @@ classdef ctc < handle
             
             init(obj);            
             msg = ['Cluster task controller initialized.'];
-            PrintOut(msg, 0, obj.cwc_logfile{1}, 1);
+            PrintOut(msg, 0, obj.ctc_logfile{1}, 1);
             
             
             % manipulate queues based startup state
@@ -94,7 +95,7 @@ classdef ctc < handle
             %  enter main control loop
             
             msg = ['Entering main task controller loop.'];
-            PrintOut(msg, 0, obj.cwc_logfile{1}, 1);
+            PrintOut(msg, 0, obj.ctc_logfile{1}, 1);
             main(obj, ss);
             end
 
