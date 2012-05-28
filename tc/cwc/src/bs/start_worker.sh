@@ -13,15 +13,16 @@ worker_id=$4
 iq=$5
 rq=$6
 oq=$7
-lf=$8
-log_period=$9
-num_logs=${10}
-verbose_mode=${11}
+lfup=$8
+lf=$9
+log_period=${10}
+num_logs=${11}
+verbose_mode=${12}
 
 
 
 # Connect to the node and start the worker as a daemon.
-ssh $hostname "export MATLABPATH=$worker_path; nohup matlab -r $worker_exe\($worker_id,\'$iq\',\'$rq\',\'$oq\',\'$lf\',\'$log_period\',\'$num_logs\',\'$verbose_mode\'\) >> $lf 2>&1 &"
+ssh $hostname "export MATLABPATH=$worker_path; nohup matlab -r $worker_exe\($worker_id,\'$iq\',\'$rq\',\'$oq\',\'$lfup\',\'$lf\',\'$log_period\',\'$num_logs\',\'$verbose_mode\'\) >> $lf 2>&1 &"
 
 
 
