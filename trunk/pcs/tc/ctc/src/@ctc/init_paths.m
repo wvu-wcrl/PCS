@@ -42,7 +42,7 @@ function init_paths(obj)
    % logging function path
   heading = '[paths]';
   key = 'log_function';
-  out = util.fp(obj.cf, heading, key);
+  out = util.fp(obj.cfp, heading, key);
   obj.lfup = out{1};
 
   % adding logging function directory to path
@@ -52,8 +52,8 @@ function init_paths(obj)
    % cwc logfile path
   heading = '[paths]';
   key = 'ctc_logfile';
-  out = util.fp(obj.cf, heading, key);
-  obj.cwc_logfile = out{1};
+  out = util.fp(obj.cfp, heading, key);
+  obj.ctc_logfile = out{1};
 
   
 

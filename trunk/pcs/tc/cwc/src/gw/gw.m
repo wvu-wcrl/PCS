@@ -34,7 +34,7 @@ function gw(wid, iq, rq, oq, lfup, lfip, LOG_PERIOD, NUM_LOGS, VERBOSE_MODE)
 
 
 
-%%% place logging variables into local workspace for easy access %%%
+%lifp%% place logging variables into local workspace for easy access %%%
 LOG_PERIOD = str2double(LOG_PERIOD);
 NUM_LOGS = str2double(NUM_LOGS);
 
@@ -112,7 +112,7 @@ while(1)
 
         
         %%% log function start time %%%       
-        % [cur_time] = gettime(); % current time
+         [cur_time] = gettime(); % current time
 %        username = strtok(next_running, '_');  % username
 
         [name_loc en] = get_name_loc(next_running);
@@ -394,7 +394,8 @@ end
 %  task failed to execute. log the error message describing why the task failed to execute
 function write_task_failed_to_log(next_input, next_running, IS_NOT_VERBOSE,...
                  VERBOSE_MODE, username, message )
-
+STDOUT=1;
+APPEND_TIME=1;
         task_name = get_task_name(next_input);
 
 	name_loc = get_name_loc(next_running);

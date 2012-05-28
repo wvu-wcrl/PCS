@@ -24,7 +24,7 @@ switch lower(ss)
  
 case 'start'   % clear global queues and user running queues
    msg = ['Task controller starting.  Clearing global queues.'];
-            PrintOut(msg, 0, obj.cwc_logfile{1}, 1);
+            PrintOut(msg, 0, obj.ctc_logfile{1}, 1);
 
 % clear global queues
 cmd = ['rm ' obj.gq.iq{1} '/*.mat &>/dev/null'];  system(cmd);

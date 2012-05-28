@@ -199,18 +199,18 @@ manage_controllers stop
          manage_controllers shutdown 
          # wait for global queues to empty
 
-         while [ "$(ls -A  $PATH_SQI/*.mat)" ]
+         while [ "$(ls -A  $PATH_SQI/*.mat 2>/dev/null)" ]
          do
 	       sleep 2
          done
 
 
-         while [ "$(ls -A  $PATH_SQR/*.mat)" ]
+         while [ "$(ls -A  $PATH_SQR/*.mat 2>/dev/null)" ]
          do
 	       sleep 2
          done
 
-         while [ "$(ls -A  $PATH_SQO/*.mat)" ]
+         while [ "$(ls -A  $PATH_SQO/*.mat 2>/dev/null)" ]
          do
 	      sleep 2
          done
@@ -218,17 +218,17 @@ manage_controllers stop
 
 
 
-         while [ "$(ls -A  $PATH_LQI/*.mat)" ]
+         while [ "$(ls -A  $PATH_LQI/*.mat 2>/dev/null)" ]
          do
 	       sleep 2
          done
 
-         while [ "$(ls -A  $PATH_LQR/*.mat)" ]
+         while [ "$(ls -A  $PATH_LQR/*.mat 2>/dev/null)" ]
          do
 	       sleep 2
          done
 
-         while [ "$(ls -A  $PATH_LQO/*.mat)" ]
+         while [ "$(ls -A  $PATH_LQO/*.mat 2>/dev/null)" ]
          do
 	      sleep 2
          done
