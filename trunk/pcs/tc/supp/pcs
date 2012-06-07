@@ -1,107 +1,105 @@
 #!/bin/bash
-### BEGIN INIT INFO                                                                                                 
-# Provides:        pcs                                                                                              
-# Required-Start:  
-# Required-Stop:   
-# Default-Start:   2 3 4 5                                                                                          
-# Default-Stop:                                                                                                     
-# Short-Description: Management script for pcs suite                                                                               
-### END INIT INFO 
+### BEGIN INIT INFO                                                                                                # Provides:        pcs                                                                                             
+# Required-Start:                                                                                                  
+# Required-Stop:                                                                                                   
+# Default-Start:   2 3 4 5                                                                                         
+# Default-Stop:                                                                                                    
+# Short-Description: Management script for pcs suite                                                               
+### END INIT INFO                                                                                                                                       
 #
 #     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
 #     For full copyright information see the bottom of this file.
 
 
+#####  Commands                                                                                                    
+#                                                                                                                  
+#COMMAND      DESCRIPTION                                                                                          
+#                                                                                                                  
+#pcs start     clear all global queues                                                                             
+#              start task controllers, worker controllers, workers                                                 
+#                                                                                                                  
+                                     
+#pcs stop      stop all controllers and workers                                                                    
+#              save state of global queues                                                                         
+#                                                                                                                                                       
+#pcs resume    restore state of global queues at time of last stop                                                 
+#              start all controllers and workers                                                                   
+                                     
+#pcs shutdown  allow tasks in global queue to complete                                                             
+#              stop all controllers and workers                                                                    
+
+#####    
 
 
-#####  Commands
-#
-#COMMAND      DESCRIPTION
-#
-#pcs start     clear all global queues
-#              start task controllers, worker controllers, workers
-#             
-#
-#
-#pcs stop      stop all controllers and workers
-#              save state of global queues
-#
-#
-#
-#pcs resume    restore state of global queues at time of last stop
-#              start all controllers and workers
-#
-#
-#pcs shutdown  allow tasks in global queue to complete
-#              stop all controllers and workers
-#
-#####
-
-
-
-##### Examples
-#
-#1. Start pcs with cleared queues.
-#  > pcs start
-#
-#
-#
-#2. Stop pcs
-#  > pcs stop
-#
-#
-##3.  Stop pcs and then resume previous state.
-#  > pcs stop
-#  > pcs resume
-#
-#
-#4. Stop pcs allowing global queues to empty.
-#  > pcs shutdown
-#
-#####
+#1. lockfile
+#2. robust kill
 
 
 
+#define pidfile
 
 
-### paths #########
-# task and worker controllers
+
+#get scriptname
+SCRIPTNAME=$0
+
+
+LOCKFILE=/home/pcs/tc/supp/lock/pcs_lock
+
+
+### paths #########                                                                                                                                    
+# task and worker controllers                                                                                                                          
 PATH_TC=/home/pcs/tc/ctc/src
 PATH_WC=/home/pcs/tc/cwc/src
 
-# short queues
-PATH_SQI=/home/pcs/tc/queue/cluster/short/iq  # input queue
-PATH_SQR=/home/pcs/tc/queue/cluster/short/rq  # running queue
-PATH_SQO=/home/pcs/tc/queue/cluster/short/oq  # output queue
+# short queues                                                                                                                                         
+PATH_SQI=/home/pcs/tc/queue/cluster/short/iq  # input queue                                                                                            
+PATH_SQR=/home/pcs/tc/queue/cluster/short/rq  # running queue                                                                                          
+PATH_SQO=/home/pcs/tc/queue/cluster/short/oq  # output queue                                                                                           
 
-PATH_LQI=/home/pcs/tc/queue/cluster/long/iq   # input queue
-PATH_LQR=/home/pcs/tc/queue/cluster/long/rq   # running queue
-PATH_LQO=/home/pcs/tc/queue/cluster/long/oq   # output queue
-
-#PATH_STATE=/state                       # subdir of queues where state is saved before shutdown
-######################
+PATH_LQI=/home/pcs/tc/queue/cluster/long/iq   # input queue                                                                                            
+PATH_LQR=/home/pcs/tc/queue/cluster/long/rq   # running queue                                                                                          
+PATH_LQO=/home/pcs/tc/queue/cluster/long/oq   # output queue                                                                                           
+######################                                                                                                                                 
 
 
+# names for screen sessions                                                                                                                            
+STC=stc    # short task controller                                                                                                                     
+LTC=ltc    # long task controller                                                                                                                      
+SWC=swc    # short worker controller                                                                                                                   
+LWC=lwc    # long worker controller                                                                                                                    
+##########################                                                                                                                             
+
+
+# configuration files                                                                                                                                  
+scfg='pcs_short_224.cfg'   # short queue                                                                                                               
+lcfg='pcs_long_224.cfg'    # long queue                                                                                                                
+#####################                                                                                                                                  
 
 
 
-# names for screen sessions
-STC=stc    # short task controller 
-LTC=ltc    # long task controller
-SWC=swc    # short worker controller
-LWC=lwc    # long worker controller
+# error messages
+LOCKFILE_EXISTS_ERR="PCS is already running."
+LOCKFILE_DOESNOTEXIST_ERR="PCS is not running.  Execute 'pcs {start|restart}' to start the service."
 ##########################
 
-# configuration files
-scfg='pcs_short_224.cfg'   # short queue
-lcfg='pcs_long_224.cfg'    # long queue
-#####################
+
+
+#environment variables
+   #define pidfile
+
+
+#create pidfile
+
+#delete pidfile
+
+
+#pidof pcs
 
 
 
 
-#### functions
-
+#### functions                                                                                                                                         
 start_workers(){
 screen -S $SWC -m -d matlab -r "cd $PATH_WC; startup_short; cwcobj.cSta"
 screen -S $LWC -m -d matlab -r "cd $PATH_WC; startup_long; cwcobj.cSta"
@@ -109,10 +107,22 @@ screen -S $LWC -m -d matlab -r "cd $PATH_WC; startup_long; cwcobj.cSta"
 
 
 
+
+
+stop_screen_session(){
+screen -ls |grep $1 | awk -F . '{print $1}' |xargs kill
+}
+
+
+
 stop_workers(){
+screen -S $SWC -m -d matlab -r "cd $PATH_WC; startup_short"
+sleep 5
 screen -S $SWC -p 0 -X eval 'stuff "\003"'
 screen -S $SWC -p 0 -X eval 'stuff "cwcobj.slay\015"'
+
 sleep 3
+stop_screen_session $SWC
 }
 
 
@@ -128,171 +138,121 @@ screen -S $LTC -m -d matlab -r "cd $PATH_TC;tc_startup('$lcfg','$ss')"
 
 
 
-stop_screen_session(){
-screen -S $1 -p 0 -X eval 'stuff $"\003"'
 
-sleep $2
-screen -S $1 -p 0 -X eval 'stuff "exit\015"'
-screen -S $1 -p 0 -X eval 'stuff "exit\015"'
+
+
+pidof_pcs() {
+        # if there is a pcs process whose pid is in PIDFILE,                                                                              
+        # print it and return 0.                                                                                                                        
+        if [ -e "$PIDFILE" ]; then
+                if pidof apache2 | tr ' ' '\n' | grep -w $(cat $PIDFILE); then
+                        return 0
+                fi
+        fi
+        return 1
+}
+
+
+wait_for_queue_to_empty(){
+    while [ "$(ls -A  $1/*.mat 2>/dev/null)" ]
+    do
+        sleep 2
+    done
+       
 }
 
 
 
-#####################
+does_lockfile_exist(){
+    if [ -e $LOCKFILE ]; then
+	echo "1"
+    else
+	echo "0"
+    fi
+}
 
 
 
 
+
+
+
+lockfile_exists=$(does_lockfile_exist)
 
 case $1 in
+    start)
+	if [ $lockfile_exists -eq 0 ]; then
+	    start_workers
+            manage_controllers start
+	    touch $LOCKFILE
+	else
+	    echo $LOCKFILE_EXISTS_ERR
+	fi
+	;; 
 
-        start) #
+    restart)
+        $0 stop && sleep 5 && $0 start
+	;;
 
+    resume)
+	if [ $lockfile_exists -eq 0 ]; then
+	    start_workers
+	    manage_controllers resume
+	    touch $LOCKFILE
+	else
+	    echo $LOCKFILE_EXISTS_ERR
+	fi
+	;;
 
-	start_workers
+    stop)
+	if [ $lockfile_exists -eq 1 ]; then
 
-        manage_controllers start 
-                ;;
+	    stop_screen_session $SWC
+	    stop_screen_session $LWC
+	    stop_screen_session $STC
+	    stop_screen_session $LTC
 
+	    stop_workers
+	    
+	    manage_controllers stop
 
+	    rm $LOCKFILE
+	else
+	    echo $LOCKFILE_DOESNOTEXIST_ERR
+	fi
+	;;
 
-        stop)  # stop all workers and task controllers
-# stop running workers
-stop_workers
+    shutdown)
+	if [ $lockfile_exists -eq 1 ]; then
+        stop_screen_session $STC
+        stop_screen_session $LTC
+	
+        manage_controllers shutdown
+	
+	wait_for_queue_to_empty $PATH_SQI
+	wait_for_queue_to_empty $PATH_SQR
+	wait_for_queue_to_empty $PATH_SQO
+	wait_for_queue_to_empty $PATH_LQI
+	wait_for_queue_to_empty $PATH_LQR
+	wait_for_queue_to_empty $PATH_LQO
+	
 
-# stop screen sessions
-stop_screen_session $SWC 1
-stop_screen_session $LWC 1
-stop_screen_session $STC 2
-stop_screen_session $LTC 2
+        stop_screen_session $SWC
+        stop_screen_session $LWC
+	
+        stop_workers
+	
+	rm $LOCKFILE
+	else
+	    echo $LOCKFILE_DOESNOTEXIST_ERR
+	fi
+	;;
 
-
-
-# call controllers with stop argument
-manage_controllers stop
-                ;;
-
-
-
-        restart|force-reload) 
-                $0 stop && sleep 5 && $0 start
-                ;;
-
-
-
-
-
-
-        resume)       # restore global queue state and restart
-
-	start_workers
-
-        manage_controllers resume
-                ;;
-
-
-
-
-        shutdown)  # allow queues to empty and stop system
-
-
-         # stop task controllers
-         stop_screen_session $STC 2
-         stop_screen_session $LTC 2
-
-
-         manage_controllers shutdown 
-         # wait for global queues to empty
-
-         while [ "$(ls -A  $PATH_SQI/*.mat 2>/dev/null)" ]
-         do
-	       sleep 2
-         done
-
-
-         while [ "$(ls -A  $PATH_SQR/*.mat 2>/dev/null)" ]
-         do
-	       sleep 2
-         done
-
-         while [ "$(ls -A  $PATH_SQO/*.mat 2>/dev/null)" ]
-         do
-	      sleep 2
-         done
-
-
-
-
-         while [ "$(ls -A  $PATH_LQI/*.mat 2>/dev/null)" ]
-         do
-	       sleep 2
-         done
-
-         while [ "$(ls -A  $PATH_LQR/*.mat 2>/dev/null)" ]
-         do
-	       sleep 2
-         done
-
-         while [ "$(ls -A  $PATH_LQO/*.mat 2>/dev/null)" ]
-         do
-	      sleep 2
-         done
-         # stop workers and worker controllers
-
-
-         stop_workers
-         stop_screen_session $SWC 1
-         stop_screen_session $LWC 1
-                ;;
-
-
-
-
-
-
-
-
-        try-restart)
-                if $0 status >/dev/null; then
-                        $0 restart
-                else
-                        exit 0
-                fi
-                ;;
-
-
-
-
-
-
-        *)
-                echo "Usage: $0 {start|stop|restart|resume|shutdown}"
-                exit 2
-                ;;
+    *)
+	echo "Usage: $0 {start|stop|restart|resume|shutdown}"
+	exit 2
+	;;
 esac
-
-
-
-
-
-#     This library is free software;
-#     you can redistribute it and/or modify it under the terms of
-#     the GNU Lesser General Public License as published by the
-#     Free Software Foundation; either version 2.1 of the License,
-#     or (at your option) any later version.
-#
-#     This library is distributed in the hope that it will be useful,
-#     but WITHOUT ANY WARRANTY; without even the implied warranty of
-#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#     Lesser General Public License for more details.
-#
-#     You should have received a copy of the GNU Lesser General Public
-#     License along with this library; if not, write to the Free Software
-#     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-
-
-
 
 
 
