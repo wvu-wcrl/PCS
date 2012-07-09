@@ -1,7 +1,7 @@
 start matlab and run 'runtest' as a script to test the generic worker
 
 
-iq, oq, rq represent an example input queue
+iq, oq, rq represent an example set of queues
 
 task/
      test.m - task entry function
