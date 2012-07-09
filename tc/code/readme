@@ -1,0 +1,11 @@
+== starting the parallel computing suite ==
+
+1. start cwc in a screen session using a configuration file specified in cfg/
+
+2. start ctc in a screen session using a configuration file specified in cfg/
+
+
+ctc - cluster task controller
+wc - worker controller
+cfg - configuration files for ctc and wc
+examples - example functions loaded by the generic worker
