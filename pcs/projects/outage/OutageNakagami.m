@@ -118,7 +118,13 @@ classdef OutageNakagami < handle
                 % yet it actually takes more space to save it as a sparse!
                 % and also more processing time to compute outage
                 % obj.indices{r+1} = sparse( allVL1(obj.M,r) );
-                obj.indices{r+1} = allVL1(obj.M,r);
+                
+                if obj.M==1 && r==1
+                    Ecoeff=allVL1(obj.M,r);
+                    obj.indices{r+1}=Ecoeff(1);
+                else
+                    obj.indices{r+1} = allVL1(obj.M,r);
+                end
                 
             end
         end
