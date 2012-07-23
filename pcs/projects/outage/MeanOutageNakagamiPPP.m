@@ -46,7 +46,7 @@ classdef MeanOutageNakagamiPPP < handle
             TableDir = varargin{9};
             
             % build the name of the index table
-            IndexTable = [TableDir 'Indices_' 'm' int2str(obj.m) 'Beta' num2str(10*log10(Beta)*1000) '.mat'];
+            IndexTable = [TableDir 'Indices_' 'm_' int2str(obj.m) '_mi_' int2str(obj.m_i) '_Beta_' num2str(10*log10(Beta)*1000) '.mat'];
             
             % either create or load the file
             try
@@ -63,12 +63,10 @@ classdef MeanOutageNakagamiPPP < handle
                 obj.ComputeIndices( );
                 
                 % save it
-                if TableDir~=[]
-                    indices = obj.indices;
-                    integral=obj.integral;
-                    coefficients=obj.coefficients;
-                    save( IndexTable, 'indices', 'integral','coefficients' );
-                end
+                indices = obj.indices;
+                integral=obj.integral;
+                coefficients=obj.coefficients;
+                save( IndexTable, 'indices', 'integral','coefficients' );
             end
             
             
