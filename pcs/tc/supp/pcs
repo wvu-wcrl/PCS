@@ -1,50 +1,34 @@
 #!/bin/bash
-### BEGIN INIT INFO                                                                                                # Provides:        pcs                                                                                             
+### BEGIN INIT INFO 
+# Provides:        pcs    
 # Required-Start:                                                                                                  
 # Required-Stop:                                                                                                   
 # Default-Start:   2 3 4 5                                                                                         
 # Default-Stop:                                                                                                    
-# Short-Description: Management script for pcs suite                                                               
-### END INIT INFO                                                                                                                                       
-#
+# Short-Description: Management script for pcs suite                                                   
+### END INIT INFO                                                                                                                                      
+
+
 #     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
 #     For full copyright information see the bottom of this file.
 
 
 #####  Commands                                                                                                    
-#                                                                                                                  
 #COMMAND      DESCRIPTION                                                                                          
 #                                                                                                                  
 #pcs start     clear all global queues                                                                             
 #              start task controllers, worker controllers, workers                                                 
-#                                                                                                                  
-                                     
+#                                     
 #pcs stop      stop all controllers and workers                                                                    
 #              save state of global queues                                                                         
-#                                                                                                                                                       
+#                                                                                                                                                     
 #pcs resume    restore state of global queues at time of last stop                                                 
 #              start all controllers and workers                                                                   
-                                     
+#
 #pcs shutdown  allow tasks in global queue to complete                                                             
 #              stop all controllers and workers                                                                    
-
 #####    
 
-
-#1. lockfile
-#2. robust kill
-
-
-
-#define pidfile
-
-
-
-#get scriptname
-SCRIPTNAME=$0
-
-
-LOCKFILE=/home/pcs/tc/supp/lock/pcs_lock
 
 
 ### paths #########                                                                                                                                    
@@ -84,17 +68,7 @@ LOCKFILE_DOESNOTEXIST_ERR="PCS is not running.  Execute 'pcs {start|restart}' to
 ##########################
 
 
-
-#environment variables
-   #define pidfile
-
-
-#create pidfile
-
-#delete pidfile
-
-
-#pidof pcs
+LOCKFILE=/home/pcs/tc/supp/lock/pcs_lock
 
 
 
@@ -104,9 +78,6 @@ start_workers(){
 screen -S $SWC -m -d matlab -r "cd $PATH_WC; startup_short; cwcobj.cSta"
 screen -S $LWC -m -d matlab -r "cd $PATH_WC; startup_long; cwcobj.cSta"
 }
-
-
-
 
 
 stop_screen_session(){
@@ -120,12 +91,9 @@ screen -S $SWC -m -d matlab -r "cd $PATH_WC; startup_short"
 sleep 5
 screen -S $SWC -p 0 -X eval 'stuff "\003"'
 screen -S $SWC -p 0 -X eval 'stuff "cwcobj.slay\015"'
-
 sleep 3
 stop_screen_session $SWC
 }
-
-
 
 
 manage_controllers(){
@@ -134,11 +102,6 @@ ss=$1
 screen -S $STC -m -d matlab -r "cd $PATH_TC;tc_startup('$scfg','$ss')"
 screen -S $LTC -m -d matlab -r "cd $PATH_TC;tc_startup('$lcfg','$ss')"
 }
-
-
-
-
-
 
 
 pidof_pcs() {
@@ -162,7 +125,6 @@ wait_for_queue_to_empty(){
 }
 
 
-
 does_lockfile_exist(){
     if [ -e $LOCKFILE ]; then
 	echo "1"
@@ -170,7 +132,6 @@ does_lockfile_exist(){
 	echo "0"
     fi
 }
-
 
 
 
