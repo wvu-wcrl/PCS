@@ -137,7 +137,9 @@ while(1)
 	hostname = get_hostname();
         TaskInfo = create_task_info(cur_time, hostname, wid);
 
-
+        
+        % append wid to InputParam
+        InputParam.wid = wid;
 
 
         % run the function with its input parameters        
