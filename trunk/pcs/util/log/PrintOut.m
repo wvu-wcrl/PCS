@@ -13,8 +13,8 @@ function PrintOut(Msg, vqFlag, LogFileName, AppendTimeFlag)
 %                   0 Do NOT append the time to the end of the Msg (Default).
 %                   1 Do     append the time to the end of the Msg.
 %
-%     Copyright (C) 2012, Mohammad Fanaei and Matthew C. Valenti
-%     For full copyright information see the bottom of this file.
+%	Copyright (C) 2012, Mohammad Fanaei and Matthew C. Valenti.
+%	For full copyright information see the bottom of this file.
 
 
 if( ~iscellstr(Msg) && ischar(Msg) ), Msg = {Msg ; ''}; end
@@ -54,7 +54,6 @@ end
 end
 
 
-
 %     This library is free software;
 %     you can redistribute it and/or modify it under the terms of
 %     the GNU Lesser General Public License as published by the
@@ -68,4 +67,4 @@ end
 %
 %     You should have received a copy of the GNU Lesser General Public
 %     License along with this library; if not, write to the Free Software
-%     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+%     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA

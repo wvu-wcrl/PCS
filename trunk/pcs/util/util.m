@@ -5,9 +5,8 @@
 % Functionality
 %  1. General-purpose file parser, fp()
 %
-% Version 1
-% 2/27/2011
-% Terry Ferrett
+% Version 1, 02/27/2011, Terry Ferrett
+% Version 2, 08/01/2012, Mohammad Fanaei
 %
 %     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
 %     For full copyright information see the bottom of this file.
@@ -15,7 +14,7 @@
 
 
 classdef util < handle
-        
+    
     methods(Static)
         % fp() - File Parser
         function out = fp(filename, heading, key)
@@ -48,31 +47,35 @@ classdef util < handle
             % Scan for key values.
             k = 1;
             while(empty_file == false)
-                [l_key l_val] = strtok(str_in, '=');
-                % Remove whitespace
-                l_key = strtok(l_key);
-                
-                % Remove equal sign
-                l_val = l_val(2:end);
-                
-                switch l_key
-                    case key
-                        temp_cell = textscan(l_val, '%s');
-                        out{k} = temp_cell{1};
-                        k = k+1;
-                    otherwise
-                        if( length(l_key ) ~= 0 )
-                            if( l_key(1) == '[' )
-                                break;
+                if( ~isempty(str_in) && str_in(1) ~= '%' )
+                    [l_key l_val] = strtok(str_in, '=');
+                    % Remove whitespace
+                    l_key = strtok(l_key);
+                    
+                    % Remove equal sign
+                    l_val = l_val(2:end);
+                    
+                    Ind_lVal = strfind(l_val, ';');
+                    if ~isempty(Ind_lVal), l_val = l_val(1:Ind_lVal-1); end
+                    
+                    switch l_key
+                        case key
+                            temp_cell = textscan(l_val, '%s');
+                            out{k} = temp_cell{1};
+                            k = k+1;
+                        otherwise
+                            if( length(l_key ) ~= 0 )
+                                if( l_key(1) == '[' )
+                                    break;
+                                end
                             end
-                        end
+                    end
                 end
-                                
                 str_in = fgetl(fid);
                 empty_file = isnumeric(str_in);
                 
             end
-            
+            fclose(fid);
             % If no matching keys were found, assign out to null.
             out_flag = strcmp('out',who('out'));
             if  isempty(out_flag),
@@ -80,7 +83,7 @@ classdef util < handle
             end
         end
         
-    end    
+    end
 end
 
 
