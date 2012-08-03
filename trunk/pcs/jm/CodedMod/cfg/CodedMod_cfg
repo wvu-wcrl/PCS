@@ -1,9 +1,14 @@
 [GeneralSpec]
 
-% Read name and FULL path to user's project directory.
+% Read name and FuLL path to user's actual CODE directory.
+% All of the code required to run user's simulation resides under this directory.
+% CodeRoot = /home/tferrett/cml
+CodeRoot = /home/pcs/projects/cml;
+
+% Read name and FULL path to user's job queue root directory.
 % JobIn, JobRunning, and JobOut directories are under this full path.
-ProjectRoot = '/home/mfanaei/Projects/CodedMod';
-% ProjectRoot = '/home/web_users/mohammad.fanaei/Projects/CodedMod';
+JobQueueRoot = /home/mfanaei/Projects/CodedMod;
+% JobQueueRoot = /home/web_users/mohammad.fanaei/Projects/CodedMod;
 
 % Read name and FULL path to user's task directory. TaskIn and TaskOut directories are under this path.
 % TasksRoot = '/home/mfanaei/Tasks';
@@ -33,6 +38,6 @@ MaxRunningJobs = 3;
 % Quick initial running time of each task to quickly get initial results back.
 InitialRunTime = 60;
 % Longer running time of each task in the long term.
-RunTime = 300;
+MaxRunTime = 300;
 % Pause time to wait between task submissions.
 PauseTime = 0.5;
