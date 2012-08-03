@@ -107,7 +107,7 @@ classdef LinkSimulation < Simulation
 %             end
             
             % Accumulate errors for different SNR points unitil time is up.
-            while ElapsedTime < obj.SimParam.RunTime
+            while ElapsedTime < obj.SimParam.MaxRunTime
                 TaskTime = tic;
                 % Determine the number of remaining frame errors reqiured for each SNR point.
                 RemainingFrameError = obj.SimParam.MaxFrameErrors - obj.SimState.FrameErrors(end,:);
