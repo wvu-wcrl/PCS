@@ -23,7 +23,7 @@ function TaskState = CodedModTaskInit(CodedModParam)
 %     'MaxFrameErrors', 100*ones(size(SNR)), ...
 %     'minBER', 1e-5, ...
 %     'minFER', 1e-5, ...
-%     'RunTime', 300, ...       % Simulation time in Seconds.
+%     'MaxRunTime', 300, ...    % Maximum simulation time in Seconds.
 %     'MaxIteration', 30,...    % Maximum number of message passing decoding iterations for LDPC decoding (Default MaxIteration=30).
 %     'DecoderType', 0,...      % Message passing LDPC decoding algorithm: =0 (sum-product) (DEFAULT), =1 (min-sum), =2 (approximate min-sum).
 %     'ModulationObj', [],...
@@ -51,86 +51,87 @@ function TaskState = CodedModTaskInit(CodedModParam)
 % First, set the path.
 OldPath = SetPath();
 
-if( ~isfield(CodedModParam, 'CodeType') || isempty(CodedModParam.CodeType) ), CodedModParam.CodeType = 21; end
 if( ~isfield(CodedModParam, 'SNRType') || isempty(CodedModParam.SNRType) ), CodedModParam.SNRType = 'Es/N0 in dB'; end
 if( ~isfield(CodedModParam, 'MaxTrials') || isempty(CodedModParam.MaxTrials) ), CodedModParam.MaxTrials = 1e9; end
 if( ~isfield(CodedModParam, 'MaxBitErrors') || isempty(CodedModParam.MaxBitErrors) ), CodedModParam.MaxBitErrors = 5e10*ones(size(CodedModParam.SNR)); end
 if( ~isfield(CodedModParam, 'MaxFrameErrors') || isempty(CodedModParam.MaxFrameErrors) ), CodedModParam.MaxFrameErrors = 100*ones(size(CodedModParam.SNR)); end
 if( ~isfield(CodedModParam, 'minBER') || isempty(CodedModParam.minBER) ), CodedModParam.minBER = 1e-5; end
 if( ~isfield(CodedModParam, 'minFER') || isempty(CodedModParam.minFER) ), CodedModParam.minFER = 1e-5; end
-if( ~isfield(CodedModParam, 'RunTime') || isempty(CodedModParam.RunTime) ), CodedModParam.RunTime = 300; end
-if( ~isfield(CodedModParam, 'MaxIteration') || isempty(CodedModParam.MaxIteration) ), CodedModParam.MaxIteration = 30; end
-if( ~isfield(CodedModParam, 'DecoderType') || isempty(CodedModParam.DecoderType) ), CodedModParam.DecoderType = 0; end
-if( ~isfield(CodedModParam, 'DemodType') || isempty(CodedModParam.DemodType) ), CodedModParam.DemodType = 0; end
-if( ~isfield(CodedModParam, 'ZeroRandFlag') || isempty(CodedModParam.ZeroRandFlag) ), CodedModParam.ZeroRandFlag = 0; end
-if( ~isfield(CodedModParam, 'RandSeed') || isempty(CodedModParam.RandSeed) ), CodedModParam.RandSeed = 1000*sum(clock); end
+if( ~isfield(CodedModParam, 'MaxRunTime') || isempty(CodedModParam.MaxRunTime) ), CodedModParam.MaxRunTime = 300; end
+if( ~isfield(CodedModParam, 'RandSeed') || isempty(CodedModParam.RandSeed) ), CodedModParam.RandSeed = mod(sum(clock),2^32); end
+
+if( ~isfield(CodedModParam, 'ChannelObj') || isempty(CodedModParam.ChannelObj) )
+    if( ~isfield(CodedModParam, 'ModulationObj') || isempty(CodedModParam.ModulationObj) )
+        if( ~isfield(CodedModParam, 'ModulationType') || isempty(CodedModParam.ModulationType) ), CodedModParam.ModulationType = 'BPSK'; end
+        if( ~isfield(CodedModParam, 'ModulationParam') || isempty(CodedModParam.ModulationParam) ), CodedModParam.ModulationParam = '[]'; end
+        if( strcmpi(CodedModParam.ModulationType,'custom') )
+            ModGenStr = ['CreateModulation' '(' CodedModParam.ModulationParam ')'];
+        else
+            ModGenStr = [upper(CodedModParam.ModulationType) '(' CodedModParam.ModulationParam ')'];
+        end
+        CodedModParam.ModulationObj = eval(ModGenStr);
+    end
+    SNRdB = 5;
+    CodedModParam.ChannelObj = AWGN( CodedModParam.ModulationObj, 10^(SNRdB/10) );
+end
+
+if( ~isfield(CodedModParam, 'CodedModObj') || isempty(CodedModParam.CodedModObj) )
+    if( ~isfield(CodedModParam, 'DemodType') || isempty(CodedModParam.DemodType) ), CodedModParam.DemodType = 0; end
+    if( ~isfield(CodedModParam, 'ZeroRandFlag') || isempty(CodedModParam.ZeroRandFlag) ), CodedModParam.ZeroRandFlag = 0; end
+    if( ~isfield(CodedModParam, 'ChannelCodeObject') || isempty(CodedModParam.ChannelCodeObject) )
+        if( ~isfield(CodedModParam, 'CodeType') || isempty(CodedModParam.CodeType) ), CodedModParam.CodeType = 21; end
+        if( ~isfield(CodedModParam, 'MaxIteration') || isempty(CodedModParam.MaxIteration) ), CodedModParam.MaxIteration = 30; end
+        if( ~isfield(CodedModParam, 'DecoderType') || isempty(CodedModParam.DecoderType) ), CodedModParam.DecoderType = 0; end
+        switch CodedModParam.CodeType
+            case 00 % Recursive Systematic Convolutional (RSC) code.
+                % Default generator matrix for convolutional code is the constituent code of UMTS turbo code.
+                if( ~isfield(CodedModParam, 'Generator') || isempty(CodedModParam.Generator) ), CodedModParam.Generator = [1 0 1 1 ; 1 1 0 1]; end
+                if( ~isfield(CodedModParam, 'DataLength') || isempty(CodedModParam.DataLength) ), CodedModParam.DataLength = 512; end
+                CodedModParam.ChannelCodeObject = ConvCode(CodedModParam.Generator, CodedModParam.DataLength, 0, CodedModParam.DecoderType);
+            case 01 % Non-Systematic Convolutional (NSC) code.
+                % Default generator matrix for convolutional code is the constituent code of UMTS turbo code.
+                if( ~isfield(CodedModParam, 'Generator') || isempty(CodedModParam.Generator) ), CodedModParam.Generator = [1 0 1 1 ; 1 1 0 1]; end
+                if( ~isfield(CodedModParam, 'DataLength') || isempty(CodedModParam.DataLength) ), CodedModParam.DataLength = 512; end
+                CodedModParam.ChannelCodeObject = ConvCode(CodedModParam.Generator, CodedModParam.DataLength, 1, CodedModParam.DecoderType);
+            case 02 % Tail-biting NSC code.
+                % Default generator matrix for convolutional code is the constituent code of UMTS turbo code.
+                if( ~isfield(CodedModParam, 'Generator') || isempty(CodedModParam.Generator) ), CodedModParam.Generator = [1 0 1 1 ; 1 1 0 1]; end
+                if( ~isfield(CodedModParam, 'DataLength') || isempty(CodedModParam.DataLength) ), CodedModParam.DataLength = 512; end
+                if( ~isfield(CodedModParam, 'ConvDepth') || isempty(CodedModParam.ConvDepth) ), CodedModParam.ConvDepth = -1; end
+                CodedModParam.ChannelCodeObject = ConvCode(CodedModParam.Generator, CodedModParam.DataLength, 2, CodedModParam.DecoderType, CodedModParam.ConvDepth);
+            case 20	% General LDPC code specified by its parity-check matrix in alist format saved in a file.
+                if( ~isfield(CodedModParam, 'AListFilePath') || isempty(CodedModParam.AListFilePath) )
+                    % error('CodedModTaskInit:EmptyAListFilePath',...
+                    %    'The FULL path to the alist file containing the parity-check matrix of LDPC code should be specified.');
+                    CodedModParam.AListFilePath = input('What is the FULL path to the ALIST file representing the parity-check matrix of your LDPC code?\n\n','s');
+                end
+                CodedModParam.ChannelCodeObject = LDPCCode( CodedModParam.AListFilePath, [], [], CodedModParam.MaxIteration, CodedModParam.DecoderType );
+            case 21	% DVBS2 LDPC code.
+                if( ~isfield(CodedModParam, 'EffectiveRate') || isempty(CodedModParam.EffectiveRate) ), CodedModParam.EffectiveRate = 1/2; end
+                if( ~isfield(CodedModParam, 'FrameSize') || isempty(CodedModParam.FrameSize) ), CodedModParam.FrameSize = 64800; end
+                CodedModParam.ChannelCodeObject = LDPC_DVBS2(CodedModParam.EffectiveRate, CodedModParam.FrameSize, CodedModParam.MaxIteration, CodedModParam.DecoderType);
+            case 22	% WiMax LDPC code.
+                if( ~isfield(CodedModParam, 'EffectiveRate') || isempty(CodedModParam.EffectiveRate) ), CodedModParam.EffectiveRate = 1/2; end
+                if( ~isfield(CodedModParam, 'FrameSize') || isempty(CodedModParam.FrameSize) ), CodedModParam.FrameSize = 576; end
+                if( ~isfield(CodedModParam, 'WiMaxLDPCInd') || isempty(CodedModParam.WiMaxLDPCInd) ), CodedModParam.WiMaxLDPCInd = 0; end
+                CodedModParam.ChannelCodeObject = LDPC_WiMax(CodedModParam.EffectiveRate, CodedModParam.FrameSize, CodedModParam.WiMaxLDPCInd, ...
+                    CodedModParam.MaxIteration, CodedModParam.DecoderType);
+        end
+    end
+    CodedModParam.CodedModObj = CodedModulation(CodedModParam.ChannelCodeObject, CodedModParam.ChannelObj.ModulationObj.ModOrder, ...
+        CodedModParam.DemodType, CodedModParam.ZeroRandFlag);
+end
 
 CheckPeriod = 10;   % Checking time in number of Trials to see if the time is up.
 
-if( isfield(CodedModParam, 'ModulationObj') && ~isempty(CodedModParam.ModulationObj) )
-    ModObj = CodedModParam.ModulationObj;
-else
-    if( ~isfield(CodedModParam, 'ModulationType') || isempty(CodedModParam.ModulationType) ), CodedModParam.ModulationType = 'BPSK'; end
-    if( ~isfield(CodedModParam, 'ModulationParam') || isempty(CodedModParam.ModulationParam) ), CodedModParam.ModulationParam = '[]'; end
-    if( strcmpi(CodedModParam.ModulationType,'custom') )
-        ModGenStr = ['CreateModulation' '(' CodedModParam.ModulationParam ')'];
-    else
-        ModGenStr = [upper(CodedModParam.ModulationType) '(' CodedModParam.ModulationParam ')'];
-    end
-    ModObj = eval(ModGenStr);
-end
-
-ModOrder = ModObj.Order;
-
-switch CodedModParam.CodeType
-    case 00 % Recursive Systematic Convolutional (RSC) code.
-        % Default generator matrix for convolutional code is the constituent code of UMTS turbo code.
-        if( ~isfield(CodedModParam, 'Generator') || isempty(CodedModParam.Generator) ), CodedModParam.Generator = [1 0 1 1 ; 1 1 0 1]; end
-        if( ~isfield(CodedModParam, 'DataLength') || isempty(CodedModParam.DataLength) ), CodedModParam.DataLength = 512; end
-        ChannelCodeObject = ConvCode(CodedModParam.Generator, CodedModParam.DataLength, 0, CodedModParam.DecoderType);
-    case 01 % Non-Systematic Convolutional (NSC) code.
-        % Default generator matrix for convolutional code is the constituent code of UMTS turbo code.
-        if( ~isfield(CodedModParam, 'Generator') || isempty(CodedModParam.Generator) ), CodedModParam.Generator = [1 0 1 1 ; 1 1 0 1]; end
-        if( ~isfield(CodedModParam, 'DataLength') || isempty(CodedModParam.DataLength) ), CodedModParam.DataLength = 512; end
-        ChannelCodeObject = ConvCode(CodedModParam.Generator, CodedModParam.DataLength, 1, CodedModParam.DecoderType);
-    case 02 % Tail-biting NSC code.
-        % Default generator matrix for convolutional code is the constituent code of UMTS turbo code.
-        if( ~isfield(CodedModParam, 'Generator') || isempty(CodedModParam.Generator) ), CodedModParam.Generator = [1 0 1 1 ; 1 1 0 1]; end
-        if( ~isfield(CodedModParam, 'DataLength') || isempty(CodedModParam.DataLength) ), CodedModParam.DataLength = 512; end
-        if( ~isfield(CodedModParam, 'ConvDepth') || isempty(CodedModParam.ConvDepth) ), CodedModParam.ConvDepth = -1; end
-        ChannelCodeObject = ConvCode(CodedModParam.Generator, CodedModParam.DataLength, 2, CodedModParam.DecoderType, CodedModParam.ConvDepth);
-    case 20	% General LDPC code specified by its parity-check matrix in alist format saved in a file.
-        if( ~isfield(CodedModParam, 'AListFilePath') || isempty(CodedModParam.AListFilePath) )
-            % error('CodedModTaskInit:EmptyAListFilePath',...
-            %    'The FULL path to the alist file containing the parity-check matrix of LDPC code should be specified.');
-            CodedModParam.AListFilePath = input('What is the FULL path to the ALIST file representing the parity-check matrix of your LDPC code?\n\n','s');
-        end
-        ChannelCodeObject = LDPCCode( CodedModParam.AListFilePath, [], [], CodedModParam.MaxIteration, CodedModParam.DecoderType );
-    case 21	% DVBS2 LDPC code.
-        if( ~isfield(CodedModParam, 'EffectiveRate') || isempty(CodedModParam.EffectiveRate) ), CodedModParam.EffectiveRate = 1/2; end
-        if( ~isfield(CodedModParam, 'FrameSize') || isempty(CodedModParam.FrameSize) ), CodedModParam.FrameSize = 64800; end
-        ChannelCodeObject = LDPC_DVBS2(CodedModParam.EffectiveRate, CodedModParam.FrameSize, CodedModParam.MaxIteration, CodedModParam.DecoderType);
-    case 22	% WiMax LDPC code.
-        if( ~isfield(CodedModParam, 'EffectiveRate') || isempty(CodedModParam.EffectiveRate) ), CodedModParam.EffectiveRate = 1/2; end
-        if( ~isfield(CodedModParam, 'FrameSize') || isempty(CodedModParam.FrameSize) ), CodedModParam.FrameSize = 576; end
-        if( ~isfield(CodedModParam, 'WiMaxLDPCInd') || isempty(CodedModParam.WiMaxLDPCInd) ), CodedModParam.WiMaxLDPCInd = 0; end
-        ChannelCodeObject = LDPC_WiMax(CodedModParam.EffectiveRate, CodedModParam.FrameSize, CodedModParam.WiMaxLDPCInd, ...
-            CodedModParam.MaxIteration, CodedModParam.DecoderType);
-end
-
-CodedModObj = CodedModulation(ChannelCodeObject, ModOrder, CodedModParam.DemodType, CodedModParam.ZeroRandFlag);
-
-SNRdB = 5;
-ChannelObj = AWGN( ModObj, 10^(SNRdB/10) );
-
 TaskParam = struct(...
-    'CodedModObj', CodedModObj, ...            % Coded modulation object.
-    'ChannelObj', ChannelObj, ...              % Channel object (Modulation is a property of channel).
+    'CodedModObj', CodedModParam.CodedModObj, ...   % Coded modulation object.
+    'ChannelObj', CodedModParam.ChannelObj, ...     % Channel object (Modulation is a property of channel).
     'SNRType', CodedModParam.SNRType, ...
-    'SNR', CodedModParam.SNR, ...              % Row vector of SNR points in dB.
-    'MaxTrials', CodedModParam.MaxTrials, ...  % A vector of integers (or scalar), one for each SNR point. Maximum number of trials to run per point.
-    'RunTime', CodedModParam.RunTime, ...      % Simulation time in Seconds.
-    'CheckPeriod', CheckPeriod, ...            % Checking time in number of Trials.
+    'SNR', CodedModParam.SNR, ...                   % Row vector of SNR points in dB.
+    'MaxTrials', CodedModParam.MaxTrials, ...       % A vector of integers (or scalar), one for each SNR point. Maximum number of trials to run per point.
+    'MaxRunTime', CodedModParam.MaxRunTime, ...     % Maximum simulation time in Seconds.
+    'CheckPeriod', CheckPeriod, ...                 % Checking time in number of Trials.
     'MaxBitErrors', CodedModParam.MaxBitErrors, ...
     'MaxFrameErrors', CodedModParam.MaxFrameErrors, ...
     'minBER', CodedModParam.minBER, ...
