@@ -1,4 +1,27 @@
 classdef BECJobManager < CodedModJobManager
+    
+
+    methods( Static, Access = private )
+        function OldPath = SetPath(CodeRoot)
+            % Determine the home directory.
+            OldPath = path;
+            addpath( fullfile(CodeRoot) );
+        end
+        
+        
+        function HStructInfo = FindHInfo(HStruct)
+            CodewordLength = max([HStruct(:).loc_ones]);
+            DataLength = CodewordLength - length(HStruct);
+            [EpsilonThresholdStar, FullRank, CodeRate] = HstructEval( HStruct );
+            HStructInfo = struct( ...
+                'DataLength', DataLength, ...
+                'CodewordLength', CodewordLength, ...
+                'CodeRate', CodeRate, ...
+                'FullRankFlag', FullRank, ...
+                'EpsilonStarDE', EpsilonThresholdStar );
+        end
+    end
+
 
     methods
         function obj = BECJobManager(cfgRoot)
@@ -7,13 +30,29 @@ classdef BECJobManager < CodedModJobManager
             % Optional input cfgRoot is the FULL path to the configuration file of the job manager.
             % Default: cfgRoot = [filesep,'home','pcs','jm',ProjectName,'cfg',CFG_Filename]
             % ProjectName = 'LDPC-BEC';
-            % CFG_Filename = 'LDPC-BECJobManager_cfg.txt';
+            % CFG_Filename = 'LDPC-BECJobManager_cfg';
             if( nargin<1 || isempty(cfgRoot) ), cfgRoot = []; end
             addpath(fullfile(filesep,'home','pcs','jm','CodedMod','src'));
             obj@CodedModJobManager(cfgRoot);
         end
 
 
+        function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn, CodeRoot)
+            
+            % First, set the path.
+            OldPath = obj.SetPath(CodeRoot);
+            
+            JobParam = JobParamIn;
+            JobState = JobStateIn;
+            
+            if( ~isfield(JobParam, 'HStructInfo') || isempty(JobParam.HStructInfo) )
+                JobParam.HStructInfo = obj.FindHInfo(JobParam.HStruct);
+            end
+            
+            path(OldPath);
+        end
+        
+        
         function [StopFlag, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobName, Username, JobRunningDir)
             % Determine if the global stopping criteria have been reached/met. Moreover, determine and echo progress of running JobName.
             % Furthermore, update Results file.
