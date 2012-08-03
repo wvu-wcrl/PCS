@@ -1,4 +1,5 @@
 classdef CodedModJobManager < JobManager
+    
 
     methods
         function obj = CodedModJobManager(cfgRoot)
@@ -7,9 +8,73 @@ classdef CodedModJobManager < JobManager
             % Optional input cfgRoot is the FULL path to the configuration file of the job manager.
             % Default: cfgRoot = [filesep,'home','pcs','jm',ProjectName,'cfg',CFG_Filename]
             % ProjectName = 'CodedMod';
-            % CFG_Filename = 'CodedModJobManager_cfg.txt';
+            % CFG_Filename = 'CodedModJobManager_cfg';
             if( nargin<1 || isempty(cfgRoot) ), cfgRoot = []; end
             obj@JobManager(cfgRoot);
+        end
+
+
+        function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn, CodeRoot)
+            
+            % First, set the path.
+            OldPath = obj.SetPath(CodeRoot);
+            
+            JobParam = JobParamIn;
+            JobState = JobStateIn;
+
+            % Create channel object (Modulation is a property of channel).
+            if( ~isfield(JobParam, 'ChannelObj') || isempty(JobParam.ChannelObj) )
+                if( ~isfield(JobParam, 'ModulationObj') || isempty(JobParam.ModulationObj) )
+                    if( ~isfield(JobParam, 'ModulationType') || isempty(JobParam.ModulationType) ), JobParam.ModulationType = 'BPSK'; end
+                    if( ~isfield(JobParam, 'ModulationParam') || isempty(JobParam.ModulationParam) ), JobParam.ModulationParam = '[]'; end
+                    if( strcmpi(JobParam.ModulationType,'custom') )
+                        ModGenStr = ['CreateModulation' '(' JobParam.ModulationParam ')'];
+                    else
+                        ModGenStr = [upper(JobParam.ModulationType) '(' JobParam.ModulationParam ')'];
+                    end
+                    JobParam.ModulationObj = eval(ModGenStr);
+                end
+                SNRdB = 5;
+                JobParam.ChannelObj = AWGN( JobParam.ModulationObj, 10^(SNRdB/10) );
+            end
+            
+            % Create coded modulation object (if possible).
+            if( ~isfield(JobParam, 'CodedModObj') || isempty(JobParam.CodedModObj) )
+                if( ~isfield(JobParam, 'ChannelCodeObject') || isempty(JobParam.ChannelCodeObject) )
+                    if( ~isfield(JobParam, 'CodeType') || isempty(JobParam.CodeType) ), JobParam.CodeType = 21; end
+                    if( ~isfield(JobParam, 'DecoderType') || isempty(JobParam.DecoderType) ), JobParam.DecoderType = 0; end
+                    switch JobParam.CodeType
+                        case 00 % Recursive Systematic Convolutional (RSC) code.
+                            % Default generator matrix for convolutional code is the constituent code of UMTS turbo code.
+                            if( ~isfield(JobParam, 'Generator') || isempty(JobParam.Generator) ), JobParam.Generator = [1 0 1 1 ; 1 1 0 1]; end
+                            if( ~isfield(JobParam, 'DataLength') || isempty(JobParam.DataLength) ), JobParam.DataLength = 512; end
+                            JobParam.ChannelCodeObject = ConvCode(JobParam.Generator, JobParam.DataLength, 0, JobParam.DecoderType);
+                        case 01 % Non-Systematic Convolutional (NSC) code.
+                            % Default generator matrix for convolutional code is the constituent code of UMTS turbo code.
+                            if( ~isfield(JobParam, 'Generator') || isempty(JobParam.Generator) ), JobParam.Generator = [1 0 1 1 ; 1 1 0 1]; end
+                            if( ~isfield(JobParam, 'DataLength') || isempty(JobParam.DataLength) ), JobParam.DataLength = 512; end
+                            JobParam.ChannelCodeObject = ConvCode(JobParam.Generator, JobParam.DataLength, 1, JobParam.DecoderType);
+                        case 02 % Tail-biting NSC code.
+                            % Default generator matrix for convolutional code is the constituent code of UMTS turbo code.
+                            if( ~isfield(JobParam, 'Generator') || isempty(JobParam.Generator) ), JobParam.Generator = [1 0 1 1 ; 1 1 0 1]; end
+                            if( ~isfield(JobParam, 'DataLength') || isempty(JobParam.DataLength) ), JobParam.DataLength = 512; end
+                            if( ~isfield(JobParam, 'ConvDepth') || isempty(JobParam.ConvDepth) ), JobParam.ConvDepth = -1; end
+                            JobParam.ChannelCodeObject = ConvCode(JobParam.Generator, JobParam.DataLength, 2, JobParam.DecoderType, JobParam.ConvDepth);
+                        otherwise
+                            JobParam.ChannelCodeObject = [];
+                    end
+                end
+                if ~isempty(JobParam.ChannelCodeObject)
+                    if( ~isfield(JobParam, 'DemodType') || isempty(JobParam.DemodType) ), JobParam.DemodType = 0; end
+                    if( ~isfield(JobParam, 'ZeroRandFlag') || isempty(JobParam.ZeroRandFlag) ), JobParam.ZeroRandFlag = 0; end
+                    JobParam.CodedModObj = CodedModulation(JobParam.ChannelCodeObject, JobParam.ChannelObj.ModulationObj.ModOrder, ...
+                        JobParam.DemodType, JobParam.ZeroRandFlag);
+                else
+                    JobParam.CodedModObj = [];
+                end
+            end
+            
+            path(OldPath);
         end
 
 
@@ -27,7 +92,7 @@ classdef CodedModJobManager < JobManager
             TaskInputParam.MaxBitErrors(TaskInputParam.MaxBitErrors<0) = 0;
             TaskInputParam.MaxTrials = JobParam.MaxTrials - JobState.Trials;
             TaskInputParam.MaxTrials(TaskInputParam.MaxTrials<0) = 0;
-            
+
             TaskInputParam.MaxTrials = ceil(TaskInputParam.MaxTrials/NumNewTasks);
         end
 
@@ -58,7 +123,7 @@ classdef CodedModJobManager < JobManager
 
             % Determine the position of active SNR points based on the number of remaining trials and frame errors.
             ActiveSNRPoints  = ( (RemainingTrials>0) & (RemainingFrameErrors>0) );
-            
+
             % Determine if we can discard some SNR points whose BER or FER WILL be less than JobParam.minBER/minFER.
             LastInactivePoint = find(ActiveSNRPoints == 0, 1, 'last');
 
@@ -89,7 +154,7 @@ classdef CodedModJobManager < JobManager
                     PrintOut(StopMsg, 0, obj.JobManagerParam.LogFileName);
                 end
             end
-            
+
             % Determine and echo progress of running JobName.
             RemainingTJob = sum( (ActiveSNRPoints==1) .* RemainingTrials );
             CompletedTJob = sum( JobState.Trials );
