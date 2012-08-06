@@ -148,9 +148,9 @@ classdef CmlJobManager < JobManager
             JobState = JobStateIn;
             
             % Convert the randomly-permuted SNR points of the task back to the order in which the JobState is saved.
-            TaskState.trials(:,JobState.RandPos) = TaskState.trials;
-            TaskState.bit_errors(:,JobState.RandPos) = TaskState.bit_errors;
-            TaskState.frame_errors(:,JobState.RandPos) = TaskState.frame_errors;
+            TaskState.trials(:,TaskState.RandPos) = TaskState.trials;
+            TaskState.bit_errors(:,TaskState.RandPos) = TaskState.bit_errors;
+            TaskState.frame_errors(:,TaskState.RandPos) = TaskState.frame_errors;
             
             JobState.trials      = JobState.trials      + TaskState.trials;
             if ~strcmpi( JobState.sim_type, 'bloutage' )
@@ -164,7 +164,7 @@ classdef CmlJobManager < JobManager
                 if ~strcmpi( JobState.sim_type, 'coded' )
                     if( JobParam.mod_order > 2 )
                         % Update symbol error counter.
-                        TaskState.symbol_errors(:,JobState.RandPos) = TaskState.symbol_errors;
+                        TaskState.symbol_errors(:,TaskState.RandPos) = TaskState.symbol_errors;
                         JobState.symbol_errors = JobState.symbol_errors + TaskState.symbol_errors;
                         JobState.SER = JobState.symbol_errors / ( JobState.trials * JobState.symbols_per_frame );
                     else
