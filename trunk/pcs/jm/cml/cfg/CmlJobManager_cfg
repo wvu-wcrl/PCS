@@ -5,9 +5,9 @@ ProjectName = 'cml';
 
 % Root directory in which the job manager looks for users of the system.
 % HomeRoot = pwd;
-% HomeRoot = '/home';
+HomeRoot = '/home';
 % HomeRoot = '/home/web_users';
-HomeRoot = 'C:\Users\Mohammad Fanaei\Desktop\Dropbox\CMLProject\ACT\TestJobManager';
+% HomeRoot = 'C:\Users\Mohammad Fanaei\Desktop\Dropbox\CMLProject\ACT\TestJobManager';
 
 % Temporary directory in which the job manager saves intermediate files before moving them to their ultimate destination.
 % This folder solves the problem of write permissions in directories of users.

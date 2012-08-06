@@ -2,7 +2,7 @@ classdef BECJobManager < CodedModJobManager
     
 
     methods( Static, Access = private )
-        function OldPath = SetPath(CodeRoot)
+        function OldPath = SetCodePath(CodeRoot)
             % Determine the home directory.
             OldPath = path;
             addpath( fullfile(CodeRoot) );
@@ -40,7 +40,7 @@ classdef BECJobManager < CodedModJobManager
         function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn, CodeRoot)
             
             % First, set the path.
-            OldPath = obj.SetPath(CodeRoot);
+            OldPath = obj.SetCodePath(CodeRoot);
             
             JobParam = JobParamIn;
             JobState = JobStateIn;
