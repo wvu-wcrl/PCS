@@ -36,6 +36,7 @@ classdef CmlJobManager < JobManager
             JobParam.cml_rhome = obj.RenameLocalCmlHome(CodeRoot);
             
             JobState = JobStateIn;
+            JobState.mod_order = JobParam.mod_order;
             JobState.data_bits_per_frame = CodeParam.data_bits_per_frame;
             JobState.sim_type = JobParam.sim_type;
             JobState.symbols_per_frame = CodeParam.symbols_per_frame;
@@ -162,7 +163,7 @@ classdef CmlJobManager < JobManager
                 
                 % If uncoded, update symbol error rate, too.
                 if ~strcmpi( JobState.sim_type, 'coded' )
-                    if( JobParam.mod_order > 2 )
+                    if( JobState.mod_order > 2 )
                         % Update symbol error counter.
                         TaskState.symbol_errors(:,TaskState.RandPos) = TaskState.symbol_errors;
                         JobState.symbol_errors = JobState.symbol_errors + TaskState.symbol_errors;
