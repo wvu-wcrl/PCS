@@ -90,7 +90,7 @@ classdef CodedModJobManager < JobManager
             TaskInputParam.MaxFrameErrors(TaskInputParam.MaxFrameErrors<0) = 0;
             TaskInputParam.MaxBitErrors = JobParam.MaxBitErrors - JobState.BitErrors(end,:);
             TaskInputParam.MaxBitErrors(TaskInputParam.MaxBitErrors<0) = 0;
-            TaskInputParam.MaxTrials = JobParam.MaxTrials - JobState.Trials;
+            TaskInputParam.MaxTrials = JobParam.MaxTrials - JobState.Trials(end,:);
             TaskInputParam.MaxTrials(TaskInputParam.MaxTrials<0) = 0;
 
             TaskInputParam.MaxTrials = ceil(TaskInputParam.MaxTrials/NumNewTasks);
@@ -116,7 +116,7 @@ classdef CodedModJobManager < JobManager
             % Calling syntax: [StopFlag [,JobParam]] = obj.DetermineStopFlag(JobParam, JobState [,JobName] [,Username] [,JobRunningDir])
 
             % First check to see if minimum number of trials or frame errors has been reached.
-            RemainingTrials = JobParam.MaxTrials - JobState.Trials;
+            RemainingTrials = JobParam.MaxTrials - JobState.Trials(end,:);
             RemainingTrials(RemainingTrials<0) = 0;             % Force to zero if negative.
             RemainingFrameErrors = JobParam.MaxFrameErrors - JobState.FrameErrors(end,:);
             RemainingFrameErrors(RemainingFrameErrors<0) = 0;   % Force to zero if negative.
@@ -142,7 +142,7 @@ classdef CodedModJobManager < JobManager
                 end
             end
 
-            JobParam.MaxTrials(ActiveSNRPoints==0) = JobState.Trials(ActiveSNRPoints==0);
+            JobParam.MaxTrials(ActiveSNRPoints==0) = JobState.Trials(end,ActiveSNRPoints==0);
 
             % Set the stopping flag.
             StopFlag = ( sum(ActiveSNRPoints) == 0 );
@@ -157,7 +157,7 @@ classdef CodedModJobManager < JobManager
 
             % Determine and echo progress of running JobName.
             RemainingTJob = sum( (ActiveSNRPoints==1) .* RemainingTrials );
-            CompletedTJob = sum( JobState.Trials );
+            CompletedTJob = sum( JobState.Trials(end,:) );
             % RemainingFEJob = sum( (ActiveSNRPoints==1) .* RemainingFrameErrors );
             % CompletedFEJob = sum( JobState.FrameErrors(end,:) );
             if( nargin>=4 && ~isempty(JobName) && ~isempty(Username) )

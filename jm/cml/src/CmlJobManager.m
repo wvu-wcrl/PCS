@@ -54,7 +54,7 @@ classdef CmlJobManager < JobManager
             JobParam.max_frame_errors(JobParam.max_frame_errors<0) = 0;
             % JobParam.MaxBitErrors = JobParam.MaxBitErrors - JobState.BitErrors(end,:);
             % JobParam.MaxBitErrors(JobParam.MaxBitErrors<0) = 0;
-            JobParam.max_trials = JobParam.max_trials - JobState.trials;
+            JobParam.max_trials = JobParam.max_trials - JobState.trials(end,:);
             JobParam.max_trials(JobParam.max_trials<0) = 0;
             
             JobParam.max_trials = ceil(JobParam.max_trials/NumNewTasks);
@@ -184,7 +184,7 @@ classdef CmlJobManager < JobManager
             % Calling syntax: [StopFlag [,JobParam]] = obj.DetermineStopFlag(JobParam, JobState [,JobName] [,Username] [,JobRunningDir])
 
             % First check to see if minimum number of trials or frame errors has been reached.
-            RemainingTrials = JobParam.max_trials - JobState.trials;
+            RemainingTrials = JobParam.max_trials - JobState.trials(end,:);
             RemainingTrials(RemainingTrials<0) = 0;             % Force to zero if negative.
             RemainingFrameErrors = JobParam.max_frame_errors - JobState.frame_errors(end,:);
             RemainingFrameErrors(RemainingFrameErrors<0) = 0;   % Force to zero if negative.
@@ -210,7 +210,7 @@ classdef CmlJobManager < JobManager
                 end
             end
 
-            JobParam.max_trials(ActiveSNRPoints==0) = JobState.trials(ActiveSNRPoints==0);
+            JobParam.max_trials(ActiveSNRPoints==0) = JobState.trials(end,ActiveSNRPoints==0);
 
             % Set the stopping flag.
             StopFlag = ( sum(ActiveSNRPoints) == 0 );
@@ -225,7 +225,7 @@ classdef CmlJobManager < JobManager
 
             % Determine and echo progress of running JobName.
             RemainingTJob = sum( (ActiveSNRPoints==1) .* RemainingTrials );
-            CompletedTJob = sum( JobState.trials );
+            CompletedTJob = sum( JobState.trials(end,:) );
             % RemainingFEJob = sum( (ActiveSNRPoints==1) .* RemainingFrameErrors );
             % CompletedFEJob = sum( JobState.frame_errors(end,:) );
             if( nargin>=4 && ~isempty(JobName) && ~isempty(Username) )
