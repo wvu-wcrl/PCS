@@ -60,7 +60,7 @@ classdef BECJobManager < CodedModJobManager
 
             % First check to see if minimum number of trials or frame errors has been reached.
             % Determine the number of remaining trials reqiured for each Epsilon point.
-            RemainingTrials = JobParam.MaxTrials - JobState.Trials;
+            RemainingTrials = JobParam.MaxTrials - JobState.Trials(end,:);
             RemainingTrials(RemainingTrials<0) = 0;             % Force to zero if negative.
             % Determine the number of remaining frame errors reqiured for each Epsilon point.
             RemainingFrameErrors = JobParam.MaxFrameErrors - JobState.FrameErrors(end,:);
@@ -69,7 +69,7 @@ classdef BECJobManager < CodedModJobManager
             % Determine the position of active Epsilon points based on the number of remaining trials and frame errors.
             ActiveEpsilonPoints  = ( (RemainingTrials>0) & (RemainingFrameErrors>0) );
 
-            % JobParam.MaxTrials(ActiveEpsilonPoints==0) = JobState.Trials(ActiveEpsilonPoints==0);
+            % JobParam.MaxTrials(ActiveEpsilonPoints==0) = JobState.Trials(end,ActiveEpsilonPoints==0);
 
             % Set the stopping flag.
             StopFlag = ( sum(ActiveEpsilonPoints) == 0 );
@@ -84,7 +84,7 @@ classdef BECJobManager < CodedModJobManager
 
             % Determine and echo progress of running JobName.
             RemainingTJob = sum( (ActiveEpsilonPoints==1) .* RemainingTrials );
-            CompletedTJob = sum( JobState.Trials );
+            CompletedTJob = sum( JobState.Trials(end,:) );
             % RemainingFEJob = sum( (ActiveEpsilonPoints==1) .* RemainingFrameErrors );
             % CompletedFEJob = sum( JobState.FrameErrors(end,:) );
             if( nargin>=4 && ~isempty(JobName) && ~isempty(Username) )

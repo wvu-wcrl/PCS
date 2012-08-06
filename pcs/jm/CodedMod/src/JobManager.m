@@ -298,7 +298,7 @@ classdef JobManager < handle
                                     TaskInputParam = TaskContent.TaskParam.InputParam;
                                     TaskState = TaskContent.TaskState;
                                     TaskInfo = TaskContent.TaskInfo;
-                                    % TaskInfo.Trials = TaskState.Trials;
+                                    % TaskInfo.Trials = TaskState.Trials(end,:);
                                     
                                     % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save Timing Info.
                                     [NodeID_Times, eTimeTrial] = obj.ExtractETimeTrial( TaskInfo, CurrentTime );
@@ -355,7 +355,7 @@ classdef JobManager < handle
                                             JobParam = JobContent.JobParam;
                                             JobState = JobContent.JobState;
                                             % Update JobState if the received output Task has done some trials.
-%                                             if sum(TaskState.Trials)~=0
+%                                             if sum(TaskState.Trials(end,:))~=0
                                                  JobState = obj.UpdateJobState(JobState, TaskState);
 %                                             else
 %                                                 Msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
@@ -405,10 +405,10 @@ classdef JobManager < handle
                                             TaskInputParam = TaskContent.TaskParam.InputParam;
                                             TaskState = TaskContent.TaskState;
                                             TaskInfo = TaskContent.TaskInfo;
-                                            % TaskInfo.Trials = TaskState.Trials;
+                                            % TaskInfo.Trials = TaskState.Trials(end,:);
                                             
                                             % Update JobState if the received Task has done some trials.
-%                                             if sum(TaskState.Trials)~=0
+%                                             if sum(TaskState.Trials(end,:))~=0
                                                  JobState = obj.UpdateJobState(JobState, TaskState);
 %                                             else
 %                                                 Msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
@@ -937,7 +937,7 @@ classdef JobManager < handle
             
 %             eTimeTrial(:,ColPos,Ind) = [CurrentTime
 %                 etime(TaskInfo.StopTime, TaskInfo.StartTime)
-%                 sum(TaskInfo.Trials)];
+%                 sum(TaskInfo.Trials(end,:))];
             eTimeTrial(1:2,ColPos,Ind) = [CurrentTime
                 etime(TaskInfo.StopTime, TaskInfo.StartTime)];
             
