@@ -16,7 +16,7 @@ classdef JobManager < handle
     
     
     methods(Static)
-        function OldPath = SetPath(CodeRoot)
+        function OldPath = SetCodePath(CodeRoot)
             % Determine the home directory.
             OldPath = path;
             
@@ -298,7 +298,7 @@ classdef JobManager < handle
                                     TaskInputParam = TaskContent.TaskParam.InputParam;
                                     TaskState = TaskContent.TaskState;
                                     TaskInfo = TaskContent.TaskInfo;
-                                    TaskInfo.Trials = TaskState.Trials;
+                                    % TaskInfo.Trials = TaskState.Trials;
                                     
                                     % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save Timing Info.
                                     [NodeID_Times, eTimeTrial] = obj.ExtractETimeTrial( TaskInfo, CurrentTime );
@@ -355,12 +355,12 @@ classdef JobManager < handle
                                             JobParam = JobContent.JobParam;
                                             JobState = JobContent.JobState;
                                             % Update JobState if the received output Task has done some trials.
-                                            if sum(TaskState.Trials)~=0
-                                                JobState = obj.UpdateJobState(JobState, TaskState);
-                                            else
-                                                Msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
-                                                PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
-                                            end
+%                                             if sum(TaskState.Trials)~=0
+%                                                 JobState = obj.UpdateJobState(JobState, TaskState);
+%                                             else
+%                                                 Msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
+%                                                 PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
+%                                             end
                                         end
                                     end
 
@@ -405,15 +405,15 @@ classdef JobManager < handle
                                             TaskInputParam = TaskContent.TaskParam.InputParam;
                                             TaskState = TaskContent.TaskState;
                                             TaskInfo = TaskContent.TaskInfo;
-                                            TaskInfo.Trials = TaskState.Trials;
+                                            % TaskInfo.Trials = TaskState.Trials;
                                             
                                             % Update JobState if the received Task has done some trials.
-                                            if sum(TaskState.Trials)~=0
-                                                JobState = obj.UpdateJobState(JobState, TaskState);
-                                            else
-                                                Msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
-                                                PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
-                                            end
+%                                             if sum(TaskState.Trials)~=0
+%                                                 JobState = obj.UpdateJobState(JobState, TaskState);
+%                                             else
+%                                                 Msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
+%                                                 PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
+%                                             end
                                             
                                             % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save Timing Info.
                                             [NodeID_Times, eTimeTrial] = obj.ExtractETimeTrial( TaskInfo, CurrentTime );
@@ -935,9 +935,11 @@ classdef JobManager < handle
                 ColPos = size(eTimeTrial,2);
             end
             
-            eTimeTrial(:,ColPos,Ind) = [CurrentTime
-                etime(TaskInfo.StopTime, TaskInfo.StartTime)
-                sum(TaskInfo.Trials)];
+%             eTimeTrial(:,ColPos,Ind) = [CurrentTime
+%                 etime(TaskInfo.StopTime, TaskInfo.StartTime)
+%                 sum(TaskInfo.Trials)];
+            eTimeTrial(1:2,ColPos,Ind) = [CurrentTime
+                etime(TaskInfo.StopTime, TaskInfo.StartTime)];
             
             obj.NodeID_Times = NodeID_Times;
             obj.eTimeTrial = eTimeTrial;
