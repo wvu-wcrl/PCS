@@ -28,7 +28,7 @@ classdef CmlJobManager < JobManager
         function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn, CodeRoot)
             
             % First, set the path.
-            OldPath = obj.SetPath(CodeRoot);
+            OldPath = obj.SetCodePath(CodeRoot);
             
             [JobParam, CodeParam] = InitializeCodeParam( JobParamIn, CodeRoot );
             JobParam.code_param_short = CodeParam;
