@@ -36,6 +36,10 @@
 PATH_TC=/home/pcs/tc/ctc/src
 PATH_WC=/home/pcs/tc/cwc/src
 
+# job managers
+PATH_CML_JM=/home/pcs/jm/cml/src
+
+
 # short queues                                                                                                                                         
 PATH_SQI=/home/pcs/tc/queue/cluster/short/iq  # input queue                                                                                            
 PATH_SQR=/home/pcs/tc/queue/cluster/short/rq  # running queue                                                                                          
@@ -48,10 +52,12 @@ PATH_LQO=/home/pcs/tc/queue/cluster/long/oq   # output queue
 
 
 # names for screen sessions                                                                                                                            
-STC=stc    # short task controller                                                                                                                     
-LTC=ltc    # long task controller                                                                                                                      
-SWC=swc    # short worker controller                                                                                                                   
-LWC=lwc    # long worker controller                                                                                                                    
+STC=stc       # short task controller                                                                                                                     
+LTC=ltc       # long task controller                                                                                                                      
+SWC=swc       # short worker controller                                                                                                                   
+LWC=lwc       # long worker controller                                                                                
+
+CML_JM=CmlJm  # CML job manager                                   
 ##########################                                                                                                                             
 
 
@@ -73,7 +79,12 @@ LOCKFILE=/home/pcs/tc/supp/lock/pcs_lock
 
 
 
-#### functions                                                                                                                                         
+#### functions                                                                                                                                    
+start_job_managers(){
+screen -S $CML_JM -m -d matlab -r "cd $PATH_CML_JM; cml_jm_startup"
+}
+
+     
 start_workers(){
 screen -S $SWC -m -d matlab -r "cd $PATH_WC; startup_short; cwcobj.cSta"
 screen -S $LWC -m -d matlab -r "cd $PATH_WC; startup_long; cwcobj.cSta"
@@ -145,6 +156,7 @@ case $1 in
 	if [ $lockfile_exists -eq 0 ]; then
 	    start_workers
             manage_controllers start
+	    start_job_managers
 	    touch $LOCKFILE
 	else
 	    echo $LOCKFILE_EXISTS_ERR
@@ -172,6 +184,7 @@ case $1 in
 	    stop_screen_session $LWC
 	    stop_screen_session $STC
 	    stop_screen_session $LTC
+	    stop_screen_session $CML_JM
 
 	    stop_workers
 	    
@@ -187,6 +200,7 @@ case $1 in
 	if [ $lockfile_exists -eq 1 ]; then
         stop_screen_session $STC
         stop_screen_session $LTC
+	stop_screen_session $CML_JM
 	
         manage_controllers shutdown
 	
