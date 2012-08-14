@@ -126,7 +126,7 @@ classdef JobManager < handle
             % Default: cfgRoot = [filesep,'home','pcs','jm',ProjectName,'cfg',CFG_Filename]
             if( nargin<1 || isempty(cfgRoot) ), cfgRoot = []; end
             obj.JobManagerParam = obj.InitJobManager(cfgRoot);
-            obj.UserList = obj.InitUsers();
+            obj.UserList = obj.InitUsers(cfgRoot);
             Msg = sprintf( '\n\n\nThe list of ACTIVE users is extracted at %s.\n\nThere are %d ACTIVE users in the system.\n\n',...
                 datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM'), length(obj.UserList) );
             PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
@@ -669,7 +669,7 @@ classdef JobManager < handle
         end
         
         
-        function UserList = InitUsers(obj)
+	    function UserList = InitUsers(obj,cfgRoot)
             % Initialize users' states in UserList structure.
             %
             % Calling syntax: UserList = obj.InitUsers()
@@ -683,8 +683,15 @@ classdef JobManager < handle
             % Named constants.
             HomeRoot = obj.JobManagerParam.HomeRoot;
             if( ~isfield(obj.JobManagerParam,'UserCfgFilename') || isempty(obj.JobManagerParam.UserCfgFilename) )
-                obj.JobManagerParam.UserCfgFilename = input(['\nWhat is the name of CONFIGURATION file for USERs?\n',...
-                    'The job manager looks for this file in the users home directories to find active users.\nExample: <ProjectName>_cfg\n\n'],'s');
+
+%                obj.JobManagerParam.UserCfgFilename = input(['\nWhat is the name of CONFIGURATION file for USERs?\n%',...
+%                    'The job manager looks for this file in the users home directories to find active users.\nExam%ple: <ProjectName>_cfg\n\n'],'s');
+
+                    heading1 = '[GeneralSpec]';                    
+                    out = obj.fp(cfgRoot, heading1, 'UserCfgFile');
+                    obj.JobManagerParam.UserCfgFilename = eval(out);
+
+
             end
             CFG_Filename = obj.JobManagerParam.UserCfgFilename;
             
@@ -763,6 +770,7 @@ classdef JobManager < handle
                     
                     % Read name and full path of function to be executed for running each task.
                     out = obj.fp(cfgFile, heading1, 'FunctionName');
+UserList{UserCount}
                     UserList{UserCount}.FunctionName = eval(out);
                     
                     out = obj.fp(cfgFile, heading1, 'FunctionPath');
