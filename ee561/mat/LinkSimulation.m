@@ -100,7 +100,7 @@ classdef LinkSimulation < Simulation
 %             end
             
             % Accumulate errors for different SNR points unitil time is up.
-            while ElapsedTime < obj.SimParam.SimTime
+            while ElapsedTime < obj.SimParam.MaxRunTime
                 % Determine the number of remaining symbol errors reqiured for each SNR point.
                 RemainingSymError = obj.SimParam.MaxSymErrors - obj.SimState.SymbolErrors;
                 RemainingSymError(RemainingSymError<0) = 0;
