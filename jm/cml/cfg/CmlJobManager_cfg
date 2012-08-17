@@ -20,8 +20,9 @@ Check4NewUserPeriod = 50;
 % Job manager's pause time to wait before looking for new users when there is no active user in the system.
 JMPause = 10;
 
-% configuration file for each user which stores location of project queues
-UserCfgFile = 'cml_cfg';
+% Name of configuration file for each user, which stores location of JOB queues for each project (among other information).
+UserCfgFilename = 'cml_cfg';
+
 
 [LogSpec]
 
