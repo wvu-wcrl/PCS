@@ -167,7 +167,7 @@ classdef CmlJobManager < JobManager
                         % Update symbol error counter.
                         TaskState.symbol_errors(:,TaskState.RandPos) = TaskState.symbol_errors;
                         JobState.symbol_errors = JobState.symbol_errors + TaskState.symbol_errors;
-                        JobState.SER = JobState.symbol_errors / ( JobState.trials * JobState.symbols_per_frame );
+                        JobState.SER = JobState.symbol_errors ./ ( JobState.trials * JobState.symbols_per_frame );
                     else
                         JobState.symbol_errors = JobState.bit_errors;
                         JobState.SER = JobState.BER;
