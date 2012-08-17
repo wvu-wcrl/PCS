@@ -55,9 +55,7 @@ classdef util < handle
                     % Remove equal sign
                     l_val = l_val(2:end);
                     
-                    Ind_lVal = strfind(l_val, ';');
-                    if ~isempty(Ind_lVal), l_val = l_val(1:Ind_lVal-1); end
-                    
+                   
                     switch l_key
                         case key
                             temp_cell = textscan(l_val, '%s');
