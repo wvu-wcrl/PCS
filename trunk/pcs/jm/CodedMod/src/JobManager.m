@@ -529,7 +529,7 @@ classdef JobManager < handle
                             end
                             
                             Msg = sprintf( '\n\n\nSweeping JobIn, JobRunning, and TaskOut directories of user %s is finished at %s.\n\n\n',...
-                                Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+					   Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
                             PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                             % Wait briefly before looping for the next active user.
                             pause( CurrentUser.PauseTime );
@@ -577,27 +577,27 @@ classdef JobManager < handle
                 heading1 = '[GeneralSpec]';
                 
                 % Read the name of the current project for which this job manager is running.
-                out = obj.fp(cfgFullFile, heading1, 'ProjectName');
+                out = util.fp(cfgFullFile, heading1, 'ProjectName'); out = out{1}{1};
                 if( isempty(out) && (~isfield(JobManagerParam,'ProjectName') || isempty(JobManagerParam.ProjectName)) )
                     JobManagerParam.ProjectName = input('\nWhat is the name of the current project for which this Job Manager is running?\n\n','s');
                 elseif( ~isempty(out) )
-                    JobManagerParam.ProjectName = eval(out);
+                    JobManagerParam.ProjectName = out;
                 end
                 
                 % Read root directory in which the job manager looks for users of the system.
-                out = obj.fp(cfgFullFile, heading1, 'HomeRoot');
+                out = util.fp(cfgFullFile, heading1, 'HomeRoot'); out = out{1}{1};
                 if isempty(out)
                     if ispc, out = input('\nWhat is the FULL path to the HOME ROOT in which the Job Manager should look for system USERS?\n\n','s');
                     else out = [filesep 'home'];
                     end
                 else
-                    out = eval(out);
+                    out = out;
                 end
                 JobManagerParam.HomeRoot = out;
                 
                 % Read temporary directory in which the job manager saves intermediate files before moving them to their ultimate destination.
                 % This folder solves the problem of write permissions in directories of users.
-                out = obj.fp(cfgFullFile, heading1, 'TempJMDir');
+                out = util.fp(cfgFullFile, heading1, 'TempJMDir'); out = out{1}{1};
                 if isempty(out)
                     if ispc
                         out = input(['\nWhat is the FULL path to the TEMPORARY folder (TempJMDir) in which the Job Manager saves intermediate files\n',...
@@ -606,27 +606,27 @@ classdef JobManager < handle
                         out = fullfile(JobManagerParam.HomeRoot,'pcs','jm',JobManagerParam.ProjectName,'Temp');
                     end
                 else
-                    out = eval(out);
+                    out = out;
                 end
                 JobManagerParam.TempJMDir = out;
                 
                 % Read period by which the job manager looks for newly-added users to the system.
-                out = obj.fp(cfgFullFile, heading1, 'Check4NewUserPeriod');
+                out = util.fp(cfgFullFile, heading1, 'Check4NewUserPeriod'); out = out{1}{1};
                 if( isempty(out) ), out = '50'; end
                 JobManagerParam.Check4NewUserPeriod = str2num(out);
                 
                 % Read job manager's pause time to wait before looking for new users when there is no active user in the system.
-                out = obj.fp(cfgFullFile, heading1, 'JMPause');
+                out = util.fp(cfgFullFile, heading1, 'JMPause'); out = out{1}{1};
                 if( isempty(out) ), out = '60'; end
                 JobManagerParam.JMPause = str2num(out);
                 
                 % Read name of configuration file for each user, which stores location of JOB queues for each project (among other information).
-                out = obj.fp(cfgFullFile, heading1, 'UserCfgFilename');
+                out = util.fp(cfgFullFile, heading1, 'UserCfgFilename'); out = out{1}{1};
                 if( isempty(out) )
                     out = input(['\nWhat is the name of CONFIGURATION file for USERs?\n%',...
                         'The job manager looks for this file in the users home directories to find active users.\nExam%ple: <ProjectName>_cfg\n\n'],'s');
                 else
-                    out = eval(out);
+                    out = out;
                 end
                 JobManagerParam.UserCfgFilename = out;
                 
@@ -634,14 +634,15 @@ classdef JobManager < handle
                 heading2 = '[LogSpec]';
                 
                 % Read job manager's log filename.
-                out = obj.fp(cfgFullFile, heading2, 'LogFileName');
+			out = util.fp(cfgFullFile, heading2, 'LogFileName'); out = out{1}{1};
                 if( isempty(out) ), out = '0'; end
-                JobManagerParam.LogFileName = eval(out);
+		if strcmp(out, '0'), out = str2double(out); end
+                JobManagerParam.LogFileName = out;
                 
                 % Read verbose/quiet mode of intermediate message logging.
                 % If vqFlag=0 (verbose mode), all detailed intermediate messages are printed out.
                 % If vqFlag=1 (quiet mode), just important intermediate messages are printed out.
-                out = obj.fp(cfgFullFile, heading2, 'vqFlag');
+						 out = util.fp(cfgFullFile, heading2, 'vqFlag'); out = out{1}{1};
                 if( isempty(out) ), out = '0'; end
                 JobManagerParam.vqFlag = str2num(out);
                 
@@ -649,7 +650,7 @@ classdef JobManager < handle
                 heading3 = '[eTimeTrialSpec]';
                 
                 % Read maximum number of recent trial numbers and processing times of each worker node saved for billing purposes.
-                out = obj.fp(cfgFullFile, heading3, 'MaxRecentTaskInfo');
+                out = util.fp(cfgFullFile, heading3, 'MaxRecentTaskInfo'); out = out{1}{1};
                 if( isempty(out) ), out = '5'; end
                 JobManagerParam.MaxRecentTaskInfo = str2num(out);
             else
@@ -741,11 +742,11 @@ classdef JobManager < handle
                     
                     % Read name and FuLL path to user's actual CODE directory.
                     % All of the code required to run user's simulations resides under this directory.
-                    out = obj.fp(cfgFile, heading1, 'CodeRoot');
+                    out = util.fp(cfgFile, heading1, 'CodeRoot'); out = out{1}{1};
                     UserList{UserCount}.CodeRoot = out;
                     
                     % Read name and FULL path to user's job queue root directory. JobIn, JobRunning, and JobOut directories are under this full path.
-                    out = obj.fp(cfgFile, heading1, 'JobQueueRoot');
+	      out = util.fp(cfgFile, heading1, 'JobQueueRoot'); out = out{1}{1};
                     % out = cell2mat([out{:}]);
                     if isempty(out)
                         out = fullfile(UserPath,'Projects',obj.JobManagerParam.ProjectName);
@@ -756,7 +757,7 @@ classdef JobManager < handle
                     UserList{UserCount}.JobQueueRoot = out;
                     
                     % Read name and FULL path to user's task directory. TaskIn and TaskOut directories are under this path.
-                    % out = obj.fp(cfgFile, heading1, 'TasksRoot');
+			% out = util.fp(cfgFile, heading1, 'TasksRoot'); out = out{1}{1};
                     % out = cell2mat([out{:}]);
                     % if isempty(out)
                     %     out = fullfile(UserPath,'Tasks');
@@ -766,43 +767,44 @@ classdef JobManager < handle
                     % UserList{UserCount}.TasksRoot = out;
                     
                     TaskCfgFileName = 'ctc_cfg';
-                    out = obj.fp( fullfile(UserPath,TaskCfgFileName), '[paths]', 'input' );
+out = util.fp( fullfile(UserPath,TaskCfgFileName), '[paths]', 'input' ); out = out{1}{1};
                     UserList{UserCount}.TaskInDir = out;
-                    out = obj.fp( fullfile(UserPath,TaskCfgFileName), '[paths]', 'output' );
+out = util.fp( fullfile(UserPath,TaskCfgFileName), '[paths]', 'output' ); out = out{1}{1};
                     UserList{UserCount}.TaskOutDir = out;
                     
                     % Read name and full path of function to be executed for running each task.
-                    out = obj.fp(cfgFile, heading1, 'FunctionName');
-                    UserList{UserCount}.FunctionName = eval(out);
+                    out = util.fp(cfgFile, heading1, 'FunctionName'); out = out{1}{1};
+                    UserList{UserCount}.FunctionName = out;
                     
-                    out = obj.fp(cfgFile, heading1, 'FunctionPath');
-                    UserList{UserCount}.FunctionPath = eval(out);
+out = util.fp(cfgFile, heading1, 'FunctionPath'); out = out{1}{1};
+out
+                    UserList{UserCount}.FunctionPath = out;
                     
                     
                     heading2 = '[TasksInSpec]';
                     
                     % Read maximum number of input tasks in TaskIn queue/directory.
-                    out = obj.fp(cfgFile, heading2, 'MaxInputTasks');
+                    out = util.fp(cfgFile, heading2, 'MaxInputTasks'); out = out{1}{1};
                     if( isempty(out) ), out = '1000'; end
                     UserList{UserCount}.MaxInputTasks = str2num(out);
                     
                     % Read the number of input tasks in TaskIn queue/directory beyond which generation of new tasks is slowed down until it reaches the maximum of MaxInputTasks.
-                    out = obj.fp(cfgFile, heading2, 'TaskGenDecelerate');
+                    out = util.fp(cfgFile, heading2, 'TaskGenDecelerate'); out = out{1}{1};
                     if( isempty(out) ), out = '750'; end
                     UserList{UserCount}.TaskGenDecelerate = str2num(out);
                     
                     % Read maximum number of input tasks to be submitted to TaskIn at a time/each step.
-                    out = obj.fp(cfgFile, heading2, 'MaxTaskGenStep');
+                    out = util.fp(cfgFile, heading2, 'MaxTaskGenStep'); out = out{1}{1};
                     if( isempty(out) ), out = '60'; end
                     UserList{UserCount}.MaxTaskGenStep = str2num(out);
                     
                     % Read number of new input tasks saved in temporary directory (TempJMDir) that should be moved to TaskIn directory of user at a time.
-                    out = obj.fp(cfgFile, heading2, 'TaskInFlushRate');
+                    out = util.fp(cfgFile, heading2, 'TaskInFlushRate'); out = out{1}{1};
                     if( isempty(out) ), out = '10'; end
                     UserList{UserCount}.TaskInFlushRate = str2num(out);
                     
                     % Read maximum number of parallel jobs running at a time.
-                    out = obj.fp(cfgFile, heading2, 'MaxRunningJobs');
+                    out = util.fp(cfgFile, heading2, 'MaxRunningJobs'); out = out{1}{1};
                     if( isempty(out) ), out = '3'; end
                     UserList{UserCount}.MaxRunningJobs = str2num(out);
                     
@@ -810,17 +812,17 @@ classdef JobManager < handle
                     heading3 = '[RunTimeSpec]';
                     
                     % Read quick initial running time of each task to quickly get initial results back.
-                    out = obj.fp(cfgFile, heading3, 'InitialRunTime');
+                    out = util.fp(cfgFile, heading3, 'InitialRunTime'); out = out{1}{1};
                     if( isempty(out) ), out = '60'; end
                     UserList{UserCount}.InitialRunTime = str2num(out);
                     
                     % Read longer running time of each task in the long term.
-                    out = obj.fp(cfgFile, heading3, 'MaxRunTime');
+                    out = util.fp(cfgFile, heading3, 'MaxRunTime'); out = out{1}{1};
                     if( isempty(out) ), out = '300'; end
                     UserList{UserCount}.MaxRunTime = str2num(out);
                     
                     % Read pause time to wait between task submissions and flow control.
-                    out = obj.fp(cfgFile, heading3, 'PauseTime');
+                    out = util.fp(cfgFile, heading3, 'PauseTime'); out = out{1}{1};
                     if( isempty(out) ), out = '0.1'; end
                     UserList{UserCount}.PauseTime = str2num(out);
                     
