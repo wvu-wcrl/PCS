@@ -219,6 +219,7 @@ classdef CmlJobManager < JobManager
                 if( nargin>=4 && ~isempty(JobName) && ~isempty(Username) )
                     StopMsg = sprintf( ['\n\nRunning job %s for user %s is STOPPED completely because enough trials and/or ',...
                         'frame errors are observed for ALL SNR points.\n\n'], JobName(1:end-4), Username );
+StopMsg
                     PrintOut(StopMsg, 0, obj.JobManagerParam.LogFileName);
                 end
             end
