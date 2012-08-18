@@ -35,7 +35,7 @@
 function cml_jm_obj = cml_jm_startup()
 
 
-
+   addpath( fullfile( filesep, 'home', 'pcs', 'util' ) );
    addpath( fullfile( filesep, 'home', 'pcs', 'jm', 'CodedMod', 'src' ) );
    addpath( fullfile(filesep, 'home', 'pcs', 'util', 'log') );
 
