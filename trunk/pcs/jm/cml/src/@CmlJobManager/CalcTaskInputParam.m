@@ -3,11 +3,11 @@ function TaskInputParam = CalcTaskInputParam(obj, JobParam, JobState, NumNewTask
 % TaskInputParam is an either 1-by-1 or NumNewTasks-by-1 vector of structures each one of them containing one Task's InputParam structure.
 % If the InputParam is the same for all tasks, TaskInputParam can be 1-by-1.
 
-JobParam = SetTaskStoppingConditions( JobParam, JobState );   % need to modify
+JobParam = SetTaskStoppingConditions( JobParam, JobState, NumNewTasks );   % need to modify
 
 %%% large block of commented code moved to bottom of file
 
-TaskInputParam = InitTaskInputParam( JobParam, JobState );   % don't need to change
+TaskInputParam = InitTaskInputParam( JobParam, JobState, NumNewTasks );   % don't need to change
 
 TaskInputParam = RandomlyPermuteSnrPoints( NumNewTasks, TaskInputParam, JobParam, JobState );
 
@@ -15,7 +15,7 @@ end
 
 
 
-function JobParam = SetTaskStoppingConditions( JobParam, JobState )
+function JobParam = SetTaskStoppingConditions( JobParam, JobState, NumNewTasks )
 JobParam.max_frame_errors = JobParam.max_frame_errors - JobState.frame_errors(end,:);
 JobParam.max_frame_errors(JobParam.max_frame_errors<0) = 0;
 % JobParam.MaxBitErrors = JobParam.MaxBitErrors - JobState.BitErrors(end,:);
@@ -27,14 +27,14 @@ JobParam.max_trials = ceil(JobParam.max_trials/NumNewTasks);
 end
 
 
-function TaskInputParam = InitTaskInputParam( JobParam, JobState )
+function TaskInputParam = InitTaskInputParam( JobParam, JobState, NumNewTasks )
 TaskInputParam(1:NumNewTasks,1) = struct('JobParam', JobParam, 'JobState', JobState);   % Initialize TaskInputParam structure.
 end
 
 
 function [ TaskInputParam ] = RandomlyPermuteSnrPoints( NumNewTasks, TaskInputParam, JobParam, JobState )
 [SNR max_trials max_frame_errors trials bit_errors frame_errors symbol_errors] =...
-    ShortenPermutingVariableNames( JobParam );
+  ShortenPermutingVariableNames( JobParam, JobState );
 
 for Task=1:NumNewTasks
     
@@ -63,7 +63,7 @@ end
 
 
 function [SNR max_trials max_frame_errors trials bit_errors frame_errors symbol_errors] =...
-    ShortenPermutingVariableNames( JobParam )
+      ShortenPermutingVariableNames( JobParam, JobState )
 
 SNR = JobParam.SNR;
 max_trials = JobParam.max_trials;
