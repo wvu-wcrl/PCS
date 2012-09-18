@@ -3,7 +3,7 @@ function [StopFlag, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobN
 % Furthermore, update Results file.
 % Calling syntax: [StopFlag [,JobParam]] = obj.DetermineStopFlag(JobParam, JobState [,JobName] [,Username] [,JobRunningDir])
 
-[RemainingTrials RemainingFrameErrors] =  CheckRemainingTrialsFrameErrors( JobParam );
+		     [RemainingTrials RemainingFrameErrors] =  CheckRemainingTrialsFrameErrors( JobParam, JobState );
 
 % Determine the position of active SNR points based on the number of remaining trials and frame errors.
 ActiveSNRPoints = GetActiveSnrPoints( RemainingTrials, RemainingFrameErrors );
@@ -13,13 +13,13 @@ LastInactivePoint = FindLastInactivePoint( ActiveSNRPoints );
 
 StopFlagT = ComputeStopFlagT( LastInactivePoint, ActiveSNRPoints, JobParam, JobState );
 
-ActiveSNRPoints = PrintSnrStopMsg( StopFlagT, LastInactivePoint, JobName, UserName, JobParam, obj );
+ActiveSNRPoints = PrintSnrStopMsg( StopFlagT, ActiveSNRPoints, LastInactivePoint, JobName, Username, JobParam, obj );
 
 JobParam = SetMaxTrials( JobParam, JobState, ActiveSNRPoints );
 
 StopFlag = TestIfAllSnrsDone( ActiveSNRPoints );
 
-PrintJobStopMsg( JobName, Username, obj );
+PrintJobStopMsg( StopFlag, JobName, Username, obj );
 
 
 JobParam = SaveProgress( ActiveSNRPoints, RemainingTrials, JobState, JobName, Username, obj, JobParam,...
@@ -35,7 +35,7 @@ end
 
 
 
-function [RemainingTrials RemainingFrameErrors] =  CheckRemainingTrialsFrameErrors( JobParam )
+function [RemainingTrials RemainingFrameErrors] =  CheckRemainingTrialsFrameErrors( JobParam, JobState )
 % First check to see if minimum number of trials or frame errors has been reached.
 RemainingTrials = JobParam.max_trials - JobState.trials(end,:);
 RemainingTrials(RemainingTrials<0) = 0;             % Force to zero if negative.
@@ -67,7 +67,7 @@ StopFlagT = ~isempty(LastInactivePoint) && ( LastInactivePoint ~= length(ActiveS
 end
 
 
-function ActiveSNRPoints = PrintSnrStopMsg( StopFlagT, LastInactivePoint, JobName, UserName, JobParam, obj )
+function ActiveSNRPoints = PrintSnrStopMsg( StopFlagT, ActiveSNRPoints, LastInactivePoint, JobName, Username, JobParam, obj )
 
 if StopFlagT == 1
     ActiveSNRPoints(LastInactivePoint:end) = 0;
@@ -90,7 +90,7 @@ StopFlag = ( sum(ActiveSNRPoints) == 0 );
 end
 
 
-function PrintJobStopMsg( JobName, Username, obj )
+function PrintJobStopMsg( StopFlag, JobName, Username, obj )
 if StopFlag == 1
     if( nargin>=4 && ~isempty(JobName) && ~isempty(Username) )
         StopMsg = sprintf( ['\n\nRunning job %s for user %s is STOPPED completely because enough trials and/or ',...
