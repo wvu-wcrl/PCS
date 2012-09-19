@@ -3,24 +3,27 @@ function [StopFlag, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobN
 % Furthermore, update Results file.
 % Calling syntax: [StopFlag [,JobParam]] = obj.DetermineStopFlag(JobParam, JobState [,JobName] [,Username] [,JobRunningDir])
 
-		     [RemainingTrials RemainingFrameErrors] =  CheckRemainingTrialsFrameErrors( JobParam, JobState );
+
+[RemainingTrials RemainingFrameErrors] =  CheckRemainingMetrics( JobParam, JobState );  
 
 % Determine the position of active SNR points based on the number of remaining trials and frame errors.
-ActiveSNRPoints = GetActiveSnrPoints( RemainingTrials, RemainingFrameErrors );
+ActiveSNRPoints = GetActiveSnrPoints( RemainingTrials, RemainingFrameErrors, JobParam );    
 
+switch JobParam.sim_type,    
+    case {'coded', 'uncoded'},
 % Determine if we can discard some SNR points whose BER or FER WILL be less than JobParam.minBER/minFER.
 LastInactivePoint = FindLastInactivePoint( ActiveSNRPoints );
 
-StopFlagT = ComputeStopFlagT( LastInactivePoint, ActiveSNRPoints, JobParam, JobState );
+StopFlagT = ComputeStopFlagT( LastInactivePoint, ActiveSNRPoints, JobParam, JobState );  
 
 ActiveSNRPoints = PrintSnrStopMsg( StopFlagT, ActiveSNRPoints, LastInactivePoint, JobName, Username, JobParam, obj );
-
-JobParam = SetMaxTrials( JobParam, JobState, ActiveSNRPoints );
+end
+   
+JobParam = SetMaxTrials( JobParam, JobState, ActiveSNRPoints ); %
 
 StopFlag = TestIfAllSnrsDone( ActiveSNRPoints );
 
-PrintJobStopMsg( StopFlag, JobName, Username, obj );
-
+PrintJobStopMsg( StopFlag, JobName, Username, obj, nargin );
 
 JobParam = SaveProgress( ActiveSNRPoints, RemainingTrials, JobState, JobName, Username, obj, JobParam,...
     nargin, JobRunningDir);
@@ -35,18 +38,34 @@ end
 
 
 
-function [RemainingTrials RemainingFrameErrors] =  CheckRemainingTrialsFrameErrors( JobParam, JobState )
+function [RemainingTrials RemainingFrameErrors] =  CheckRemainingMetrics( JobParam, JobState )
+
+switch JobParam.sim_type,
+    case {'uncoded', 'coded'},
 % First check to see if minimum number of trials or frame errors has been reached.
 RemainingTrials = JobParam.max_trials - JobState.trials(end,:);
 RemainingTrials(RemainingTrials<0) = 0;             % Force to zero if negative.
 RemainingFrameErrors = JobParam.max_frame_errors - JobState.frame_errors(end,:);
 RemainingFrameErrors(RemainingFrameErrors<0) = 0;   % Force to zero if negative.
+    
+    case {'exit'},
+        RemainingTrials = JobParam.max_trials - JobState.trials;
+        RemainingTrials(RemainingTrials<0) = 0;
+        RemainingFrameErrors = 0;  %%%% refactor - replace output args with varargout
+end
+
 end
 
 
 
-function ActiveSNRPoints = GetActiveSnrPoints( RemainingTrials, RemainingFrameErrors )
-ActiveSNRPoints  = ( (RemainingTrials>0) & (RemainingFrameErrors>0) );
+function ActiveSNRPoints = GetActiveSnrPoints( RemainingTrials, RemainingFrameErrors, JobParam )
+
+switch JobParam.sim_type,
+    case {'uncoded', 'coded'},
+        ActiveSNRPoints  = ( (RemainingTrials>0) & (RemainingFrameErrors>0) );
+    case{'exit'},
+        ActiveSNRPoints  = ( RemainingTrials > 0);
+end
 end
 
 
@@ -90,13 +109,24 @@ StopFlag = ( sum(ActiveSNRPoints) == 0 );
 end
 
 
-function PrintJobStopMsg( StopFlag, JobName, Username, obj )
+function PrintJobStopMsg( StopFlag, JobName, Username, obj, narginC )
 if StopFlag == 1
-    if( nargin>=4 && ~isempty(JobName) && ~isempty(Username) )
+    
+    switch JobParam.sim_type,
+        case {'uncoded', 'coded'},
+    if( narginC >=4 && ~isempty(JobName) && ~isempty(Username) )
         StopMsg = sprintf( ['\n\nRunning job %s for user %s is STOPPED completely because enough trials and/or ',...
             'frame errors are observed for ALL SNR points.\n\n'], JobName(1:end-4), Username );
         StopMsg
         PrintOut(StopMsg, 0, obj.JobManagerParam.LogFileName);
+    end
+    
+        case {'exit'},
+        if( narginC>=4 && ~isempty(JobName) && ~isempty(Username) )
+        StopMsg = sprintf( ['\n\nRunning job %s for user %s is STOPPED completely because enough trials',...
+        ' are observed for ALL SNR points.\n\n'], JobName(1:end-4), Username );
+        PrintOut(StopMsg, 0, obj.JobManagerParam.LogFileName);        
+        end
     end
 end
 end
@@ -104,13 +134,13 @@ end
 
 
 function JobParam = SaveProgress( ActiveSNRPoints, RemainingTrials, JobState, JobName, Username, obj, JobParam, ...
-    narginP, JobRunningDir)
+    narginC, JobRunningDir)
 % Determine and echo progress of running JobName.
 RemainingTJob = sum( (ActiveSNRPoints==1) .* RemainingTrials );
 CompletedTJob = sum( JobState.trials(end,:) );
 % RemainingFEJob = sum( (ActiveSNRPoints==1) .* RemainingFrameErrors );
 % CompletedFEJob = sum( JobState.frame_errors(end,:) );
-if( nargin>=4 && ~isempty(JobName) && ~isempty(Username) )
+if( narginC >=4 && ~isempty(JobName) && ~isempty(Username) )
     MsgStr = sprintf( ' for JOB %s USER %s', JobName(1:end-4), Username );
 else
     MsgStr = ' ';
@@ -121,9 +151,8 @@ PrintOut(['\n\n', msgStatus, '\n\n'], 0, obj.JobManagerParam.LogFileName);
 msgResults = sprintf( 'SNR Points Completed=%.2f\n', JobParam.SNR(ActiveSNRPoints==0) );
 
 
-
 % Save simulation progress in STATUS file. Update Results file.
-if( narginP>=4 && ~isempty(JobName) && ~isempty(JobRunningDir) )
+if( narginC>=4 && ~isempty(JobName) && ~isempty(JobRunningDir) )
     msgStatusFile = sprintf( '%2.2f%% of Trials Completed.', 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
     % SuccessFlagStatus = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
     obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
