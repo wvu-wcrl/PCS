@@ -16,14 +16,25 @@ end
 
 
 function JobParam = SetTaskStoppingConditions( JobParam, JobState, NumNewTasks )
-JobParam.max_frame_errors = JobParam.max_frame_errors - JobState.frame_errors(end,:);
-JobParam.max_frame_errors(JobParam.max_frame_errors<0) = 0;
-% JobParam.MaxBitErrors = JobParam.MaxBitErrors - JobState.BitErrors(end,:);
-% JobParam.MaxBitErrors(JobParam.MaxBitErrors<0) = 0;
-JobParam.max_trials = JobParam.max_trials - JobState.trials(end,:);
-JobParam.max_trials(JobParam.max_trials<0) = 0;
-
-JobParam.max_trials = ceil(JobParam.max_trials/NumNewTasks);
+switch JobParam.sim_type,
+    case {'uncoded', 'coded'},
+        
+        JobParam.max_frame_errors = JobParam.max_frame_errors - JobState.frame_errors(end,:);
+        JobParam.max_frame_errors(JobParam.max_frame_errors<0) = 0;
+        % JobParam.MaxBitErrors = JobParam.MaxBitErrors - JobState.BitErrors(end,:);
+        % JobParam.MaxBitErrors(JobParam.MaxBitErrors<0) = 0;
+        JobParam.max_trials = JobParam.max_trials - JobState.trials(end,:);
+        JobParam.max_trials(JobParam.max_trials<0) = 0;
+        
+        JobParam.max_trials = ceil(JobParam.max_trials/NumNewTasks);
+        
+    case {'exit'},
+        JobParam.max_trials = JobParam.max_trials - JobState.trials;
+        JobParam.max_trials(JobParam.max_trials<0) = 0;
+        
+        JobParam.max_trials = ceil(JobParam.max_trials/NumNewTasks);
+    otherwise
+end
 end
 
 
@@ -33,37 +44,63 @@ end
 
 
 function [ TaskInputParam ] = RandomlyPermuteSnrPoints( NumNewTasks, TaskInputParam, JobParam, JobState )
-[SNR max_trials max_frame_errors trials bit_errors frame_errors symbol_errors] =...
-  ShortenPermutingVariableNames( JobParam, JobState );
 
-for Task=1:NumNewTasks
-    
-    RandPos = randperm( length(SNR) );
-    
-    TaskInputParam(Task).JobState.RandPos = RandPos;
-    
-    TaskInputParam(Task).JobParam.SNR = SNR( RandPos );
-    
-    TaskInputParam(Task).JobParam.max_trials = max_trials( RandPos );
-    
-    TaskInputParam(Task).JobParam.max_frame_errors = max_frame_errors( RandPos );
-    
-    TaskInputParam(Task).JobState.trials = trials( :,RandPos );
-    
-    TaskInputParam(Task).JobState.bit_errors = bit_errors( :,RandPos );
-    
-    TaskInputParam(Task).JobState.frame_errors = frame_errors( :,RandPos );
-    
-    if ~strcmpi( JobState.sim_type, 'coded' )
-        TaskInputParam(Task).JobState.symbol_errors = symbol_errors( :,RandPos );
-    end
-    
+switch JobParam.sim_type,
+    case {'uncoded', 'coded'},
+        [SNR max_trials max_frame_errors trials bit_errors frame_errors symbol_errors] =...
+            ShortenERPermutingVariableNames( JobParam, JobState );
+        
+        for Task=1:NumNewTasks
+            
+            RandPos = randperm( length(SNR) );
+            
+            TaskInputParam(Task).JobState.RandPos = RandPos;
+            
+            TaskInputParam(Task).JobParam.SNR = SNR( RandPos );
+            
+            TaskInputParam(Task).JobParam.max_trials = max_trials( RandPos );
+            
+            TaskInputParam(Task).JobParam.max_frame_errors = max_frame_errors( RandPos );
+            
+            TaskInputParam(Task).JobState.trials = trials( :,RandPos );
+            
+            TaskInputParam(Task).JobState.bit_errors = bit_errors( :,RandPos );
+            
+            TaskInputParam(Task).JobState.frame_errors = frame_errors( :,RandPos );
+            
+            if ~strcmpi( JobState.sim_type, 'coded' )
+                TaskInputParam(Task).JobState.symbol_errors = symbol_errors( :,RandPos );
+            end
+        end
+        
+    case {'exit'},
+        
+        [ SNR max_trials trials IA_det_sum IE_det_sum ] =...
+            ShortenExitPermutingVariableNames( JobParam, JobState );
+        
+        for Task=1:NumNewTasks
+            
+            RandPos = randperm( length(SNR) );
+            
+            TaskInputParam(Task).JobState.RandPos = RandPos;
+            
+            TaskInputParam(Task).JobParam.SNR = SNR( RandPos );
+            
+            TaskInputParam(Task).JobParam.max_trials = max_trials( RandPos );
+            
+            TaskInputParam(Task).JobState.trials = trials( RandPos );
+            
+            TaskInputParam(Task).JobState.exit_state.IA_det_sum = IA_det_sum( :, RandPos );
+            
+            TaskInputParam(Task).JobState.exit_state.IE_det_sum = IE_det_sum( :, RandPos );
+            
+        end
 end
 end
 
 
 function [SNR max_trials max_frame_errors trials bit_errors frame_errors symbol_errors] =...
-      ShortenPermutingVariableNames( JobParam, JobState )
+      ShortenERPermutingVariableNames( JobParam, JobState )
 
 SNR = JobParam.SNR;
 max_trials = JobParam.max_trials;
@@ -79,6 +116,15 @@ end
 
 end
 
+
+function [ SNR max_trials trials IA_det_sum IE_det_sum] =...
+      ShortenExitPermutingVariableNames( JobParam, JobState )
+SNR = JobParam.SNR;
+max_trials = JobParam.max_trials;
+trials = JobState.trials;
+IA_det_sum = JobState.exit_state.IA_det_sum;
+IE_det_sum = JobState.exit_state.IE_det_sum;
+end
 
 
 

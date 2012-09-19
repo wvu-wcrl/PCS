@@ -37,7 +37,7 @@ classdef CmlJobManager < JobManager
                         
             JobState = JobStateIn;                                                                               % restore previous simulation state
             
-            %%%%%%% simulation specific parameters
+            %%%%%%% simulation specific parameters     %%%%%%%%%%% question
             JobState.mod_order = JobParam.mod_order;
             JobState.data_bits_per_frame = CodeParam.data_bits_per_frame;
             JobState.sim_type = JobParam.sim_type;
