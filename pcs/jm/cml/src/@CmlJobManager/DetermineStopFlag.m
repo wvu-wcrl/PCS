@@ -23,7 +23,7 @@ JobParam = SetMaxTrials( JobParam, JobState, ActiveSNRPoints ); %
 
 StopFlag = TestIfAllSnrsDone( ActiveSNRPoints );
 
-PrintJobStopMsg( StopFlag, JobName, Username, obj, nargin );
+PrintJobStopMsg( StopFlag, JobName, Username, obj, nargin, JobParam );
 
 JobParam = SaveProgress( ActiveSNRPoints, RemainingTrials, JobState, JobName, Username, obj, JobParam,...
     nargin, JobRunningDir);
@@ -109,7 +109,7 @@ StopFlag = ( sum(ActiveSNRPoints) == 0 );
 end
 
 
-function PrintJobStopMsg( StopFlag, JobName, Username, obj, narginC )
+function PrintJobStopMsg( StopFlag, JobName, Username, obj, narginC, JobParam )
 if StopFlag == 1
     
     switch JobParam.sim_type,
