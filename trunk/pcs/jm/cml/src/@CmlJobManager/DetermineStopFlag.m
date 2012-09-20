@@ -21,7 +21,7 @@ end
    
 JobParam = SetMaxTrials( JobParam, JobState, ActiveSNRPoints ); %
 
-StopFlag = TestIfAllSnrsDone( ActiveSNRPoints );
+StopFlag = TestIfAllSnrsDone( ActiveSNRPoints );  % if all done, enter stage 2
 
 PrintJobStopMsg( StopFlag, JobName, Username, obj, nargin, JobParam );
 
@@ -49,6 +49,7 @@ RemainingFrameErrors = JobParam.max_frame_errors - JobState.frame_errors(end,:);
 RemainingFrameErrors(RemainingFrameErrors<0) = 0;   % Force to zero if negative.
     
     case {'exit'},
+    case JobState.com
         RemainingTrials = JobParam.max_trials - JobState.trials;
         RemainingTrials(RemainingTrials<0) = 0;
         RemainingFrameErrors = 0;  %%%% refactor - replace output args with varargout
@@ -114,14 +115,15 @@ if StopFlag == 1
     
     switch JobParam.sim_type,
         case {'uncoded', 'coded'},
-    if( narginC >=4 && ~isempty(JobName) && ~isempty(Username) )
+
+            if( narginC >=4 && ~isempty(JobName) && ~isempty(Username) )
         StopMsg = sprintf( ['\n\nRunning job %s for user %s is STOPPED completely because enough trials and/or ',...
             'frame errors are observed for ALL SNR points.\n\n'], JobName(1:end-4), Username );
         StopMsg
         PrintOut(StopMsg, 0, obj.JobManagerParam.LogFileName);
     end
     
-        case {'exit'},
+        case{'exit'},
         if( narginC>=4 && ~isempty(JobName) && ~isempty(Username) )
         StopMsg = sprintf( ['\n\nRunning job %s for user %s is STOPPED completely because enough trials',...
         ' are observed for ALL SNR points.\n\n'], JobName(1:end-4), Username );

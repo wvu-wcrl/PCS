@@ -21,6 +21,8 @@ switch JobState.sim_type,
         
     case{'exit'},
         JobState = UpdateExitStats(JobState, TaskState);
+            case 1,
+                JobS
         
 end
 end
@@ -34,8 +36,18 @@ switch JobState.sim_type,
         TaskState.bit_errors(:,TaskState.RandPos) = TaskState.bit_errors;
         TaskState.frame_errors(:,TaskState.RandPos) = TaskState.frame_errors;
     case{'exit'},
-        TaskState.exit_state.IA_det_sum(:,TaskState.RandPos) = TaskState.exit_state.IA_det_sum(:,TaskState.RandPos);
-        TaskState.exit_state.IE_det_sum(:,TaskState.RandPos) = TaskState.exit_state.IE_det_sum(:,TaskState.RandPos);
+        
+        switch JobState.compute_final_exit_metrics,
+            case 0,
+                % round 1
+                TaskState.exit_state.IA_det_sum(:,TaskState.RandPos) = TaskState.exit_state.IA_det_sum;
+                TaskState.exit_state.IE_det_sum(:,TaskState.RandPos) = TaskState.exit_state.IE_det_sum;                
+            case 1,
+                 JobState.exit_state.IA_cnd(:,TaskState.RandPos)  = JobState.exit_state.IA_cnd;
+                 JobState.exit_state.IE_cnd(:,TaskState.RandPos)  = JobState.exit_state.IE_cnd;
+                   JobState.exit_state.I_E_det(:,TaskState.RandPos) = JobState.exit_state.I_E_det;
+                   JobState.exit_state.I_A_det(:,TaskState.RandPos) = JobState.exit_state.I_A_det;
+        end        
 end
 end
 
@@ -63,9 +75,20 @@ end
 
 
 function JobState = UpdateExitStats(JobState, TaskState)
-JobState.trials = JobState.trials      + TaskState.trials;    % update trials
-JobState.exit_state.IA_det_sum = JobState.exit_state.IA_det_sum +...
-    TaskState.exit_state.IA_det_sum;
-JobState.exit_state.IE_det_sum = JobState.exit_state.IE_det_sum +...
-    TaskState.exit_state.IE_det_sum;
+
+switch JobState.compute_final_exit_metrics,
+    case 0,
+        JobState.trials = JobState.trials      + TaskState.trials;    % update trials
+        JobState.exit_state.IA_det_sum = JobState.exit_state.IA_det_sum +...
+            TaskState.exit_state.IA_det_sum;
+        JobState.exit_state.IE_det_sum = JobState.exit_state.IE_det_sum +...
+            TaskState.exit_state.IE_det_sum;
+    case 1,
+        JobState.trials = JobState.trials      + TaskState.trials;    % update trials
+        JobState.exit_state.IA_cnd = JobState.exit_state.IA_cnd + TaskState.exit_state.IA_cnd;
+        JobState.exit_state.IE_cnd = JobState.exit_state.IE_cnd + TaskState.exit_state.IE_cnd;
+        JobState.exit_state.I_E_det = JobState.exit_state.I_E_det + TaskState.exit_state.I_E_det;
+        JobState.exit_state.I_A_det = JobState.exit_state.I_A_det + TaskState.exit_state.I_A_det;
+        %%% make sure not double-counted
+end
 end
