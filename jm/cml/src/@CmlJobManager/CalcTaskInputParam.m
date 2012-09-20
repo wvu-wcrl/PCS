@@ -29,10 +29,12 @@ switch JobParam.sim_type,
         JobParam.max_trials = ceil(JobParam.max_trials/NumNewTasks);
         
     case {'exit'},
+        % round 1
         JobParam.max_trials = JobParam.max_trials - JobState.trials;
         JobParam.max_trials(JobParam.max_trials<0) = 0;
         
         JobParam.max_trials = ceil(JobParam.max_trials/NumNewTasks);
+        % round 2
     otherwise
 end
 end
