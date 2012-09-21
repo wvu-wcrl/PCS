@@ -28,13 +28,14 @@ switch JobParam.sim_type,
         
         JobParam.max_trials = ceil(JobParam.max_trials/NumNewTasks);
         
-    case {'exit'},
-        % round 1
-        JobParam.max_trials = JobParam.max_trials - JobState.trials;
-        JobParam.max_trials(JobParam.max_trials<0) = 0;
-        
-        JobParam.max_trials = ceil(JobParam.max_trials/NumNewTasks);
-        % round 2
+    case {'exit'},        
+        switch JobState.compute_final_exit_metrics,
+            case 0,                
+                JobParam.max_trials = JobParam.max_trials - JobState.trials;
+                JobParam.max_trials(JobParam.max_trials<0) = 0;                
+                JobParam.max_trials = ceil(JobParam.max_trials/NumNewTasks);                
+            case 1,
+        end
     otherwise
 end
 end
@@ -77,7 +78,7 @@ switch JobParam.sim_type,
         
     case {'exit'},
         
-        [ SNR max_trials trials IA_det_sum IE_det_sum ] =...
+        [ SNR max_trials trials IA_det_sum IE_det_sum IE_vnd IE_cnd IA_cnd I_A_det I_E_det ] =...
             ShortenExitPermutingVariableNames( JobParam, JobState );
         
         for Task=1:NumNewTasks
@@ -93,9 +94,14 @@ switch JobParam.sim_type,
             TaskInputParam(Task).JobState.trials = trials( RandPos );
             
             TaskInputParam(Task).JobState.exit_state.IA_det_sum = IA_det_sum( :, RandPos );
-            
             TaskInputParam(Task).JobState.exit_state.IE_det_sum = IE_det_sum( :, RandPos );
-            
+            TaskInputParam(Task).JobState.exit_state.IE_vnd = IE_vnd( :, RandPos );
+            TaskInputParam(Task).JobState.exit_state.IE_cnd = IE_cnd( :, RandPos );
+            TaskInputParam(Task).JobState.exit_state.IA_cnd = IA_cnd( :, RandPos );
+            TaskInputParam(Task).JobState.exit_state.I_A_det = I_A_det( :, RandPos );
+            TaskInputParam(Task).JobState.exit_state.I_E_det = I_E_det( :, RandPos );
+                
+               
         end
 end
 end
@@ -119,13 +125,19 @@ end
 end
 
 
-function [ SNR max_trials trials IA_det_sum IE_det_sum] =...
+function [ SNR max_trials trials IA_det_sum IE_det_sum IE_vnd IE_cnd IA_cnd I_A_det I_E_det] =...
       ShortenExitPermutingVariableNames( JobParam, JobState )
 SNR = JobParam.SNR;
 max_trials = JobParam.max_trials;
 trials = JobState.trials;
 IA_det_sum = JobState.exit_state.IA_det_sum;
 IE_det_sum = JobState.exit_state.IE_det_sum;
+IE_vnd = JobState.exit_state.IE_vnd;
+IE_cnd = JobState.exit_state.IE_cnd;
+IA_cnd = JobState.exit_state.IA_cnd;
+I_A_det = JobState.exit_state.I_A_det;
+I_E_det = JobState.exit_state.I_E_det;
+
 end
 
 
