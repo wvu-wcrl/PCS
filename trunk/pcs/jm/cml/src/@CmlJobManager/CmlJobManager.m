@@ -44,7 +44,7 @@ classdef CmlJobManager < JobManager
             JobState.symbols_per_frame = CodeParam.symbols_per_frame;
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
-            switch JobParam.sim_param,
+            switch JobParam.sim_type,
                 case{'exit'},
                     AllTrialsRun = sum(JobStateIn.trials < JobParamIn.max_trials) ==0,
                     if AllTrialsRun,

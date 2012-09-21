@@ -21,8 +21,6 @@ switch JobState.sim_type,
         
     case{'exit'},
         JobState = UpdateExitStats(JobState, TaskState);
-            case 1,
-                JobS
         
 end
 end
@@ -43,10 +41,16 @@ switch JobState.sim_type,
                 TaskState.exit_state.IA_det_sum(:,TaskState.RandPos) = TaskState.exit_state.IA_det_sum;
                 TaskState.exit_state.IE_det_sum(:,TaskState.RandPos) = TaskState.exit_state.IE_det_sum;                
             case 1,
-                 JobState.exit_state.IA_cnd(:,TaskState.RandPos)  = JobState.exit_state.IA_cnd;
-                 JobState.exit_state.IE_cnd(:,TaskState.RandPos)  = JobState.exit_state.IE_cnd;
-                   JobState.exit_state.I_E_det(:,TaskState.RandPos) = JobState.exit_state.I_E_det;
-                   JobState.exit_state.I_A_det(:,TaskState.RandPos) = JobState.exit_state.I_A_det;
+                TaskState.exit_state.IE_vnd(:,TaskState.RandPos)  = TaskState.exit_state.IE_vnd;
+                TaskState.exit_state.IA_cnd(:,TaskState.RandPos)  = TaskState.exit_state.IA_cnd;
+                 TaskState.exit_state.IE_cnd(:,TaskState.RandPos)  = TaskState.exit_state.IE_cnd;
+                 TaskState.exit_state.I_E_det(:,TaskState.RandPos) = TaskState.exit_state.I_E_det;
+                   TaskState.exit_state.I_A_det(:,TaskState.RandPos) = TaskState.exit_state.I_A_det;
+                
+                 %JobState.exit_state.IA_cnd(:,TaskState.RandPos)  = JobState.exit_state.IA_cnd;
+                 %JobState.exit_state.IE_cnd(:,TaskState.RandPos)  = JobState.exit_state.IE_cnd;
+                 %  JobState.exit_state.I_E_det(:,TaskState.RandPos) = JobState.exit_state.I_E_det;
+                 %  JobState.exit_state.I_A_det(:,TaskState.RandPos) = JobState.exit_state.I_A_det;
         end        
 end
 end
@@ -84,11 +88,41 @@ switch JobState.compute_final_exit_metrics,
         JobState.exit_state.IE_det_sum = JobState.exit_state.IE_det_sum +...
             TaskState.exit_state.IE_det_sum;
     case 1,
-        JobState.trials = JobState.trials      + TaskState.trials;    % update trials
-        JobState.exit_state.IA_cnd = JobState.exit_state.IA_cnd + TaskState.exit_state.IA_cnd;
-        JobState.exit_state.IE_cnd = JobState.exit_state.IE_cnd + TaskState.exit_state.IE_cnd;
-        JobState.exit_state.I_E_det = JobState.exit_state.I_E_det + TaskState.exit_state.I_E_det;
-        JobState.exit_state.I_A_det = JobState.exit_state.I_A_det + TaskState.exit_state.I_A_det;
-        %%% make sure not double-counted
+        
+        %JobState.trials = JobState.trials      + TaskState.trials;    % update trials
+        %%% shorten names
+        IE_vnd_J = JobState.exit_state.IE_vnd;
+        IA_cnd_J = JobState.exit_state.IA_cnd;
+        IE_cnd_J = JobState.exit_state.IE_cnd;
+        I_E_det_J = JobState.exit_state.I_E_det;
+        I_A_det_J = JobState.exit_state.I_A_det;
+        
+        IE_vnd_T = TaskState.exit_state.IE_vnd;
+        IA_cnd_T = TaskState.exit_state.IA_cnd;
+        IE_cnd_T = TaskState.exit_state.IE_cnd;
+        I_E_det_T = TaskState.exit_state.I_E_det;
+        I_A_det_T = TaskState.exit_state.I_A_det;
+        
+        %%% combine
+        IE_vnd_J = combine_vectors( IE_vnd_J, IE_vnd_T );
+        IA_cnd_J = combine_vectors( IA_cnd_J, IA_cnd_T );
+        IE_cnd_J = combine_vectors( IE_cnd_J, IE_cnd_T );
+        I_E_det_J = combine_vectors( I_E_det_J, I_E_det_T );
+        I_A_det_J = combine_vectors( I_A_det_J, I_A_det_T );
+               
+        %%% assign to output structure
+        JobState.exit_state.IE_vnd = IE_vnd_J;
+        JobState.exit_state.IA_cnd = IA_cnd_J;
+        JobState.exit_state.IE_cnd = IE_cnd_J;
+        JobState.exit_state.I_E_det = I_E_det_J;
+        JobState.exit_state.I_A_det = I_A_det_J;       
 end
+end
+
+
+
+
+function vec_comb = combine_vectors(vec_1, vec_2)
+vec_comb = vec_1;
+vec_comb( ( vec_2 > 0 ) ) = vec_2( vec_2 > 0 );
 end
