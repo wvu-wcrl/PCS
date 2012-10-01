@@ -62,8 +62,8 @@ CML_JM=CmlJm  # CML job manager
 
 
 # configuration files                                                                                                                                  
-scfg='pcs_short_224.cfg'   # short queue                                                                                                               
-lcfg='pcs_long_224.cfg'    # long queue                                                                                                                
+scfg='pcs_short_384.cfg'   # short queue                                                                                                               
+lcfg='pcs_long_384.cfg'    # long queue                                                                                                                
 #####################                                                                                                                                  
 
 

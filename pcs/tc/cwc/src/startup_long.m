@@ -12,7 +12,7 @@ addpath(pwd);
 
 
 
-cfg_file = 'pcs_long_224.cfg';
+cfg_file = 'pcs_long_384.cfg';
 
 cd(rootdir); cd ..; cd ..; cd cfg/;
 
