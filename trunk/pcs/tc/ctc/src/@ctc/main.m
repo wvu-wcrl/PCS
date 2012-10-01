@@ -431,7 +431,7 @@ cmd_str = ['sudo chown' ' ' ownership_name ':' ownership_group ' ' pgoq '/' outp
 
 cmd_str = ['sudo mv' ' ' pgoq '/'  output_task_filename ' ' puoq '/' on];  system(cmd_str); % move file to user output queue
 
-[ purq ] = get_path_user_running_queue( obj.users{m}.rq{1} );
+[ purq ] = get_path_user_running_queue( obj.users{user_ind}.rq{1} );
 
 clear_from_user_running_queue( on, purq );
 
