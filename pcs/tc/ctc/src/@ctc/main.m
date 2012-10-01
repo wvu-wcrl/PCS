@@ -27,9 +27,6 @@ IS_SHUTDOWN = strcmp(ss, 'shutdown');
 
 
 while(1) %enter primary loop
-    sprintf('hi')
-    
-    
     
     if IS_START || IS_RESUME
         
@@ -40,7 +37,6 @@ while(1) %enter primary loop
         
         
         place_user_input_in_queue(obj, users_srt, fl_srt);   % move input files to cluster input queue
-        
         
         calculate_active_workers(obj);                       % scan the global running queue and count the active workers for each user
     end
@@ -55,6 +51,7 @@ while(1) %enter primary loop
     
     
     
+    check_for_shutdown_request
     %%% get files in output and running queue %%
     pgoq = obj.gq.oq{1};
     srch = strcat(pgoq, '/*.mat');      % form full dir string
@@ -371,73 +368,152 @@ end
 
 function consume_output(obj)
 
+[fl nf] = get_files_in_output_queue(obj);
 
-%% get files in output queue %%
+for k = 1:nf,       % loop over all files in output queue
+    
+    [username location] = get_username_location_from_file( fl(k).name );
+        
+    [does_user_exist user_ind] = compare_to_active_users( username, location, obj.users );
+    
+    switch does_user_exist,
+        case 'yes',
+            consume_output_file(obj, fl(k).name, user_ind);
+        case 'no'
+            delete_output_file( obj, fl(k).name );
+    end
+        
+end
+
+end
+
+
+function [username location] = get_username_location_from_file( name );
+[username suffix] = strtok(name, '_');
+[location suffix] = strtok(suffix, '_');
+end
+
+
+function [does_user_exist user_ind] = compare_to_active_users( username, location, users )
+nu = get_number_users( obj.users );
+
+does_user_exist = 'no';
+user_ind = -1;
+
+for k = 1:nu,
+    cur_user = users{k}.username;
+    cur_location = users{k}.user_location;
+    
+    user_match = strcmp( cur_user, username );
+    loc_match = strcmp( cur_location, location );
+    
+    if user_match&loc_match,
+        does_user_exist = 'yes';
+        user_ind = k;
+    end
+    
+end
+
+end
+
+
+function consume_output_file(obj, output_task_filename, user_ind)
+
+[ownership_name ownership_group] = get_file_ownership( obj.users{user_ind}.username, obj.users{user_ind}.user_location );
+
+[on] = remove_username_from_filename( output_task_filename );
+
+[ puoq ] = get_path_user_output_queue( obj.users{user_ind}.oq{1});
+
+[ pgoq ] = get_path_global_output_queue( obj.gq.oq{1} );
+
+cmd_str = ['sudo chown' ' ' ownership_name ':' ownership_group ' ' pgoq '/' output_task_filename]; system(cmd_str);   % change ownership back to user
+
+cmd_str = ['sudo mv' ' ' pgoq '/'  output_task_filename ' ' puoq '/' on];  system(cmd_str); % move file to user output queue
+
+[ purq ] = get_path_user_running_queue( obj.users{m}.rq{1} );
+
+clear_from_user_running_queue( on, purq );
+
+end
+
+
+function delete_output_file( obj, output_task_filename )
+
+[ pgoq ] = get_path_global_output_queue( obj.gq.oq{1} );
+
+cmd_str = ['sudo rm' ' ' pgoq '/'  output_task_filename ];  system(cmd_str); % delete file from output queue
+
+end
+
+
+
+
+function [fl nf] = get_files_in_output_queue(obj)
+%%% get files in output queue %%%
 pgoq = obj.gq.oq{1};
 srch = strcat(pgoq, '/*.mat');      % form full dir string
 fl = dir( srch );    % get list of .mat files in output queue
 nf = length(fl);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-nu = length(obj.users);
-
-for k = 1:nf,
-    
-    for m = 1:nu,
-        
-        % names for file ownership
-        if( strcmp(obj.users{m}.user_location, 'web') )
-            ownership_name = 'tomcat55';
-            ownership_group = 'tomcatusers';
-        elseif( strcmp(obj.users{m}.user_location, 'local') )
-            ownership_name = obj.users{m}.username;           % shorten the name
-            ownership_group = obj.users{m}.username;
-        end
-        
-        
-        
-        %%%% form name string
-        % name for task ownership
-        % name = obj.users{m}.username;
-        un_loc = [obj.users{m}.username '_' obj.users{m}.user_location];      % shorter notation for this user, include location
-        len_un_loc = length(un_loc);
-        
-        
-        
-        if findstr( fl(k).name, un_loc )
-            
-            % remove username from filename         %%%%%%
-            %[beg on] = strtok(fl(k).name, '_'); on = on(2:end);    % cut the username off of the filename
-            on = fl(k).name(len_un_loc+2:end);
-            
-            puoq = obj.users{m}.oq{1};                             % path to user output queue
-            
-            
-            cmd_str = ['sudo chown' ' ' ownership_name ':' ownership_group ' ' pgoq '/' fl(k).name]; system(cmd_str);   % change ownership back to user
-            
-            
-            cmd_str = ['sudo mv' ' ' pgoq '/'  fl(k).name ' ' puoq '/' on];  system(cmd_str); % move file to user output queue
-            
-            purq = obj.users{m}.rq{1};
-            
-            
-            %%%%%%% functionalize %%%
-            % remove 'failed' from filename, if exists
-            if findstr( on, 'failed')
-                prefix = on(1:end-11);
-                suffix = '.mat';
-                on = [prefix suffix];
-            end
-            cmd_str = ['sudo rm' ' ' purq '/'  on]; system(cmd_str); % remove file from user running queue
-            %%%%%%%%%%%%%%%%%%%%%%%%%
-            
-            
-        end
-    end
 end
 
+
+function nu = get_number_users( users )
+nu = length(users);
 end
+
+
+function [ownership_name ownership_group] = get_file_ownership( username, user_location )
+if( strcmp( user_location, 'web') )
+    ownership_name = 'tomcat55';
+    ownership_group = 'tomcatusers';
+elseif( strcmp( user_location, 'local') )
+    ownership_name = username;           % shorten the name
+    ownership_group = username;
+end
+end
+
+
+function [usnm_loc len_usnm_loc] = form_name_location( obj.users{m}.username, obj.users{m}.user_location )
+usnm_loc = [obj.users{m}.username '_' obj.users{m}.user_location];      % shorter notation for this user, include location
+len_usnm_loc = length(usnm_loc);
+end
+
+
+function [on] = remove_username_loc_from_filename( name )
+[username suffix] = strtok(name, '_');
+[location suffix] = strtok(suffix, '_');
+
+on = suffix(2:end);
+end
+
+
+function puoq = get_path_user_output_queue( oq )
+puoq = oq;
+end
+
+
+function purq = get_path_user_running_queue( oq )
+purq = oq;
+end
+
+function [ pgoq ] = get_path_global_output_queue( oq )
+pgoq = oq;
+end
+
+
+function clear_from_user_running_queue( on, purq )
+
+if findstr( on, 'failed')
+    prefix = on(1:end-11);
+    suffix = '.mat';
+    on = [prefix suffix];
+end
+cmd_str = ['sudo rm' ' ' purq '/'  on]; system(cmd_str); % remove file from user running queue
+
+end
+
 
 
 
