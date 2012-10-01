@@ -421,7 +421,7 @@ function consume_output_file(obj, output_task_filename, user_ind)
 
 [ownership_name ownership_group] = get_file_ownership( obj.users{user_ind}.username, obj.users{user_ind}.user_location );
 
-[on] = remove_username_from_filename( output_task_filename );
+[on] = remove_username_loc_from_filename( output_task_filename );
 
 [ puoq ] = get_path_user_output_queue( obj.users{user_ind}.oq{1});
 
