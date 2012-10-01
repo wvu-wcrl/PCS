@@ -51,7 +51,7 @@ while(1) %enter primary loop
     
     
     
-    check_for_shutdown_request
+    
     %%% get files in output and running queue %%
     pgoq = obj.gq.oq{1};
     srch = strcat(pgoq, '/*.mat');      % form full dir string
