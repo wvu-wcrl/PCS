@@ -14,7 +14,7 @@ addpath(pwd);
 
 
 
-cfg_file = 'pcs_short_224.cfg';
+cfg_file = 'pcs_short_384.cfg';
 
 cd(rootdir); cd ..; cd ..; cd cfg/;
 
