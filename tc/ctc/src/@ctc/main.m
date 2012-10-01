@@ -475,12 +475,6 @@ end
 end
 
 
-function [usnm_loc len_usnm_loc] = form_name_location( obj.users{m}.username, obj.users{m}.user_location )
-usnm_loc = [obj.users{m}.username '_' obj.users{m}.user_location];      % shorter notation for this user, include location
-len_usnm_loc = length(usnm_loc);
-end
-
-
 function [on] = remove_username_loc_from_filename( name )
 [username suffix] = strtok(name, '_');
 [location suffix] = strtok(suffix, '_');
