@@ -374,7 +374,7 @@ for k = 1:nf,       % loop over all files in output queue
     
     [username location] = get_username_location_from_file( fl(k).name );
         
-    [does_user_exist user_ind] = compare_to_active_users( username, location, obj.users );
+    [does_user_exist user_ind] = compare_to_active_users( obj, username, location, obj.users );
     
     switch does_user_exist,
         case 'yes',
@@ -394,7 +394,7 @@ function [username location] = get_username_location_from_file( name );
 end
 
 
-function [does_user_exist user_ind] = compare_to_active_users( username, location, users )
+function [does_user_exist user_ind] = compare_to_active_users( obj, username, location, users )
 nu = get_number_users( obj.users );
 
 does_user_exist = 'no';
