@@ -69,8 +69,6 @@ PrintOut(msg, IS_NOT_VERBOSE, STDOUT, APPEND_TIME);
 
 
 
-
-
 %%% initialize logging information %%%
 tic;   % start logging timer
 nlog = 0; % intialize log count
