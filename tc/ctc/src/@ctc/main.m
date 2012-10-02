@@ -14,43 +14,32 @@
 %     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
 %     For full copyright information see the bottom of this file.
 
-
 function main(obj, ss)
 
-
 nu = length(obj.users);           % number of users
-
 
 IS_START = strcmp(ss, 'start');
 IS_RESUME = strcmp(ss, 'resume');
 IS_SHUTDOWN = strcmp(ss, 'shutdown');
 
-
+tic;  % start timer to update user list
 while(1) %enter primary loop
     
     if IS_START || IS_RESUME
-        
         [au fl] = scan_user_inputs(obj);                     % scan user input directories for new .mat inputs
-        
-        
+       
         [users_srt fl_srt] = schedule(obj, au, fl);          % decide which user to service
-        
         
         place_user_input_in_queue(obj, users_srt, fl_srt);   % move input files to cluster input queue
         
         calculate_active_workers(obj);                       % scan the global running queue and count the active workers for each user
     end
     
-    
-    
     if IS_START || IS_RESUME || IS_SHUTDOWN
         consume_output(obj);                                 % scan global output queue and place completed work in user output directory
     end
     
     pause(5);                                            % pause for 5 seconds before making another pass
-    
-    
-    
     
     %%% get files in output and running queue %%
     pgoq = obj.gq.oq{1};
@@ -65,24 +54,24 @@ while(1) %enter primary loop
     
     Q_EMPTY = (nfoq == 0)&&(nfrq == 0);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    
+     
     % if no files are left in the output queue and the tc is in shutdown mode, break out of the loop
     if IS_SHUTDOWN && Q_EMPTY
         break;
     end
     
+    
+    if toc > 20,  % check for new users after 2 minutes
+    init_users(); 
+        
+    obj.users
+    length(obj.users)
+    tic;
+    end
+    
 end
 
-
 end
-
-
-
-
-
-
-
 
 
 function [au fl] = scan_user_inputs(obj)
