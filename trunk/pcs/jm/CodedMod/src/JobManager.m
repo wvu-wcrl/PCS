@@ -26,69 +26,6 @@ classdef JobManager < handle
         end
         
         
-        function out = fp(FullFileName, heading, key)
-            % General-Purpose File Parser.
-            %
-            % Version 1, 10/27/2011, Terry Ferrett.
-            % Version 2, 01/07/2012, Mohammad Fanaei.
-            %
-            % Function Steps:
-            % 1. Open the file specified by FullFileName.
-            % 2. Seek to 'heading'.
-            % 3. For the ONLY field denoted by 'key', read value into 'out' as a string.
-            % 4. Close the file.
-            
-            fid = fopen(FullFileName);
-            
-            str_in = fgetl(fid);
-            empty_file = isnumeric(str_in);
-            
-            % Scan for heading.
-            while( ~empty_file )
-                switch str_in
-                    case heading
-                        break;
-                    otherwise
-                        str_in = fgetl(fid);
-                        empty_file = isnumeric(str_in);
-                end
-            end
-            
-            str_in = fgetl(fid);
-            empty_file = isnumeric(str_in);
-            
-            % Scan for key value.
-            while( ~empty_file )
-                if( ~isempty(str_in) && str_in(1) ~= '%' )
-                    Ind = strfind(str_in, '=');
-                    l_key = strtrim( str_in(1:Ind-1) );
-                    l_val = strtrim( str_in(Ind+1:end) );
-                    Ind_lVal = strfind(l_val, ';');
-                    if ~isempty(Ind_lVal), l_val = l_val(1:Ind_lVal-1); end
-                    
-                    switch l_key
-                        case key
-                            out = l_val;
-                            break;
-                        otherwise
-                            if( ~isempty(l_key) )
-                                if( l_key(1) == '[' )
-                                    break;
-                                end
-                            end
-                    end
-                end
-                str_in = fgetl(fid);
-                empty_file = isnumeric(str_in);
-            end
-            fclose(fid);
-            
-            % If no matching keys were found, assign out to null.
-            out_flag = strcmp( 'out', who('out') );
-            if isempty(out_flag), out = []; end
-        end
-        
-        
         function [JobInDir, JobRunningDir, JobOutDir, TempDir] = SetPaths(JobQueueRoot)
             % Build required directories under user's JobQueueRoot.
             JobInDir = fullfile(JobQueueRoot,'JobIn');
@@ -529,7 +466,7 @@ classdef JobManager < handle
                             end
                             
                             Msg = sprintf( '\n\n\nSweeping JobIn, JobRunning, and TaskOut directories of user %s is finished at %s.\n\n\n',...
-					   Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+                                Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
                             PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                             % Wait briefly before looping for the next active user.
                             pause( CurrentUser.PauseTime );
@@ -590,8 +527,6 @@ classdef JobManager < handle
                     if ispc, out = input('\nWhat is the FULL path to the HOME ROOT in which the Job Manager should look for system USERS?\n\n','s');
                     else out = [filesep 'home'];
                     end
-                else
-                    out = out;
                 end
                 JobManagerParam.HomeRoot = out;
                 
@@ -605,28 +540,24 @@ classdef JobManager < handle
                     else
                         out = fullfile(JobManagerParam.HomeRoot,'pcs','jm',JobManagerParam.ProjectName,'Temp');
                     end
-                else
-                    out = out;
                 end
                 JobManagerParam.TempJMDir = out;
                 
                 % Read period by which the job manager looks for newly-added users to the system.
                 out = util.fp(cfgFullFile, heading1, 'Check4NewUserPeriod'); out = out{1}{1};
                 if( isempty(out) ), out = '50'; end
-                JobManagerParam.Check4NewUserPeriod = str2num(out);
+                JobManagerParam.Check4NewUserPeriod = str2double(out);
                 
                 % Read job manager's pause time to wait before looking for new users when there is no active user in the system.
                 out = util.fp(cfgFullFile, heading1, 'JMPause'); out = out{1}{1};
                 if( isempty(out) ), out = '60'; end
-                JobManagerParam.JMPause = str2num(out);
+                JobManagerParam.JMPause = str2double(out);
                 
                 % Read name of configuration file for each user, which stores location of JOB queues for each project (among other information).
                 out = util.fp(cfgFullFile, heading1, 'UserCfgFilename'); out = out{1}{1};
                 if( isempty(out) )
                     out = input(['\nWhat is the name of CONFIGURATION file for USERs?\n%',...
                         'The job manager looks for this file in the users home directories to find active users.\nExam%ple: <ProjectName>_cfg\n\n'],'s');
-                else
-                    out = out;
                 end
                 JobManagerParam.UserCfgFilename = out;
                 
@@ -634,17 +565,17 @@ classdef JobManager < handle
                 heading2 = '[LogSpec]';
                 
                 % Read job manager's log filename.
-			out = util.fp(cfgFullFile, heading2, 'LogFileName'); out = out{1}{1};
+                out = util.fp(cfgFullFile, heading2, 'LogFileName'); out = out{1}{1};
                 if( isempty(out) ), out = '0'; end
-		if strcmp(out, '0'), out = str2double(out); end
+                if strcmp(out, '0'), out = str2double(out); end
                 JobManagerParam.LogFileName = out;
                 
                 % Read verbose/quiet mode of intermediate message logging.
                 % If vqFlag=0 (verbose mode), all detailed intermediate messages are printed out.
                 % If vqFlag=1 (quiet mode), just important intermediate messages are printed out.
-						 out = util.fp(cfgFullFile, heading2, 'vqFlag'); out = out{1}{1};
+                out = util.fp(cfgFullFile, heading2, 'vqFlag'); out = out{1}{1};
                 if( isempty(out) ), out = '0'; end
-                JobManagerParam.vqFlag = str2num(out);
+                JobManagerParam.vqFlag = str2double(out);
                 
                 
                 heading3 = '[eTimeTrialSpec]';
@@ -652,7 +583,7 @@ classdef JobManager < handle
                 % Read maximum number of recent trial numbers and processing times of each worker node saved for billing purposes.
                 out = util.fp(cfgFullFile, heading3, 'MaxRecentTaskInfo'); out = out{1}{1};
                 if( isempty(out) ), out = '5'; end
-                JobManagerParam.MaxRecentTaskInfo = str2num(out);
+                JobManagerParam.MaxRecentTaskInfo = str2double(out);
             else
                 if( ~isfield(JobManagerParam,'ProjectName') || isempty(JobManagerParam.ProjectName) )
                     JobManagerParam.ProjectName = input('\nWhat is the name of the current project for which this Job Manager is running?\n\n','s');
@@ -694,8 +625,8 @@ classdef JobManager < handle
             % Named constants.
             HomeRoot = obj.JobManagerParam.HomeRoot;
             if( ~isfield(obj.JobManagerParam,'UserCfgFilename') || isempty(obj.JobManagerParam.UserCfgFilename) )
-                obj.JobManagerParam.UserCfgFilename = input(['\nWhat is the name of CONFIGURATION file for USERs?\n%',...
-                    'The job manager looks for this file in the users home directories to find active users.\nExam%ple: <ProjectName>_cfg\n\n'],'s');
+                obj.JobManagerParam.UserCfgFilename = input(['\nWhat is the name of CONFIGURATION file for USERs?\n',...
+                    'The job manager looks for this file in the users home directories to find active users.\nExample: <ProjectName>_cfg\n\n'],'s');
             end
             CFG_Filename = obj.JobManagerParam.UserCfgFilename;
             
@@ -746,7 +677,7 @@ classdef JobManager < handle
                     UserList{UserCount}.CodeRoot = out;
                     
                     % Read name and FULL path to user's job queue root directory. JobIn, JobRunning, and JobOut directories are under this full path.
-	      out = util.fp(cfgFile, heading1, 'JobQueueRoot'); out = out{1}{1};
+                    out = util.fp(cfgFile, heading1, 'JobQueueRoot'); out = out{1}{1};
                     % out = cell2mat([out{:}]);
                     if isempty(out)
                         out = fullfile(UserPath,'Projects',obj.JobManagerParam.ProjectName);
@@ -757,7 +688,7 @@ classdef JobManager < handle
                     UserList{UserCount}.JobQueueRoot = out;
                     
                     % Read name and FULL path to user's task directory. TaskIn and TaskOut directories are under this path.
-			% out = util.fp(cfgFile, heading1, 'TasksRoot'); out = out{1}{1};
+                    % out = util.fp(cfgFile, heading1, 'TasksRoot'); out = out{1}{1};
                     % out = cell2mat([out{:}]);
                     % if isempty(out)
                     %     out = fullfile(UserPath,'Tasks');
@@ -767,17 +698,16 @@ classdef JobManager < handle
                     % UserList{UserCount}.TasksRoot = out;
                     
                     TaskCfgFileName = 'ctc_cfg';
-out = util.fp( fullfile(UserPath,TaskCfgFileName), '[paths]', 'input' ); out = out{1}{1};
+                    out = util.fp( fullfile(UserPath,TaskCfgFileName), '[paths]', 'input' ); out = out{1}{1};
                     UserList{UserCount}.TaskInDir = out;
-out = util.fp( fullfile(UserPath,TaskCfgFileName), '[paths]', 'output' ); out = out{1}{1};
+                    out = util.fp( fullfile(UserPath,TaskCfgFileName), '[paths]', 'output' ); out = out{1}{1};
                     UserList{UserCount}.TaskOutDir = out;
                     
                     % Read name and full path of function to be executed for running each task.
                     out = util.fp(cfgFile, heading1, 'FunctionName'); out = out{1}{1};
                     UserList{UserCount}.FunctionName = out;
                     
-out = util.fp(cfgFile, heading1, 'FunctionPath'); out = out{1}{1};
-out
+                    out = util.fp(cfgFile, heading1, 'FunctionPath'); out = out{1}{1};
                     UserList{UserCount}.FunctionPath = out;
                     
                     
@@ -786,27 +716,27 @@ out
                     % Read maximum number of input tasks in TaskIn queue/directory.
                     out = util.fp(cfgFile, heading2, 'MaxInputTasks'); out = out{1}{1};
                     if( isempty(out) ), out = '1000'; end
-                    UserList{UserCount}.MaxInputTasks = str2num(out);
+                    UserList{UserCount}.MaxInputTasks = str2double(out);
                     
                     % Read the number of input tasks in TaskIn queue/directory beyond which generation of new tasks is slowed down until it reaches the maximum of MaxInputTasks.
                     out = util.fp(cfgFile, heading2, 'TaskGenDecelerate'); out = out{1}{1};
                     if( isempty(out) ), out = '750'; end
-                    UserList{UserCount}.TaskGenDecelerate = str2num(out);
+                    UserList{UserCount}.TaskGenDecelerate = str2double(out);
                     
                     % Read maximum number of input tasks to be submitted to TaskIn at a time/each step.
                     out = util.fp(cfgFile, heading2, 'MaxTaskGenStep'); out = out{1}{1};
                     if( isempty(out) ), out = '60'; end
-                    UserList{UserCount}.MaxTaskGenStep = str2num(out);
+                    UserList{UserCount}.MaxTaskGenStep = str2double(out);
                     
                     % Read number of new input tasks saved in temporary directory (TempJMDir) that should be moved to TaskIn directory of user at a time.
                     out = util.fp(cfgFile, heading2, 'TaskInFlushRate'); out = out{1}{1};
                     if( isempty(out) ), out = '10'; end
-                    UserList{UserCount}.TaskInFlushRate = str2num(out);
+                    UserList{UserCount}.TaskInFlushRate = str2double(out);
                     
                     % Read maximum number of parallel jobs running at a time.
                     out = util.fp(cfgFile, heading2, 'MaxRunningJobs'); out = out{1}{1};
                     if( isempty(out) ), out = '3'; end
-                    UserList{UserCount}.MaxRunningJobs = str2num(out);
+                    UserList{UserCount}.MaxRunningJobs = str2double(out);
                     
                     
                     heading3 = '[RunTimeSpec]';
@@ -814,17 +744,17 @@ out
                     % Read quick initial running time of each task to quickly get initial results back.
                     out = util.fp(cfgFile, heading3, 'InitialRunTime'); out = out{1}{1};
                     if( isempty(out) ), out = '60'; end
-                    UserList{UserCount}.InitialRunTime = str2num(out);
+                    UserList{UserCount}.InitialRunTime = str2double(out);
                     
                     % Read longer running time of each task in the long term.
                     out = util.fp(cfgFile, heading3, 'MaxRunTime'); out = out{1}{1};
                     if( isempty(out) ), out = '300'; end
-                    UserList{UserCount}.MaxRunTime = str2num(out);
+                    UserList{UserCount}.MaxRunTime = str2double(out);
                     
                     % Read pause time to wait between task submissions and flow control.
                     out = util.fp(cfgFile, heading3, 'PauseTime'); out = out{1}{1};
                     if( isempty(out) ), out = '0.1'; end
-                    UserList{UserCount}.PauseTime = str2num(out);
+                    UserList{UserCount}.PauseTime = str2double(out);
                     
                     % Reset the task ID counter.
                     UserList{UserCount}.TaskID = 0;

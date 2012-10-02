@@ -4,7 +4,7 @@
 ProjectName = cml
 
 % Root directory in which the job manager looks for users of the system.
-% HomeRoot = pwd;
+% HomeRoot = pwd
 HomeRoot = /home
 % HomeRoot = /home/web_users
 % HomeRoot = C:\Users\Mohammad Fanaei\Desktop\Dropbox\CMLProject\ACT\TestJobManager
@@ -27,7 +27,7 @@ UserCfgFilename = cml_cfg
 [LogSpec]
 
 % Job manager log filename.
-% LogFileName = [filesep 'home' filesep 'pcs' filesep 'jm' filesep 'cml' filesep 'log' filesep 'Cml-JMLog.log'];
+% LogFileName = [filesep 'home' filesep 'pcs' filesep 'jm' filesep 'cml' filesep 'log' filesep 'Cml-JMLog.log']
 LogFileName = 0
 
 % Verbose/quiet mode of intermediate message logging.
