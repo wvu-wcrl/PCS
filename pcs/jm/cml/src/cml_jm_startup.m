@@ -2,50 +2,35 @@
 % Startup script for CML job manager.
 %
 % Inputs
-%  cfg_file         full path to task controlelr configuration file
-%  startup_type     task controller startup mode taking one value from {start, stop, resume, shutdown}
-% 
+%  cfgFile          (Optional) Full path to task controlelr configuration file.
+%
 % Outputs
-%  ctcobj           task controller object
+%  CmlJMObj         CML job manager object.
 %
 %
 %     Last updated on 8/14/2012
 %
-%     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
+%     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti.
 %     For full copyright information see the bottom of this file.
 
 
 
-% startup script for task controller
-%
-%%%inputs
-%
-% cfg_file
-%  configuration file specifying task controller parameters
-%
-%
-% startup_type
-%  'startup' - clear global and user running queues
-%  'resume' - leave queues in existing state and start controllers
-%%%%%%%%%% 
+function CmlJMObj = cml_jm_startup(cfgFile)
 
-
-
-
-function cml_jm_obj = cml_jm_startup()
-
-
-   addpath( fullfile( filesep, 'home', 'pcs', 'util' ) );
-   addpath( fullfile( filesep, 'home', 'pcs', 'jm', 'CodedMod', 'src' ) );
-   addpath( fullfile( filesep, 'home', 'pcs', 'jm', 'cml', 'src' ) );
-   addpath( fullfile(filesep, 'home', 'pcs', 'util', 'log') );
-
-   JM = CmlJobManager( fullfile(filesep, 'home', 'pcs', 'jm', 'cml', 'cfg', 'CmlJobManager_cfg') );
-
-   JM.RunJobManager();
-
+if( nargin<1 || isempty(cfgFile) )
+    cfgFile = fullfile(filesep, 'home', 'pcs', 'jm', 'cml', 'cfg', 'CmlJobManager_cfg');
 end
 
+addpath( fullfile( filesep, 'home', 'pcs', 'util' ) );
+addpath( fullfile( filesep, 'home', 'pcs', 'jm', 'CodedMod', 'src' ) );
+addpath( fullfile( filesep, 'home', 'pcs', 'jm', 'cml', 'src' ) );
+addpath( fullfile( filesep, 'home', 'pcs', 'util', 'log') );
+
+CmlJMObj = CmlJobManager( cfgFile );
+
+CmlJMObj.RunJobManager();
+
+end
 
 
 

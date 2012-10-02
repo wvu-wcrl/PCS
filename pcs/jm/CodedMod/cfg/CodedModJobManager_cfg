@@ -1,38 +1,38 @@
 [GeneralSpec]
 
 % Name of the current project for which this job manager is running.
-ProjectName = 'CodedMod';
+ProjectName = CodedMod
 
 % Root directory in which the job manager looks for users of the system.
-% HomeRoot = pwd;
-% HomeRoot = '/home';
-HomeRoot = '/home/web_users';
+% HomeRoot = pwd
+% HomeRoot = /home
+HomeRoot = /home/web_users
 
 % Temporary directory in which the job manager saves intermediate files before moving them to their ultimate destination.
 % This folder solves the problem of write permissions in directories of users.
-TempJMDir = '/home/pcs/jm/CodedMod/Temp';
+TempJMDir = /home/pcs/jm/CodedMod/Temp
 
 % Period by which the job manager looks for newly-added users to the system.
 % After Check4NewUserPeriod times sweeping ALL JobIn, JobRunning, and TaskOut directories of ALL of the current ACTIVE users, the job managers looks to see if there are any newly-added users to the system.
-Check4NewUserPeriod = 50;
+Check4NewUserPeriod = 50
 
 % Job manager's pause time to wait before looking for new users when there is no active user in the system.
-JMPause = 60;
+JMPause = 60
 
 
 [LogSpec]
 
 % Job manager log filename.
-% LogFileName = [filesep 'home' filesep 'pcs' filesep 'jm' filesep 'CodedMod' filesep 'log' filesep 'CodedModJMLog.log'];
-LogFileName = 0;
+% LogFileName = [filesep 'home' filesep 'pcs' filesep 'jm' filesep 'CodedMod' filesep 'log' filesep 'CodedModJMLog.log']
+LogFileName = 0
 
 % Verbose/quiet mode of intermediate message logging.
 % If vqFlag=0 (verbose mode), all detailed intermediate messages are printed out.
 % If vqFlag=1 (quiet mode), just important intermediate  messages are printed out.
-vqFlag = 1;
+vqFlag = 1
 
 
 [eTimeTrialSpec]
 
 % Maximum number of recent trial numbers and processing times of each worker node saved for billing purposes.
-MaxRecentTaskInfo = 5;
+MaxRecentTaskInfo = 5
