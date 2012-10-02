@@ -88,7 +88,7 @@ end
         tmp.user_location = user_location;
         tmp.aw = 0;
        
-        obj.users{usr_cnt+cur_usr_cnt} = tmp;
+        obj.users{cur_usr_cnt} = tmp;
         cur_usr_cnt = cur_usr_cnt + 1;
 
     end
