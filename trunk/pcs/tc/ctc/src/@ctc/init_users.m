@@ -26,9 +26,6 @@ CFG_FILENAME = obj.ucfg;
 
 
 
-
-
-
 obj = scan_user_dirs(obj, CFG_FILENAME, HOME_ROOT);
 obj = scan_user_dirs(obj, CFG_FILENAME, WEB_ROOT);
 
@@ -44,11 +41,10 @@ function obj = scan_user_dirs(obj, CFG_FILENAME, USR_ROOT)
 usrdirs = dir(USR_ROOT);   % perform a directory listing in home to list users
 n = length(usrdirs);       % number of directories found
 
-
-usr_cnt = length(obj.users);
-
+%usr_cnt = length(obj.users);
 
 cur_usr_cnt = 1;
+obj.users = cell(1);
 
 for k = 1:n,
     
@@ -60,9 +56,6 @@ for k = 1:n,
         
         % add this user to active users
       users{cur_usr_cnt} = usrdirs( k ).name;
-
-
-
 
         % read input directory
         heading = '[paths]';
@@ -98,9 +91,6 @@ end
         obj.users{usr_cnt+cur_usr_cnt} = tmp;
         cur_usr_cnt = cur_usr_cnt + 1;
 
-%obj.users
-%pause
- 
     end
     
 end

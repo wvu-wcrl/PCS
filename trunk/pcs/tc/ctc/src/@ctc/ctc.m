@@ -76,8 +76,7 @@ classdef ctc < handle
 	function obj = ctc(cfp, ss) % ctc constructor
             
    IS_STOP = strcmp(ss, 'stop');  % if the controller is stopping, do not enter main loop
-            
- 
+             
    
             % get config file path
             obj.cfp = cfp;
