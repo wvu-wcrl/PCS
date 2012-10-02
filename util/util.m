@@ -18,11 +18,12 @@ classdef util < handle
     methods(Static)
         % fp() - File Parser
         function out = fp(filename, heading, key)
-            %Method Steps
-            %1. Open file.
-            %2. Seek to 'heading'.
-            %3. for all fields denoted by 'key,
-            %      Read value into 'out' array.
+            % General-Purpose File Parser.
+            % Method Steps:
+            % 1. Open the file specified by filename.
+            % 2. Seek to 'heading'.
+            % 3. For all fields denoted by 'key, read value into 'out' array.
+            % 4. Close the file.
             
             fid = fopen(filename);
             
@@ -30,7 +31,7 @@ classdef util < handle
             empty_file = isnumeric(str_in);
             
             % Scan for heading.
-            while(empty_file == false)
+            while( ~empty_file )
                 switch str_in
                     case heading
                         break;
@@ -43,19 +44,21 @@ classdef util < handle
             str_in = fgetl(fid);
             empty_file = isnumeric(str_in);
             
-            
             % Scan for key values.
             k = 1;
-            while(empty_file == false)
+            while( ~empty_file )
                 if( ~isempty(str_in) && str_in(1) ~= '%' )
                     [l_key l_val] = strtok(str_in, '=');
                     % Remove whitespace
                     l_key = strtok(l_key);
                     
                     % Remove equal sign
-                    l_val = l_val(2:end);
+                    l_val = strtok(l_val(2:end));
                     
-                   
+                    % Ignore ';' at the end of line, if any.
+                    Ind_lVal = strfind(l_val, ';');
+                    if ~isempty(Ind_lVal), l_val = l_val(1:Ind_lVal-1); end
+                    
                     switch l_key
                         case key
                             temp_cell = textscan(l_val, '%s');
@@ -71,12 +74,12 @@ classdef util < handle
                 end
                 str_in = fgetl(fid);
                 empty_file = isnumeric(str_in);
-                
             end
             fclose(fid);
+            
             % If no matching keys were found, assign out to null.
             out_flag = strcmp('out',who('out'));
-            if  isempty(out_flag),
+            if isempty(out_flag),
                 out = {};
             end
         end
