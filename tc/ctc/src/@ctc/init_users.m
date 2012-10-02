@@ -24,8 +24,7 @@ obj.ucfg = out{1}{1};
 
 CFG_FILENAME = obj.ucfg;
 
-
-
+obj.users = [];
 obj = scan_user_dirs(obj, CFG_FILENAME, HOME_ROOT);
 obj = scan_user_dirs(obj, CFG_FILENAME, WEB_ROOT);
 
@@ -41,10 +40,9 @@ function obj = scan_user_dirs(obj, CFG_FILENAME, USR_ROOT)
 usrdirs = dir(USR_ROOT);   % perform a directory listing in home to list users
 n = length(usrdirs);       % number of directories found
 
-%usr_cnt = length(obj.users);
 
 cur_usr_cnt = 1;
-obj.users = cell(1);
+usr_cnt = length(obj.users);
 
 for k = 1:n,
     
@@ -88,8 +86,11 @@ end
         tmp.user_location = user_location;
         tmp.aw = 0;
        
-        obj.users{cur_usr_cnt} = tmp;
+obj.users{usr_cnt + cur_usr_cnt} = tmp;
+
+
         cur_usr_cnt = cur_usr_cnt + 1;
+
 
     end
     

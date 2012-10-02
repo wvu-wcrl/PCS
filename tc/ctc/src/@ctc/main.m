@@ -61,11 +61,8 @@ while(1) %enter primary loop
     end
     
     
-    if toc > 20,  % check for new users after 2 minutes
-    init_users(); 
-        
-    obj.users
-    length(obj.users)
+    if toc > 120,  % check for new users after 2 minutes
+    obj.init_users(); 
     tic;
     end
     
