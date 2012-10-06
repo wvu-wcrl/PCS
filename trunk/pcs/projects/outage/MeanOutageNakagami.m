@@ -1,7 +1,7 @@
 classdef MeanOutageNakagami< OutageNakagami
     
     % Computes outage probability averaged over a BPP given the size of the
-    % annular network arena and the number of nodes, placed there
+    % annular network arena and the number of nodes placed there
     
     % by S. Talarico
     
@@ -42,7 +42,7 @@ classdef MeanOutageNakagami< OutageNakagami
                 TableDir=varargin{1};
             end          
             
-            % calling it, automatically indices and coefficients are created
+            % create indices and coefficients by inheriting from OutageNakagami
             obj@OutageNakagami(zeros(1,M),m,m_i,TableDir);
             
             obj.r_net = r_net;
