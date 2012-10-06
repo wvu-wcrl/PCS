@@ -56,29 +56,30 @@ classdef MeanOutageNakagamiShad < OutageNakagami
         
         function obj = ComputeIntegral( obj, Beta )
             
-            numInt=unique(obj.indices{1});
+            elli=unique(obj.indices{1});
             this_integral=obj.indices{1};
-            for ind=1:length(numInt)
+            for i=1:length(elli)
                 syms x;
                 zeta1=-erf((obj.sigma^2*(log(10))^2-50*obj.alpha*log(x*obj.c_i*obj.r_net^obj.alpha))/(5*sqrt(2)*obj.alpha*obj.sigma*log(10)));
                 zeta2=-erf((obj.sigma^2*(log(10))^2-50*obj.alpha*log(x*obj.c_i*obj.r_ex^obj.alpha))/(5*sqrt(2)*obj.alpha*obj.sigma*log(10)));
-                y= ((x/obj.m_i)^numInt(ind))*(zeta1-zeta2)*exp(obj.sigma^2*(log(10))^2/(50*obj.alpha^2))*x^(-(2/obj.alpha+1))/(((x*Beta*obj.m/obj.m_i)+1)^(numInt(ind)+obj.m_i));
+                y= ((x/obj.m_i)^elli(i))*(zeta1-zeta2)*exp(obj.sigma^2*(log(10))^2/(50*obj.alpha^2))*x^(-(2/obj.alpha+1))/(((x*Beta*obj.m/obj.m_i)+1)^(elli(i)+obj.m_i));
                 fun=char(y);
                 f=inline(vectorize(fun),'x');
-                this_integral(find((this_integral-numInt(ind))==0))=quad(f,0,10000);
+                this_integral(find((this_integral-elli(i))==0))=quad(f,0,10000);
             end
             obj.integral{1} =this_integral;
 
             for r=1:(obj.m-1)
+                elli=unique(obj.indices{r+1});
                 this_integral=obj.indices{r+1};
-                for ind=1:length(numInt)
+                for i=1:length(elli)
                     syms x;
                     zeta1=-erf((obj.sigma^2*(log(10))^2-50*obj.alpha*log(x*obj.c_i*obj.r_net^obj.alpha))/(5*sqrt(2)*obj.alpha*obj.sigma*log(10)));
                     zeta2=-erf((obj.sigma^2*(log(10))^2-50*obj.alpha*log(x*obj.c_i*obj.r_ex^obj.alpha))/(5*sqrt(2)*obj.alpha*obj.sigma*log(10)));
-                    y= ((x/obj.m_i)^numInt(ind))*(zeta1-zeta2)*exp(obj.sigma^2*(log(10))^2/(50*obj.alpha^2))*x^(-(2/obj.alpha+1))/(((x*Beta*obj.m/obj.m_i)+1)^(numInt(ind)+obj.m_i));
+                    y= ((x/obj.m_i)^elli(i))*(zeta1-zeta2)*exp(obj.sigma^2*(log(10))^2/(50*obj.alpha^2))*x^(-(2/obj.alpha+1))/(((x*Beta*obj.m/obj.m_i)+1)^(elli(i)+obj.m_i));
                     fun=char(y);
                     f=inline(vectorize(fun),'x');
-                    this_integral(find((this_integral-numInt(ind))==0))=quad(f,0,10000);
+                    this_integral(find((this_integral-elli(i))==0))=quad(f,0,10000);
                 end
                 obj.integral{r+1}=this_integral;             
             end
