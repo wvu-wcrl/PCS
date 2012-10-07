@@ -24,9 +24,9 @@ if( nargin<4 || isempty(AppendTimeFlag) ), AppendTimeFlag = 0; end  % Default do
 
 % Determine which one of the two messages in Msg should be printed out.
 if vqFlag == 0      % Verbose mode.
-    MsgPrint = Msg{1};
+ MsgPrint = Msg{1};
 elseif vqFlag == 1  % Quiet mode.
-    MsgPrint = Msg{2};
+   MsgPrint = Msg{2};
 end
 
 % Add the timing information at the end of the selected message if required.
@@ -45,7 +45,7 @@ if ~isempty(MsgPrint)
         FID_LogFile = fopen( LogFileName, 'a+');
         fprintf( FID_LogFile, MsgPrint );
         fclose(FID_LogFile);
-    else
+	else
         fprintf( MsgPrint );
     end
 else
