@@ -1,4 +1,35 @@
 #!/bin/bash
+# monitor_sims
+#
+# Monitor speed tests for completion and plot timing data.                                 
+# Inputs
+#  See list of variables immediately following these comments.     
+#
+#     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
+#
+#     For full copyright information see the bottom of this file.
+#
+#
+# Execution Outline
+#  1. Monitor 
+#        stand-alone simulation screen session for completion
+#        PCS job output file generation
+#
+#  2. Plot timing data and save to .fig file.
+
+
+SC_SS=$1      # single-core screen session
+C_SS=$2       # cluster screen session
+
+JOB_FN=$3     # pcs job filename
+CML_ROOT=$4   # path to cml
+SUPP_DIR=$5   # path to supporting matlab scripts
+
+SCENARIO=$6   # cml scenario and record to simulate
+RECORD=$7 
+
+FIG_DIR=$8       # speed test result output
+FIG_FONTSIZE=$9  # font size for trial figure
 
 
 check_for_screen_session(){
@@ -11,24 +42,50 @@ echo $DONE
 }
 
 
-
-
-monitor_sims(){  # wait for both MATLAB screen sessions to complete
-LOCAL_DONE=0
-CLUSTER_DONE=0
-
-while [ $LOCAL_DONE -eq 0 ] && [ $CLUSTER_DONE -eq 0 ]
-do
-
-LOCAL_DONE=`check_for_screen_session $1`
-CLUSTER_DONE=`check_for_screen_session $2`
-
-sleep 10
-done
-
-plot_data
-                                     
+check_for_job_output_file(){
+    if [ -e "$1" ]
+    then
+	DONE=1
+    else
+	DONE=0
+    fi
+    
+    echo $DONE    
 }
 
 
-monitor_sims $1 $2
+monitor_sims(){ 
+LOCAL_DONE=0
+CLUSTER_DONE=0
+
+while [ $LOCAL_DONE -eq 0 ] || [ $CLUSTER_DONE -eq 0 ]
+do
+
+LOCAL_DONE=`check_for_screen_session $SC_SS`
+CLUSTER_DONE=`check_for_job_output_file $JOB_FN`
+
+sleep 10
+done                                
+}
+
+
+plot_data(){
+matlab -r "cd $SUPP_DIR; plot_time_trials('$CML_ROOT', '$JOB_FN', '$SCENARIO', $RECORD, $FIG_FONTSIZE, '$FIG_DIR' ); exit"
+}
+
+
+monitor_sims
+plot_data 
+
+
+#     This library is free software; you can redistribute it and/or modify it under the terms of
+#     the GNU Lesser General Public License as published by the
+#     Free Software Foundation; either version 2.1 of the License,
+#     or (at your option) any later version.                                                                                                           
+#     This library is distributed in the hope that it will be useful.
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#     Lesser General Public License for more details.                           
+#     You should have received a copy of the GNU Lesser General Public                                                                                 
+#     License along with this library; if not, write to the Free Software
+#     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  US
