@@ -1,0 +1,27 @@
+== PCS speed test ==
+
+Module to compare speed of standalone CML and PCS CML error-rate simulation.
+
+
+Input
+ CML error-rate scenario and record
+
+
+Output
+ Figure which contains two curves: trials generated as a function of time by
+    standalone CML
+    PCS CML
+    
+ Figure contained in speed_test/output/<scenario>_<record>.fig
+
+
+
+= Usage Example =
+
+  > ./launch_speed_test SpeedTest 1
+
+   * wait *
+
+
+  Output figure appears in speed_test/output/SpeedTest_1.fig
+   
