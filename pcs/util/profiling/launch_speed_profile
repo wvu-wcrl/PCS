@@ -1,5 +1,5 @@
 #!/bin/bash
-# launch_speed_test
+# launch_speed_profile
 #
 # Execute CML error-rate simulation using cluster and single-core operation
 #  and gather timing information.
@@ -9,7 +9,7 @@
 #  2. Record
 #
 #  Calling Example
-#   > ./launch_speed_test.sh SpeedTest 1
+#   > ./launch_speed_profile.sh SpeedTest 1
 #                                                               
 #     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti   
 #     For full copyright information see the bottom of this file.
@@ -33,9 +33,9 @@ SCENARIO=$1                          # cml scenario and record to simulate
 RECORD=$2
 
 
-ST_ROOT=/home/pcs/util/speed_test    # speed test root
+ST_ROOT=/home/pcs/util/profiling    # speed test root
 FIG_DIR=$ST_ROOT/output              # speed test result output
-SUPP_DIR=/home/pcs/util/speed_test/supp  # supporting matlab and bash scripts
+SUPP_DIR=/home/pcs/util/profiling/supp  # supporting matlab and bash scripts
 
 
 CML_ROOT=/home/pcs/projects/cml      # path to cml
