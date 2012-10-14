@@ -25,7 +25,7 @@ switch JobParam.sim_type
         JobParam.max_trials = ceil(JobParam.max_trials/NumNewTasks);
         
     case {'exit'}
-        switch JobParam.exit_phase
+        switch JobParam.exit_param.exit_phase
             case 'detector',                
                 JobParam.max_trials = JobParam.max_trials - JobState.trials(end,:);
                 JobParam.max_trials(JobParam.max_trials<0) = 0;

@@ -3,7 +3,7 @@ function JobState = UpdateJobState(obj, JobStateIn, TaskState, JobParam)
 JobState = JobStateIn; % Update the Global JobState.
 
 % Convert the randomly-permuted SNR points of the task back to the order in which the JobState is saved.
-TaskState = DepermuteSnrPoints( TaskState, JobState );
+TaskState = DepermuteSnrPoints( TaskState, JobState, JobParam );
 
 switch JobState.sim_type
     
@@ -24,7 +24,7 @@ end
 end
 
 
-function TaskState = DepermuteSnrPoints ( TaskState, JobState )
+function TaskState = DepermuteSnrPoints ( TaskState, JobState, JobParam )
 TaskState.trials(:,TaskState.RandPos) = TaskState.trials;
 
 switch JobState.sim_type
@@ -34,12 +34,12 @@ switch JobState.sim_type
         
     case{'exit'}
         
-        switch JobState.compute_final_exit_metrics
-            case 0
+        switch JobParam.exit_param.exit_phase
+            case 'detector'
                 % Round 1
                 TaskState.exit_state.IA_det_sum(:,TaskState.RandPos) = TaskState.exit_state.IA_det_sum;
                 TaskState.exit_state.IE_det_sum(:,TaskState.RandPos) = TaskState.exit_state.IE_det_sum;
-            case 1
+            case 'decoder'
                 TaskState.exit_state.IE_vnd(:,TaskState.RandPos)  = TaskState.exit_state.IE_vnd;
                 TaskState.exit_state.IA_cnd(:,TaskState.RandPos)  = TaskState.exit_state.IA_cnd;
                 TaskState.exit_state.IE_cnd(:,TaskState.RandPos)  = TaskState.exit_state.IE_cnd;
@@ -79,7 +79,7 @@ end
 
 function JobState = UpdateExitStats(JobState, TaskState, JobParam)
 
-switch JobParam.exit_phase
+switch JobParam.exit_param.exit_phase
     case 'detector'
         JobState.trials = JobState.trials + TaskState.trials; % Update trials.
         JobState.exit_state.IA_det_sum = JobState.exit_state.IA_det_sum +...
