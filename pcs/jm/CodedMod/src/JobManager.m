@@ -293,7 +293,7 @@ classdef JobManager < handle
                                             JobState = JobContent.JobState;
                                             % Update JobState if the received output Task has done some trials.
 %                                             if sum(TaskState.Trials(end,:))~=0
-                                                 JobState = obj.UpdateJobState(JobState, TaskState);
+					      JobState = obj.UpdateJobState(JobState, TaskState, JobParam);
 %                                             else
 %                                                 Msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
 %                                                 PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
@@ -346,7 +346,7 @@ classdef JobManager < handle
                                             
                                             % Update JobState if the received Task has done some trials.
 %                                             if sum(TaskState.Trials(end,:))~=0
-                                                 JobState = obj.UpdateJobState(JobState, TaskState);
+					      JobState = obj.UpdateJobState(JobState, TaskState, JobParam);
 %                                             else
 %                                                 Msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
 %                                                 PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
