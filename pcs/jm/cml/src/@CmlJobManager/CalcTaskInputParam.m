@@ -25,12 +25,12 @@ switch JobParam.sim_type
         JobParam.max_trials = ceil(JobParam.max_trials/NumNewTasks);
         
     case {'exit'}
-        switch JobState.compute_final_exit_metrics
-            case 0
+        switch JobParam.exit_phase
+            case 'detector',                
                 JobParam.max_trials = JobParam.max_trials - JobState.trials(end,:);
                 JobParam.max_trials(JobParam.max_trials<0) = 0;
                 JobParam.max_trials = ceil(JobParam.max_trials/NumNewTasks);
-            case 1
+            case 'decoder'
         end
     otherwise
 end
@@ -79,8 +79,7 @@ switch JobParam.sim_type
         [ SNR max_trials trials IA_det_sum IE_det_sum IE_vnd IE_cnd IA_cnd I_A_det I_E_det ] = ...
             ShortenExitPermutingVariableNames( JobParam, JobState );
         
-        for Task=1:NumNewTasks
-            
+        for Task=1:NumNewTasks            
             RandPos = randperm( length(SNR) );
             TaskInputParam(Task).JobState.RandPos = RandPos;
             
@@ -91,11 +90,17 @@ switch JobParam.sim_type
             TaskInputParam(Task).JobState.trials = trials( :,RandPos );
             
             TaskInputParam(Task).JobState.exit_state.IA_det_sum = IA_det_sum( :, RandPos );
+            
             TaskInputParam(Task).JobState.exit_state.IE_det_sum = IE_det_sum( :, RandPos );
+            
             TaskInputParam(Task).JobState.exit_state.IE_vnd = IE_vnd( :, RandPos );
+            
             TaskInputParam(Task).JobState.exit_state.IE_cnd = IE_cnd( :, RandPos );
+            
             TaskInputParam(Task).JobState.exit_state.IA_cnd = IA_cnd( :, RandPos );
+            
             TaskInputParam(Task).JobState.exit_state.I_A_det = I_A_det( :, RandPos );
+            
             TaskInputParam(Task).JobState.exit_state.I_E_det = I_E_det( :, RandPos );
             
         end
