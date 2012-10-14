@@ -395,7 +395,7 @@ classdef JobManager < handle
                                     if( ~isempty(JobDirectory) && strcmpi(JobDirectory,JobRunningDir) ) % The job is loaded from JobRunning directory.
                                         % Determine if the global stopping criteria have been reached/met. Moreover, determine and echo progress of running JobName.
                                         % Furthermore, update Results file.
-                                        [StopFlag, JobParam] = obj.DetermineStopFlag(JobParam, JobState, JobName, Username, JobRunningDir);
+                                        [StopFlag, JobParam, JobState] = obj.DetermineStopFlag(JobParam, JobState, JobName, Username, JobRunningDir);
                                         
                                         if ~StopFlag    % If simulation of the job JobName is NOT done, resubmit another round of tasks.
                                             % Save the result in JobRunning queue/directory.
@@ -422,11 +422,11 @@ classdef JobManager < handle
                                             
                                         else % If simulation of this job is done, save the result in JobOut queue/directory.
                                             try
-                                                save( fullfile(JobOutDir,JobName), 'JobParam', 'JobState' );
+						 save( fullfile(JobOutDir,JobName), 'JobParam', 'JobState' );
                                                 SuccessMsg = sprintf( 'The FINISHED job file %s of user %s is moved to JobOut directory.\n', JobName(1:end-4), Username );
                                                 PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
                                             catch
-                                                save( fullfile(obj.JobManagerParam.TempJMDir,JobName), 'JobParam', 'JobState' );
+					    save( fullfile(obj.JobManagerParam.TempJMDir,JobName), 'JobParam', 'JobState' );
                                                 obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,JobName), JobOutDir);
                                                 SuccessMsg = sprintf( 'The FINISHED job file %s of user %s is moved to JobOut directory by OS.\n', JobName(1:end-4), Username );
                                                 PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
@@ -456,9 +456,9 @@ classdef JobManager < handle
                                         
                                         % Save the updated final result for the job in JobOut directory.
                                         try
-                                            save( fullfile(JobOutDir,JobName), 'JobParam', 'JobState' );
+					save( fullfile(JobOutDir,JobName), 'JobParam', 'JobState' );
                                         catch
-                                            save( fullfile(obj.JobManagerParam.TempJMDir,JobName), 'JobParam', 'JobState' );
+					save( fullfile(obj.JobManagerParam.TempJMDir,JobName), 'JobParam', 'JobState'  );
                                             obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,JobName), JobOutDir);
                                         end
                                     end
