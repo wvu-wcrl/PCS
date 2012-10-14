@@ -1,4 +1,4 @@
-function JobState = UpdateJobState(obj, JobStateIn, TaskState)
+function JobState = UpdateJobState(obj, JobStateIn, TaskState, JobParam)
 
 JobState = JobStateIn; % Update the Global JobState.
 
@@ -19,7 +19,7 @@ switch JobState.sim_type
         end
         
     case{'exit'}
-        JobState = UpdateExitStats(JobState, TaskState);
+        JobState = UpdateExitStats(JobState, TaskState, JobParam);
 end
 end
 
@@ -77,17 +77,17 @@ end
 end
 
 
-function JobState = UpdateExitStats(JobState, TaskState)
+function JobState = UpdateExitStats(JobState, TaskState, JobParam)
 
-switch JobState.compute_final_exit_metrics
-    case 0
+switch JobParam.exit_phase
+    case 'detector'
         JobState.trials = JobState.trials + TaskState.trials; % Update trials.
         JobState.exit_state.IA_det_sum = JobState.exit_state.IA_det_sum +...
             TaskState.exit_state.IA_det_sum;
         JobState.exit_state.IE_det_sum = JobState.exit_state.IE_det_sum +...
             TaskState.exit_state.IE_det_sum;
         
-    case 1
+    case 'decoder'
         % JobState.trials = JobState.trials + TaskState.trials; % Update trials.
         %%% shorten names.
         IE_vnd_J = JobState.exit_state.IE_vnd;

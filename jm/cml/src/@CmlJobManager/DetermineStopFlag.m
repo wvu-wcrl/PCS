@@ -6,7 +6,8 @@ function [StopFlag, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobN
 [RemainingTrials RemainingFrameErrors RemainingMI] =  UpdateRemainingMetrics( JobParam, JobState );
 
 % Determine the position of active SNR points based on the number of remaining trials and frame errors.
-ActiveSNRPoints = FindActiveSnrPoints( RemainingTrials, RemainingFrameErrors, RemainingMI, JobParam.sim_type, JobState.compute_final_exit_metrics );
+ActiveSNRPoints = FindActiveSnrPoints( RemainingTrials, RemainingFrameErrors, RemainingMI, JobParam.sim_type, ...
+    JobParam );
 
 switch JobParam.sim_type
     case {'coded', 'uncoded'}
@@ -35,6 +36,8 @@ varargout{1} = JobParam;
 end
 
 
+
+
 function [RemainingTrials RemainingFrameErrors RemainingMI] =  UpdateRemainingMetrics( JobParam, JobState )
 
 switch JobParam.sim_type
@@ -47,16 +50,16 @@ switch JobParam.sim_type
         
         RemainingMI = 0;
         
-    case {'exit'}
+    case {'exit'}       
         % Check to see if exit_state vectors are full.
         % If full, 1; if not, 0.
-        switch JobState.compute_final_exit_metrics
-            case 0
+        switch JobParam.exit_phase,
+            case 'detector'
                 RemainingTrials = JobParam.max_trials - JobState.trials;
                 RemainingTrials(RemainingTrials<0) = 0;
                 RemainingFrameErrors = 0; %%%% refactor - replace output args with varargout!
                 RemainingMI = 0;
-            case 1
+            case 'decoder'                
                 RemainingMI = (sum( JobState.exit_state.IA_cnd ) == 0);
                 RemainingFrameErrors = 0;
                 RemainingTrials = 0;
@@ -65,16 +68,16 @@ end
 end
 
 
-function ActiveSNRPoints = FindActiveSnrPoints( RemainingTrials, RemainingFrameErrors, RemainingMI, SimType, ComputeExitMetrics )
+function ActiveSNRPoints = FindActiveSnrPoints( RemainingTrials, RemainingFrameErrors, RemainingMI, SimType, JobParam )
 
 switch SimType
     case {'uncoded', 'coded'}
         ActiveSNRPoints  = ( (RemainingTrials>0) & (RemainingFrameErrors>0) );
     case{'exit'}
-        switch ComputeExitMetrics
-            case 0
+        switch JobParam.exit_param.exit_phase,
+            case 'detector'
                 ActiveSNRPoints  = ( RemainingTrials > 0);
-            case 1
+            case 'decoder'
                 ActiveSNRPoints = RemainingMI;
         end
 end
