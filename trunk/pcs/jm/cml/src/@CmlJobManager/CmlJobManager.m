@@ -25,7 +25,7 @@ classdef CmlJobManager < JobManager
         
         function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn, CodeRoot)
             
-            OldPath = obj.SetCodePath(CodeRoot); % Set the path to CML.
+            OldPath = obj.SetCodePath(CodeRoot); % Set the path to CML.              
             
             [JobParam, CodeParam] = InitializeCodeParam( JobParamIn, CodeRoot ); % Initialize coding parameters.
             JobParam.code_param_short = CodeParam; % Store short code param inside JobParam.
@@ -41,22 +41,23 @@ classdef CmlJobManager < JobManager
             JobState.sim_type = JobParam.sim_type;
             JobState.symbols_per_frame = CodeParam.symbols_per_frame;
             
-            switch JobParam.sim_type
-                case{'exit'}
-                    AllTrialsRun = sum(JobState.trials < JobParamIn.max_trials) == 0;
-                    if AllTrialsRun
-                        JobState.compute_final_exit_metrics = 1;
-                    else
-                        JobState.compute_final_exit_metrics = 0;
-                    end
-            end
+            %%% selecting ldpc exit phases 
+            % switch JobParam.sim_type
+            %    case{'exit'}
+            %        AllTrialsRun = sum(JobState.trials < JobParamIn.max_trials) == 0;
+            %        if AllTrialsRun
+            %            JobState.compute_final_exit_metrics = 1;
+            %        else
+            %            JobState.compute_final_exit_metrics = 0;
+            %        end
+            % end
             
             path(OldPath);
         end
         
         TaskInputParam = CalcTaskInputParam(obj, JobParam, JobState, NumNewTasks) % Need to modify.
         
-        JobState = UpdateJobState(obj, JobStateIn, TaskState)
+        JobState = UpdateJobState(obj, JobStateIn, TaskState, JobParam)
         
         [StopFlag, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobName, Username, JobRunningDir)
         
