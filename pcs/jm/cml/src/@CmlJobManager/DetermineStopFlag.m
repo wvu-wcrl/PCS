@@ -28,11 +28,22 @@ StopFlag = TestIfAllSnrsDone( ActiveSNRPoints ); % If all done, enter stage 2.
 
 if StopFlag == 1
     PrintJobStopMsg( JobParam.sim_type, JobName, Username, obj.JobManagerParam.LogFileName );
+    
+    switch JobParam.sim_type,
+        case {'exit'}
+            if strcmp( JobParam.exit_param.exit_phase, 'detector' )
+                JobState.exit_state.det_complete = 1;
+            end
+            
+    end
+    
+    
 end
 
 JobParam = SaveJobProgress( obj, ActiveSNRPoints, RemainingTrials, JobParam, JobState, JobName, Username,  JobRunningDir );
 
 varargout{1} = JobParam;
+varargout{2}= JobState;
 end
 
 
@@ -50,16 +61,16 @@ switch JobParam.sim_type
         
         RemainingMI = 0;
         
-    case {'exit'}       
+    case {'exit'}
         % Check to see if exit_state vectors are full.
         % If full, 1; if not, 0.
-        switch JobParam.exit_phase,
+        switch JobParam.exit_param.exit_phase,
             case 'detector'
                 RemainingTrials = JobParam.max_trials - JobState.trials;
                 RemainingTrials(RemainingTrials<0) = 0;
                 RemainingFrameErrors = 0; %%%% refactor - replace output args with varargout!
                 RemainingMI = 0;
-            case 'decoder'                
+            case 'decoder'
                 RemainingMI = (sum( JobState.exit_state.IA_cnd ) == 0);
                 RemainingFrameErrors = 0;
                 RemainingTrials = 0;
