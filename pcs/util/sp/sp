@@ -33,10 +33,9 @@ SCENARIO=$1                          # cml scenario and record to simulate
 RECORD=$2
 
 
-ST_ROOT=/home/pcs/util/profiling    # speed test root
+ST_ROOT=`pwd`                        # speed test root
+SUPP_DIR=$ST_ROOT/supp               # supporting matlab and bash scripts
 FIG_DIR=$ST_ROOT/output              # speed test result output
-SUPP_DIR=/home/pcs/util/profiling/supp  # supporting matlab and bash scripts
-
 
 CML_ROOT=/home/pcs/projects/cml      # path to cml
 
@@ -67,10 +66,17 @@ screen -ls |grep $1 | awk -F . '{print $1}' |xargs kill
 }
 
 
+reset_sp_state(){
+rm $JOB_FN
+rm $CML_ROOT/output/$SCENARIO/*
+}
+
+
 destroy_existing_speed_test(){
 stop_screen_session $SC_SS
 stop_screen_session $C_SS
 stop_screen_session $M_SS
+reset_sp_state
 }
 
 
