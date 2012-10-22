@@ -53,7 +53,8 @@ classdef util < handle
                     l_key = strtok(l_key);
                     
                     % Remove equal sign
-                    l_val = strtok(l_val(2:end));
+                    l_val = strtok(l_val(2:end), '=');
+
                     
                     % Ignore ';' at the end of line, if any.
                     Ind_lVal = strfind(l_val, ';');
@@ -62,6 +63,7 @@ classdef util < handle
                     switch l_key
                         case key
                             temp_cell = textscan(l_val, '%s');
+
                             out{k} = temp_cell{1};
                             k = k+1;
                         otherwise

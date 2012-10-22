@@ -1,4 +1,4 @@
-== PCS speed test ==
+== PCS speed profiling ==
 
 Module to compare speed of standalone CML and PCS CML error-rate simulation.
 
@@ -12,16 +12,23 @@ Output
     standalone CML
     PCS CML
     
- Figure contained in speed_test/output/<scenario>_<record>.fig
+ Figure contained in sp/output/<scenario>_<record>.fig
 
 
 
 = Usage Example =
 
-  > ./launch_speed_test SpeedTest 1
+  > ./sp SpeedTest 1
 
    * wait *
 
 
-  Output figure appears in speed_test/output/SpeedTest_1.fig
+  Output figure appears in sp/output/SpeedTest_1.fig
+
+
+= Notes =
+
+On initial launch, all CML records in <CMLROOT>/output/<scenario> are deleted.
+
+
    
