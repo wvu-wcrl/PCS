@@ -25,13 +25,13 @@ webuser_home=/home/web_users/$username
 
 
 # create project directory structure
-mkdir $webuser_home/Projects
-mkdir $webuser_home/Projects/figures
-mkdir $webuser_home/Projects/JobIn
-mkdir $webuser_home/Projects/JonRunning
-mkdir $webuser_home/Projects/JobOut
-mkdir $webuser_home/Projects/data
-mkdir $webuser_home/Projects/archive
+mkdir -p $webuser_home/Projects
+mkdir -p $webuser_home/Projects/$projname/figures
+mkdir $webuser_home/Projects/$projname/JobIn
+mkdir $webuser_home/Projects/$projname/JobRunning
+mkdir $webuser_home/Projects/$projname/JobOut
+mkdir $webuser_home/Projects/$projname/data
+mkdir $webuser_home/Projects/$projname/archive
 ########################
 
 
@@ -39,9 +39,9 @@ mkdir $webuser_home/Projects/archive
 
 
 # paths to configuration files #
-cfg_filename=$projname\_cfg.txt
+cfg_filename=$projname\User\_cfg.txt
 
-root_cfg_path=/home/pcs/tc/jm/$projname/user/cfg/$cfg_filename
+root_cfg_path=/home/pcs/jm/$projname/cfg/$cfg_filename
 user_cfg_path=$webuser_home/$cfg_filename
 #####################
 
