@@ -1,0 +1,58 @@
+#!/bin/bash
+# crt
+#
+# Create task directory structure and default configuration files
+#  for specified user.
+#
+# Inputs
+#  1. User home directory.
+#  2. Username
+#
+# Calling example
+#  > ./crt /home/testuser testuser
+
+
+# read inputs
+HD=$1
+UN=$2
+
+
+# create task directory structure                                                                                                               
+mkdir $HD/tasks
+mkdir $HD/tasks/siq
+mkdir $HD/tasks/liq
+mkdir $HD/tasks/rq
+mkdir $HD/tasks/oq
+chown -R $UN:$UN $HD/tasks
+
+
+# create configuration file for short queue                                                                                                    
+echo [paths] >> $HD/ctc_cfg
+echo input = $HD/tasks/siq >> $HD/ctc_cfg
+echo active = $HD/tasks/rq >> $HD/ctc_cfg
+echo output = $HD/tasks/oq >> $HD/ctc_cfg
+chown -R $UN:$UN $HD/ctc_cfg
+
+
+# create config file for long queue
+echo [paths] >> $HD/ctc_cfg_l
+echo input = $HD/tasks/liq >> $HD/ctc_cfg_l
+echo active = $HD/tasks/rq >> $HD/ctc_cfg_l
+echo output = $HD/tasks/oq >> $HD/ctc_cfg_l
+chown -R $UN:$UN $HD/ctc_cfg_l
+
+
+#     This library is free software;                                                                          
+#     you can redistribute it and/or modify it under the terms of                                             
+#     the GNU Lesser General Public License as published by the                                               
+#     Free Software Foundation; either version 2.1 of the License,                                            
+#     or (at your option) any later version.                                                                  
+#                                                                                                             
+#     This library is distributed in the hope that it will be useful,                                         
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of                                          
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU                                       
+#     Lesser General Public License for more details.                                                         
+#                                                                                                             
+#     You should have received a copy of the GNU Lesser General Public                                        
+#     License along with this library; if not, write to the Free Software                                     
+#     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  US
