@@ -7,15 +7,17 @@
 #  1. User home directory
 #  2. Username
 #  3. Project name
+#  4. Google code username
 
 
 # read inputs
 HD=$1    # home directory
 UN=$2    # username
 PN=$3    # project directory
+GCUN=$4  # Google code username
 
 # download project code, anonymous access
-svn co http://iscml.googlecode.com/svn/trunk/pcs/projects/$PN $HD/$PN
+svn co https://iscml.googlecode.com/svn/trunk/pcs/projects/$PN $HD/$PN --username $GCUN
 chown -R $UN:$UN $HD/$PN
 
 
