@@ -1,6 +1,6 @@
 == PCS Project Installer ==
 
-Functionality to install PCS projects, create task controller and job manager
+Scripts to install PCS projects, create task controller and job manager
 directories, and default configuration files.
 
 
