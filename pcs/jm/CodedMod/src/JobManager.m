@@ -998,19 +998,19 @@ classdef JobManager < handle
             VarValues = varargin(2:2:nInArgs);
             
             for Pair = 1:length(VarNames)
-                ParamName = VarNames(Pair);
+                ParamName = VarNames{Pair};
                 if any( strcmpi( ParamName, ValidVarNames ) )
                     switch ParamName
                         case {'StartTime', 'StopTime'}
-                            JobInfo.JobTiming.(ParamName) = VarValues(Pair);
+                            JobInfo.JobTiming.(ParamName) = VarValues{Pair};
                         case 'ProcessDuration'
-                            JobInfo.JobTiming.ProcessDuration = JobInfo.JobTiming.ProcessDuration + VarValues(Pair);
+                            JobInfo.JobTiming.ProcessDuration = JobInfo.JobTiming.ProcessDuration + VarValues{Pair};
                         case {'ErrorType', 'ErrorMsg'}
-                            JobInfo.JobError.(ParamName) = VarValues(Pair);
+                            JobInfo.JobError.(ParamName) = VarValues{Pair};
                         case {'WarningType', 'WarningMsg'}
-                            JobInfo.JobWarning.(ParamName) = VarValues(Pair);
+                            JobInfo.JobWarning.(ParamName) = VarValues{Pair};
                         otherwise % For JobID, Status, and Results.
-                            JobInfo.(ParamName) = VarValues(Pair);
+                            JobInfo.(ParamName) = VarValues{Pair};
                     end
                 else
                     error('UpdateJobInfo:InvalidParamName','%s is not a valid recognized input parameter name for method UpdateJobInfo!',ParamName);
