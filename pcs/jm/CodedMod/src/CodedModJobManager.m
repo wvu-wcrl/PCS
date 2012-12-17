@@ -97,7 +97,7 @@ classdef CodedModJobManager < JobManager
         end
 
 
-        function JobState = UpdateJobState(obj, JobStateIn, TaskState)
+        function JobState = UpdateJobState(obj, JobStateIn, TaskState, JobParam)
             % Update the Global JobState.
             JobState = JobStateIn;
             JobState.Trials      = JobState.Trials      + TaskState.Trials;
@@ -110,10 +110,10 @@ classdef CodedModJobManager < JobManager
         end
 
 
-        function [StopFlag, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobName, Username, JobRunningDir)
+        function [StopFlag, JobInfo, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, JobRunningDir)
             % Determine if the global stopping criteria have been reached/met. Moreover, determine and echo progress of running JobName.
             % Furthermore, update Results file.
-            % Calling syntax: [StopFlag [,JobParam]] = obj.DetermineStopFlag(JobParam, JobState [,JobName] [,Username] [,JobRunningDir])
+            % Calling syntax: [StopFlag, JobInfo [,JobParam]] = obj.DetermineStopFlag(JobParam, JobState, JobInfo [,JobName] [,Username] [,JobRunningDir])
 
             % First check to see if minimum number of trials or frame errors has been reached.
             RemainingTrials = JobParam.MaxTrials - JobState.Trials(end,:);
@@ -135,7 +135,7 @@ classdef CodedModJobManager < JobManager
 
             if StopFlagT == 1
                 ActiveSNRPoints(LastInactivePoint:end) = 0;
-                if( nargin>=4 && ~isempty(JobName) && ~isempty(Username) )
+                if( nargin>=5 && ~isempty(JobName) && ~isempty(Username) )
                     Msg = sprintf( ['\n\nRunning job %s for user %s is STOPPED for SOME SNR points above %.2f dB because their BER or' ...
                         'FER is below the required mimimum BER or FER.\n\n'], JobName(1:end-4), Username, JobParam.SNR(LastInactivePoint) );
                     PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
@@ -148,7 +148,7 @@ classdef CodedModJobManager < JobManager
             StopFlag = ( sum(ActiveSNRPoints) == 0 );
 
             if StopFlag == 1
-                if( nargin>=4 && ~isempty(JobName) && ~isempty(Username) )
+                if( nargin>=5 && ~isempty(JobName) && ~isempty(Username) )
                     StopMsg = sprintf( ['\n\nRunning job %s for user %s is STOPPED completely because enough trials and/or ',...
                         'frame errors are observed for ALL SNR points.\n\n'], JobName(1:end-4), Username );
                     PrintOut(StopMsg, 0, obj.JobManagerParam.LogFileName);
@@ -160,7 +160,7 @@ classdef CodedModJobManager < JobManager
             CompletedTJob = sum( JobState.Trials(end,:) );
             % RemainingFEJob = sum( (ActiveSNRPoints==1) .* RemainingFrameErrors );
             % CompletedFEJob = sum( JobState.FrameErrors(end,:) );
-            if( nargin>=4 && ~isempty(JobName) && ~isempty(Username) )
+            if( nargin>=5 && ~isempty(JobName) && ~isempty(Username) )
                 MsgStr = sprintf( ' for JOB %s USER %s', JobName(1:end-4), Username );
             else
                 MsgStr = ' ';
@@ -170,9 +170,11 @@ classdef CodedModJobManager < JobManager
             PrintOut(['\n\n', msgStatus, '\n\n'], 0, obj.JobManagerParam.LogFileName);
             msgResults = sprintf( 'SNR Points Completed=%.2f\n', JobParam.SNR(ActiveSNRPoints==0) );
 
+            % Update simulation progress in STAUS field of JobInfo.
+            msgStatusFile = sprintf( '%2.2f%% of Trials Completed.', 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
+            JobInfo = obj.UpdateJobInfo( JobInfo, 'Status', msgStatusFile );
             % Save simulation progress in STATUS file. Update Results file.
-            if( nargin>=4 && ~isempty(JobName) && ~isempty(JobRunningDir) )
-                msgStatusFile = sprintf( '%2.2f%% of Trials Completed.', 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
+            if( nargin>=5 && ~isempty(JobName) && ~isempty(JobRunningDir) )
                 % SuccessFlagStatus = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
                 obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
 
@@ -181,6 +183,7 @@ classdef CodedModJobManager < JobManager
             end
 
             varargout{1} = JobParam;
+            varargout{2} = JobState;
         end
     end
 

@@ -12,6 +12,12 @@ HomeRoot = /home/web_users
 % This folder solves the problem of write permissions in directories of users.
 TempJMDir = /home/pcs/jm/CodedMod/Temp
 
+% FULL path (including name) of .mat file containing job manager Info Usage (including timing and credit usage info of users).
+JMInfoFullPath = /home/pcs/jm/CodedMod/Usage/CodedMod_jmUsageInfo.mat
+
+% Period by which the job manager parameters and information containing the user list and user usage information is saved.
+JMInfoUpdatePeriod = 10
+
 % Period by which the job manager looks for newly-added users to the system.
 % After Check4NewUserPeriod times sweeping ALL JobIn, JobRunning, and TaskOut directories of ALL of the current ACTIVE users, the job managers looks to see if there are any newly-added users to the system.
 Check4NewUserPeriod = 50
@@ -24,6 +30,7 @@ JMPause = 60
 
 % Job manager log filename.
 % LogFileName = [filesep 'home' filesep 'pcs' filesep 'jm' filesep 'CodedMod' filesep 'log' filesep 'CodedModJMLog.log']
+% LogFileName = /home/pcs/jm/CodedMod/log/CodedModJMLog.log
 LogFileName = 0
 
 % Verbose/quiet mode of intermediate message logging.
