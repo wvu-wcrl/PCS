@@ -25,7 +25,7 @@ classdef CmlJobManager < JobManager
         
         function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn, CodeRoot)
             
-            OldPath = obj.SetCodePath(CodeRoot); % Set the path to CML.              
+            OldPath = obj.SetCodePath(CodeRoot); % Set the path to CML.
             
             [JobParam, CodeParam] = InitializeCodeParam( JobParamIn, CodeRoot ); % Initialize coding parameters.
             JobParam.code_param_short = CodeParam; % Store short code param inside JobParam.
@@ -41,7 +41,7 @@ classdef CmlJobManager < JobManager
             JobState.sim_type = JobParam.sim_type;
             JobState.symbols_per_frame = CodeParam.symbols_per_frame;
             
-            %%% selecting ldpc exit phases 
+            %%% Selecting ldpc exit phases.
             % switch JobParam.sim_type
             %    case{'exit'}
             %        AllTrialsRun = sum(JobState.trials < JobParamIn.max_trials) == 0;
@@ -59,7 +59,7 @@ classdef CmlJobManager < JobManager
         
         JobState = UpdateJobState(obj, JobStateIn, TaskState, JobParam)
         
-        [StopFlag, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobName, Username, JobRunningDir)
+        [StopFlag, JobInfo, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, JobRunningDir)
         
     end
     
