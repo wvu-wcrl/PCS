@@ -13,6 +13,12 @@ HomeRoot = /home
 % This folder solves the problem of write permissions in directories of users.
 TempJMDir = /home/pcs/jm/cml/Temp
 
+% FULL path (including name) of .mat file containing job manager Info and Usage (including timing and credit usage info of users).
+JMInfoFullPath = /home/pcs/jm/cml/Usage/cml_jmUsageInfo.mat
+
+% Period by which the job manager parameters and information containing the user list and user usage information is saved.
+JMInfoUpdatePeriod = 10
+
 % Period by which the job manager looks for newly-added users to the system.
 % After Check4NewUserPeriod times sweeping ALL JobIn, JobRunning, and TaskOut directories of ALL of the current ACTIVE users, the job managers looks to see if there are any newly-added users to the system.
 Check4NewUserPeriod = 50
@@ -28,6 +34,7 @@ UserCfgFilename = cml_cfg
 
 % Job manager log filename.
 % LogFileName = [filesep 'home' filesep 'pcs' filesep 'jm' filesep 'cml' filesep 'log' filesep 'Cml-JMLog.log']
+% LogFileName = /home/pcs/jm/cml/log/Cml-JMLog.log
 LogFileName = 0
 
 % Verbose/quiet mode of intermediate message logging.

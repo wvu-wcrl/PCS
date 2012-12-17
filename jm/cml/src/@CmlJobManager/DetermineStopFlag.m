@@ -1,7 +1,7 @@
-function [StopFlag, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobName, Username, JobRunningDir)
+function [StopFlag, JobInfo, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, JobRunningDir)
 % Determine if the global stopping criteria have been reached/met. Moreover, determine and echo progress of running JobName.
 % Furthermore, update Results file.
-% Calling syntax: [StopFlag [,JobParam]] = obj.DetermineStopFlag(JobParam, JobState [,JobName] [,Username] [,JobRunningDir])
+% Calling syntax: [StopFlag, JobInfo [,JobParam]] = obj.DetermineStopFlag(JobParam, JobState, JobInfo [,JobName] [,Username] [,JobRunningDir])
 
 [RemainingTrials RemainingFrameErrors RemainingMI] =  UpdateRemainingMetrics( JobParam, JobState );
 
@@ -40,7 +40,7 @@ if StopFlag == 1
     
 end
 
-JobParam = SaveJobProgress( obj, ActiveSNRPoints, RemainingTrials, JobParam, JobState, JobName, Username,  JobRunningDir );
+[JobParam, JobInfo] = SaveJobProgress( obj, ActiveSNRPoints, RemainingTrials, JobParam, JobState, JobInfo, JobName, Username,  JobRunningDir );
 
 varargout{1} = JobParam;
 varargout{2}= JobState;
@@ -148,7 +148,7 @@ end
 end
 
 
-function JobParam = SaveJobProgress( obj, ActiveSNRPoints, RemainingTrials, JobParam, JobState, JobName, Username,  JobRunningDir )
+function [JobParam, JobInfo] = SaveJobProgress( obj, ActiveSNRPoints, RemainingTrials, JobParam, JobState, JobInfo, JobName, Username,  JobRunningDir )
 % Determine and echo progress of running JobName.
 
 RemainingTJob = sum( (ActiveSNRPoints==1) .* RemainingTrials );
@@ -156,7 +156,7 @@ CompletedTJob = sum( JobState.trials(end,:) );
 % RemainingFEJob = sum( (ActiveSNRPoints==1) .* RemainingFrameErrors );
 % CompletedFEJob = sum( JobState.frame_errors(end,:) );
 
-if( nargin >= 6 && ~isempty(JobName) && ~isempty(Username) )
+if( nargin >= 7 && ~isempty(JobName) && ~isempty(Username) )
     MsgStr = sprintf( ' for JOB %s USER %s', JobName(1:end-4), Username );
 else
     MsgStr = ' ';
@@ -167,9 +167,11 @@ msgStatus = sprintf( ['PROGRESS UPDATE', MsgStr, ':\r\nTotal Trials Completed=%d
 PrintOut(['\n\n', msgStatus, '\n\n'], 0, obj.JobManagerParam.LogFileName);
 msgResults = sprintf( 'SNR Points Completed=%.2f\n', JobParam.SNR(ActiveSNRPoints==0) );
 
+% Update simulation progress in STAUS field of JobInfo.
+msgStatusFile = sprintf( '%2.2f%% of Trials Completed.', 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
+JobInfo = obj.UpdateJobInfo( JobInfo, 'Status', msgStatusFile );
 % Save simulation progress in STATUS file. Update Results file.
-if( nargin >= 6 && ~isempty(JobName) && ~isempty(JobRunningDir) )
-    msgStatusFile = sprintf( '%2.2f%% of Trials Completed.', 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
+if( nargin >= 7 && ~isempty(JobName) && ~isempty(JobRunningDir) )
     % SuccessFlagStatus = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
     obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
     

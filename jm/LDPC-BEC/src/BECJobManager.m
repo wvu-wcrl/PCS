@@ -1,6 +1,6 @@
 classdef BECJobManager < CodedModJobManager
     
-
+    
     methods( Static, Access = private )
         function OldPath = SetCodePath(CodeRoot)
             % Determine the home directory.
@@ -21,8 +21,8 @@ classdef BECJobManager < CodedModJobManager
                 'EpsilonStarDE', EpsilonThresholdStar );
         end
     end
-
-
+    
+    
     methods
         function obj = BECJobManager(cfgRoot)
             % Binary Erasure Channel Simulation Job Manager.
@@ -35,8 +35,8 @@ classdef BECJobManager < CodedModJobManager
             addpath(fullfile(filesep,'home','pcs','jm','CodedMod','src'));
             obj@CodedModJobManager(cfgRoot);
         end
-
-
+        
+        
         function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn, CodeRoot)
             
             % First, set the path.
@@ -53,11 +53,11 @@ classdef BECJobManager < CodedModJobManager
         end
         
         
-        function [StopFlag, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobName, Username, JobRunningDir)
+        function [StopFlag, JobInfo, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, JobRunningDir)
             % Determine if the global stopping criteria have been reached/met. Moreover, determine and echo progress of running JobName.
             % Furthermore, update Results file.
-            % Calling syntax: [StopFlag [,JobParam]] = obj.DetermineStopFlag(JobParam, JobState [,JobName] [,Username] [,JobRunningDir])
-
+            % Calling syntax: [StopFlag, JobInfo [,JobParam]] = obj.DetermineStopFlag(JobParam, JobState, JobInfo [,JobName] [,Username] [,JobRunningDir])
+            
             % First check to see if minimum number of trials or frame errors has been reached.
             % Determine the number of remaining trials reqiured for each Epsilon point.
             RemainingTrials = JobParam.MaxTrials - JobState.Trials(end,:);
@@ -65,29 +65,29 @@ classdef BECJobManager < CodedModJobManager
             % Determine the number of remaining frame errors reqiured for each Epsilon point.
             RemainingFrameErrors = JobParam.MaxFrameErrors - JobState.FrameErrors(end,:);
             RemainingFrameErrors(RemainingFrameErrors<0) = 0;   % Force to zero if negative.
-
+            
             % Determine the position of active Epsilon points based on the number of remaining trials and frame errors.
             ActiveEpsilonPoints  = ( (RemainingTrials>0) & (RemainingFrameErrors>0) );
-
+            
             % JobParam.MaxTrials(ActiveEpsilonPoints==0) = JobState.Trials(end,ActiveEpsilonPoints==0);
-
+            
             % Set the stopping flag.
             StopFlag = ( sum(ActiveEpsilonPoints) == 0 );
-
+            
             if StopFlag == 1
-                if( nargin>=4 && ~isempty(JobName) && ~isempty(Username) )
+                if( nargin>=5 && ~isempty(JobName) && ~isempty(Username) )
                     StopMsg = sprintf( ['\n\nRunning job %s for user %s is STOPPED completely because enough trials and/or ',...
                         'frame errors are observed for ALL Epsilon points.\n\n'], JobName(1:end-4), Username );
                     PrintOut(StopMsg, 0, obj.JobManagerParam.LogFileName);
                 end
             end
-
+            
             % Determine and echo progress of running JobName.
             RemainingTJob = sum( (ActiveEpsilonPoints==1) .* RemainingTrials );
             CompletedTJob = sum( JobState.Trials(end,:) );
             % RemainingFEJob = sum( (ActiveEpsilonPoints==1) .* RemainingFrameErrors );
             % CompletedFEJob = sum( JobState.FrameErrors(end,:) );
-            if( nargin>=4 && ~isempty(JobName) && ~isempty(Username) )
+            if( nargin>=5 && ~isempty(JobName) && ~isempty(Username) )
                 MsgStr = sprintf( ' for JOB %s USER %s', JobName(1:end-4), Username );
             else
                 MsgStr = ' ';
@@ -112,18 +112,21 @@ classdef BECJobManager < CodedModJobManager
             end
             msgResults = sprintf( 'DataLength (k)=%d\r\nCodewordLength (n)=%d\r\nCodeRate=%.4f\r\nFullRank=%s\r\nEpsilonStarDE=%.8f\r\nEpsilonStarSimulation=%s',...
                 JobParam.HStructInfo.DataLength, JobParam.HStructInfo.CodewordLength, JobParam.HStructInfo.CodeRate, FullRank, JobParam.HStructInfo.EpsilonStarDE, EpsilonStarSimMsg );
-
+            
+            % Update simulation progress in STAUS field of JobInfo.
+            msgStatusFile = sprintf( '%2.4f%% of Trials Completed.', 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
+            JobInfo = obj.UpdateJobInfo( JobInfo, 'Status', msgStatusFile );
             % Save simulation progress in STATUS file. Update Results file.
-            if( nargin>=4 && ~isempty(JobName) && ~isempty(JobRunningDir) )
-                msgStatusFile = sprintf( '%2.4f%% of Trials Completed.', 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
+            if( nargin>=5 && ~isempty(JobName) && ~isempty(JobRunningDir) )
                 % SuccessFlagStatus = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
                 obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
-
+                
                 % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
                 % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
                 obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msgResults, 'w+');
             end
             varargout{1} = JobParam;
+            varargout{2} = JobState;
             
             % Plot the results.
             FigH = figure;
@@ -141,5 +144,5 @@ classdef BECJobManager < CodedModJobManager
             end
         end
     end
-
+    
 end
