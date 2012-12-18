@@ -258,7 +258,8 @@ classdef JobManager < handle
                                     if strcmpi( JobDirectory, JobInDir )
                                         TaskMaxRunTime = CurrentUser.InitialRunTime;
                                     elseif strcmpi( JobDirectory, JobRunningDir )
-                                        if isfield(JobParam, 'MaxRunTime')
+                                        if isfield(JobParam, 'MaxRunTime')&...
+                                            (JobParam.MaxRunTime ~= -1),
                                             TaskMaxRunTime = JobParam.MaxRunTime;
                                         else
                                             TaskMaxRunTime = CurrentUser.MaxRunTime;
@@ -373,7 +374,7 @@ classdef JobManager < handle
                                                 JobState = obj.UpdateJobState(JobState, TaskState, JobParam);
                                                 JobInfo = obj.UpdateJobInfo( JobInfo, 'ProcessDuration', etime(TaskInfo.StopTime, TaskInfo.StartTime) );
                                                 UserAllJobIDs = CurrentUserUsageInfo.Usage(1,:);
-                                                CurrentUserUsageInfo.Usage(4,UserAllJobIDs == JobInfo.JobID) = JobInfo.ProcessDuration;
+                                                CurrentUserUsageInfo.Usage(4,UserAllJobIDs == JobInfo.JobID) = JobInfo.JobTiming.ProcessDuration;
                                                 CurrentUserUsageInfo.TotalProcessDuration = sum( CurrentUserUsageInfo.Usage(4,:) );
                                             end
                                             % else
@@ -477,7 +478,7 @@ classdef JobManager < handle
                                     end
                                     % Update the current job's ProcessDuration in the global UserUsageInfo structure.
                                     UserAllJobIDs = CurrentUserUsageInfo.Usage(1,:);
-                                    CurrentUserUsageInfo.Usage(4,UserAllJobIDs == JobInfo.JobID) = JobInfo.ProcessDuration;
+                                    CurrentUserUsageInfo.Usage(4,UserAllJobIDs == JobInfo.JobID) = JobInfo.JobTiming.ProcessDuration;
                                     CurrentUserUsageInfo.TotalProcessDuration = sum( CurrentUserUsageInfo.Usage(4,:) );
                                     
                                     Msg = sprintf( '\n\n\nConsolidating finished tasks associated with job %s for user %s is DONE at %s!\n\n\n',...
@@ -503,7 +504,8 @@ classdef JobManager < handle
                                             end
                                             
                                             % Limit the simulation maximum runtime of each task.
-                                            if isfield(JobParam, 'MaxRunTime')
+                                            if isfield(JobParam, 'MaxRunTime')&...
+                                               JobParam.MaxRunTime ~= -1,
                                                 TaskMaxRunTime = JobParam.MaxRunTime;
                                             else
                                                 TaskMaxRunTime = CurrentUser.MaxRunTime;
@@ -515,7 +517,7 @@ classdef JobManager < handle
                                         else % If simulation of this job is done, save the result in JobOut queue/directory.
                                             StopTime = datenum(clock);
                                             % Set the job StopTime.
-                                            JobInfo = obj.UpdateJobInfo('StopTime', StopTime, 'Status', 'Done');
+                                            JobInfo = obj.UpdateJobInfo(JobInfo, 'StopTime', StopTime, 'Status', 'Done');
                                             
                                             % Set the job StopTime in the global UserUsageInfo structure.
                                             UserAllJobIDs = CurrentUserUsageInfo.Usage(1,:);
@@ -767,7 +769,7 @@ classdef JobManager < handle
         
         function JobManagerInfo = InitJobManagerInfo(obj)
             if( exist(obj.JobManagerParam.JMInfoFullPath, 'file') ~= 0 )
-                JobManagerInfo = load(obj.JobManagerParam.JMInfoFullPath, 'JobManagerInfo');
+                load(obj.JobManagerParam.JMInfoFullPath, 'JobManagerInfo');
             else
                 JobManagerInfo = struct('UserList', [], ...
                     'JobID', 0, ...
@@ -1292,7 +1294,8 @@ classdef JobManager < handle
             % Divide the JOB into multiple TASKs.
             % Calling syntax: obj.DivideJob2Tasks(JobParam, JobState, UserParam, JobName [,TaskMaxRunTime])
             if( nargin<6 || isempty(TaskMaxRunTime) )
-                if isfield(JobParam, 'MaxRunTime')
+                if isfield(JobParam, 'MaxRunTime')&...
+            	      JobParam.MaxRunTime ~= -1,
                     TaskMaxRunTime = JobParam.MaxRunTime;
                 else
                     TaskMaxRunTime = UserParam.MaxRunTime;
