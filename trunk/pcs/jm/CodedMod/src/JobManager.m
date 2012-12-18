@@ -842,6 +842,9 @@ classdef JobManager < handle
                 % If CFG_Filename (project configuration file) exists AND {EITHER user is NOT already listed in UserList OR
                 % CFG_Filename is modified since the last time it is read}, read CFG_Filename.
                 if( ~isempty(cfgFileDir) && ( sum(UserFoundFlag)==0 || UserList{UserFoundFlag==1}.CfgFileModDate < UserDirs(k).datenum ) )
+                    if( UserList{UserFoundFlag==1}.CfgFileModDate < UserDirs(k).datenum )
+                        UserList(UserFoundFlag==1) = [];
+                    end
                     if sum(UserFoundFlag)==0
                         UserCount = UserCount + 1;
                     end
