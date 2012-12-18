@@ -46,4 +46,4 @@ vqFlag = 0
 [eTimeTrialSpec]
 
 % Maximum number of recent trial numbers and processing times of each worker node saved for billing purposes.
-MaxRecentTaskInfo = 5
+MaxRecentTaskInfo = 1e3
