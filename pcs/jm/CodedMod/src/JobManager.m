@@ -258,8 +258,7 @@ classdef JobManager < handle
                                     if strcmpi( JobDirectory, JobInDir )
                                         TaskMaxRunTime = CurrentUser.InitialRunTime;
                                     elseif strcmpi( JobDirectory, JobRunningDir )
-                                        if isfield(JobParam, 'MaxRunTime')&...
-                                            (JobParam.MaxRunTime ~= -1),
+                                        if( isfield(JobParam, 'MaxRunTime') && (JobParam.MaxRunTime ~= -1) )
                                             TaskMaxRunTime = JobParam.MaxRunTime;
                                         else
                                             TaskMaxRunTime = CurrentUser.MaxRunTime;
@@ -504,8 +503,7 @@ classdef JobManager < handle
                                             end
                                             
                                             % Limit the simulation maximum runtime of each task.
-                                            if isfield(JobParam, 'MaxRunTime')&...
-                                               JobParam.MaxRunTime ~= -1,
+                                            if( isfield(JobParam, 'MaxRunTime') && (JobParam.MaxRunTime ~= -1) )
                                                 TaskMaxRunTime = JobParam.MaxRunTime;
                                             else
                                                 TaskMaxRunTime = CurrentUser.MaxRunTime;
@@ -1294,8 +1292,7 @@ classdef JobManager < handle
             % Divide the JOB into multiple TASKs.
             % Calling syntax: obj.DivideJob2Tasks(JobParam, JobState, UserParam, JobName [,TaskMaxRunTime])
             if( nargin<6 || isempty(TaskMaxRunTime) )
-                if isfield(JobParam, 'MaxRunTime')&...
-            	      JobParam.MaxRunTime ~= -1,
+                if( isfield(JobParam, 'MaxRunTime') && (JobParam.MaxRunTime ~= -1) )
                     TaskMaxRunTime = JobParam.MaxRunTime;
                 else
                     TaskMaxRunTime = UserParam.MaxRunTime;
