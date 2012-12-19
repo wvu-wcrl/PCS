@@ -307,20 +307,6 @@ classdef JobManager < handle
                                     TaskInputParam = TaskContent.TaskParam.InputParam;
                                     TaskState = TaskContent.TaskState;
                                     TaskInfo = TaskContent.TaskInfo;
-                                    
-                                    if sum( isfield(TaskInfo, {'StartTime', 'StopTime'}) )==2
-                                        % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save Timing Info.
-                                        [NodeID_Times, eTimeTrial] = obj.ExtractETimeTrial( TaskInfo, CurrentTime );
-                                        try
-                                            save( fullfile(TempDir,[JobName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
-                                            SuccessMsg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', TaskOutFileName(1:end-4), Username );
-                                            PrintOut(SuccessMsg, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
-                                        catch
-                                            save( fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
-                                            SuccessMsg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', TaskOutFileName(1:end-4), Username );
-                                            obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeTrial.mat']), TempDir, SuccessMsg);
-                                        end
-                                    end
                                 end
                                 
                                 % Delete the selected output task file from TaskOut directory.
@@ -365,6 +351,22 @@ classdef JobManager < handle
                                             JobParam = JobContent.JobParam;
                                             JobState = JobContent.JobState;
                                             JobInfo = JobContent.JobInfo;
+                                            
+                                            if( isfield(JobParam, 'ProfileSpeed') && JobParam.ProfileSpeed == 1 && ...
+                                                    sum( isfield(TaskInfo, {'StartTime', 'StopTime'}) )==2 )
+                                                % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save Timing Info.
+                                                NumProcessUnit = obj.FindNumProcessUnits(TaskState);
+                                                [NodeID_Times, eTimeTrial] = obj.ExtractETimeTrial( TaskInfo, CurrentTime, NumProcessUnit );
+                                                try
+                                                    save( fullfile(TempDir,[JobName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
+                                                    SuccessMsg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', TaskOutFileName(1:end-4), Username );
+                                                    PrintOut(SuccessMsg, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
+                                                catch
+                                                    save( fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
+                                                    SuccessMsg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', TaskOutFileName(1:end-4), Username );
+                                                    obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeTrial.mat']), TempDir, SuccessMsg);
+                                                end
+                                            end
                                             
                                             % Update JobState if the received output Task has done some trials.
                                             % if sum(TaskState.Trials(end,:))~=0
@@ -438,9 +440,11 @@ classdef JobManager < handle
                                             % PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                                             % end
                                             
-                                            if sum( isfield(TaskInfo, {'StartTime', 'StopTime'}) )==2
+                                            if( isfield(JobParam, 'ProfileSpeed') && JobParam.ProfileSpeed == 1 && ...
+                                                    sum( isfield(TaskInfo, {'StartTime', 'StopTime'}) )==2 )
                                                 % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save Timing Info.
-                                                [NodeID_Times, eTimeTrial] = obj.ExtractETimeTrial( TaskInfo, CurrentTime );
+                                                NumProcessUnit = obj.FindNumProcessUnits(TaskState);
+                                                [NodeID_Times, eTimeTrial] = obj.ExtractETimeTrial( TaskInfo, CurrentTime, NumProcessUnit );
                                                 try
                                                     save( fullfile(TempDir,[JobName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
                                                     SuccessMsg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', TaskOutFileName(1:end-4), Username );
@@ -1095,7 +1099,7 @@ classdef JobManager < handle
         end
         
         
-        function [NodeID_Times, eTimeTrial] = ExtractETimeTrial( obj, TaskInfo, CurrentTime )
+        function [NodeID_Times, eTimeTrial] = ExtractETimeTrial( obj, TaskInfo, CurrentTime, NumProcessUnit )
             % This function is designed for billing purposes.
             % NodeID_Times is a vector structure with two fields:
             % NodeID and NumNodeTaskInfo (how many times that specific node has generated TaskInfo (run simulations)).
@@ -1104,6 +1108,8 @@ classdef JobManager < handle
             % eTimeTrial is a 3-by-MaxRecentTaskInfo-by-NumNode matrix.
             % Its first row contains the time calculated globally from the start of the job manager until receiving curret consumed task from TaskOut directory.
             % Its second row contains elapsed times in current task at the worker and its third row contains the number of trials completed during the eTime at the worker.
+            
+            if(nargin<4 || isempty(NumProcessUnit)), NumProcessUnit = []; end
             
             MaxRecentTaskInfo = obj.JobManagerParam.MaxRecentTaskInfo;
             NodeID_Times = obj.NodeID_Times;
@@ -1140,6 +1146,10 @@ classdef JobManager < handle
             %     sum(TaskInfo.Trials(end,:))];
             eTimeTrial(1:2,ColPos,Ind) = [CurrentTime
                 etime(TaskInfo.StopTime, TaskInfo.StartTime)];
+            
+            if ~isempty(NumProcessUnit)
+                eTimeTrial(3,ColPos,Ind) = NumProcessUnit;
+            end
             
             obj.NodeID_Times = NodeID_Times;
             obj.eTimeTrial = eTimeTrial;
