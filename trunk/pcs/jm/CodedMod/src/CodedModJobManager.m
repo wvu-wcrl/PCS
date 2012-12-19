@@ -185,6 +185,12 @@ classdef CodedModJobManager < JobManager
             varargout{1} = JobParam;
             varargout{2} = JobState;
         end
+        
+        
+        function NumProcessUnit = FindNumProcessUnits(obj, TaskState)
+            NumProcessUnit = sum(TaskState.Trials(end,:));
+        end
+        
     end
 
 end
