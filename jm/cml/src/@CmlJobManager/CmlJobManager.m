@@ -55,9 +55,17 @@ classdef CmlJobManager < JobManager
             path(OldPath);
         end
         
+        
+        function NumProcessUnit = FindNumProcessUnits(obj, TaskState)
+            NumProcessUnit = sum(TaskState.trials(end,:));
+        end
+        
+        
         TaskInputParam = CalcTaskInputParam(obj, JobParam, JobState, NumNewTasks) % Need to modify.
         
+        
         JobState = UpdateJobState(obj, JobStateIn, TaskState, JobParam)
+        
         
         [StopFlag, JobInfo, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, JobRunningDir)
         
