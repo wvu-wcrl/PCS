@@ -1,0 +1,89 @@
+#!/usr/bin/python
+# txt2tbl
+# script to convert cluster node usage text files to latex tables
+# 
+# For an example spreadsheet, see 'example.ods'
+#
+# Copyright Terry 2012
+# Wap!
+
+import csv
+import sys
+import os
+
+
+def open_node_usage_csv_file( nudcf ):
+
+    nudcr = csv.reader(open(nudcf, 'rb'), delimiter=',')
+    
+    return nudcr
+
+
+def read_node_usage_data( nudcr ):
+
+    nud = []   # declare data struct to hold tbl info
+
+    for tbl_entry in nudcr:
+        nud.append(tbl_entry)
+       
+    return nud
+
+
+def write_latex_file_header( nudlfw ):
+
+    nudlfw.write('\documentclass{article}\n')
+    nudlfw.write('\pagestyle{empty}\n')
+    nudlfw.write('\\begin{document}\n')
+    nudlfw.write('\\begin{table}\n')
+    nudlfw.write('\\centering\n')
+    nudlfw.write('\\begin{tabular}{l|l}\n')
+    nudlfw.write('\\textbf{Node} & \\textbf{Trials per Minute} \\\\\n')
+    nudlfw.write('\hline\n')
+  
+
+
+def  write_table_data( nudlfw, nud ):
+
+    for nudk in nud:
+        table_entry = nudk[0] + ' & ' + nudk[1] + '\\\\' + '\n'
+        nudlfw.write( table_entry )
+
+
+
+def write_latex_file_footer( nudlfw ):
+    
+    nudlfw.write('\\end{tabular}\n')
+    nudlfw.write('\\end{table}\n')
+    nudlfw.write('\\end{document}\n')
+
+
+
+
+
+# read two-column data from text file and convert to latex table
+if __name__ == '__main__':
+
+    nudcf = sys.argv[1]
+    nudcr = open_node_usage_csv_file( nudcf )
+
+
+    nud   = read_node_usage_data( nudcr )
+    #nud[col][row]
+
+
+    nudlf = sys.argv[2]      # open latex file for writing
+    nudlfw = open(nudlf,'w')
+
+
+    write_latex_file_header( nudlfw )
+
+
+    write_table_data( nudlfw, nud )
+
+
+    write_latex_file_footer( nudlfw )
+
+    
+    nudlfw.close()
+    
+
