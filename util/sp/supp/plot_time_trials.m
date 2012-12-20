@@ -23,11 +23,11 @@ function plot_time_trials(cmlroot, job_fn, scenario, record, fontsize, fig_out_d
  % trss - trial sample standalone
 
 
-[ tsc trsc ] = load_timing_data_cluster( job_fn );
+[ tsc trsc ni ] = load_timing_data_cluster( job_fn );
  % tsc - time sample cluster
  % trsc - trial sample cluster
 
-create_table_data_flat_text(tsc, trsc, fig_out_dir, scenario, record);
+ create_table_data_flat_text(ni, fig_out_dir, scenario, record);
  
 
 [ fig_time ax_time ] = plot_timing_data( tss, trss, tsc, trsc );
@@ -50,7 +50,7 @@ trss = sim_state.timing_data.trial_samples;
 end
 
 
-function [ tsc trsc ] = load_timing_data_cluster( job_fn );
+function [ tsc trsc ni ] = load_timing_data_cluster( job_fn );
 
 load(job_fn); % JobInfo struct in workspace
 
@@ -59,16 +59,34 @@ SP = JobInfo.JobID.SpeedProfile;
 tsc = SP.ActualTime;
 trsc = SP.NumProcessUnit;
 
+ni = SP.NodeInfo;
+
 end
 
 
-function create_table_data_flat_text(tsc, trsc, fig_out_dir, scenario, record)
+function create_table_data_flat_text(ni, fig_out_dir, scenario, record)
 
 [DataFileName] = [fig_out_dir filesep scenario '_' record '.dat'];
 
-dat_matrix = [tsc' trsc'];
+% extract timing info from job file
+N = length(ni);
 
-dlmwrite(DataFileName, dat_matrix);
+dfd = fopen(DataFileName, 'w');
+
+for k = 1:N,
+
+NodeName = ni{k}.NodeName;
+
+
+TotalTrials = sum(ni{k}.NumProcessUnit);    % compute trials/sec
+ElapsedTime = ni{k}.ProcessDuration(end) - ni{k}.ProcessDuration(1);
+TrialsSec = TotalTrials/ElapsedTime;
+
+
+fprintf(dfd, '%s,%f\n', NodeName, TrialsSec);
+
+end
+
 
 end
 
@@ -76,7 +94,7 @@ end
 
 function [ fig_time ax_time ] = plot_timing_data( tss, trss, tsc, trsc )
 fig_time = figure;
-plot(tss,trss, tss, trss);
+plot(tss,trss, tsc, trsc);
 ax_time = gca;
 end
 
