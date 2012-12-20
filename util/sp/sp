@@ -1,5 +1,5 @@
 #!/bin/bash
-# launch_speed_profile
+# sp
 #
 # Execute CML error-rate simulation using cluster and single-core operation
 #  and gather timing information.
@@ -9,7 +9,7 @@
 #  2. Record
 #
 #  Calling Example
-#   > ./launch_speed_profile.sh SpeedTest 1
+#   > ./sp SpeedProfile 1
 #                                                               
 #     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti   
 #     For full copyright information see the bottom of this file.
@@ -32,18 +32,15 @@
 SCENARIO=$1                          # cml scenario and record to simulate
 RECORD=$2
 
-
 ST_ROOT=`pwd`                        # speed test root
 SUPP_DIR=$ST_ROOT/supp               # supporting matlab and bash scripts
 FIG_DIR=$ST_ROOT/output              # speed test result output
 
 CML_ROOT=/home/pcs/projects/cml      # path to cml
 
-
 SC_SS=$SCENARIO\_$RECORD"_L"         # single-core screen session
 C_SS=$SCENARIO\_$RECORD"_C"          # cluster screen session
 M_SS=$SCENARIO\_$RECORD\_"M"         # monitor screen session
-
 
 JOB_FN=/home/pcs/Projects/cml/JobOut/$SCENARIO\_$RECORD".mat"  # pcs job filename
 FIG_FONTSIZE=16                      # font size for trial figure
@@ -51,18 +48,9 @@ FIG_FONTSIZE=16                      # font size for trial figure
 
 
 
-start_local_sim(){
-screen -S $SC_SS -m -d matlab -r "cd $CML_ROOT; CmlStartup; CmlSimulate('$SCENARIO',$RECORD); exit"
-}
-
-
-start_cluster_sim(){
-screen -S $C_SS -m -d matlab -r "cd $CML_ROOT; CmlStartup; CmlClusterSubmit('$SCENARIO', $RECORD); exit"
-}
-
 
 stop_screen_session(){
-screen -ls |grep $1 | awk -F . '{print $1}' |xargs kill
+screen -ls |grep $1 | awk -F . '{print $1}' |xargs kill 2> /dev/null
 }
 
 
@@ -80,16 +68,31 @@ reset_sp_state
 }
 
 
+start_local_sim(){
+screen -S $SC_SS -m -d matlab -singleCompThread -r "cd $CML_ROOT; CmlStartup; CmlSimulate('$SCENARIO',$RECORD); exit"
+}
+
+
+start_cluster_sim(){
+screen -S $C_SS -m -d matlab -r "cd $CML_ROOT; CmlStartup; CmlClusterSubmit('$SCENARIO', $RECORD); exit"
+}
+
+
+start_monitor(){
+screen -S $M_SS -m -d $SUPP_DIR/monitor_sims $SC_SS $C_SS $JOB_FN $CML_ROOT $SUPP_DIR $SCENARIO $RECORD $FIG_DIR $FIG_FONTSIZE
+}
+
+
+
 
 
 destroy_existing_speed_test
 
-start_local_sim $SCENARIO $RECORD
+start_local_sim 
 
-start_cluster_sim $SCENARIO $RECORD
+start_cluster_sim 
 
-screen -S $M_SS -m -d $SUPP_DIR/monitor_sims $SC_SS $C_SS $JOB_FN $CML_ROOT $SUPP_DIR $SCENARIO $RECORD $FIG_DIR $FIG_FONTSIZE
-
+start_monitor
 
 
 

@@ -27,6 +27,8 @@ function plot_time_trials(cmlroot, job_fn, scenario, record, fontsize, fig_out_d
  % tsc - time sample cluster
  % trsc - trial sample cluster
 
+create_table_data_flat_text(tsc, trsc, fig_out_dir, scenario, record);
+ 
 
 [ fig_time ax_time ] = plot_timing_data( tss, trss, tsc, trsc );
 
@@ -49,9 +51,27 @@ end
 
 
 function [ tsc trsc ] = load_timing_data_cluster( job_fn );
-tsc = 0;
-trsc = 0;
+
+load(job_fn); % JobInfo struct in workspace
+
+SP = JobInfo.JobID.SpeedProfile;
+
+tsc = SP.ActualTime;
+trsc = SP.NumProcessUnit;
+
 end
+
+
+function create_table_data_flat_text(tsc, trsc, fig_out_dir, scenario, record)
+
+[DataFileName] = [fig_out_dir filesep scenario '_' record '.dat'];
+
+dat_matrix = [tsc' trsc'];
+
+dlmwrite(DataFileName, dat_matrix);
+
+end
+
 
 
 function [ fig_time ax_time ] = plot_timing_data( tss, trss, tsc, trsc )

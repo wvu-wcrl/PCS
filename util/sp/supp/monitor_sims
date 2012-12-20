@@ -1,4 +1,4 @@
-#!/bin/bash
+0;271;0c#!/bin/bash
 # monitor_sims
 #
 # Monitor speed tests for completion and plot timing data.                                 
@@ -73,10 +73,27 @@ plot_data(){
 matlab -r "cd $SUPP_DIR; plot_time_trials('$CML_ROOT', '$JOB_FN', '$SCENARIO', $RECORD, $FIG_FONTSIZE, '$FIG_DIR' ); exit"
 }
 
+create_table(){
+
+  TIMING_TABLE_LATEX=$FIG_DIR/$SCENARIO\_$RECORD.tex
+  TIMING_DATA_FILE=$FIG_DIR/$SCENARIO\_$RECORD.dat
+
+  $SUPP_DIR/txt2ltbl $TIMING_DATA_FILE $TIMING_TABLE_LATEX  
+
+  pdflatex -output-directory $FIG_DIR $TIMING_TABLE_LATEX 
+
+  rm $FIG_DIR/*.aux $FIG_DIR/*.log  # cleanup after latex
+
+  TIMING_TABLE_PDF=$FIG_DIR/$SCENARIO\_$RECORD.pdf
+  pdfcrop $TIMING_TABLE_PDF $TIMING_TABLE_PDF
+
+  rm $TIMING_DATA_FILE
+
+}
 
 monitor_sims
 plot_data 
-
+create_table
 
 #     This library is free software; you can redistribute it and/or modify it under the terms of
 #     the GNU Lesser General Public License as published by the

@@ -18,12 +18,12 @@ Output
 
 = Usage Example =
 
-  > ./sp SpeedTest 1
+  > ./sp SpeedProfile 1
 
    * wait *
 
 
-  Output figure appears in sp/output/SpeedTest_1.fig
+  Output figure appears in sp/output/SpeedProfile_1.fig
 
 
 = Notes =
