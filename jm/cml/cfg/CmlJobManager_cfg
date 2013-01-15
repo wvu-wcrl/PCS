@@ -43,7 +43,7 @@ LogFileName = 0
 vqFlag = 0
 
 
-[eTimeTrialSpec]
+[eTimeProcessUnitSpec]
 
 % Maximum number of recent trial numbers and processing times of each worker node saved for billing purposes.
 MaxRecentTaskInfo = 1e3
