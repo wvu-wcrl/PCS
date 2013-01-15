@@ -8,7 +8,7 @@ classdef BECLinkSimulation < Simulation
 %             'Epsilon', [], ...        % Row vector of channel erasure probabilities.
 %             'MaxTrials', [], ...      % A vector of integers (or a scalar), one for each Epsilon point. Maximum number of trials to run per point.
 %             'FileName', [], ...
-%             'RunTime', 300, ...       % Simulation time in Seconds.
+%             'MaxRunTime', 300, ...    % Maximum simulation time in Seconds.
 %             'CheckPeriod', 10, ...    % Checking time in number of Trials.
 %             'MaxBitErrors', [], ...
 %             'MaxFrameErrors', [], ...
@@ -117,7 +117,7 @@ classdef BECLinkSimulation < Simulation
             end
 
             % Accumulate errors for different Epsilon points unitil time is up.
-            while ElapsedTime < obj.SimParam.RunTime
+            while ElapsedTime < obj.SimParam.MaxRunTime
                 TaskTime = tic;
                 % Determine the number of remaining frame errors reqiured for each Epsilon point.
                 RemainingFrameError = obj.SimParam.MaxFrameErrors - obj.SimState.FrameErrors(end,:);
