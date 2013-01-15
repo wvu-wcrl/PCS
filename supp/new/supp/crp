@@ -24,7 +24,7 @@ mkdir $HD/Projects/$PN/JobIn
 mkdir $HD/Projects/$PN/JobRunning                                                                                               
 mkdir $HD/Projects/$PN/JobOut                                                                                                   
 mkdir $HD/Projects/$PN/data                                                                                                     
-mkdir $HD/Projects/$PN/archive                                                                                                  
+mkdir $HD/Projects/$PN/archive                                                 mkdir $HD/Projects/$PN/Suspended                                                                                                  
 chown -R $UN:$UN $HD/Projects
 
                                                                                                                                                   
