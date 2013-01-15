@@ -12,7 +12,7 @@ function [EpsilonStarDE, CodeRate, FullRank] = GenerateJob(HStruct, JobFileName,
 %       Epsilon_JobParam    This OPTIONAL input can be either a vector or a structure.
 %                           If it is a VECTOR, it specifies the vector of Epsilon points (channel erasure probabilities).
 %                           If it is a STRUCTURE, it specifies the JobParam structure with the following fields:
-%                           Epsilon,MaxTrials,MaxFrameErrors,MaxIteration,RunTime. All of these fields are OPTIONAL.
+%                           Epsilon,MaxTrials,MaxFrameErrors,MaxIteration,MaxRunTime. All of these fields are OPTIONAL.
 %
 % Outputs
 %       EpsilonStarDE   Theoretical maximum channel erasure probability for the given parity-check matrix based on Density Evolution.
@@ -39,7 +39,7 @@ elseif( isstruct(Epsilon_JobParam) )% JobParam is specified in Epsilon_JobParam 
     if( ~isfield(JobParam, 'MaxTrials') || isempty(JobParam.MaxTrials) ), JobParam.MaxTrials = 0.25e5; end
     if( ~isfield(JobParam, 'MaxFrameErrors') || isempty(JobParam.MaxFrameErrors) ), JobParam.MaxFrameErrors = 1e3; end
     if( ~isfield(JobParam, 'MaxIteration') || isempty(JobParam.MaxIteration) ), JobParam.MaxIteration = 100; end
-    if( ~isfield(JobParam, 'RunTime') || isempty(JobParam.RunTime) ), JobParam.RunTime = 300; end
+    if( ~isfield(JobParam, 'MaxRunTime') || isempty(JobParam.MaxRunTime) ), JobParam.MaxRunTime = 300; end
     if( ~isfield(JobParam, 'MaxBitErrors') || isempty(JobParam.MaxBitErrors) ), JobParam.MaxBitErrors = 0; end
     if( ~isfield(JobParam, 'CheckPeriod') || isempty(JobParam.CheckPeriod) ), JobParam.CheckPeriod = 100; end
     JobParamFlag = 0; % We do NOT need to generate the JobParam structure.
@@ -60,7 +60,7 @@ if JobParamFlag == 1
         'HStruct', HStruct, ...     % A structure array corresponding to the parity-check matrix.
         ...                         % H(j).loc_ones gives the location of ones in the jth row of H matrix.
         'HStructInfo', HStructInfo, ...
-        'RunTime', 300, ...         % Simulation time in Seconds.
+        'MaxRunTime', 300, ...      % Maximum simulation time in Seconds.
         'MaxBitErrors', 0, ...
         'CheckPeriod', 100 );       % Checking time in number of Trials.
 end

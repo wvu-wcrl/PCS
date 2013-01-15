@@ -40,7 +40,7 @@ if( ResumeFlag == 0 )
         'HStruct', HStruct, ...     % A structure array corresponding to the parity-check matrix.
         ...                         % H(j).loc_ones gives the location of ones in the jth row of H matrix.
         'FileName', ResultFileName, ...
-        'RunTime', 300, ...         % Simulation time in Seconds.
+        'MaxRunTime', 300, ...      % Maximum simulation time in Seconds.
         'CheckPeriod', 60 );        % Checking time in number of Trials.
     InitialTrials = 0;
 elseif( ResumeFlag == 1 )

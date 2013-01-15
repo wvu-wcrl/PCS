@@ -6,10 +6,10 @@ classdef JobManager < handle
     end
     
     properties(SetAccess = protected)
-        NodeID_Times = []   % NodeID_Times is a vector structure with two fields:
+        NodeID_Times = []       % NodeID_Times is a vector structure with two fields:
         % NodeID and NumNodeTaskInfo (how many times that specific node has generated TaskInfo (run simulations)).
         % The length of this structure is equal to the number of active nodes (NumNode).
-        eTimeTrial = []     % eTimeTrial is a 3-by-MaxRecentTaskInfo-by-NumNode matrix.
+        eTimeProcessUnit = []   % eTimeProcessUnit is a 3-by-MaxRecentTaskInfo-by-NumNode matrix.
         % Its first row contains the time calculated globally from the start of the job manager until receiving curret consumed task from TaskOut directory.
         % Its second row contains elapsed times in current task at the worker and its third row contains the number of trials completed during the eTime at the worker.
     end
@@ -356,15 +356,17 @@ classdef JobManager < handle
                                                     sum( isfield(TaskInfo, {'StartTime', 'StopTime'}) )==2 )
                                                 % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save Timing Info.
                                                 NumProcessUnit = obj.FindNumProcessUnits(TaskState);
-                                                [NodeID_Times, eTimeTrial] = obj.ExtractETimeTrial( TaskInfo, CurrentTime, NumProcessUnit );
+                                                [NodeID_Times, eTimeProcessUnit] = obj.ExtractETimeProcessUnit( TaskInfo, CurrentTime, NumProcessUnit );
+                                                SpeedProfile = obj.FindSpeedProfileInfo(eTimeProcessUnit);
+                                                JobInfo = obj.UpdateJobInfo( JobInfo, 'SpeedProfile', SpeedProfile );
                                                 try
-                                                    save( fullfile(TempDir,[JobName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
+                                                    save( fullfile(TempDir,[JobName(1:end-4) '_eTimeProcessUnit.mat']), 'eTimeProcessUnit', 'NodeID_Times' );
                                                     SuccessMsg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', TaskOutFileName(1:end-4), Username );
                                                     PrintOut(SuccessMsg, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
                                                 catch
-                                                    save( fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
+                                                    save( fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeProcessUnit.mat']), 'eTimeProcessUnit', 'NodeID_Times' );
                                                     SuccessMsg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', TaskOutFileName(1:end-4), Username );
-                                                    obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeTrial.mat']), TempDir, SuccessMsg);
+                                                    obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeProcessUnit.mat']), TempDir, SuccessMsg);
                                                 end
                                             end
                                             
@@ -444,15 +446,17 @@ classdef JobManager < handle
                                                     sum( isfield(TaskInfo, {'StartTime', 'StopTime'}) )==2 )
                                                 % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save Timing Info.
                                                 NumProcessUnit = obj.FindNumProcessUnits(TaskState);
-                                                [NodeID_Times, eTimeTrial] = obj.ExtractETimeTrial( TaskInfo, CurrentTime, NumProcessUnit );
+                                                [NodeID_Times, eTimeProcessUnit] = obj.ExtractETimeProcessUnit( TaskInfo, CurrentTime, NumProcessUnit );
+                                                SpeedProfile = obj.FindSpeedProfileInfo(eTimeProcessUnit);
+                                                JobInfo = obj.UpdateJobInfo( JobInfo, 'SpeedProfile', SpeedProfile );
                                                 try
-                                                    save( fullfile(TempDir,[JobName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
+                                                    save( fullfile(TempDir,[JobName(1:end-4) '_eTimeProcessUnit.mat']), 'eTimeProcessUnit', 'NodeID_Times' );
                                                     SuccessMsg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', TaskOutFileName(1:end-4), Username );
                                                     PrintOut(SuccessMsg, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
                                                 catch
-                                                    save( fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeTrial.mat']), 'eTimeTrial', 'NodeID_Times' );
+                                                    save( fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeProcessUnit.mat']), 'eTimeProcessUnit', 'NodeID_Times' );
                                                     SuccessMsg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', TaskOutFileName(1:end-4), Username );
-                                                    obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeTrial.mat']), TempDir, SuccessMsg);
+                                                    obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeProcessUnit.mat']), TempDir, SuccessMsg);
                                                 end
                                             end
                                         end
@@ -719,7 +723,7 @@ classdef JobManager < handle
                 JobManagerParam.vqFlag = str2double(out);
                 
                 
-                heading3 = '[eTimeTrialSpec]';
+                heading3 = '[eTimeProcessUnitSpec]';
                 
                 % Read maximum number of recent trial numbers and processing times of each worker node saved for billing purposes.
                 out = util.fp(cfgFullFile, heading3, 'MaxRecentTaskInfo'); out = out{1}{1};
@@ -995,7 +999,7 @@ classdef JobManager < handle
         
         function JobInfo = UpdateJobInfo(obj, JobInfo, varargin)
             
-            ValidVarNames = {'JobID', 'StartTime', 'StopTime', 'ProcessDuration', 'Status', 'Results',...
+            ValidVarNames = {'JobID', 'StartTime', 'StopTime', 'ProcessDuration', 'SpeedProfile', 'Status', 'Results',...
                 'ErrorType', 'ErrorMsg', 'WarningType', 'WarningMsg'};
             
             nInArgs = length(varargin);
@@ -1010,7 +1014,7 @@ classdef JobManager < handle
                 ParamName = VarNames{Pair};
                 if any( strcmpi( ParamName, ValidVarNames ) )
                     switch ParamName
-                        case {'StartTime', 'StopTime'}
+                        case {'StartTime', 'StopTime', 'SpeedProfile'}
                             JobInfo.JobTiming.(ParamName) = VarValues{Pair};
                         case 'ProcessDuration'
                             JobInfo.JobTiming.ProcessDuration = JobInfo.JobTiming.ProcessDuration + VarValues{Pair};
@@ -1099,13 +1103,13 @@ classdef JobManager < handle
         end
         
         
-        function [NodeID_Times, eTimeTrial] = ExtractETimeTrial( obj, TaskInfo, CurrentTime, NumProcessUnit )
+        function [NodeID_Times, eTimeProcessUnit] = ExtractETimeProcessUnit( obj, TaskInfo, CurrentTime, NumProcessUnit )
             % This function is designed for billing purposes.
             % NodeID_Times is a vector structure with two fields:
             % NodeID and NumNodeTaskInfo (how many times that specific node has generated TaskInfo (run simulations)).
             % The length of this structure is equal to the number of active nodes (NumNode).
             %
-            % eTimeTrial is a 3-by-MaxRecentTaskInfo-by-NumNode matrix.
+            % eTimeProcessUnit is a 3-by-MaxRecentTaskInfo-by-NumNode matrix.
             % Its first row contains the time calculated globally from the start of the job manager until receiving curret consumed task from TaskOut directory.
             % Its second row contains elapsed times in current task at the worker and its third row contains the number of trials completed during the eTime at the worker.
             
@@ -1113,7 +1117,7 @@ classdef JobManager < handle
             
             MaxRecentTaskInfo = obj.JobManagerParam.MaxRecentTaskInfo;
             NodeID_Times = obj.NodeID_Times;
-            eTimeTrial = obj.eTimeTrial;
+            eTimeProcessUnit = obj.eTimeProcessUnit;
             
             % Check to see if the NodeID has already been registered in NodeID_Times.
             NumNode = length(NodeID_Times);
@@ -1127,7 +1131,7 @@ classdef JobManager < handle
             if isempty(Ind) % This is a new NodeID. Add it to the list of NodeID_Times.
                 NodeID_Times = [NodeID_Times ; struct('NodeID',TaskInfo.HostName, 'NumNodeTaskInfo',1)];
                 Ind = length(NodeID_Times);
-                eTimeTrial = cat(3,eTimeTrial,zeros(3,MaxRecentTaskInfo));
+                eTimeProcessUnit = cat(3,eTimeProcessUnit,zeros(3,MaxRecentTaskInfo));
             else            % This NodeID has already been registered in NodeID_Times.
                 NodeID_Times(Ind).NumNodeTaskInfo = NodeID_Times(Ind).NumNodeTaskInfo + 1;
             end
@@ -1135,26 +1139,53 @@ classdef JobManager < handle
             if NodeID_Times(Ind).NumNodeTaskInfo <= MaxRecentTaskInfo
                 ColPos = NodeID_Times(Ind).NumNodeTaskInfo;
             else
-                % Note that the first row of eTimeTrial is cumulative time from the start of the job manager.
-                eTimeTrial(2:end,2,:) = eTimeTrial(2:end,1,:) + eTimeTrial(2:end,2,:);
-                eTimeTrial = circshift(eTimeTrial, [0 -1 0]);
-                ColPos = size(eTimeTrial,2);
+                % Note that the first row of eTimeProcessUnit is cumulative time from the start of the job manager.
+                eTimeProcessUnit(2:end,2,:) = eTimeProcessUnit(2:end,1,:) + eTimeProcessUnit(2:end,2,:);
+                eTimeProcessUnit = circshift(eTimeProcessUnit, [0 -1 0]);
+                ColPos = size(eTimeProcessUnit,2);
             end
             
-            % eTimeTrial(:,ColPos,Ind) = [CurrentTime
+            % eTimeProcessUnit(:,ColPos,Ind) = [CurrentTime
             %     etime(TaskInfo.StopTime, TaskInfo.StartTime)
             %     sum(TaskInfo.Trials(end,:))];
-            eTimeTrial(1:2,ColPos,Ind) = [CurrentTime
+            eTimeProcessUnit(1:2,ColPos,Ind) = [CurrentTime
                 etime(TaskInfo.StopTime, TaskInfo.StartTime)];
             
             if ~isempty(NumProcessUnit)
-                eTimeTrial(3,ColPos,Ind) = NumProcessUnit;
+                eTimeProcessUnit(3,ColPos,Ind) = NumProcessUnit;
             end
             
             obj.NodeID_Times = NodeID_Times;
-            obj.eTimeTrial = eTimeTrial;
+            obj.eTimeProcessUnit = eTimeProcessUnit;
             
-            eTimeTrial( :,all(all(eTimeTrial==0,1),3),: ) = [];
+            eTimeProcessUnit( :,all(all(eTimeProcessUnit==0,1),3),: ) = [];
+        end
+        
+        
+        function SpeedProfile = FindSpeedProfileInfo(obj, eTimeProcessUnit)
+            NumNodes = size(eTimeProcessUnit,3);
+            NodeInfo = struct('ActualETime',[],'ProcessDuration',[],'NumProcessUnit',[]);
+            NodeInfo = repmat(NodeInfo,NumNodes,1);
+            
+            for Node = 1:NumNodes
+                CurrentNodeInfo = eTimeProcessUnit(:,:,Node);
+                CurrentNodeInfo( :,all(CurrentNodeInfo==0,1) ) = [];
+                NodeInfo(Node).ActualETime = CurrentNodeInfo(1,:);
+                NodeInfo(Node).ProcessDuration = CurrentNodeInfo(2,:);
+                NodeInfo(Node).NumProcessUnit = CurrentNodeInfo(3,:);
+            end
+            
+            GlobalInfo = struct('ActualETime',[],'ProcessDuration',[],'NumProcessUnit',[]);
+            
+            GlobalElapsedTime = [NodeInfo(:).ActualETime];
+            GlobalProcessDuration = [NodeInfo(:).ProcessDuration];
+            GlobalNumProcessUnit = [NodeInfo(:).NumProcessUnit];
+            
+            [GlobalInfo.ActualETime, SortOrder] = sort(GlobalElapsedTime);
+            GlobalInfo.ProcessDuration = GlobalProcessDuration(SortOrder);
+            GlobalInfo.NumProcessUnit = GlobalNumProcessUnit(SortOrder);
+            
+            SpeedProfile = struct( 'NodeInfo', NodeInfo, 'GlobalInfo', GlobalInfo );
         end
         
         

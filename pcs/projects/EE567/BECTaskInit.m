@@ -9,18 +9,18 @@ function TaskState = BECTaskInit(BECParam)
 %     'MaxTrials', 1e9, ...     % A vector of integers (or scalar), one for each Epsilon point. Maximum number of trials to run per point.
 %     'MaxBitErrors', 0, ...
 %     'MaxFrameErrors', 100*ones(size(Epsilon)), ...
-%     'RunTime', 300, ...       % Simulation time in Seconds.
+%     'MaxRunTime', 300, ...    % Maximum simulation time in Seconds.
 %     'MaxIteration', 100,...   % Maximum number of decoding iterations for LDPC decoding (Default MaxIteration=100).
 %     'RandSeed',1000*sum(clock));  % New seed for the random generator of current worker.
 
 % First, set the path.
 OldPath = SetPath();
 
-if( ~isfield(BECParam, 'MaxTrials') || isempty(BECParam.MaxTrials) ), BECParam.MaxTrials = 1e6; end
-if( ~isfield(BECParam, 'MaxBitErrors') || isempty(BECParam.MaxBitErrors) ), BECParam.MaxBitErrors = 0; end
-if( ~isfield(BECParam, 'MaxFrameErrors') || isempty(BECParam.MaxFrameErrors) ), BECParam.MaxFrameErrors = 1000; end
-if( ~isfield(BECParam, 'RunTime') || isempty(BECParam.RunTime) ), BECParam.RunTime = 300; end
-if( ~isfield(BECParam, 'MaxIteration') || isempty(BECParam.MaxIteration) ), BECParam.MaxIteration = 100; end
+if( ~isfield(JobParam, 'MaxTrials') || isempty(JobParam.MaxTrials) ), JobParam.MaxTrials = 1e6; end
+if( ~isfield(JobParam, 'MaxBitErrors') || isempty(JobParam.MaxBitErrors) ), JobParam.MaxBitErrors = 0; end
+if( ~isfield(JobParam, 'MaxFrameErrors') || isempty(JobParam.MaxFrameErrors) ), JobParam.MaxFrameErrors = 1000; end
+if( ~isfield(BECParam, 'MaxRunTime') || isempty(BECParam.MaxRunTime) ), BECParam.MaxRunTime = 300; end
+if( ~isfield(JobParam, 'MaxIteration') || isempty(JobParam.MaxIteration) ), JobParam.MaxIteration = 100; end
 if( ~isfield(BECParam, 'RandSeed') || isempty(BECParam.RandSeed) ), BECParam.RandSeed = 1000*sum(clock); end
 
 CheckPeriod = 100;   % Checking time in number of Trials to see if the time is up.
@@ -30,7 +30,7 @@ TaskParam = struct(...
     ...                                  % H(j).loc_ones gives the location of ones in the jth row of H matrix.
     'Epsilon', BECParam.Epsilon, ...     % Row vector of Epsilon points.
     'MaxTrials', BECParam.MaxTrials, ... % A vector of integers (or scalar), one for each Epsilon point. Maximum number of trials to run per point.
-    'RunTime', BECParam.RunTime, ...     % Simulation time in Seconds.
+    'MaxRunTime', BECParam.MaxRunTime, ...     % Maximum simulation time in Seconds.
     'CheckPeriod', CheckPeriod, ...      % Checking time in number of Trials.
     'MaxBitErrors', BECParam.MaxBitErrors, ...
     'MaxFrameErrors', BECParam.MaxFrameErrors, ...
