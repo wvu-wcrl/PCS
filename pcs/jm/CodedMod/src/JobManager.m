@@ -1014,7 +1014,9 @@ classdef JobManager < handle
                 ParamName = VarNames{Pair};
                 if any( strcmpi( ParamName, ValidVarNames ) )
                     switch ParamName
-                        case {'StartTime', 'StopTime', 'SpeedProfile'}
+                        case {'StartTime', 'StopTime'}
+                            JobInfo.JobTiming.(ParamName) = datestr(VarValues{Pair}, 'ddd., mmm dd, yyyy HH:MM:SS PM');
+                        case 'SpeedProfile'
                             JobInfo.JobTiming.(ParamName) = VarValues{Pair};
                         case 'ProcessDuration'
                             JobInfo.JobTiming.ProcessDuration = JobInfo.JobTiming.ProcessDuration + VarValues{Pair};
