@@ -32,6 +32,8 @@ mkdir $webuser_home/Projects/$projname/JobRunning
 mkdir $webuser_home/Projects/$projname/JobOut
 mkdir $webuser_home/Projects/$projname/data
 mkdir $webuser_home/Projects/$projname/archive
+mkdir $webuser_home/Projects/$projname/JobFailed
+mkdir $webuser_home/Projects/$projname/Suspended
 ########################
 
 
