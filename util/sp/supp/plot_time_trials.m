@@ -54,19 +54,35 @@ function [ tsc trsc ni ] = load_timing_data_cluster( job_fn );
 
 load(job_fn); % JobInfo struct in workspace
 
-SP = JobInfo.JobID.SpeedProfile;
+       % data will not be available if speed profiling stopped before cluster job finish
+       % fix: mohammads jm must save speed profiling info prior to job completion
+if isfield(JobInfo.JobTiming, 'SpeedProfile')
+GlobalInfo = JobInfo.JobTiming.SpeedProfile.GlobalInfo;
 
-tsc = SP.ActualTime;
-trsc = SP.NumProcessUnit;
+tsc = GlobalInfo.ActualETime;
+trsc = GlobalInfo.NumProcessUnit;
 
-ni = SP.NodeInfo;
+% post processing
+tsc = tsc - tsc(1);
+trsc = cumsum(trsc);
+
+NodeInfo = JobInfo.JobTiming.SpeedProfile.NodeInfo;
+ni = NodeInfo;
+ else
+       % data will not be available if speed profiling stopped before cluster job finish
+       % fix: mohammads jm must save speed profiling info prior to job completion
+   tsc = 0;
+   trsc = 0;
+ni = 0;
+end
+
 
 end
 
 
 function create_table_data_flat_text(ni, fig_out_dir, scenario, record)
 
-[DataFileName] = [fig_out_dir filesep scenario '_' record '.dat'];
+[DataFileName] = [fig_out_dir filesep scenario '_' int2str(record) '.dat'];
 
 % extract timing info from job file
 N = length(ni);
@@ -75,15 +91,19 @@ dfd = fopen(DataFileName, 'w');
 
 for k = 1:N,
 
-NodeName = ni{k}.NodeName;
+%NodeName = ni{k}.NodeName;
+NodeName = 'fix later';
 
-
-TotalTrials = sum(ni{k}.NumProcessUnit);    % compute trials/sec
-ElapsedTime = ni{k}.ProcessDuration(end) - ni{k}.ProcessDuration(1);
+if isstruct(ni)
+TotalTrials = sum(ni(k).NumProcessUnit);    % compute trials/sec
+ElapsedTime = ni(k).ProcessDuration(end) - ni(k).ProcessDuration(1);
 TrialsSec = TotalTrials/ElapsedTime;
-
-
 fprintf(dfd, '%s,%f\n', NodeName, TrialsSec);
+ else  % data will not be available if speed profiling stopped before cluster job finish
+       % fix: mohammads jm must save speed profiling info prior to job completion
+   fprintf(dfd, '%s, %d\n', 'no data available', 0);
+end
+
 
 end
 
@@ -102,7 +122,7 @@ end
 function label_figure()
 xlabel('Time (s)');
 ylabel('Trials');
-legend('Cluster', 'Single core');
+legend( 'Single core', 'Cluster');
 end
 
 
