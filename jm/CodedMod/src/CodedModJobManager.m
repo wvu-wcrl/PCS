@@ -174,14 +174,22 @@ classdef CodedModJobManager < JobManager
             msgStatusFile = sprintf( '%2.2f%% of Trials Completed.', 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
             JobInfo = obj.UpdateJobInfo( JobInfo, 'Status', msgStatusFile );
             % Save simulation progress in STATUS file. Update Results file.
-            if( nargin>=5 && ~isempty(JobName) && ~isempty(JobRunningDir) )
+            % if( nargin>=5 && ~isempty(JobName) && ~isempty(JobRunningDir) )
                 % SuccessFlagStatus = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
-                obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
+                % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
 
                 % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
-                obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
-            end
-
+                % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
+            % end
+            
+            Results = struct( 'SNR', num2str(JobParam.SNR), ...
+                'Trials', num2str(JobState.Trials), ...
+                'BER', num2str(JobState.BER), ...
+                'FER', num2str(JobState.FER), ...
+                'Progress', msgStatus);
+            
+            JobInfo = obj.UpdateJobInfo( JobInfo, 'Results', Results );
+            
             varargout{1} = JobParam;
             varargout{2} = JobState;
         end

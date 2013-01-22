@@ -171,11 +171,30 @@ msgResults = sprintf( 'SNR Points Completed=%.2f\n', JobParam.SNR(ActiveSNRPoint
 msgStatusFile = sprintf( '%2.2f%% of Trials Completed.', 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
 JobInfo = obj.UpdateJobInfo( JobInfo, 'Status', msgStatusFile );
 % Save simulation progress in STATUS file. Update Results file.
-if( nargin >= 7 && ~isempty(JobName) && ~isempty(JobRunningDir) )
+% if( nargin >= 7 && ~isempty(JobName) && ~isempty(JobRunningDir) )
     % SuccessFlagStatus = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
-    obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
+    % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
     
     % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
-    obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
+    % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
+% end
+
+if strcmpi(JobParam.sim_type, 'uncoded')
+    Results = struct( 'SNR', num2str(JobParam.SNR), ...
+        'Trials', num2str(JobState.trials), ...
+        'BER', num2str(JobState.BER), ...
+        'SER', num2str(JobState.SER), ...
+        'Progress', msgStatus );
+elseif strcmpi(JobParam.sim_type, 'coded')
+    Results = struct( 'SNR', num2str(JobParam.SNR), ...
+        'Trials', num2str(JobState.trials), ...
+        'BER', num2str(JobState.BER), ...
+        'FER', num2str(JobState.FER), ...
+        'Progress', msgStatus );
+%%% ******************************************************************** %%%
+%%% The RESULTS structure should be formatted properly for other simulation types.
+%%% ******************************************************************** %%%
 end
+
+JobInfo = obj.UpdateJobInfo( JobInfo, 'Results', Results );
 end
