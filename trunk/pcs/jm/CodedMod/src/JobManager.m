@@ -194,7 +194,7 @@ classdef JobManager < handle
                                     Msg = sprintf( ['ErrorType=1\r\nErrorMsg=Job Load Error: Input job file %s could not be loaded. It will be deleted automatically.',...
                                         'Input job should be a .mat file containing two MATLAB structures named JobParam and JobState.'], JobName(1:end-4) );
                                     % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], Msg, 'w+');
-                                    obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], Msg, 'w+');
+                                    % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], Msg, 'w+');
                                     JobInfo = obj.InitJobInfo();
                                     JobInfo = obj.UpdateJobInfo(JobInfo, 'JobID', obj.JobManagerInfo.JobID, 'ErrorType', 1, 'ErrorMsg', Msg);
                                     
@@ -230,7 +230,7 @@ classdef JobManager < handle
                                                 Msg = sprintf( ['WarningType=1\r\nWarningMsg=Input job file %s could not be moved from JobIn to JobRunning directory.',...
                                                     'The user can delete the .mat job file manually.'], JobName(1:end-4) );
                                                 % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], Msg, 'a+');
-                                                obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], Msg, 'a+');
+                                                % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], Msg, 'a+');
                                                 JobInfo = obj.UpdateJobInfo(JobInfo, 'WarningType', 1, 'WarningMsg', Msg);
                                             else
                                                 obj.DeleteFile( fullfile(JobInDir,JobName) );
@@ -395,7 +395,10 @@ classdef JobManager < handle
                                             'Job files in JobRunning and JobOut directories should be .mat files containing two MATLAB structures named JobParam and JobState.'],...
                                             JobName(1:end-4) );
                                         % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], Msg, 'w+');
-                                        obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], Msg, 'w+');
+                                        % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], Msg, 'w+');
+                                        
+                                        JobInfo = obj.InitJobInfo();
+                                        JobInfo = obj.UpdateJobInfo(JobInfo, 'ErrorType', 2, 'ErrorMsg', Msg);
                                         
                                         % Destroy/Delete any other input and output task files associated with this job from TaskIn and TaskOut directories.
                                         obj.DeleteFile( fullfile(TaskInDir, [obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) );
@@ -551,9 +554,9 @@ classdef JobManager < handle
                                             
                                             % Remove the finished job from JobRunning queue/directory.
                                             obj.DeleteFile( fullfile(JobRunningDir,JobName) );
-                                            msgStatus = sprintf( 'Done' );
+                                            % msgStatus = sprintf( 'Done' );
                                             % SuccessFlagStatus = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatus, 'w+');
-                                            obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatus, 'w+');
+                                            % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatus, 'w+');
                                             % obj.DeleteFile( fullfile(JobRunningDir,[JobName(1:end-4) '_Results.txt']) );
                                             % obj.DeleteFile( fullfile(JobRunningDir,[JobName(1:end-4) '_Status.txt']) );
                                         end
@@ -581,6 +584,9 @@ classdef JobManager < handle
                             CurrentUser = rmfield(CurrentUser, 'TaskID');
                             obj.JobManagerInfo.UserList{User} = CurrentUser;
                             obj.JobManagerInfo.UserUsageInfo{CurrentUserInfoFlag==1} = CurrentUserUsageInfo;
+                            
+                            % Update the file containing user usage information.
+                            obj.CreateUsageFile(obj.JobManagerInfo.UserUsageInfo);
                             
                             % Wait briefly before looping for the next active user.
                             pause( CurrentUser.PauseTime );
@@ -800,7 +806,7 @@ classdef JobManager < handle
             %       UserPath(Full Path),CodeRoot,JobQueueRoot,(TasksRoot),TaskInDir,TaskOutDir,FunctionName,FunctionPath,MaxInputTasks,
             %       TaskGenDecelerate,MaxTaskGenStep,TaskInFlushRate,MaxRunningJobs,InitialRunTime,MaxRunTime,PauseTime.
             % UserUsageInfo fields for EACH user:
-            %       Username,TaskID,Usage=[JobID;JobStartTime;JobStopTime;JobProcessDuration].
+            %       Username,TaskID,Usage=[JobID;JobStartTime;JobStopTime;JobProcessDuration],TotalProcessDuration.
             %
             % Version 1, 02/07/2011, Terry Ferrett.
             % Version 2, 10/01/2012, Mohammad Fanaei.
@@ -962,10 +968,10 @@ classdef JobManager < handle
                         if( sum(UserInfoFoundFlag)==0 )
                             TotalUserCount = TotalUserCount + 1;
                             UserUsageInfo{TotalUserCount}.Username = UserDirs(k).name;
-                            UserUsageInfo{TotalUserCount}.TotalProcessDuration = 0;
                             % Reset the task ID counter.
                             UserUsageInfo{TotalUserCount}.TaskID = 0;
                             UserUsageInfo{TotalUserCount}.Usage = zeros(4,1);
+                            UserUsageInfo{TotalUserCount}.TotalProcessDuration = 0;
                         end
                     end
                     
@@ -1188,6 +1194,32 @@ classdef JobManager < handle
             GlobalInfo.NumProcessUnit = GlobalNumProcessUnit(SortOrder);
             
             SpeedProfile = struct( 'NodeInfo', NodeInfo, 'GlobalInfo', GlobalInfo );
+        end
+        
+        
+        function CreateUsageFile(obj, UserUsageInfo)
+            Usage = struct('Username',[], 'TotalProcessDuration',[]);
+            Usage = repmat(Usage, length(UserUsageInfo), 1);
+            
+            for User = 1:length(UserUsageInfo)
+                Usage(User).Username = UserUsageInfo{User}.Username;
+                Usage(User).TotalProcessDuration = UserUsageInfo{User}.TotalProcessDuration;
+            end
+            
+            [JMInfoPath, JMInfoName, JMInfoExt] = fileparts(obj.JobManagerParam.JMInfoFullPath);
+            JMUsageName = [obj.JobManagerParam.ProjectName '_Usage'];
+            JMUsageExt = '.mat';
+            
+            try
+                save( fullfile(JMInfoPath, [JMUsageName, JMUsageExt]), 'Usage' );
+                SuccessMsg = sprintf( '\nJob manager user usage information containing the user list and total user usage for this project is saved.\n\n' );
+                PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
+            catch
+                save( fullfile(obj.JobManagerParam.TempJMDir,[JMUsageName, JMUsageExt]), 'Usage' );
+                obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[JMUsageName, JMUsageExt]), JMInfoPath);
+                SuccessMsg = sprintf( '\nJob manager user usage information containing the user list and total user usage for this project is saved by OS.\n\n' );
+                PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
+            end
         end
         
         

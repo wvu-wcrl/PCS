@@ -117,14 +117,24 @@ classdef BECJobManager < CodedModJobManager
             msgStatusFile = sprintf( '%2.4f%% of Trials Completed.', 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
             JobInfo = obj.UpdateJobInfo( JobInfo, 'Status', msgStatusFile );
             % Save simulation progress in STATUS file. Update Results file.
-            if( nargin>=5 && ~isempty(JobName) && ~isempty(JobRunningDir) )
+            % if( nargin>=5 && ~isempty(JobName) && ~isempty(JobRunningDir) )
                 % SuccessFlagStatus = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
-                obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
+                % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
                 
                 % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
                 % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
-                obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msgResults, 'w+');
-            end
+                % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msgResults, 'w+');
+            % end
+            
+            Results = struct( 'DataLength (k)', num2str(JobParam.HStructInfo.DataLength), ...
+                'CodewordLength (n)', num2str(JobParam.HStructInfo.CodewordLength), ...
+                'CodeRate', sprintf('%.4f', JobParam.HStructInfo.CodeRate), ...
+                'FullRank', FullRank, ...
+                'EpsilonStarDE', sprintf('%.8f', JobParam.HStructInfo.EpsilonStarDE), ...
+                'EpsilonStarSimulation', EpsilonStarSimMsg );
+            
+            JobInfo = obj.UpdateJobInfo( JobInfo, 'Results', Results );
+            
             varargout{1} = JobParam;
             varargout{2} = JobState;
             
