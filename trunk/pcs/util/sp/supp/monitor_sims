@@ -1,4 +1,4 @@
-0;271;0c#!/bin/bash
+#!/bin/bash
 # monitor_sims
 #
 # Monitor speed tests for completion and plot timing data.                                 
@@ -21,7 +21,7 @@
 SC_SS=$1      # single-core screen session
 C_SS=$2       # cluster screen session
 
-JOB_FN=$3     # pcs job filename
+JOB_OUT_FN=$3     # pcs job filename
 CML_ROOT=$4   # path to cml
 SUPP_DIR=$5   # path to supporting matlab scripts
 
@@ -62,7 +62,7 @@ while [ $LOCAL_DONE -eq 0 ] || [ $CLUSTER_DONE -eq 0 ]
 do
 
 LOCAL_DONE=`check_for_screen_session $SC_SS`
-CLUSTER_DONE=`check_for_job_output_file $JOB_FN`
+CLUSTER_DONE=`check_for_job_output_file $JOB_OUT_FN`
 
 sleep 10
 done                                
@@ -70,7 +70,7 @@ done
 
 
 plot_data(){
-matlab -r "cd $SUPP_DIR; plot_time_trials('$CML_ROOT', '$JOB_FN', '$SCENARIO', $RECORD, $FIG_FONTSIZE, '$FIG_DIR' ); exit"
+matlab -r "cd $SUPP_DIR; plot_time_trials('$CML_ROOT', '$JOB_OUT_FN', '$SCENARIO', $RECORD, $FIG_FONTSIZE, '$FIG_DIR' ); exit"
 }
 
 create_table(){
@@ -87,7 +87,7 @@ create_table(){
   TIMING_TABLE_PDF=$FIG_DIR/$SCENARIO\_$RECORD.pdf
   pdfcrop $TIMING_TABLE_PDF $TIMING_TABLE_PDF
 
-  rm $TIMING_DATA_FILE
+#  rm $TIMING_DATA_FILE
 
 }
 
