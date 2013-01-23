@@ -1203,7 +1203,7 @@ classdef JobManager < handle
             
             for User = 1:length(UserUsageInfo)
                 UserUsage(User).Username = UserUsageInfo{User}.Username;
-                UserUsage(User).TotalProcessDuration = UserUsageInfo{User}.TotalProcessDuration;
+                UserUsage(User).TotalProcessDuration = num2str( UserUsageInfo{User}.TotalProcessDuration );
             end
             
             [JMInfoPath, JMInfoName, JMInfoExt] = fileparts(obj.JobManagerParam.JMInfoFullPath);
