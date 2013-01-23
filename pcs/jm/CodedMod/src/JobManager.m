@@ -183,9 +183,9 @@ classdef JobManager < handle
                                         JobInfo = obj.UpdateJobInfo(JobInfo, 'JobID', obj.JobManagerInfo.JobID, 'StartTime', StartTime);
                                         
                                         % Set the JobID and StartTime in the global UserUsageInfo structure.
-                                        CurrentUserUsageInfo.Usage(1,end) = obj.JobManagerInfo.JobID;
-                                        CurrentUserUsageInfo.Usage(2,end) = StartTime;
-                                        CurrentUserUsageInfo.Usage = [CurrentUserUsageInfo.Usage, zeros(4,1)];
+                                        CurrentUserUsageInfo.UserUsage(1,end) = obj.JobManagerInfo.JobID;
+                                        CurrentUserUsageInfo.UserUsage(2,end) = StartTime;
+                                        CurrentUserUsageInfo.UserUsage = [CurrentUserUsageInfo.UserUsage, zeros(4,1)];
                                     elseif strcmpi( JobDirectory, JobRunningDir )
                                         JobInfo = JobContent.JobInfo;
                                     end
@@ -376,9 +376,9 @@ classdef JobManager < handle
                                             if sum( isfield(TaskInfo, {'StartTime', 'StopTime'}) )==2
                                                 JobState = obj.UpdateJobState(JobState, TaskState, JobParam);
                                                 JobInfo = obj.UpdateJobInfo( JobInfo, 'ProcessDuration', etime(TaskInfo.StopTime, TaskInfo.StartTime) );
-                                                UserAllJobIDs = CurrentUserUsageInfo.Usage(1,:);
-                                                CurrentUserUsageInfo.Usage(4,UserAllJobIDs == JobInfo.JobID) = JobInfo.JobTiming.ProcessDuration;
-                                                CurrentUserUsageInfo.TotalProcessDuration = sum( CurrentUserUsageInfo.Usage(4,:) );
+                                                UserAllJobIDs = CurrentUserUsageInfo.UserUsage(1,:);
+                                                CurrentUserUsageInfo.UserUsage(4,UserAllJobIDs == JobInfo.JobID) = JobInfo.JobTiming.ProcessDuration;
+                                                CurrentUserUsageInfo.TotalProcessDuration = sum( CurrentUserUsageInfo.UserUsage(4,:) );
                                             end
                                             % else
                                             % Msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
@@ -487,9 +487,9 @@ classdef JobManager < handle
                                         pause( 0.1*CurrentUser.PauseTime );
                                     end
                                     % Update the current job's ProcessDuration in the global UserUsageInfo structure.
-                                    UserAllJobIDs = CurrentUserUsageInfo.Usage(1,:);
-                                    CurrentUserUsageInfo.Usage(4,UserAllJobIDs == JobInfo.JobID) = JobInfo.JobTiming.ProcessDuration;
-                                    CurrentUserUsageInfo.TotalProcessDuration = sum( CurrentUserUsageInfo.Usage(4,:) );
+                                    UserAllJobIDs = CurrentUserUsageInfo.UserUsage(1,:);
+                                    CurrentUserUsageInfo.UserUsage(4,UserAllJobIDs == JobInfo.JobID) = JobInfo.JobTiming.ProcessDuration;
+                                    CurrentUserUsageInfo.TotalProcessDuration = sum( CurrentUserUsageInfo.UserUsage(4,:) );
                                     
                                     Msg = sprintf( '\n\n\nConsolidating finished tasks associated with job %s for user %s is DONE at %s!\n\n\n',...
                                         JobName, Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
@@ -529,8 +529,8 @@ classdef JobManager < handle
                                             JobInfo = obj.UpdateJobInfo(JobInfo, 'StopTime', StopTime, 'Status', 'Done');
                                             
                                             % Set the job StopTime in the global UserUsageInfo structure.
-                                            UserAllJobIDs = CurrentUserUsageInfo.Usage(1,:);
-                                            CurrentUserUsageInfo.Usage(3,UserAllJobIDs == JobInfo.JobID) = StopTime;
+                                            UserAllJobIDs = CurrentUserUsageInfo.UserUsage(1,:);
+                                            CurrentUserUsageInfo.UserUsage(3,UserAllJobIDs == JobInfo.JobID) = StopTime;
                                             
                                             % More Cleanup Needed: Any tasks associated with this job should be deleted from TaskIn directory.
                                             obj.DeleteFile( fullfile(TaskInDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) );
@@ -806,7 +806,7 @@ classdef JobManager < handle
             %       UserPath(Full Path),CodeRoot,JobQueueRoot,(TasksRoot),TaskInDir,TaskOutDir,FunctionName,FunctionPath,MaxInputTasks,
             %       TaskGenDecelerate,MaxTaskGenStep,TaskInFlushRate,MaxRunningJobs,InitialRunTime,MaxRunTime,PauseTime.
             % UserUsageInfo fields for EACH user:
-            %       Username,TaskID,Usage=[JobID;JobStartTime;JobStopTime;JobProcessDuration],TotalProcessDuration.
+            %       Username,TaskID,UserUsage=[JobID;JobStartTime;JobStopTime;JobProcessDuration],TotalProcessDuration.
             %
             % Version 1, 02/07/2011, Terry Ferrett.
             % Version 2, 10/01/2012, Mohammad Fanaei.
@@ -970,7 +970,7 @@ classdef JobManager < handle
                             UserUsageInfo{TotalUserCount}.Username = UserDirs(k).name;
                             % Reset the task ID counter.
                             UserUsageInfo{TotalUserCount}.TaskID = 0;
-                            UserUsageInfo{TotalUserCount}.Usage = zeros(4,1);
+                            UserUsageInfo{TotalUserCount}.UserUsage = zeros(4,1);
                             UserUsageInfo{TotalUserCount}.TotalProcessDuration = 0;
                         end
                     end
@@ -1198,12 +1198,12 @@ classdef JobManager < handle
         
         
         function CreateUsageFile(obj, UserUsageInfo)
-            Usage = struct('Username',[], 'TotalProcessDuration',[]);
-            Usage = repmat(Usage, length(UserUsageInfo), 1);
+            UserUsage = struct('Username',[], 'TotalProcessDuration',[]);
+            UserUsage = repmat(UserUsage, length(UserUsageInfo), 1);
             
             for User = 1:length(UserUsageInfo)
-                Usage(User).Username = UserUsageInfo{User}.Username;
-                Usage(User).TotalProcessDuration = UserUsageInfo{User}.TotalProcessDuration;
+                UserUsage(User).Username = UserUsageInfo{User}.Username;
+                UserUsage(User).TotalProcessDuration = UserUsageInfo{User}.TotalProcessDuration;
             end
             
             [JMInfoPath, JMInfoName, JMInfoExt] = fileparts(obj.JobManagerParam.JMInfoFullPath);
@@ -1211,11 +1211,11 @@ classdef JobManager < handle
             JMUsageExt = '.mat';
             
             try
-                save( fullfile(JMInfoPath, [JMUsageName, JMUsageExt]), 'Usage' );
+                save( fullfile(JMInfoPath, [JMUsageName, JMUsageExt]), 'UserUsage' );
                 SuccessMsg = sprintf( '\nJob manager user usage information containing the user list and total user usage for this project is saved.\n\n' );
                 PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
             catch
-                save( fullfile(obj.JobManagerParam.TempJMDir,[JMUsageName, JMUsageExt]), 'Usage' );
+                save( fullfile(obj.JobManagerParam.TempJMDir,[JMUsageName, JMUsageExt]), 'UserUsage' );
                 obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[JMUsageName, JMUsageExt]), JMInfoPath);
                 SuccessMsg = sprintf( '\nJob manager user usage information containing the user list and total user usage for this project is saved by OS.\n\n' );
                 PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
