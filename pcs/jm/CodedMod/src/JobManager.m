@@ -86,9 +86,6 @@ classdef JobManager < handle
             if( exist(obj.JobManagerParam.JMInfoFullPath, 'file') ~= 0 )
                 % Load JobManagerParam and JobManagerInfo (containing UserList and UserUsageInfo).
                 JMInfoFileContent = load( obj.JobManagerParam.JMInfoFullPath, 'JobManagerParam', 'JobManagerInfo' );
-                if isfield(JMInfoFileContent, 'JobManagerParam')
-                    obj.JobManagerParam = JMInfoFileContent.JobManagerParam;
-                end
                 if isfield(JMInfoFileContent, 'JobManagerInfo')
                     obj.JobManagerInfo = JMInfoFileContent.JobManagerInfo;
                 end
@@ -450,17 +447,6 @@ classdef JobManager < handle
                                                 % Update completed TRIALS and required elapsed time for the corresponding NODE that has finished the task. Save Timing Info.
                                                 NumProcessUnit = obj.FindNumProcessUnits(TaskState);
                                                 [NodeID_Times, eTimeProcessUnit] = obj.ExtractETimeProcessUnit( TaskInfo, CurrentTime, NumProcessUnit );
-                                                SpeedProfile = obj.FindSpeedProfileInfo(eTimeProcessUnit);
-                                                JobInfo = obj.UpdateJobInfo( JobInfo, 'SpeedProfile', SpeedProfile );
-                                                try
-                                                    save( fullfile(TempDir,[JobName(1:end-4) '_eTimeProcessUnit.mat']), 'eTimeProcessUnit', 'NodeID_Times' );
-                                                    SuccessMsg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', TaskOutFileName(1:end-4), Username );
-                                                    PrintOut(SuccessMsg, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
-                                                catch
-                                                    save( fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeProcessUnit.mat']), 'eTimeProcessUnit', 'NodeID_Times' );
-                                                    SuccessMsg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', TaskOutFileName(1:end-4), Username );
-                                                    obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeProcessUnit.mat']), TempDir, SuccessMsg);
-                                                end
                                             end
                                         end
                                         
@@ -486,6 +472,21 @@ classdef JobManager < handle
                                         % Wait briefly before looping for reading the next finished task file from TaskOut directory.
                                         pause( 0.1*CurrentUser.PauseTime );
                                     end
+                                    
+                                    if( isfield(JobParam, 'ProfileSpeed') && JobParam.ProfileSpeed == 1 )
+                                        SpeedProfile = obj.FindSpeedProfileInfo(eTimeProcessUnit);
+                                        JobInfo = obj.UpdateJobInfo( JobInfo, 'SpeedProfile', SpeedProfile );
+                                        try
+                                            save( fullfile(TempDir,[JobName(1:end-4) '_eTimeProcessUnit.mat']), 'eTimeProcessUnit', 'NodeID_Times' );
+                                            SuccessMsg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s.\n', TaskOutFileName(1:end-4), Username );
+                                            PrintOut(SuccessMsg, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
+                                        catch
+                                            save( fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeProcessUnit.mat']), 'eTimeProcessUnit', 'NodeID_Times' );
+                                            SuccessMsg = sprintf( 'Timing information for the NODE that has finished the task is saved for task %s and user %s by OS.\n', TaskOutFileName(1:end-4), Username );
+                                            obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[JobName(1:end-4) '_eTimeProcessUnit.mat']), TempDir, SuccessMsg);
+                                        end
+                                    end
+                                    
                                     % Update the current job's ProcessDuration in the global UserUsageInfo structure.
                                     UserAllJobIDs = CurrentUserUsageInfo.UserUsage(1,:);
                                     CurrentUserUsageInfo.UserUsage(4,UserAllJobIDs == JobInfo.JobID) = JobInfo.JobTiming.ProcessDuration;
