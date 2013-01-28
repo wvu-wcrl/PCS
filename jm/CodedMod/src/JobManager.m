@@ -26,12 +26,14 @@ classdef JobManager < handle
         end
         
         
-        function [JobInDir, JobRunningDir, JobOutDir, TempDir] = SetPaths(JobQueueRoot)
+        function [JobInDir, JobRunningDir, JobOutDir, TempDir, DataDir] =...
+                SetPaths(JobQueueRoot)
             % Determine required directories under user's JobQueueRoot.
             JobInDir = fullfile(JobQueueRoot,'JobIn');
             JobRunningDir = fullfile(JobQueueRoot,'JobRunning');
             JobOutDir = fullfile(JobQueueRoot,'JobOut');
             TempDir = fullfile(JobQueueRoot,'Temp');
+            DataDir = fullfile(JobQueueRoot,'Data');            
             % TaskInDir = fullfile(TasksRoot,'TaskIn');
             % TaskOutDir = fullfile(TasksRoot,'TaskOut');
         end
@@ -171,7 +173,8 @@ classdef JobManager < handle
                                     JobState = JobContent.JobState;
                                     if strcmpi( JobDirectory, JobInDir )
                                         % Pre-process the job read from the JobIn directory.
-                                        [JobParam, JobState] = obj.PreProcessJob(JobParam, JobState, CurrentUser.CodeRoot);
+                                        [JobParam, JobState] = obj.PreProcessJob(JobParam, JobState, ...
+                                            CurrentUser, JobName);
                                         
                                         % Initialize the JobInfo structure.
                                         JobInfo = obj.InitJobInfo();
