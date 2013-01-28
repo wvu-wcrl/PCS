@@ -23,14 +23,19 @@ classdef CmlJobManager < JobManager
         end
         
         
-        function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn, CodeRoot)
+        
+        %%% Terry: add CurrentUser as input argument to PreProcessJob
+        % add logic to SetPaths to return JobDataDir
+        function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, ...
+                JobName)            
             
+            [ JobParam ] = ProcessDataFiles( obj, JobParamIn, CurrentUser, JobName );
+                        
             OldPath = obj.SetCodePath(CodeRoot); % Set the path to CML.
             
             [JobParam, CodeParam] = InitializeCodeParam( JobParamIn, CodeRoot ); % Initialize coding parameters.
             JobParam.code_param_short = CodeParam; % Store short code param inside JobParam.
-            % Long code param will be stored in a separate file.
-            
+                        
             JobParam.cml_rhome = obj.RenameLocalCmlHome(CodeRoot); % Rename local cml path to remote.
             
             JobState = JobStateIn; % Restore previous simulation state.

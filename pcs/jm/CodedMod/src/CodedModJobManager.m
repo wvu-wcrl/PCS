@@ -14,7 +14,10 @@ classdef CodedModJobManager < JobManager
         end
 
 
-        function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn, CodeRoot)
+        function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn,...
+                CurrentUser, JobName)
+            
+            CodeRoot = CurrentUser.CodeRoot;
             
             % First, set the path.
             OldPath = obj.SetCodePath(CodeRoot);
