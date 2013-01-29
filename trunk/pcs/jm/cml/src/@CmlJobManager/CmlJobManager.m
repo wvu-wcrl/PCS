@@ -29,7 +29,9 @@ classdef CmlJobManager < JobManager
         function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, ...
                 JobName)            
             
-            [ JobParam ] = ProcessDataFiles( obj, JobParamIn, CurrentUser, JobName );
+            CodeRoot = CurrentUser.CodeRoot;
+            
+            [ JobParamIn ] = ProcessDataFiles( obj, JobParamIn, CurrentUser, JobName );
                         
             OldPath = obj.SetCodePath(CodeRoot); % Set the path to CML.
             
