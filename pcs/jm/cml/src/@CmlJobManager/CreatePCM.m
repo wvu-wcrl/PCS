@@ -47,7 +47,7 @@ switch hmat_type
         [JobInDir, JobRunningDir, JobOutDir, TempDir JobDataDir] =...
             obj.SetPaths(CurrentUser.JobQueueRoot);
         [H_rows H_cols] = CmlAlistToHrowsHcols( JobDataDir, pcm_prefix );
-        
+        ErrMsg = '';  % add error checking later
         % return H_rows, H_cols, create code_param_long
       %  [ErrMsg] = save_hrows_hcols( obj, CurrentUser, pcm_prefix, H_rows, H_cols);
     case 'mat'
