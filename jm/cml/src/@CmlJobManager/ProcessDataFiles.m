@@ -1,6 +1,6 @@
 % Process user data files and convert to appropriate format for CML
 %  workers
-function [ JobParam ] = ProcessDataFiles( obj, JobParamIn,...
+function [ JobParamIn ] = ProcessDataFiles( obj, JobParamIn,...
     CurrentUser, JobName)
 
 % iterate over set of fields which specify data files
@@ -31,7 +31,8 @@ for n_df = 1:N_df,
                                   
             % attach data file name to JobParamIn
             JobParamIn.code_param_long_filename =...
-                DataPathFile;
+                obj.RenameLocalCmlHome(DataPathFile);
+                        
     end
 end
 end
@@ -63,7 +64,7 @@ DataPathFile = [DataPath filesep DataFile];
 JMTempPath = obj.JobManagerParam.TempJMDir;
 
 % form full path to data file in JM temp directory
-JMTempPathFile = [JMTempPath filesep DataPathFile];
+JMTempPathFile = [JMTempPath filesep DataFile];
 
 % save code_param_long into JM temporary directory
 save(JMTempPathFile, 'code_param_long');
@@ -71,8 +72,8 @@ save(JMTempPathFile, 'code_param_long');
 % move file from temp to user data directory
 % error check
 SuccessFlag = MoveFile(obj, JMTempPathFile, DataPathFile,...
-    SuccessMsg, ErrorMsg);
-if SuccessFlag ~= 0,
+   '', '');   % add success and error messages later 
+if SuccessFlag ~= 1,
     ErrMsg = ['Error saving %s.', DataPathFile];
 else
     ErrMsg = [''];
