@@ -1,82 +1,70 @@
-% Process user data files and convert to appropriate format for CML
-%  workers
-function [ JobParamIn ] = ProcessDataFiles( obj, JobParamIn,...
-    CurrentUser, JobName)
+function [ JobParam ] = ProcessDataFiles( obj, JobParam, CurrentUser, JobName )
+% Process user data files and convert them to appropriate format for CML workers.
 
-% iterate over set of fields which specify data files
-% sim_param.parity_check_matrix
-DataFileFields = { 'parity_check_matrix'};
+% Iterate over set of fields which specify data files.
+% For CML project, this set is only sim_param.parity_check_matrix.
+DataFileFields = { 'parity_check_matrix' };
 
-N_df = length( DataFileFields );
+NDF = length( DataFileFields );
 
-for n_df = 1:N_df,
-    
+for n_df = 1:NDF
     CurDataFileField = DataFileFields{n_df};
     
     switch CurDataFileField
         
-        case 'parity_check_matrix'            
-            %%%%%%
-            [ SuccessFlag ErrMsg H_rows H_cols] = ...
-                CreatePCM( obj, CurrentUser, ...
-                JobParamIn.parity_check_matrix);
-            %%%%%%%%
+        case 'parity_check_matrix'
+            [ SuccessFlag, ErrMsg, H_rows, H_cols] = obj.CreatePCM( CurrentUser, JobParam.parity_check_matrix );
             
-            % populate code_param_long
+            % Populate code_param_long.
             code_param_long.H_rows = H_rows;
             code_param_long.H_cols = H_cols;
             
-            [ ErrMsg DataPathFile ] = SaveDataFile( obj, code_param_long,...
-                                      CurrentUser, JobName );                                  
-                                  
-            % attach data file name to JobParamIn
-            JobParamIn.code_param_long_filename =...
-                obj.RenameLocalCmlHome(DataPathFile);
-                        
+            [ ErrMsg DataPathFile ] = SaveDataFile( obj, code_param_long, CurrentUser, JobName );
+            
+            % Attach data-file name to JobParam.
+            JobParam.code_param_long_filename = obj.RenameLocalCmlHome(DataPathFile);
     end
 end
 end
 
 
-% return DataPathFile for appending to JobParam
-function [ ErrMsg DataPathFile ] =...
-    SaveDataFile( obj, code_param_long, CurrentUser, JobName )
-%todo: get data path info
+function [ ErrMsg DataPathFile ] = SaveDataFile( obj, code_param_long, CurrentUser, JobName )
+% Return DataPathFile for appending to JobParam.
 
-%get jobname
-% get datapath
+% To Do:
+% - get data path info.
+% - get JobName.
+% - get datapath.
 
-% get path to user data directory
-[JobInDir, JobRunningDir, JobOutDir, TempDir, DataDir] =...
-    obj.SetPaths(CurrentUser.JobQueueRoot);
+% Get path to user data directory.
+[JobInDir, JobRunningDir, JobOutDir, TempDir, DataDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
 
-% form path to user data directory
+% Form path to user data directory.
 DataPath = [ DataDir filesep 'Jm' ];
 
-% form data filename
+% Form data filename.
 JobNamePrefix = JobName(1:end-4);
-DataFile = [ JobNamePrefix '_data.mat' ];  % <jobname>_data.mat
+DataFile = [ JobNamePrefix '_Data.mat' ]; % <jobname>_Data.mat
 
-% form full path to data file in user data directory
+% Form full path to data file in user data directory.
 DataPathFile = [DataPath filesep DataFile];
 
-% form full path to JM temporary directory
+% Form full path to JM temporary directory.
 JMTempPath = obj.JobManagerParam.TempJMDir;
 
-% form full path to data file in JM temp directory
+% Form full path to data file in JM temp directory.
 JMTempPathFile = [JMTempPath filesep DataFile];
 
-% save code_param_long into JM temporary directory
+% Save code_param_long into JM temporary directory.
 save(JMTempPathFile, 'code_param_long');
 
-% move file from temp to user data directory
-% error check
-SuccessFlag = MoveFile(obj, JMTempPathFile, DataPathFile,...
-   '', '');   % add success and error messages later 
-if SuccessFlag ~= 1,
-    ErrMsg = ['Error saving %s.', DataPathFile];
+% Move file from JM temp directory to user data directory.
+SuccessFlag = obj.MoveFile(JMTempPathFile, DataPathFile, '', ''); % Add success and error messages later.
+
+if SuccessFlag ~= 1
+    ErrMsg = ['Error saving DATA file %s.', DataPathFile];
 else
-    ErrMsg = [''];
+    ErrMsg = '';
 end
 
 end
