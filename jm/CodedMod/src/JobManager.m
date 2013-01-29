@@ -26,8 +26,7 @@ classdef JobManager < handle
         end
         
         
-        function [JobInDir, JobRunningDir, JobOutDir, TempDir, DataDir] =...
-                SetPaths(JobQueueRoot)
+        function [JobInDir, JobRunningDir, JobOutDir, TempDir, DataDir] = SetPaths(JobQueueRoot)
             % Determine required directories under user's JobQueueRoot.
             JobInDir = fullfile(JobQueueRoot,'JobIn');
             JobRunningDir = fullfile(JobQueueRoot,'JobRunning');
@@ -123,7 +122,7 @@ classdef JobManager < handle
                             CurrentUser.TaskID = CurrentUserUsageInfo.TaskID;
                             
                             % [JobInDir, JobRunningDir, JobOutDir, TaskInDir, TaskOutDir, TempDir] = obj.SetPaths(CurrentUser.JobQueueRoot, CurrentUser.TasksRoot);
-                            [JobInDir, JobRunningDir, JobOutDir, TempDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
+                            [JobInDir, JobRunningDir, JobOutDir, TempDir, DataDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
                             TaskInDir = CurrentUser.TaskInDir;
                             TaskOutDir = CurrentUser.TaskOutDir;
                             
@@ -173,8 +172,7 @@ classdef JobManager < handle
                                     JobState = JobContent.JobState;
                                     if strcmpi( JobDirectory, JobInDir )
                                         % Pre-process the job read from the JobIn directory.
-                                        [JobParam, JobState] = obj.PreProcessJob(JobParam, JobState, ...
-                                            CurrentUser, JobName);
+                                        [JobParam, JobState] = obj.PreProcessJob(JobParam, JobState, CurrentUser, JobName);
                                         
                                         % Initialize the JobInfo structure.
                                         JobInfo = obj.InitJobInfo();

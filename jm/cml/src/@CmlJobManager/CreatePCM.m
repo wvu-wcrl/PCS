@@ -35,7 +35,7 @@ switch hmat_type
     case 'pchk'
         pcm_prefix = pcm(1:end-5);
         [ H_rows H_cols ErrMsg ] = cnv_pchk_hr_hc( obj, pcm, cml_home );
-       
+        
         if ~isempty(ErrMsg)
             SuccessFlag = 1;
             return;
@@ -49,7 +49,7 @@ switch hmat_type
         [H_rows H_cols] = CmlAlistToHrowsHcols( JobDataDir, pcm_prefix );
         ErrMsg = '';  % add error checking later
         % return H_rows, H_cols, create code_param_long
-      %  [ErrMsg] = save_hrows_hcols( obj, CurrentUser, pcm_prefix, H_rows, H_cols);
+        %  [ErrMsg] = save_hrows_hcols( obj, CurrentUser, pcm_prefix, H_rows, H_cols);
     case 'mat'
         %
     case 'cml_dvbs2'
@@ -145,16 +145,16 @@ end
 
 % function [ErrMsg] = save_hrows_hcols( obj, CurrentUser, pcm_prefix, H_rows, H_cols)
 % PcmMat = [ pcm_prefix '.mat' ];
-% 
+%
 % PcmMatTmpP = fullfile(obj.JobManagerParam.TempJMDir, PcmMat);
-% 
+%
 % save( PcmMatTmp, 'H_rows', 'H_cols');
-% 
+%
 % [JobInDir, JobRunningDir, JobOutDir, TempDir] =...
 %     obj.SetPaths(CurrentUser.JobQueueRoot);
-% 
+%
 % PcmMatDataP = [ JobDataDir filesep PcmMat ];
-% 
+%
 % % error check
 % SuccessFlag = MoveFile(obj, PcmMatTmpP, PcmMatDataP,...
 %     SuccessMsg, ErrorMsg);
