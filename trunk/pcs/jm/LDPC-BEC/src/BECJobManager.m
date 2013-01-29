@@ -37,11 +37,10 @@ classdef BECJobManager < CodedModJobManager
         end
         
         
-        function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn,...
-                CurrentUser, JobName)
+        function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, JobName)
             
-            CodeRoot = CurrentUser.CodeRoot;
             % First, set the path.
+            CodeRoot = CurrentUser.CodeRoot;
             OldPath = obj.SetCodePath(CodeRoot);
             
             JobParam = JobParamIn;
@@ -120,12 +119,12 @@ classdef BECJobManager < CodedModJobManager
             JobInfo = obj.UpdateJobInfo( JobInfo, 'Status', msgStatusFile );
             % Save simulation progress in STATUS file. Update Results file.
             % if( nargin>=5 && ~isempty(JobName) && ~isempty(JobRunningDir) )
-                % SuccessFlagStatus = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
-                % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
-                
-                % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
-                % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
-                % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msgResults, 'w+');
+            % SuccessFlagStatus = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
+            % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
+            
+            % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
+            % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
+            % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], msgResults, 'w+');
             % end
             
             Results = struct( 'DataLength (k)', num2str(JobParam.HStructInfo.DataLength), ...

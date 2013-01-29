@@ -23,21 +23,17 @@ classdef CmlJobManager < JobManager
         end
         
         
-        
-        %%% Terry: add CurrentUser as input argument to PreProcessJob
-        % add logic to SetPaths to return JobDataDir
-        function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, ...
-                JobName)            
+        function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, JobName)
             
             CodeRoot = CurrentUser.CodeRoot;
             
-            [ JobParamIn ] = ProcessDataFiles( obj, JobParamIn, CurrentUser, JobName );
-                        
+            JobParam = obj.ProcessDataFiles( JobParamIn, CurrentUser, JobName );
+            
             OldPath = obj.SetCodePath(CodeRoot); % Set the path to CML.
             
-            [JobParam, CodeParam] = InitializeCodeParam( JobParamIn, CodeRoot ); % Initialize coding parameters.
+            [JobParam, CodeParam] = InitializeCodeParam( JobParam, CodeRoot ); % Initialize coding parameters.
             JobParam.code_param_short = CodeParam; % Store short code param inside JobParam.
-                        
+            
             JobParam.cml_rhome = obj.RenameLocalCmlHome(CodeRoot); % Rename local cml path to remote.
             
             JobState = JobStateIn; % Restore previous simulation state.
@@ -67,14 +63,13 @@ classdef CmlJobManager < JobManager
             NumProcessUnit = sum(TaskState.trials(end,:));
         end
         
-        
         TaskInputParam = CalcTaskInputParam(obj, JobParam, JobState, NumNewTasks) % Need to modify.
-        
         
         JobState = UpdateJobState(obj, JobStateIn, TaskState, JobParam)
         
-        
         [StopFlag, JobInfo, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, JobRunningDir)
+        
+        JobParam = ProcessDataFiles( obj, JobParam, CurrentUser, JobName )
         
     end
     
