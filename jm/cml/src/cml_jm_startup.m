@@ -24,6 +24,7 @@ end
 addpath( fullfile( filesep, 'home', 'pcs', 'util' ) );
 addpath( fullfile( filesep, 'home', 'pcs', 'jm', 'CodedMod', 'src' ) );
 addpath( fullfile( filesep, 'home', 'pcs', 'jm', 'cml', 'src' ) );
+addpath( fullfile( filesep, 'home', 'pcs', 'jm', 'cml', 'src', 'share' ) );
 addpath( fullfile( filesep, 'home', 'pcs', 'util', 'log') );
 addpath( fullfile( filesep, 'home', 'pcs', 'projects',...
                    'cml', 'module', 'chan_code', 'ldpc',...

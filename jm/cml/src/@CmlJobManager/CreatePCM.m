@@ -18,11 +18,13 @@
 %     Copyright (C) 2013, Terry R. Ferrett, Mohammad Fanaei, and Matthew C. Valenti.
 %     Last updated on 1/25/2013.
 
+   %%% TODO: check for existence of data file by extension, try-catch
+
 function [SuccessFlag ErrMsg H_rows H_cols] = CreatePCM( obj, CurrentUser, pcm )
 
 SuccessFlag = 0;  % Assume successful operation.
 
-hmat_type = get_hmat_type( pcm );
+hmat_type = GetHmatType( pcm );
 
 cml_home = CurrentUser.CodeRoot;
 
@@ -46,12 +48,21 @@ switch hmat_type
         % [ErrMsg] = save_hrows_hcols( obj, CurrentUser, pcm_prefix, H_rows, H_cols );
     case 'mat'
         %
+        [JobInDir, JobRunningDir, JobOutDir, TempDir JobDataDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
+    JobDataFileMat = [ JobDataDir filesep pcm ];
+    load(JobDataFileMat);
+    ErrMsg = '';   % nothing to be done. empty error message
     case 'cml_dvbs2'
         %
+    H_rows = 0;
+    H_cols = 0;
+    ErrMsg = '';   % nothing to be done. empty error message
     case 'not_supported';
         %
+    ErrMsg = '';   % nothing to be done. empty error message
     otherwise
         %
+    ErrMsg = '';   % nothing to be done. empty error message
 end
 
 if ~isempty(ErrMsg)
@@ -61,25 +72,6 @@ end
 
 end
 
-
-function hmat_type = get_hmat_type( pcm )
-if ~isempty(strfind( pcm, 'InitializeDVBS2' ))
-    hmat_type = 'cml_dvbs2';
-    
-elseif strcmp( pcm(end-3:end), 'pchk')
-    hmat_type = 'pchk';
-    
-elseif strcmp( pcm(end-4:end), 'alist')
-    hmat_type = 'alist';
-    
-elseif strcmp( pcm(end-2:end), 'mat')
-    hmat_type = 'mat';
-    
-else
-    hmat_type = 'not_supported';
-    
-end
-end
 
 
 function [ H_rows H_cols ErrMsg ] = cnv_pchk_hr_hc( obj, pcm, CurrentUser, cml_home )
