@@ -13,6 +13,10 @@ for n_df = 1:NDF
     switch CurDataFileField
         
         case 'parity_check_matrix'
+
+	hmat_type = GetHmatType( JobParam.parity_check_matrix );
+	switch hmat_type,
+ case { 'pchk', 'alist', 'mat' }
             [ SuccessFlag, ErrMsg, H_rows, H_cols] = obj.CreatePCM( CurrentUser, JobParam.parity_check_matrix );
             
             % Populate code_param_long.
@@ -23,6 +27,9 @@ for n_df = 1:NDF
             
             % Attach data-file name to JobParam.
             JobParam.code_param_long_filename = obj.RenameLocalCmlHome(DataPathFile);
+otherwise
+
+end
     end
 end
 end
