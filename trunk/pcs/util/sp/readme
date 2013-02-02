@@ -18,12 +18,18 @@ Output
 
 = Usage Example =
 
-  > ./sp SpeedProfile 1
+  = Running Profile Scenario
+  > ./sp run SpeedProfile 1
 
    * wait *
 
 
-  Output figure appears in sp/output/SpeedProfile_1.fig
+  = Stopping Profiling
+  > ./sp run SpeedProfile 1
+  
+   * wait *
+  
+  > ./sp stop SpeedProfile 1
 
 
 = Notes =
