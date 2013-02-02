@@ -60,7 +60,8 @@ if isfield(JobInfo.JobTiming, 'SpeedProfile')
 GlobalInfo = JobInfo.JobTiming.SpeedProfile.GlobalInfo;
 
 tsc = GlobalInfo.ActualETime;
-trsc = GlobalInfo.NumProcessUnit;
+trsc = GlobalInfo.NumProcessUnit; % each element of this vector represents the number
+                                  % of trials computed by a particular task
 
 % post processing
 tsc = tsc - tsc(1);
