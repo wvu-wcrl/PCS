@@ -121,7 +121,7 @@ else
 end
 
 % Invoke external command to generate alist file.
-cmd = [ps sp LdpcCodeGenP filesep p1 sp p2 sp p3];
+cmd = [LdpcCodeGenP filesep p1 sp p2 sp p3];
 system(cmd);
 end
 
