@@ -4,6 +4,11 @@
 
 function hmat_type = GetHmatType( pcm )
 
+   if isempty(pcm)    % default to dvb-s2
+   pcm = 'InitializeDVBS2';
+   end
+
+
 if ~isempty(strfind( pcm, 'InitializeDVBS2' ))
     hmat_type = 'cml_dvbs2';
     
