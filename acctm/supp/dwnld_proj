@@ -1,5 +1,5 @@
 #!/bin/bash
-# dproj
+# dwnld_proj
 #
 # Download project code for user
 #
@@ -8,7 +8,9 @@
 #  2. Username
 #  3. Project name
 #  4. Google code username
-
+#
+#  Calling example
+#   > ./dwnld_proj /home/tferrett tferrett cml terry.ferrett
 
 # read inputs
 HD=$1    # home directory

@@ -10,7 +10,7 @@
 #  4. Google code username
 #
 # Calling example - install CML for testuser
-# > ./install_proj /home/testuser testuser cml testuser@gmail.com
+# > ./inst_proj /home/testuser testuser cml testuser@gmail.com
 #
 #     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
 #     For full copyright information see the bottom of this file.
