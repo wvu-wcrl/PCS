@@ -18,7 +18,7 @@
 %     Copyright (C) 2013, Terry R. Ferrett, Mohammad Fanaei, and Matthew C. Valenti.
 %     Last updated on 1/25/2013.
 
-   %%% TODO: check for existence of data file by extension, try-catch
+%%% TODO: check for existence of data file by extension, try-catch
 
 function [SuccessFlag ErrMsg H_rows H_cols] = CreatePCM( obj, CurrentUser, pcm )
 
@@ -42,27 +42,26 @@ switch hmat_type
         
     case 'alist'
         pcm_prefix = pcm(1:end-6);
-        [JobInDir, JobRunningDir, JobOutDir, TempDir JobDataDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
+        [JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, JobDataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
         [H_rows, H_cols] = CmlAlistToHrowsHcols( JobDataDir, pcm_prefix );
         ErrMsg = '';  % add error checking later.
         % [ErrMsg] = save_hrows_hcols( obj, CurrentUser, pcm_prefix, H_rows, H_cols );
     case 'mat'
-        %
-        [JobInDir, JobRunningDir, JobOutDir, TempDir JobDataDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
-    JobDataFileMat = [ JobDataDir filesep pcm ];
-    load(JobDataFileMat);
-    ErrMsg = '';   % nothing to be done. empty error message
+        [JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, JobDataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
+        JobDataFileMat = [ JobDataDir filesep pcm ];
+        load(JobDataFileMat);
+        ErrMsg = '';   % nothing to be done. empty error message
     case 'cml_dvbs2'
         %
-    H_rows = 0;
-    H_cols = 0;
-    ErrMsg = '';   % nothing to be done. empty error message
+        H_rows = 0;
+        H_cols = 0;
+        ErrMsg = '';   % nothing to be done. empty error message
     case 'not_supported';
         %
-    ErrMsg = '';   % nothing to be done. empty error message
+        ErrMsg = '';   % nothing to be done. empty error message
     otherwise
         %
-    ErrMsg = '';   % nothing to be done. empty error message
+        ErrMsg = '';   % nothing to be done. empty error message
 end
 
 if ~isempty(ErrMsg)
@@ -80,7 +79,7 @@ LdpcCodeGenP = crp_codegen_cl( cml_home );
 
 tmp_path = obj.JobManagerParam.TempJMDir;
 
-[JobInDir, JobRunningDir, JobOutDir, TempDir JobDataDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
+[JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, JobDataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
 
 [ErrMsg] = cnv_pchk_alist_cl(LdpcCodeGenP, JobDataDir, tmp_path, pcm);
 
@@ -133,7 +132,7 @@ end
 %
 % save( PcmMatTmp, 'H_rows', 'H_cols');
 %
-% [JobInDir, JobRunningDir, JobOutDir, TempDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
+% [JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, JobDataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
 %
 % PcmMatDataP = [ JobDataDir filesep PcmMat ];
 %

@@ -13,23 +13,23 @@ for n_df = 1:NDF
     switch CurDataFileField
         
         case 'parity_check_matrix'
-
-	hmat_type = GetHmatType( JobParam.parity_check_matrix );
-	switch hmat_type,
- case { 'pchk', 'alist', 'mat' }
-            [ SuccessFlag, ErrMsg, H_rows, H_cols] = obj.CreatePCM( CurrentUser, JobParam.parity_check_matrix );
             
-            % Populate code_param_long.
-            code_param_long.H_rows = H_rows;
-            code_param_long.H_cols = H_cols;
-            
-            [ ErrMsg DataPathFile ] = SaveDataFile( obj, code_param_long, CurrentUser, JobName );
-            
-            % Attach data-file name to JobParam.
-            JobParam.code_param_long_filename = obj.RenameLocalCmlHome(DataPathFile);
-otherwise
-
-end
+            hmat_type = GetHmatType( JobParam.parity_check_matrix );
+            switch hmat_type,
+                case { 'pchk', 'alist', 'mat' }
+                    [ SuccessFlag, ErrMsg, H_rows, H_cols] = obj.CreatePCM( CurrentUser, JobParam.parity_check_matrix );
+                    
+                    % Populate code_param_long.
+                    code_param_long.H_rows = H_rows;
+                    code_param_long.H_cols = H_cols;
+                    
+                    [ ErrMsg DataPathFile ] = SaveDataFile( obj, code_param_long, CurrentUser, JobName );
+                    
+                    % Attach data-file name to JobParam.
+                    JobParam.code_param_long_filename = obj.RenameLocalCmlHome(DataPathFile);
+                otherwise
+                    
+            end
     end
 end
 end
@@ -44,7 +44,7 @@ function [ ErrMsg DataPathFile ] = SaveDataFile( obj, code_param_long, CurrentUs
 % - get datapath.
 
 % Get path to user data directory.
-[JobInDir, JobRunningDir, JobOutDir, TempDir, DataDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
+[JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, DataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
 
 % Form path to user data directory.
 DataPath = [ DataDir filesep 'Jm' ];
