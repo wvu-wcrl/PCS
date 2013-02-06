@@ -196,6 +196,8 @@ while(1)
         % write error message to TaskInfo
         TaskInfo.ErrorMsg = exception.message;
 
+        TaskInfo.StopTime = clock;
+
 
         % append "_failed" to the task filename and move to output queue
         move_failed_task_to_output_queue(next_input, TaskParam, TaskInfo, oq, next_running, rq);
