@@ -3,6 +3,7 @@ classdef JobManager < handle
     properties
         JobManagerParam
         JobManagerInfo
+        UserList
     end
     
     properties(SetAccess = protected)
@@ -73,9 +74,9 @@ classdef JobManager < handle
             if( nargin<1 || isempty(cfgRoot) ), cfgRoot = []; end
             obj.JobManagerParam = obj.InitJobManager(cfgRoot);
             obj.JobManagerInfo = obj.InitJobManagerInfo();
-            [obj.JobManagerInfo.UserList, obj.JobManagerInfo.UserUsageInfo] = obj.InitUsers();
+            [obj.UserList, obj.JobManagerInfo.UserUsageInfo] = obj.InitUsers();
             Msg = sprintf( '\n\n\nThe list of ACTIVE users is extracted at %s.\n\nThere are %d ACTIVE users in the system.\n\n',...
-                datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM'), length(obj.JobManagerInfo.UserList) );
+                datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM'), length(obj.UserList) );
             PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
         end
         
@@ -93,8 +94,8 @@ classdef JobManager < handle
             JMGlobalTimer = tic;   % Global timer of job manager to keep track of timing information of finished tasks.
             
             if( exist(obj.JobManagerParam.JMInfoFullPath, 'file') ~= 0 )
-                % Load JobManagerParam and JobManagerInfo (containing UserList and UserUsageInfo).
-                JMInfoFileContent = load( obj.JobManagerParam.JMInfoFullPath, 'JobManagerParam', 'JobManagerInfo' );
+                % Load JobManagerParam and JobManagerInfo (containing UserUsageInfo).
+                JMInfoFileContent = load( obj.JobManagerParam.JMInfoFullPath, 'JobManagerParam', 'JobManagerInfo', 'UserList' );
                 if isfield(JMInfoFileContent, 'JobManagerInfo')
                     obj.JobManagerInfo = JMInfoFileContent.JobManagerInfo;
                 end
@@ -105,8 +106,8 @@ classdef JobManager < handle
                 Check4NewUser = 0;
                 Msg = sprintf( '\n\n\nThe list of all ACTIVE users is extracted and updated at %s.\n', datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
                 PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
-                [obj.JobManagerInfo.UserList, obj.JobManagerInfo.UserUsageInfo] = obj.InitUsers();
-                nActiveUsers = length(obj.JobManagerInfo.UserList);
+                [obj.UserList, obj.JobManagerInfo.UserUsageInfo] = obj.InitUsers();
+                nActiveUsers = length(obj.UserList);
                 Msg = sprintf( 'There are %d ACTIVE users in the system.\n\n\n', nActiveUsers );
                 PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                 
@@ -115,7 +116,7 @@ classdef JobManager < handle
                     while RunningUsers
                         Check4NewUser = Check4NewUser + 1;
                         for User = 1:nActiveUsers
-                            CurrentUser = obj.JobManagerInfo.UserList{User};
+                            CurrentUser = obj.UserList{User};
                             % [HomeRoot, Username, Extension, Version] = fileparts(CurrentUser.UserPath);
                             % [Dummy, Username] = fileparts(CurrentUser.UserPath);
                             Username = obj.FindUsername(CurrentUser.UserPath);
@@ -606,7 +607,7 @@ classdef JobManager < handle
                             
                             CurrentUserUsageInfo.TaskID = CurrentUser.TaskID;
                             CurrentUser = rmfield(CurrentUser, 'TaskID');
-                            obj.JobManagerInfo.UserList{User} = CurrentUser;
+                            obj.UserList{User} = CurrentUser;
                             obj.JobManagerInfo.UserUsageInfo{CurrentUserInfoFlag==1} = CurrentUserUsageInfo;
                             
                             % Update the file containing user usage information.
@@ -619,13 +620,14 @@ classdef JobManager < handle
                         if rem(Check4NewUser, obj.JobManagerParam.JMInfoUpdatePeriod)==0
                             JobManagerParam = obj.JobManagerParam;
                             JobManagerInfo = obj.JobManagerInfo;
+                            UserList = obj.UserList;
                             try
-                                save( obj.JobManagerParam.JMInfoFullPath, 'JobManagerParam', 'JobManagerInfo' );
+                                save( obj.JobManagerParam.JMInfoFullPath, 'JobManagerParam', 'JobManagerInfo', 'UserList' );
                                 SuccessMsg = sprintf( '\nJob manager parameters and information containing the user list and user usage information is saved.\n\n' );
                                 PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
                             catch
                                 [JMInfoPath, JMInfoName, JMInfoExt] = fileparts(obj.JobManagerParam.JMInfoFullPath);
-                                save( fullfile(obj.JobManagerParam.TempJMDir,[JMInfoName, JMInfoExt]), 'JobManagerParam', 'JobManagerInfo' );
+                                save( fullfile(obj.JobManagerParam.TempJMDir,[JMInfoName, JMInfoExt]), 'JobManagerParam', 'JobManagerInfo', 'UserList' );
                                 obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[JMInfoName, JMInfoExt]), JMInfoPath);
                                 SuccessMsg = sprintf( '\nJob manager parameters and information containing the user list and user usage information is saved by OS.\n\n' );
                                 PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
@@ -807,9 +809,7 @@ classdef JobManager < handle
             if( exist(obj.JobManagerParam.JMInfoFullPath, 'file') ~= 0 )
                 load(obj.JobManagerParam.JMInfoFullPath, 'JobManagerInfo');
             else
-                JobManagerInfo = struct('UserList', [], ...
-                    'JobID', 0, ...
-                    'UserUsageInfo', []);
+                JobManagerInfo = struct('JobID', 0, 'UserUsageInfo', []);
                 try
                     save(obj.JobManagerParam.JMInfoFullPath, 'JobManagerInfo');
                 catch
@@ -855,7 +855,7 @@ classdef JobManager < handle
                 UserDirs = dir(HomeRoot);
             end
             
-            UserList = obj.JobManagerInfo.UserList;
+            UserList = obj.UserList;
             UserUsageInfo = obj.JobManagerInfo.UserUsageInfo;
             n = length(UserDirs);        % Number of directories found in HomeRoot.
             UserCount = length(UserList);% Counter to track number of ACTIVE users.
