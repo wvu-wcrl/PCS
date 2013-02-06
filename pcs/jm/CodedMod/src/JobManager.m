@@ -286,10 +286,24 @@ classdef JobManager < handle
                             
                             % Look to see if there are any .mat files in TaskOut directory.
                             DTaskOut = dir( fullfile(TaskOutDir,[obj.JobManagerParam.ProjectName '_*.mat']) );
+                            NoTaskOut = length(DTaskOut);
+                            
+                            % Delete ALL FAILED TASKs before further processing.
+                            FailedTaskInd = zeros(NoTaskOut,1);
+                            for Ta = 1:NoTaskOut
+                                FailedTaskInd(Ta) = ~isempty(strfind( DTaskOut(Ta).name, '_failed' ));
+                                if FailedTaskInd(Ta) == 1
+                                    obj.DeleteFile( fullfile(TaskOutDir,DTaskOut(Ta).name) );
+                                    Msg = sprintf( 'FAILED output TASK file %s of user %s is deleted at %s.\n',...
+                                        DTaskOut(Ta).name(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+                                    PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
+                                end
+                            end
+                            DTaskOut(FailedTaskInd == 1) = [];
                             
                             if ~isempty(DTaskOut)
                                 % Pick a finished task file at random.
-                                TaskOutFileIndex = randi( [1 length(DTaskOut)], [1 1] );
+                                TaskOutFileIndex = randi( [1 NoTaskOut], [1 1] );
                                 
                                 % Construct the finished task filename and the corresponding JobName.
                                 TaskOutFileName = DTaskOut(TaskOutFileIndex).name;
@@ -1141,7 +1155,6 @@ classdef JobManager < handle
             NumNode = length(NodeID_Times);
             IndT = zeros(NumNode,1);
             for Node = 1:NumNode
-                % IndT(Node) = strcmpi( num2str(NodeID_Times(Node).NodeID), TaskInfo.NodeID );
                 IndT(Node) = strcmpi( num2str(NodeID_Times(Node).NodeID), TaskInfo.HostName );
             end
             
