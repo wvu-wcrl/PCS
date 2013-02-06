@@ -26,13 +26,16 @@ classdef JobManager < handle
         end
         
         
-        function [JobInDir, JobRunningDir, JobOutDir, TempDir, DataDir] = SetPaths(JobQueueRoot)
+        function [JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, DataDir, FiguresDir] = SetPaths(JobQueueRoot)
             % Determine required directories under user's JobQueueRoot.
             JobInDir = fullfile(JobQueueRoot,'JobIn');
             JobRunningDir = fullfile(JobQueueRoot,'JobRunning');
             JobOutDir = fullfile(JobQueueRoot,'JobOut');
+            JobFailedDir = fullfile(JobQueueRoot,'JobFailed');
+            SuspendedDir = fullfile(JobQueueRoot,'Suspended');
             TempDir = fullfile(JobQueueRoot,'Temp');
-            DataDir = fullfile(JobQueueRoot,'Data');            
+            DataDir = fullfile(JobQueueRoot,'Data');
+            FiguresDir = fullfile(JobQueueRoot,'Figures');
             % TaskInDir = fullfile(TasksRoot,'TaskIn');
             % TaskOutDir = fullfile(TasksRoot,'TaskOut');
         end
@@ -52,6 +55,11 @@ classdef JobManager < handle
                 % If CurrentTaskLoad is less than TaskGenDecelerate, generate MaxTaskGenStep (or TaskGenDecelerate-CurrentTaskLoad) tasks at a time.
                 NumNewTasks = max( min( UserParam.MaxTaskGenStep, UserParam.TaskGenDecelerate-CurrentTaskLoad ), 1);
             end
+        end
+        
+        
+        function Username = FindUsername(UserPath)
+            Username = fliplr( strtok( fliplr(UserPath),filesep ) );
         end
     end
     
@@ -109,7 +117,8 @@ classdef JobManager < handle
                         for User = 1:nActiveUsers
                             CurrentUser = obj.JobManagerInfo.UserList{User};
                             % [HomeRoot, Username, Extension, Version] = fileparts(CurrentUser.UserPath);
-                            [Dummy, Username] = fileparts(CurrentUser.UserPath);
+                            % [Dummy, Username] = fileparts(CurrentUser.UserPath);
+                            Username = obj.FindUsername(CurrentUser.UserPath);
                             
                             TotalUserCount = length(obj.JobManagerInfo.UserUsageInfo);
                             CurrentUserInfoFlag = zeros(TotalUserCount,1);
@@ -121,8 +130,7 @@ classdef JobManager < handle
                             
                             CurrentUser.TaskID = CurrentUserUsageInfo.TaskID;
                             
-                            % [JobInDir, JobRunningDir, JobOutDir, TaskInDir, TaskOutDir, TempDir] = obj.SetPaths(CurrentUser.JobQueueRoot, CurrentUser.TasksRoot);
-                            [JobInDir, JobRunningDir, JobOutDir, TempDir, DataDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
+                            [JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, DataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
                             TaskInDir = CurrentUser.TaskInDir;
                             TaskOutDir = CurrentUser.TaskOutDir;
                             
@@ -277,7 +285,7 @@ classdef JobManager < handle
                             %******************************************************************
                             
                             % Look to see if there are any .mat files in TaskOut directory.
-                             DTaskOut = dir( fullfile(TaskOutDir,[obj.JobManagerParam.ProjectName '_*.mat']) );
+                            DTaskOut = dir( fullfile(TaskOutDir,[obj.JobManagerParam.ProjectName '_*.mat']) );
                             
                             if ~isempty(DTaskOut)
                                 % Pick a finished task file at random.
@@ -857,9 +865,9 @@ classdef JobManager < handle
                 
                 % If CFG_Filename (project configuration file) exists AND {EITHER user is NOT already listed in UserList OR
                 % CFG_Filename is modified since the last time it is read}, read CFG_Filename.
-                if( ~isempty(cfgFileDir) && ( sum(UserFoundFlag)==0 || UserList{UserFoundFlag==1}.CfgFileModDate < UserDirs(k).datenum ) )
+                if( ~isempty(cfgFileDir) && ( sum(UserFoundFlag)==0 || datenum( UserList{UserFoundFlag==1}.CfgFileModDate ) < UserDirs(k).datenum ) )
                     if( sum(UserFoundFlag)~=0 )
-                        if UserList{UserFoundFlag==1}.CfgFileModDate < UserDirs(k).datenum
+                        if datenum( UserList{UserFoundFlag==1}.CfgFileModDate ) < UserDirs(k).datenum
                             UserList(UserFoundFlag==1) = [];
                         end
                     end
@@ -912,7 +920,7 @@ classdef JobManager < handle
                     out = util.fp(cfgFile, heading1, 'FunctionPath'); out = out{1}{1};
                     UserList{UserCount}.FunctionPath = out;
                     
-                    UserList{UserCount}.CfgFileModDate = UserDirs(k).datenum;
+                    UserList{UserCount}.CfgFileModDate = UserDirs(k).date;
                     
                     
                     heading2 = '[TasksInSpec]';
@@ -1316,7 +1324,8 @@ classdef JobManager < handle
             % TaskInDir = fullfile(UserParam.TasksRoot,'TaskIn');
             TaskInDir = UserParam.TaskInDir;
             % [HomeRoot, Username, Extension, Version] = fileparts(UserParam.UserPath);
-            [Dummy, Username] = fileparts(UserParam.UserPath);
+            % [Dummy, Username] = fileparts(UserParam.UserPath);
+            Username = obj.FindUsername(UserParam.UserPath);
             OS_flag = 0;
             
             TaskParam = struct(...
@@ -1383,7 +1392,8 @@ classdef JobManager < handle
             FinalTaskID = UserParam.TaskID;
             
             % [HomeRoot, Username, Extension, Version] = fileparts(UserParam.UserPath);
-            [Dummy, Username] = fileparts(UserParam.UserPath);
+            % [Dummy, Username] = fileparts(UserParam.UserPath);
+            Username = obj.FindUsername(UserParam.UserPath);
             
             % Determine the number of new tasks to be generated for the current user.
             NumNewTasks = obj.FindNumNewTasks(UserParam);
