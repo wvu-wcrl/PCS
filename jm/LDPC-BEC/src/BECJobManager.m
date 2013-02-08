@@ -54,10 +54,10 @@ classdef BECJobManager < CodedModJobManager
         end
         
         
-        function [StopFlag, JobInfo, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, JobRunningDir)
+        function [StopFlag, JobInfo, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, FiguresDir)
             % Determine if the global stopping criteria have been reached/met. Moreover, determine and echo progress of running JobName.
             % Furthermore, update Results file.
-            % Calling syntax: [StopFlag, JobInfo [,JobParam]] = obj.DetermineStopFlag(JobParam, JobState, JobInfo [,JobName] [,Username] [,JobRunningDir])
+            % Calling syntax: [StopFlag, JobInfo [,JobParam]] = obj.DetermineStopFlag(JobParam, JobState, JobInfo [,JobName] [,Username] [,FiguresDir])
             
             % First check to see if minimum number of trials or frame errors has been reached.
             % Determine the number of remaining trials reqiured for each Epsilon point.
@@ -148,10 +148,10 @@ classdef BECJobManager < CodedModJobManager
             xlabel('Channel Erasure Probability (\epsilon_0)')
             ylabel('Channel Erasure Probability After 100 Iterations (\epsilon_{100})')
             try
-                saveas( FigH, fullfile(JobRunningDir, [JobName(1:end-4) '_Fig.pdf']) );
+                saveas( FigH, fullfile(FiguresDir, [JobName(1:end-4) '_Fig.pdf']) );
             catch
-                saveas( FigH, fullfile(obj.JobManagerParam.TempJMDir, [JobName(1:end-4) '_FigResults.pdf']) );
-                obj.MoveFile( fullfile(obj.JobManagerParam.TempJMDir, [JobName(1:end-4) '_FigResults.pdf']), JobRunningDir);
+                saveas( FigH, fullfile(obj.JobManagerParam.TempJMDir, [JobName(1:end-4) '_Fig.pdf']) );
+                obj.MoveFile( fullfile(obj.JobManagerParam.TempJMDir, [JobName(1:end-4) '_Fig.pdf']), FiguresDir);
             end
         end
     end

@@ -1,7 +1,7 @@
-function [StopFlag, JobInfo, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, JobRunningDir)
+function [StopFlag, JobInfo, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, FiguresDir)
 % Determine if the global stopping criteria have been reached/met. Moreover, determine and echo progress of running JobName.
 % Furthermore, update Results file.
-% Calling syntax: [StopFlag, JobInfo [,JobParam]] = obj.DetermineStopFlag(JobParam, JobState, JobInfo [,JobName] [,Username] [,JobRunningDir])
+% Calling syntax: [StopFlag, JobInfo [,JobParam]] = obj.DetermineStopFlag(JobParam, JobState, JobInfo [,JobName] [,Username] [,FiguresDir])
 
 [RemainingTrials RemainingFrameErrors RemainingMI] =  UpdateRemainingMetrics( JobParam, JobState );
 
@@ -40,7 +40,7 @@ if StopFlag == 1
     
 end
 
-[JobParam, JobInfo] = SaveJobProgress( obj, ActiveSNRPoints, RemainingTrials, JobParam, JobState, JobInfo, JobName, Username,  JobRunningDir );
+[JobParam, JobInfo] = SaveJobProgress( obj, ActiveSNRPoints, RemainingTrials, JobParam, JobState, JobInfo, JobName, Username );
 
 varargout{1} = JobParam;
 varargout{2}= JobState;
@@ -148,7 +148,7 @@ end
 end
 
 
-function [JobParam, JobInfo] = SaveJobProgress( obj, ActiveSNRPoints, RemainingTrials, JobParam, JobState, JobInfo, JobName, Username,  JobRunningDir )
+function [JobParam, JobInfo] = SaveJobProgress( obj, ActiveSNRPoints, RemainingTrials, JobParam, JobState, JobInfo, JobName, Username )
 % Determine and echo progress of running JobName.
 
 RemainingTJob = sum( (ActiveSNRPoints==1) .* RemainingTrials );

@@ -67,7 +67,7 @@ classdef CmlJobManager < JobManager
         
         JobState = UpdateJobState(obj, JobStateIn, TaskState, JobParam)
         
-        [StopFlag, JobInfo, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, JobRunningDir)
+        [StopFlag, JobInfo, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, FiguresDir)
         
         JobParam = ProcessDataFiles( obj, JobParam, CurrentUser, JobName )
         
