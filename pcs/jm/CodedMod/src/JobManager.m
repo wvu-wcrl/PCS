@@ -116,7 +116,7 @@ classdef JobManager < handle
                     while RunningUsers
                         Check4NewUser = Check4NewUser + 1;
                         for User = 1:nActiveUsers
-                            CurrentUser = obj.UserList{User};
+                            CurrentUser = obj.UserList(User);
                             % [HomeRoot, Username, Extension, Version] = fileparts(CurrentUser.UserPath);
                             % [Dummy, Username] = fileparts(CurrentUser.UserPath);
                             Username = obj.FindUsername(CurrentUser.UserPath);
@@ -124,10 +124,10 @@ classdef JobManager < handle
                             TotalUserCount = length(obj.JobManagerInfo.UserUsageInfo);
                             CurrentUserInfoFlag = zeros(TotalUserCount,1);
                             for v = 1:TotalUserCount
-                                CurrentUserInfoFlag(v) = strcmpi( obj.JobManagerInfo.UserUsageInfo{v}.Username, Username );
+                                CurrentUserInfoFlag(v) = strcmpi( obj.JobManagerInfo.UserUsageInfo(v).Username, Username );
                             end
                             
-                            CurrentUserUsageInfo = obj.JobManagerInfo.UserUsageInfo{CurrentUserInfoFlag==1};
+                            CurrentUserUsageInfo = obj.JobManagerInfo.UserUsageInfo(CurrentUserInfoFlag==1);
                             
                             CurrentUser.TaskID = CurrentUserUsageInfo.TaskID;
                             
@@ -607,8 +607,8 @@ classdef JobManager < handle
                             
                             CurrentUserUsageInfo.TaskID = CurrentUser.TaskID;
                             CurrentUser = rmfield(CurrentUser, 'TaskID');
-                            obj.UserList{User} = CurrentUser;
-                            obj.JobManagerInfo.UserUsageInfo{CurrentUserInfoFlag==1} = CurrentUserUsageInfo;
+                            obj.UserList(User) = CurrentUser;
+                            obj.JobManagerInfo.UserUsageInfo(CurrentUserInfoFlag==1) = CurrentUserUsageInfo;
                             
                             % Update the file containing user usage information.
                             obj.CreateUsageFile(obj.JobManagerInfo.UserUsageInfo);
@@ -874,14 +874,14 @@ classdef JobManager < handle
                 
                 UserFoundFlag = zeros(UserCount,1);
                 for u = 1:UserCount
-                    UserFoundFlag(u) = strcmpi( UserList{u}.UserPath, UserPath );
+                    UserFoundFlag(u) = strcmpi( UserList(u).UserPath, UserPath );
                 end
                 
                 % If CFG_Filename (project configuration file) exists AND {EITHER user is NOT already listed in UserList OR
                 % CFG_Filename is modified since the last time it is read}, read CFG_Filename.
-                if( ~isempty(cfgFileDir) && ( sum(UserFoundFlag)==0 || datenum( UserList{UserFoundFlag==1}.CfgFileModDate ) < UserDirs(k).datenum ) )
+                if( ~isempty(cfgFileDir) && ( sum(UserFoundFlag)==0 || datenum( UserList(UserFoundFlag==1).CfgFileModDate ) < UserDirs(k).datenum ) )
                     if( sum(UserFoundFlag)~=0 )
-                        if datenum( UserList{UserFoundFlag==1}.CfgFileModDate ) < UserDirs(k).datenum
+                        if datenum( UserList(UserFoundFlag==1).CfgFileModDate ) < UserDirs(k).datenum
                             UserList(UserFoundFlag==1) = [];
                         end
                     end
@@ -890,7 +890,7 @@ classdef JobManager < handle
                     end
                     
                     % Add FULL path to this user to active users list.
-                    UserList{UserCount}.UserPath = UserPath;
+                    UserList(UserCount).UserPath = UserPath;
                     
                     
                     heading1 = '[GeneralSpec]';
@@ -898,7 +898,7 @@ classdef JobManager < handle
                     % Read name and FuLL path to user's actual CODE directory.
                     % All of the code required to run user's simulations resides under this directory.
                     out = util.fp(cfgFile, heading1, 'CodeRoot'); out = out{1}{1};
-                    UserList{UserCount}.CodeRoot = out;
+                    UserList(UserCount).CodeRoot = out;
                     
                     % Read name and FULL path to user's job queue root directory. JobIn, JobRunning, and JobOut directories are under this full path.
                     out = util.fp(cfgFile, heading1, 'JobQueueRoot'); out = out{1}{1};
@@ -909,7 +909,7 @@ classdef JobManager < handle
                         % This line was commented on 08/01/2012 since this field was modified in the configuration file to not have ' at its beginning and end.
                         %     out = eval(out);
                     end
-                    UserList{UserCount}.JobQueueRoot = out;
+                    UserList(UserCount).JobQueueRoot = out;
                     
                     % Read name and FULL path to user's task directory. TaskIn and TaskOut directories are under this path.
                     % out = util.fp(cfgFile, heading1, 'TasksRoot'); out = out{1}{1};
@@ -919,22 +919,22 @@ classdef JobManager < handle
                     % else
                     %     out = eval(out);
                     % end
-                    % UserList{UserCount}.TasksRoot = out;
+                    % UserList(UserCount).TasksRoot = out;
                     
                     TaskCfgFileName = 'ctc_cfg';
                     out = util.fp( fullfile(UserPath,TaskCfgFileName), '[paths]', 'input' ); out = out{1}{1};
-                    UserList{UserCount}.TaskInDir = out;
+                    UserList(UserCount).TaskInDir = out;
                     out = util.fp( fullfile(UserPath,TaskCfgFileName), '[paths]', 'output' ); out = out{1}{1};
-                    UserList{UserCount}.TaskOutDir = out;
+                    UserList(UserCount).TaskOutDir = out;
                     
                     % Read name and full path of function to be executed for running each task.
                     out = util.fp(cfgFile, heading1, 'FunctionName'); out = out{1}{1};
-                    UserList{UserCount}.FunctionName = out;
+                    UserList(UserCount).FunctionName = out;
                     
                     out = util.fp(cfgFile, heading1, 'FunctionPath'); out = out{1}{1};
-                    UserList{UserCount}.FunctionPath = out;
+                    UserList(UserCount).FunctionPath = out;
                     
-                    UserList{UserCount}.CfgFileModDate = UserDirs(k).date;
+                    UserList(UserCount).CfgFileModDate = UserDirs(k).date;
                     
                     
                     heading2 = '[TasksInSpec]';
@@ -942,27 +942,27 @@ classdef JobManager < handle
                     % Read maximum number of input tasks in TaskIn queue/directory.
                     out = util.fp(cfgFile, heading2, 'MaxInputTasks'); out = out{1}{1};
                     if( isempty(out) ), out = '1000'; end
-                    UserList{UserCount}.MaxInputTasks = str2double(out);
+                    UserList(UserCount).MaxInputTasks = str2double(out);
                     
                     % Read the number of input tasks in TaskIn queue/directory beyond which generation of new tasks is slowed down until it reaches the maximum of MaxInputTasks.
                     out = util.fp(cfgFile, heading2, 'TaskGenDecelerate'); out = out{1}{1};
                     if( isempty(out) ), out = '750'; end
-                    UserList{UserCount}.TaskGenDecelerate = str2double(out);
+                    UserList(UserCount).TaskGenDecelerate = str2double(out);
                     
                     % Read maximum number of input tasks to be submitted to TaskIn at a time/each step.
                     out = util.fp(cfgFile, heading2, 'MaxTaskGenStep'); out = out{1}{1};
                     if( isempty(out) ), out = '60'; end
-                    UserList{UserCount}.MaxTaskGenStep = str2double(out);
+                    UserList(UserCount).MaxTaskGenStep = str2double(out);
                     
                     % Read number of new input tasks saved in temporary directory (TempJMDir) that should be moved to TaskIn directory of user at a time.
                     out = util.fp(cfgFile, heading2, 'TaskInFlushRate'); out = out{1}{1};
                     if( isempty(out) ), out = '10'; end
-                    UserList{UserCount}.TaskInFlushRate = str2double(out);
+                    UserList(UserCount).TaskInFlushRate = str2double(out);
                     
                     % Read maximum number of parallel jobs running at a time.
                     out = util.fp(cfgFile, heading2, 'MaxRunningJobs'); out = out{1}{1};
                     if( isempty(out) ), out = '3'; end
-                    UserList{UserCount}.MaxRunningJobs = str2double(out);
+                    UserList(UserCount).MaxRunningJobs = str2double(out);
                     
                     
                     heading3 = '[RunTimeSpec]';
@@ -970,32 +970,32 @@ classdef JobManager < handle
                     % Read quick initial running time of each task to quickly get initial results back.
                     out = util.fp(cfgFile, heading3, 'InitialRunTime'); out = out{1}{1};
                     if( isempty(out) ), out = '60'; end
-                    UserList{UserCount}.InitialRunTime = str2double(out);
+                    UserList(UserCount).InitialRunTime = str2double(out);
                     
                     % Read longer running time of each task in the long term.
                     out = util.fp(cfgFile, heading3, 'MaxRunTime'); out = out{1}{1};
                     if( isempty(out) ), out = '300'; end
-                    UserList{UserCount}.MaxRunTime = str2double(out);
+                    UserList(UserCount).MaxRunTime = str2double(out);
                     
                     % Read pause time to wait between task submissions and flow control.
                     out = util.fp(cfgFile, heading3, 'PauseTime'); out = out{1}{1};
                     if( isempty(out) ), out = '0.1'; end
-                    UserList{UserCount}.PauseTime = str2double(out);
+                    UserList(UserCount).PauseTime = str2double(out);
                     
                     % Initialize UserUsageInfo entry for the added user IF the user is NOT already listed.
                     if sum(UserFoundFlag)==0
                         UserInfoFoundFlag = zeros(TotalUserCount,1);
                         for v = 1:TotalUserCount
-                            UserInfoFoundFlag(v) = strcmpi( UserUsageInfo{v}.Username, UserDirs(k).name );
+                            UserInfoFoundFlag(v) = strcmpi( UserUsageInfo(v).Username, UserDirs(k).name );
                         end
                         
                         if( sum(UserInfoFoundFlag)==0 )
                             TotalUserCount = TotalUserCount + 1;
-                            UserUsageInfo{TotalUserCount}.Username = UserDirs(k).name;
+                            UserUsageInfo(TotalUserCount).Username = UserDirs(k).name;
                             % Reset the task ID counter.
-                            UserUsageInfo{TotalUserCount}.TaskID = 0;
-                            UserUsageInfo{TotalUserCount}.UserUsage = zeros(4,1);
-                            UserUsageInfo{TotalUserCount}.TotalProcessDuration = 0;
+                            UserUsageInfo(TotalUserCount).TaskID = 0;
+                            UserUsageInfo(TotalUserCount).UserUsage = zeros(4,1);
+                            UserUsageInfo(TotalUserCount).TotalProcessDuration = 0;
                         end
                     end
                     
@@ -1225,8 +1225,8 @@ classdef JobManager < handle
             UserUsage = repmat(UserUsage, length(UserUsageInfo), 1);
             
             for User = 1:length(UserUsageInfo)
-                UserUsage(User).Username = UserUsageInfo{User}.Username;
-                UserUsage(User).TotalProcessDuration = num2str( UserUsageInfo{User}.TotalProcessDuration );
+                UserUsage(User).Username = UserUsageInfo(User).Username;
+                UserUsage(User).TotalProcessDuration = num2str( UserUsageInfo(User).TotalProcessDuration );
             end
             
             [JMInfoPath, JMInfoName, JMInfoExt] = fileparts(obj.JobManagerParam.JMInfoFullPath);
