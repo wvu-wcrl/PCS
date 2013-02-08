@@ -205,15 +205,15 @@ classdef JobManager < handle
                                     JobInfo = obj.InitJobInfo();
                                     JobInfo = obj.UpdateJobInfo(JobInfo, 'JobID', obj.JobManagerInfo.JobID, 'ErrorType', 1, 'ErrorMsg', Msg);
                                     
-                                    % Save the corrupted input/running job file in JobOut directory with its error information.
+                                    % Save the corrupted input/running job file in JobFailed directory with its error information.
                                     try
-                                        save( fullfile(JobOutDir,JobName), 'JobInfo' );
-                                        SuccessMsg = sprintf( 'Corrupted input/running job file %s of user %s is moved from its JobIn/JobRunning to its JobOut directory with error information.\n', JobName(1:end-4), Username );
+                                        save( fullfile(JobFailedDir,JobName), 'JobInfo' );
+                                        SuccessMsg = sprintf( 'Corrupted input/running job file %s of user %s is moved from its JobIn/JobRunning to its JobFailed directory with error information.\n', JobName(1:end-4), Username );
                                         PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
                                     catch
                                         save( fullfile(obj.JobManagerParam.TempJMDir,JobName), 'JobInfo' );
-                                        SuccessMsg = sprintf( 'Corrupted input/running job file %s of user %s is moved from its JobIn/JobRunning to its JobOut directory with error information by OS.\n', JobName(1:end-4), Username );
-                                        obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,JobName), JobOutDir, SuccessMsg);
+                                        SuccessMsg = sprintf( 'Corrupted input/running job file %s of user %s is moved from its JobIn/JobRunning to its JobFailed directory with error information by OS.\n', JobName(1:end-4), Username );
+                                        obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,JobName), JobFailedDir, SuccessMsg);
                                     end
                                 end
                                 
@@ -523,7 +523,7 @@ classdef JobManager < handle
                                     if( ~isempty(JobDirectory) && strcmpi(JobDirectory,JobRunningDir) ) % The job is loaded from JobRunning directory.
                                         % Determine if the global stopping criteria have been reached/met. Moreover, determine and echo progress of running JobName.
                                         % Furthermore, update Results file.
-                                        [StopFlag, JobInfo, JobParam, JobState] = obj.DetermineStopFlag(JobParam, JobState, JobInfo, JobName, Username, JobRunningDir);
+                                        [StopFlag, JobInfo, JobParam, JobState] = obj.DetermineStopFlag(JobParam, JobState, JobInfo, JobName, Username, FiguresDir);
                                         
                                         if ~StopFlag    % If simulation of the job JobName is NOT done, resubmit another round of tasks.
                                             % Save the result in JobRunning queue/directory.
@@ -571,9 +571,9 @@ classdef JobManager < handle
                                                 PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
                                             end
                                             % Move all pdf files containing figures to JobOut directory.
-                                            if ~isempty( dir(fullfile(JobRunningDir,[JobName(1:end-4) '*.pdf'])) )
-                                                obj.MoveFile(fullfile(JobRunningDir,[JobName(1:end-4) '*.pdf']), JobOutDir);
-                                            end
+                                            % if ~isempty( dir(fullfile(JobRunningDir,[JobName(1:end-4) '*.pdf'])) )
+                                            %     obj.MoveFile(fullfile(JobRunningDir,[JobName(1:end-4) '*.pdf']), JobOutDir);
+                                            % end
                                             % ChmodStr = ['chmod 666 ' FileName];   % Allow everyone to read and write to the file, FileName.
                                             % system( ChmodStr );
                                             
