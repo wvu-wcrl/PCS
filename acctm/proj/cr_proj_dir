@@ -30,8 +30,9 @@ sudo mkdir $HD/Projects/$PN/Data/Jm
 sudo mkdir $HD/Projects/$PN/Archive
 sudo mkdir $HD/Projects/$PN/Suspended                                                                                                  
 
-# change ownership of directory structure
-sudo chown -R $UN:$UN $HD/Projects
+# change ownership and permissions of project directory structure
+sudo chown -R $UN:pcs $HD/Projects
+sudo chmod -R g+rwx $HD/Projects
                                                                                                                                                   
 # set paths to configuration files 
 CFN=$PN\_cfg                       # config filename

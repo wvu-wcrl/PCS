@@ -1,5 +1,5 @@
 #!/bin/bash
-# cr_user.sh
+# cr_user
 #
 # script to create a web-based webcml user
 # called from web application
@@ -8,7 +8,7 @@
 # 1. username
 
 # add supporting script directory to path                                                                      
-INSTP=`pwd`
+INSTP=/home/pcs/acctm/user
 ROOTP=`dirname $INSTP`
 SUPPP=$ROOTP/supp
 PATH=$PATH:$SUPPP
@@ -20,7 +20,7 @@ wup=/home   #web user path
 home=$wup/$un
 
 # create user home directory
-sudo adduser --gecos "" --disabled-password $un
+sudo adduser --force-badname --gecos "" --disabled-password $un
 
 cr_task_dir $home $un
 

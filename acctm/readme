@@ -1,26 +1,33 @@
 == WebCML Account Management Subsystem ==
 
 The purpose of the scripts contained in this hierarchy are to manage user
-accounts by adding WebCML users to the head node Linux accounting system
-and create the user directories and configuration files required for WebCML projects.
+accounts for WebCML.  The scripts implement the following functionality
 
+1. Add WebCML users to the head node Linux account system
+2. Create user directories and configuration files for WebCML projects
+3. Send project related e-mails to WebCML users.
 
 
 = Usage =
 
-These scripts are designed for usage by the web interface for account management
-and may also be called directly from the command line if necessary.  See the script
-headers for calling syntax.
+These scripts are designed for usage primarily by the web interface,
+but may also be called directly from the command line.
 
-All scripts must be called as user "pcs".
+The tomcat user, tomcat55, must have sudo privilege to execute the following
+commands:
+adduser
+mkdir
+chown
+echo (?)
 
-For complete descriptions of syntax, see the script headers.
+
+For complete descriptions of syntax, see the script header comments.
 
 
 
 = Example: Adding a User =
 
-This example demonstrates adding a user to the system manually from the command line.
+This example demonstrates adding a user to the system from the command line.
 
   = Assumptions
 
@@ -91,5 +98,6 @@ supp/                   Supporting functionality shared between scripts.
 
 ==
 
+Last updated: 2/12/2013
 Created By:  Terry Ferrett
 Date:        2/4/2013
