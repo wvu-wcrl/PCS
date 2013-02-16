@@ -23,7 +23,7 @@ for n_df = 1:N_df
             %  if no action necessary, do nothing
             hmat_type = GetHmatType( JobParam.parity_check_matrix );
             switch hmat_type,
-                case { 'pchk', 'alist', 'mat' }
+                case { 'pchk', 'alist', 'mat', 'cml_dvbs2' }
                     % convert parity check matrix to H_rows, H_cols
                     [ SuccessFlag, ErrMsg, H_rows, H_cols] =...
                         obj.CreatePCM( CurrentUser, JobParam.parity_check_matrix );
@@ -50,10 +50,14 @@ for n_df = 1:N_df
                     
                     % attach data file name to code_param
                     JobParam.code_param_long_filename = obj.RenameLocalCmlHome(DataPathFile);
-                otherwise
+                case {'noldpc'}
                     % nothing to do
                     SuccessFlag = 1;
                     ErrMsg = '';
+                    
+                otherwise
+                    SuccessFlag = 0;
+                    ErrMsg = 'Unsupported parity check matrix type.';
             end
     end
 end
@@ -66,11 +70,12 @@ function [ ErrMsg DataPathFile ] = ...
 % return DataPathFile for appending to JobParam.
 
 % get path to user data directory.
-[JobInDir, JobRunningDir, JobOutDir, TempDir, DataDir] = ...
+[JobInDir, JobRunningDir, JobOutDir, JobFaileDir,...
+            SuspendedDir, TempDir, JobDataDir] = ...
     obj.SetPaths(CurrentUser.JobQueueRoot);
 
 % form path to user data directory.
-DataPath = [ DataDir filesep 'Jm' ];
+DataPath = [ JobDataDir filesep 'Jm' ];
 
 % form data filename.
 JobNamePrefix = JobName(1:end-4);
