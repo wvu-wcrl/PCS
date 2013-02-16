@@ -1,71 +1,94 @@
-function [ JobParam ] = ProcessDataFiles( obj, JobParam, CurrentUser, JobName )
-% Process user data files and convert them to appropriate format for CML workers.
+% process user data files and convert to appropriate format for CML workers
+% every keyword clause must set SuccessFlag and ErrMsg
+function [ JobParam SuccessFlag ErrMsg] =...
+    ProcessDataFiles( obj, JobParam, CurrentUser, JobName )
 
-% Iterate over set of fields which specify data files.
-% For CML project, this set is only sim_param.parity_check_matrix.
-DataFileFields = { 'parity_check_matrix' };
+% specify keywords indicating simulation conditions requiring data files
+%   1. parity_check_matrix   - simulation requires an LDPC parity check matrix
+data_file_contents = { 'parity_check_matrix' };
 
-NDF = length( DataFileFields );
 
-for n_df = 1:NDF
-    CurDataFileField = DataFileFields{n_df};
+
+N_df = length( data_file_contents );
+for n_df = 1:N_df
+    cur_content = data_file_contents{n_df};
     
-    switch CurDataFileField
+    switch cur_content
         
         case 'parity_check_matrix'
             
+            % cml defines the parameter 'parity_check_matrix' regardless
+            %  of simulation type
+            % determine action based on parameter value,
+            %  if no action necessary, do nothing
             hmat_type = GetHmatType( JobParam.parity_check_matrix );
             switch hmat_type,
                 case { 'pchk', 'alist', 'mat' }
-                    [ SuccessFlag, ErrMsg, H_rows, H_cols] = obj.CreatePCM( CurrentUser, JobParam.parity_check_matrix );
+                    % convert parity check matrix to H_rows, H_cols
+                    [ SuccessFlag, ErrMsg, H_rows, H_cols] =...
+                        obj.CreatePCM( CurrentUser, JobParam.parity_check_matrix );
                     
-                    % Populate code_param_long.
+                    % return if error
+                    if SuccessFlag == 0,
+                        return;
+                    end
+                    
+                    
                     code_param_long.H_rows = H_rows;
                     code_param_long.H_cols = H_cols;
                     
-                    [ ErrMsg DataPathFile ] = SaveDataFile( obj, code_param_long, CurrentUser, JobName );
+                    % save data file to user data directory
+                    [ ErrMsg DataPathFile ] = ...
+                        SaveDataFile( obj, code_param_long, CurrentUser, JobName );
                     
-                    % Attach data-file name to JobParam.
+                    if ~isempty(ErrMsg)
+                        SuccessFlag = 0;
+                        return;
+                    end
+                    
+                    
+                    
+                    % attach data file name to code_param
                     JobParam.code_param_long_filename = obj.RenameLocalCmlHome(DataPathFile);
                 otherwise
-                    
+                    % nothing to do
+                    SuccessFlag = 1;
+                    ErrMsg = '';
             end
     end
 end
 end
 
 
-function [ ErrMsg DataPathFile ] = SaveDataFile( obj, code_param_long, CurrentUser, JobName )
-% Return DataPathFile for appending to JobParam.
+% save data file to user data directory
+function [ ErrMsg DataPathFile ] = ...
+    SaveDataFile( obj, code_param_long, CurrentUser, JobName )
+% return DataPathFile for appending to JobParam.
 
-% To Do:
-% - get data path info.
-% - get JobName.
-% - get datapath.
+% get path to user data directory.
+[JobInDir, JobRunningDir, JobOutDir, TempDir, DataDir] = ...
+    obj.SetPaths(CurrentUser.JobQueueRoot);
 
-% Get path to user data directory.
-[JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, DataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
-
-% Form path to user data directory.
+% form path to user data directory.
 DataPath = [ DataDir filesep 'Jm' ];
 
-% Form data filename.
+% form data filename.
 JobNamePrefix = JobName(1:end-4);
 DataFile = [ JobNamePrefix '_Data.mat' ]; % <jobname>_Data.mat
 
-% Form full path to data file in user data directory.
+% form full path to data file in user data directory.
 DataPathFile = [DataPath filesep DataFile];
 
-% Form full path to JM temporary directory.
+% form full path to JM temporary directory.
 JMTempPath = obj.JobManagerParam.TempJMDir;
 
-% Form full path to data file in JM temp directory.
+% form full path to data file in JM temp directory.
 JMTempPathFile = [JMTempPath filesep DataFile];
 
-% Save code_param_long into JM temporary directory.
+% save code_param_long into JM temporary directory.
 save(JMTempPathFile, 'code_param_long');
 
-% Move file from JM temp directory to user data directory.
+% move file from JM temp directory to user data directory.
 SuccessFlag = obj.MoveFile(JMTempPathFile, DataPathFile, '', ''); % Add success and error messages later.
 
 if SuccessFlag ~= 1
