@@ -41,7 +41,8 @@ switch hmat_type
     case 'alist'        
         % check for existence of data file, if not exist return error
         pcm_prefix = pcm(1:end-6);
-        [JobInDir, JobRunningDir, JobOutDir, TempDir JobDataDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
+        [JobInDir, JobRunningDir, JobOutDir, JobFaileDir,...
+            SuspendedDir, TempDir, JobDataDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
         [H_rows, H_cols ErrMsg] = CmlAlistToHrowsHcols( JobDataDir, pcm_prefix );
         
         if ~isempty(ErrMsg)
@@ -51,7 +52,8 @@ switch hmat_type
         % [ErrMsg] = save_hrows_hcols( obj, CurrentUser, pcm_prefix, H_rows, H_cols );
     case 'mat'
         % check for existence of data file, if not exist return error       
-        [JobInDir, JobRunningDir, JobOutDir, TempDir JobDataDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
+        [JobInDir, JobRunningDir, JobOutDir, JobFaileDir,...
+            SuspendedDir, TempDir, JobDataDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
         JobDataFileMat = [ JobDataDir filesep pcm ];
         
         %%% try catch
@@ -60,13 +62,16 @@ switch hmat_type
         catch
             ErrMsg =...
                 sprintf('Data file %s does not exist. Please upload.', pcm);            
+            H_rows = 0;
+            H_cols = 0;
             SuccessFlag = 0;
         end
+        ErrMsg = '';
         
-    case 'cml_dvbs2'
-        %
-        H_rows = 0;
-        H_cols = 0;
+    case 'cml_dvbs2'       
+        
+        [ H_rows, H_cols, P_matrix ] = eval( pcm ); 
+                
         SuccessFlag = 1;
         ErrMsg = '';   % nothing to be done. empty error message
     case 'not_supported';
@@ -86,7 +91,8 @@ LdpcCodeGenP = crp_codegen_cl( cml_home );
 
 tmp_path = obj.JobManagerParam.TempJMDir;
 
-[JobInDir, JobRunningDir, JobOutDir, TempDir JobDataDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
+[JobInDir, JobRunningDir, JobOutDir, JobFaileDir,...
+            SuspendedDir, TempDir, JobDataDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
 
 [ErrMsg] = cnv_pchk_alist_cl(LdpcCodeGenP, JobDataDir, tmp_path, pcm);
 
