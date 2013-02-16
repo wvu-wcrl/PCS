@@ -23,11 +23,21 @@ classdef CmlJobManager < JobManager
         end
         
         
-        function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, JobName)
+        function [JobParam, JobState, PPSuccessFlag, PPErrorMsg] =...
+                PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, JobName)
+            
+            
             
             CodeRoot = CurrentUser.CodeRoot;
             
-            JobParam = obj.ProcessDataFiles( JobParamIn, CurrentUser, JobName );
+            [JobParam PPSuccessFlag PPErrorMsg] =...
+                obj.ProcessDataFiles( JobParamIn, CurrentUser, JobName );
+            
+            % return if failure in data file processing
+            if PPSuccessFlag == 0,
+                JobState = JobStateIn;
+                return;
+            end
             
             OldPath = obj.SetCodePath(CodeRoot); % Set the path to CML.
             
