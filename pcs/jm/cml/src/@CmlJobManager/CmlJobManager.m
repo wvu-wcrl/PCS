@@ -8,6 +8,17 @@ classdef CmlJobManager < JobManager
                 CmlRHome = fullfile(filesep,'rhome',EndPath);
             end
         end
+        
+         % remove parity check matrix from CodeParam for efficiency
+        function CodeParam = RmHmat(CodeParam)
+            if isfield(CodeParam, 'H_rows'),
+                CodeParam = rmfield(CodeParam, 'H_rows');
+            end
+            if isfield(CodeParam, 'H_cols')
+                CodeParam = rmfield(CodeParam, 'H_cols');
+            end
+        end
+        
     end
     
     methods
@@ -21,6 +32,9 @@ classdef CmlJobManager < JobManager
             if( nargin<1 || isempty(cfgRoot) ), cfgRoot = []; end
             obj@JobManager(cfgRoot);
         end
+        
+    
+            
         
         
         function [JobParam, JobState, PPSuccessFlag, PPErrorMsg] =...
@@ -42,6 +56,10 @@ classdef CmlJobManager < JobManager
             OldPath = obj.SetCodePath(CodeRoot); % Set the path to CML.
             
             [JobParam, CodeParam] = InitializeCodeParam( JobParam, CodeRoot ); % Initialize coding parameters.
+            % parity check matrix is stored as a data file for efficiency.
+            %  clear in CodeParam
+            CodeParam = obj.RmHmat(CodeParam);
+            
             JobParam.code_param_short = CodeParam; % Store short code param inside JobParam.
             
             JobParam.cml_rhome = obj.RenameLocalCmlHome(CodeRoot); % Rename local cml path to remote.
@@ -73,13 +91,17 @@ classdef CmlJobManager < JobManager
             NumProcessUnit = sum(TaskState.trials(end,:));
         end
         
+        
+
+       
+        
         TaskInputParam = CalcTaskInputParam(obj, JobParam, JobState, NumNewTasks) % Need to modify.
         
         JobState = UpdateJobState(obj, JobStateIn, TaskState, JobParam)
         
         [StopFlag, JobInfo, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, FiguresDir)
         
-        JobParam = ProcessDataFiles( obj, JobParam, CurrentUser, JobName )
+        [JobParam PPSuccessFlag PPErrorMsg] = ProcessDataFiles( obj, JobParam, CurrentUser, JobName )
         
     end
     
