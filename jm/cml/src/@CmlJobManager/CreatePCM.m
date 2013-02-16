@@ -22,55 +22,62 @@
 
 function [SuccessFlag ErrMsg H_rows H_cols] = CreatePCM( obj, CurrentUser, pcm )
 
-SuccessFlag = 0;  % Assume successful operation.
+SuccessFlag = 1;  % Assume successful operation.
 
 hmat_type = GetHmatType( pcm );
 
 cml_home = CurrentUser.CodeRoot;
 
 switch hmat_type
-    case 'pchk'
+    case 'pchk'        
+        % check for existence of data file, if not exist return error        
         pcm_prefix = pcm(1:end-5);
         [ H_rows, H_cols, ErrMsg ] = cnv_pchk_hr_hc( obj, pcm, CurrentUser, cml_home );
         
         if ~isempty(ErrMsg)
-            SuccessFlag = 1;
-            return;
+           SuccessFlag = 0;            
+        end       
+        
+    case 'alist'        
+        % check for existence of data file, if not exist return error
+        pcm_prefix = pcm(1:end-6);
+        [JobInDir, JobRunningDir, JobOutDir, TempDir JobDataDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
+        [H_rows, H_cols ErrMsg] = CmlAlistToHrowsHcols( JobDataDir, pcm_prefix );
+        
+        if ~isempty(ErrMsg)
+            SuccessFlag = 0;
         end
         
         % [ErrMsg] = save_hrows_hcols( obj, CurrentUser, pcm_prefix, H_rows, H_cols );
-        
-    case 'alist'
-        pcm_prefix = pcm(1:end-6);
-        [JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, JobDataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
-        [H_rows, H_cols] = CmlAlistToHrowsHcols( JobDataDir, pcm_prefix );
-        ErrMsg = '';  % add error checking later.
-        % [ErrMsg] = save_hrows_hcols( obj, CurrentUser, pcm_prefix, H_rows, H_cols );
     case 'mat'
-        [JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, JobDataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
+        % check for existence of data file, if not exist return error       
+        [JobInDir, JobRunningDir, JobOutDir, TempDir JobDataDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
         JobDataFileMat = [ JobDataDir filesep pcm ];
+        
+        %%% try catch
+        try
         load(JobDataFileMat);
-        ErrMsg = '';   % nothing to be done. empty error message
+        catch
+            ErrMsg =...
+                sprintf('Data file %s does not exist. Please upload.', pcm);            
+            SuccessFlag = 0;
+        end
+        
     case 'cml_dvbs2'
         %
         H_rows = 0;
         H_cols = 0;
+        SuccessFlag = 1;
         ErrMsg = '';   % nothing to be done. empty error message
     case 'not_supported';
         %
-        ErrMsg = '';   % nothing to be done. empty error message
-    otherwise
-        %
-        ErrMsg = '';   % nothing to be done. empty error message
+        % nothing to be done. empty error message
+        SuccessFlag = 0;
+        ErrMsg = 'Parity check matrix type not supported.';    
 end
 
-if ~isempty(ErrMsg)
-    SuccessFlag = 1;
-    return;
-end
 
 end
-
 
 
 function [ H_rows H_cols ErrMsg ] = cnv_pchk_hr_hc( obj, pcm, CurrentUser, cml_home )
@@ -79,9 +86,15 @@ LdpcCodeGenP = crp_codegen_cl( cml_home );
 
 tmp_path = obj.JobManagerParam.TempJMDir;
 
-[JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, JobDataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
+[JobInDir, JobRunningDir, JobOutDir, TempDir JobDataDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
 
 [ErrMsg] = cnv_pchk_alist_cl(LdpcCodeGenP, JobDataDir, tmp_path, pcm);
+
+if ~isempty(ErrMsg)
+    H_rows = 0;
+    H_cols = 0;
+    return;
+end
 
 pcm_prefix = pcm(1:end-5);
 
@@ -104,6 +117,14 @@ end
 
 
 function [ErrMsg] = cnv_pchk_alist_cl(LdpcCodeGenP, DataPath, TmpPath, pchk_file)
+
+
+% check for existence of pchk file
+FullPathPchkFile = [DataPath filesep pchk_file];
+if ~exist(FullPathPchkFile, 'file')
+    ErrMsg = sprintf('Data file %s does not exist.  Please upload.', pchk_file);
+    return;
+end
 
 % Create alist creation command string.
 sp = ' ';
@@ -132,7 +153,7 @@ end
 %
 % save( PcmMatTmp, 'H_rows', 'H_cols');
 %
-% [JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, JobDataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
+% [JobInDir, JobRunningDir, JobOutDir, TempDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
 %
 % PcmMatDataP = [ JobDataDir filesep PcmMat ];
 %
