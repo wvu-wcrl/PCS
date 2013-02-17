@@ -14,7 +14,7 @@ classdef CodedModJobManager < JobManager
         end
         
         
-        function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, JobName)
+        function [JobParam, JobState, SuccessFlag, ErrorMsg] = PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, JobName)
             
             CodeRoot = CurrentUser.CodeRoot;
             
@@ -75,6 +75,10 @@ classdef CodedModJobManager < JobManager
                     JobParam.CodedModObj = [];
                 end
             end
+            
+            % Set success flag and error message.
+            SuccessFlag = 1;
+            ErrorMsg = '';
             
             path(OldPath);
         end

@@ -9,9 +9,11 @@ classdef CmlJobManager < JobManager
             end
         end
         
-         % remove parity check matrix from CodeParam for efficiency
+        
         function CodeParam = RmHmat(CodeParam)
-            if isfield(CodeParam, 'H_rows'),
+        % Remove parity check matrix from CodeParam for efficiency.
+            
+            if isfield(CodeParam, 'H_rows')
                 CodeParam = rmfield(CodeParam, 'H_rows');
             end
             if isfield(CodeParam, 'H_cols')
@@ -20,6 +22,7 @@ classdef CmlJobManager < JobManager
         end
         
     end
+    
     
     methods
         function obj = CmlJobManager( cfgRoot )
@@ -33,14 +36,9 @@ classdef CmlJobManager < JobManager
             obj@JobManager(cfgRoot);
         end
         
-    
-            
-        
         
         function [JobParam, JobState, PPSuccessFlag, PPErrorMsg] =...
                 PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, JobName)
-            
-            
             
             CodeRoot = CurrentUser.CodeRoot;
             
@@ -56,8 +54,8 @@ classdef CmlJobManager < JobManager
             OldPath = obj.SetCodePath(CodeRoot); % Set the path to CML.
             
             [JobParam, CodeParam] = InitializeCodeParam( JobParam, CodeRoot ); % Initialize coding parameters.
-            % parity check matrix is stored as a data file for efficiency.
-            %  clear in CodeParam
+            % Parity check matrix is stored as a data file for efficiency.
+            % Clear it in CodeParam.
             CodeParam = obj.RmHmat(CodeParam);
             
             JobParam.code_param_short = CodeParam; % Store short code param inside JobParam.
@@ -91,9 +89,6 @@ classdef CmlJobManager < JobManager
             NumProcessUnit = sum(TaskState.trials(end,:));
         end
         
-        
-
-       
         
         TaskInputParam = CalcTaskInputParam(obj, JobParam, JobState, NumNewTasks) % Need to modify.
         
