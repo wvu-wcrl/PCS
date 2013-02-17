@@ -1,12 +1,12 @@
 [GeneralSpec]
 
-% Read name and fuLL path to user's project code.
+% Name and fuLL path to user's project code directory.
 CodeRoot = <user_home>/cml
 
-% Read name and FULL path to user's job queue root directory.
+% Name and FULL path to user's job queue root directory.
 JobQueueRoot = <user_home>/Projects/cml
 
-% Name and full path of project-specific worker function
+% Name and full path of project-specific worker function.
 FunctionName = CmlWorker
 FunctionPath = ['<user_home>' filesep 'cml' filesep 'mat' filesep]
 

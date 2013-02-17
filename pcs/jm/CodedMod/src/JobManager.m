@@ -3,7 +3,7 @@ classdef JobManager < handle
     properties
         JobManagerParam
         JobManagerInfo
-        UserList
+        UserList = []
     end
     
     properties(SetAccess = protected)
@@ -147,66 +147,54 @@ classdef JobManager < handle
                             NoJobMsg = sprintf( '\nNo new tasks for user %s was generated at %s. Both JobIn and JobRunning directories are emty of job files.\n\n', ...
                                 Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
                             [JobDirectory, JobName] = obj.SelectInRunningJob(JobInDir, JobRunningDir, CurrentUser.MaxRunningJobs, SuccessMsgIn, SuccessMsgRunning, NoJobMsg);
-            
                             
-                            
-                             if ~isempty(JobName)
+                            if ~isempty(JobName)
                                 % Try to load the selected input job.
                                 SuccessMsg = sprintf( 'Input job file %s for user %s is loaded at %s.\n\n',...
                                     JobName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+                                
                                 if strcmpi( JobDirectory, JobInDir )
                                     % Increment the counter of JobID since a new job is being served.
                                     obj.JobManagerInfo.JobID = obj.JobManagerInfo.JobID + 1;
                                     % Load the input job file.
                                     
-                                    
-                                    
-                                    %%%% try to load job file
                                     JLSuccessFlag = 0;
+                                    ErrorMsg = '';
                                     try
                                         JobContent = load( fullfile(JobDirectory,JobName), 'JobParam', 'JobState' );
                                         if( isfield(JobContent,'JobParam') && isfield(JobContent,'JobState') )
                                             JLSuccessFlag = 1;
-                                            % set success/error message
+                                            % Set success/error messages.
                                         else
-                                        % print error message regarding job
-                                        % loading
-                                        
-                                        s1 = sprintf('Input job file %s of user %s ', JobName(1:end-4), Username );
-                                        s2 = ['does not contain JobParam and JobState.'];
-                                        ErrorMsg = [s1 s2];
+                                            
+                                            % Print error message regarding job loading.
+                                            Msg1 = sprintf('Input job file %s of user %s ', JobName(1:end-4), Username );
+                                            Msg2 = 'does not contain JobParam and JobState.';
+                                            ErrorMsg = [Msg1 Msg2];
                                         end
                                     catch
-                                       % print error message regarding job
-                                        % loading
-                                        s1 = ['Type-ONE Error (Job Load Error): '];
-                                        s2 = sprintf('Input job file %s of user %s could not be loaded. ', JobName(1:end-4), Username );
-                                        s3 = ['It will be deleted automatically.\n '];
-                                        s4 = ['Input job should be a .mat file containing two MATLAB structures '];
-                                        s5 = ['named JobParam and JobState.'];
-                                        ErrorMsg = [s1 s2 s3 s4 s5];                                    
+                                        % Print error message regarding job loading.
+                                        Msg1 = 'Type-ONE Error (Job Load Error): ';
+                                        Msg2 = sprintf('Input job file %s of user %s could not be loaded. ', JobName(1:end-4), Username );
+                                        Msg3 = sprintf('It will be deleted automatically.\n');
+                                        Msg4 = 'Input job should be a .mat file containing two MATLAB structures named JobParam and JobState.';
+                                        ErrorMsg = [Msg1 Msg2 Msg3 Msg4];
                                     end
-                                       
                                     
-                                    
-                                    %%% try to preprocess job if job
-                                    %%% loading successful
+                                    % Preprocess job if job loading is successful.
                                     PPSuccessFlag = 0;
                                     if JLSuccessFlag == 1,
                                         JobParam = JobContent.JobParam;
                                         JobState = JobContent.JobState;
-                                        [JobParam, JobState, PPSuccessFlag, PPErrorMsg] = ...
-                                            obj.PreProcessJob(JobParam, JobState, CurrentUser, JobName);
-                                        % set success/error message
-                                        ErrorMsg = PPErrorMsg;
+                                        [JobParam, JobState, PPSuccessFlag, PPErrorMsg] = obj.PreProcessJob(JobParam, JobState, CurrentUser, JobName);
+                                        % Set success/error message.
+                                        if ~isempty(PPErrorMsg)
+                                            ErrorMsg = [ErrorMsg sprintf('\n\n') PPErrorMsg];
+                                        end
                                     end
                                     
-                                    
-                                    % all load and preprocessing steps must
-                                    % be successful job execution
+                                    % All load and preprocessing steps must be successful for job execution.
                                     SuccessFlag = JLSuccessFlag & PPSuccessFlag;
-                                    
-                                    
                                     
                                     if SuccessFlag == 1
                                         PrintOut(SuccessMsg, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
@@ -219,12 +207,12 @@ classdef JobManager < handle
                                         ErrorMsg = '';
                                     end
                                     [JobContent, SuccessFlag] = obj.LoadFile(fullfile(JobDirectory,JobName), 'JobParam', 'JobState', 'JobInfo', SuccessMsg, ErrorMsg);
-                               end
+                                end
                                 
                                 if SuccessFlag == 1
                                     if strcmpi( JobDirectory, JobInDir )
                                         % Pre-process the job read from the JobIn directory.
-                                        %[JobParam, JobState] = obj.PreProcessJob(JobParam, JobState, CurrentUser, JobName);
+                                        %[JobParam, JobState, PPSuccessFlag, PPErrorMsg] = obj.PreProcessJob(JobParam, JobState, CurrentUser, JobName);
                                         
                                         % Initialize the JobInfo structure.
                                         JobInfo = obj.InitJobInfo();
@@ -237,33 +225,35 @@ classdef JobManager < handle
                                         CurrentUserUsageInfo.UserUsage(2,end) = StartTime;
                                         CurrentUserUsageInfo.UserUsage = [CurrentUserUsageInfo.UserUsage, zeros(4,1)];
                                     elseif strcmpi( JobDirectory, JobRunningDir )
-                                        JobInfo = JobContent.JobInfo;
                                         JobParam = JobContent.JobParam;
-                                        JobState = JobContent.JobState;                                    
+                                        JobState = JobContent.JobState;
+                                        JobInfo = JobContent.JobInfo;
                                     end
                                 else
                                     % Selected input job file was bad. Issue an error and exit loading loop.
                                     Msg = sprintf( ['ErrorType=1\r\nErrorMsg=Job Load Error: Input job file %s could not be loaded. It will be deleted automatically.',...
                                         'Input job should be a .mat file containing two MATLAB structures named JobParam and JobState.'], JobName(1:end-4) );
-                                    Msg = sprintf('%s \n %s', Msg, ErrorMsg);
+                                    if ~isempty(ErrorMsg)
+                                        Msg = sprintf('%s \n %s', Msg, ErrorMsg);
+                                    end
                                     % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], Msg, 'w+');
                                     % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], Msg, 'w+');
                                     JobInfo = obj.InitJobInfo();
                                     JobInfo = obj.UpdateJobInfo(JobInfo, 'JobID', obj.JobManagerInfo.JobID, 'ErrorType', 1, 'ErrorMsg', Msg);
                                     
-                                    % Save the corrupted input/running job file in JobOut directory with its error information.
+                                    % Save the corrupted input/running job file in JobFailed directory with its error information.
                                     try
-                                        save( fullfile(JobOutDir,JobName), 'JobInfo' );
-                                        SuccessMsg = sprintf( 'Corrupted input/running job file %s of user %s is moved from its JobIn/JobRunning to its JobOut directory with error information.\n', JobName(1:end-4), Username );
+                                        save( fullfile(JobFailedDir,JobName), 'JobInfo' );
+                                        SuccessMsg = sprintf( 'Corrupted input/running job file %s of user %s is moved from its JobIn/JobRunning to its JobFailed directory with error information.\n', JobName(1:end-4), Username );
                                         PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
                                     catch
                                         save( fullfile(obj.JobManagerParam.TempJMDir,JobName), 'JobInfo' );
-                                        SuccessMsg = sprintf( 'Corrupted input/running job file %s of user %s is moved from its JobIn/JobRunning to its JobOut directory with error information by OS.\n', JobName(1:end-4), Username );
-                                        obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,JobName), JobOutDir, SuccessMsg);
+                                        SuccessMsg = sprintf( 'Corrupted input/running job file %s of user %s is moved from its JobIn/JobRunning to its JobFailed directory with error information by OS.\n', JobName(1:end-4), Username );
+                                        obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,JobName), JobFailedDir, SuccessMsg);
                                     end
-                                end                            
-                            
-                             
+                                end
+                                
+                                
                                 
                                 % Delete or copy (to JobRunning directory) the selected input job file from JobIn directory.
                                 if strcmpi( JobDirectory, JobInDir )
@@ -619,9 +609,13 @@ classdef JobManager < handle
                                                 PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
                                             end
                                             % Move all pdf files containing figures to JobOut directory.
-                                            % if ~isempty( dir(fullfile(JobRunningDir,[JobName(1:end-4) '*.pdf'])) )
-                                            %     obj.MoveFile(fullfile(JobRunningDir,[JobName(1:end-4) '*.pdf']), JobOutDir);
+                                            % if ~isempty( dir(fullfile(FiguresDir,[JobName(1:end-4) '*.pdf'])) )
+                                            %     obj.MoveFile(fullfile(FiguresDir,[JobName(1:end-4) '*.pdf']), JobOutDir);
                                             % end
+                                            
+                                            % Delete all pdf files containing figures from Figures directory.
+                                            % obj.DeleteFile( fullfile(FiguresDir,[JobName(1:end-4) '*.pdf']) );
+                                            
                                             % ChmodStr = ['chmod 666 ' FileName];   % Allow everyone to read and write to the file, FileName.
                                             % system( ChmodStr );
                                             
@@ -855,21 +849,19 @@ classdef JobManager < handle
         
         function JobManagerInfo = InitJobManagerInfo(obj)
             
-%             
-%             if( exist(obj.JobManagerParam.JMInfoFullPath, 'file') ~= 0 )
-%                 load(obj.JobManagerParam.JMInfoFullPath, 'JobManagerInfo');
-%             else
+            if( exist(obj.JobManagerParam.JMInfoFullPath, 'file') ~= 0 )
+                load(obj.JobManagerParam.JMInfoFullPath, 'JobManagerInfo');
+            else
                 JobManagerInfo = struct('JobID', 0, 'UserUsageInfo', []);
-%                 try
-%                     save(obj.JobManagerParam.JMInfoFullPath, 'JobManagerInfo');
-%                 catch
-%                     [FileInfoPath, FileInfoName, FileInfoExt] = fileparts(obj.JobManagerParam.JMInfoFullPath);
-%                     if( isempty(FileInfoExt) ), FileInfoExt = '.mat'; end
-%                     save( fullfile(obj.JobManagerParam.TempJMDir,[FileInfoName FileInfoExt]), 'JobManagerInfo' );
-%                     obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[FileInfoName FileInfoExt]), obj.JobManagerParam.JMInfoFullPath);
-%                 end
-%             end
-            
+                try
+                    save(obj.JobManagerParam.JMInfoFullPath, 'JobManagerInfo');
+                catch
+                    [FileInfoPath, FileInfoName, FileInfoExt] = fileparts(obj.JobManagerParam.JMInfoFullPath);
+                    if( isempty(FileInfoExt) ), FileInfoExt = '.mat'; end
+                    save( fullfile(obj.JobManagerParam.TempJMDir,[FileInfoName FileInfoExt]), 'JobManagerInfo' );
+                    obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[FileInfoName FileInfoExt]), obj.JobManagerParam.JMInfoFullPath);
+                end
+            end
             
         end
         

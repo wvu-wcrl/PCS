@@ -37,7 +37,7 @@ classdef BECJobManager < CodedModJobManager
         end
         
         
-        function [JobParam, JobState] = PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, JobName)
+        function [JobParam, JobState, SuccessFlag, ErrorMsg] = PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, JobName)
             
             % First, set the path.
             CodeRoot = CurrentUser.CodeRoot;
@@ -49,6 +49,10 @@ classdef BECJobManager < CodedModJobManager
             if( ~isfield(JobParam, 'HStructInfo') || isempty(JobParam.HStructInfo) )
                 JobParam.HStructInfo = obj.FindHInfo(JobParam.HStruct);
             end
+            
+            % Set success flag and error message.
+            SuccessFlag = 1;
+            ErrorMsg = '';
             
             path(OldPath);
         end
