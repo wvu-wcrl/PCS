@@ -75,6 +75,23 @@ classdef JobManager < handle
             obj.JobManagerParam = obj.InitJobManager(cfgRoot);
             obj.JobManagerInfo = obj.InitJobManagerInfo();
             [obj.UserList, obj.JobManagerInfo.UserUsageInfo] = obj.InitUsers();
+            
+            % Save the job manager parameters, user list, and user usage information.
+            JobManagerParam = obj.JobManagerParam;
+            JobManagerInfo = obj.JobManagerInfo;
+            UserList = obj.UserList;
+            try
+                save( obj.JobManagerParam.JMInfoFullPath, 'JobManagerParam', 'JobManagerInfo', 'UserList' );
+                SuccessMsg = sprintf( '\nJob manager parameters and information containing the user list and user usage information is saved.\n\n' );
+                PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
+            catch
+                [JMInfoPath, JMInfoName, JMInfoExt] = fileparts(obj.JobManagerParam.JMInfoFullPath);
+                save( fullfile(obj.JobManagerParam.TempJMDir,[JMInfoName, JMInfoExt]), 'JobManagerParam', 'JobManagerInfo', 'UserList' );
+                obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[JMInfoName, JMInfoExt]), JMInfoPath);
+                SuccessMsg = sprintf( '\nJob manager parameters and information containing the user list and user usage information is saved by OS.\n\n' );
+                PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
+            end
+            
             Msg = sprintf( '\n\n\nThe list of ACTIVE users is extracted at %s.\n\nThere are %d ACTIVE users in the system.\n\n',...
                 datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM'), length(obj.UserList) );
             PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
@@ -110,6 +127,22 @@ classdef JobManager < handle
                 nActiveUsers = length(obj.UserList);
                 Msg = sprintf( 'There are %d ACTIVE users in the system.\n\n\n', nActiveUsers );
                 PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
+                
+                % Save the job manager parameters, user list, and user usage information.
+                JobManagerParam = obj.JobManagerParam;
+                JobManagerInfo = obj.JobManagerInfo;
+                UserList = obj.UserList;
+                try
+                    save( obj.JobManagerParam.JMInfoFullPath, 'JobManagerParam', 'JobManagerInfo', 'UserList' );
+                    SuccessMsg = sprintf( '\nJob manager parameters and information containing the user list and user usage information is saved.\n\n' );
+                    PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
+                catch
+                    [JMInfoPath, JMInfoName, JMInfoExt] = fileparts(obj.JobManagerParam.JMInfoFullPath);
+                    save( fullfile(obj.JobManagerParam.TempJMDir,[JMInfoName, JMInfoExt]), 'JobManagerParam', 'JobManagerInfo', 'UserList' );
+                    obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[JMInfoName, JMInfoExt]), JMInfoPath);
+                    SuccessMsg = sprintf( '\nJob manager parameters and information containing the user list and user usage information is saved by OS.\n\n' );
+                    PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
+                end
                 
                 if nActiveUsers>0
                     
