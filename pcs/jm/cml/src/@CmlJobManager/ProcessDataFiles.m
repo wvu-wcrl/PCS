@@ -21,43 +21,50 @@ for n_df = 1:N_df
             %  of simulation type
             % determine action based on parameter value,
             %  if no action necessary, do nothing
-            hmat_type = GetHmatType( JobParam.parity_check_matrix );
-            switch hmat_type,
-                case { 'pchk', 'alist', 'mat', 'cml_dvbs2' }
-                    % convert parity check matrix to H_rows, H_cols
-                    [ SuccessFlag, ErrMsg, H_rows, H_cols] =...
-                        obj.CreatePCM( CurrentUser, JobParam.parity_check_matrix );
-                    
-                    % return if error
-                    if SuccessFlag == 0,
-                        return;
-                    end
-                    
-                    
-                    code_param_long.H_rows = H_rows;
-                    code_param_long.H_cols = H_cols;
-                    
-                    % save data file to user data directory
-                    [ ErrMsg DataPathFile ] = ...
-                        SaveDataFile( obj, code_param_long, CurrentUser, JobName );
-                    
-                    if ~isempty(ErrMsg)
+            if ~isempty(JobParam.parity_check_matrix)
+                hmat_type = GetHmatType( JobParam.parity_check_matrix );
+                
+                switch hmat_type,
+                    case { 'pchk', 'alist', 'mat', 'cml_dvbs2' }
+                        % convert parity check matrix to H_rows, H_cols
+                        [ SuccessFlag, ErrMsg, H_rows, H_cols] =...
+                            obj.CreatePCM( CurrentUser, JobParam.parity_check_matrix );
+                        
+                        % return if error
+                        if SuccessFlag == 0,
+                            return;
+                        end
+                        
+                        
+                        code_param_long.H_rows = H_rows;
+                        code_param_long.H_cols = H_cols;
+                        
+                        % save data file to user data directory
+                        [ ErrMsg DataPathFile ] = ...
+                            SaveDataFile( obj, code_param_long, CurrentUser, JobName );
+                        
+                        if ~isempty(ErrMsg)
+                            SuccessFlag = 0;
+                            return;
+                        end
+                        
+                        
+                        
+                        % attach data file name to code_param
+                        JobParam.code_param_long_filename = obj.RenameLocalCmlHome(DataPathFile);
+                    case {'noldpc'}
+                        % nothing to do
+                        SuccessFlag = 1;
+                        ErrMsg = '';
+                        
+                    otherwise
                         SuccessFlag = 0;
-                        return;
-                    end
-                    
-                    
-                    
-                    % attach data file name to code_param
-                    JobParam.code_param_long_filename = obj.RenameLocalCmlHome(DataPathFile);
-                case {'noldpc'}
-                    % nothing to do
-                    SuccessFlag = 1;
-                    ErrMsg = '';
-                    
-                otherwise
-                    SuccessFlag = 0;
-                    ErrMsg = 'Unsupported parity check matrix type.';
+                        ErrMsg = 'Unsupported parity check matrix type.';
+                end
+            else
+                % nothing to do
+                SuccessFlag = 1;
+                ErrMsg = '';
             end
     end
 end
@@ -71,7 +78,7 @@ function [ ErrMsg DataPathFile ] = ...
 
 % get path to user data directory.
 [JobInDir, JobRunningDir, JobOutDir, JobFaileDir,...
-            SuspendedDir, TempDir, JobDataDir] = ...
+    SuspendedDir, TempDir, JobDataDir] = ...
     obj.SetPaths(CurrentUser.JobQueueRoot);
 
 % form path to user data directory.
