@@ -41,6 +41,7 @@ classdef CmlJobManager < JobManager
                 PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, JobName)
             
             CodeRoot = CurrentUser.CodeRoot;
+            OldPath = obj.SetCodePath(CodeRoot); % Set the path to CML.
             
             [JobParam PPSuccessFlag PPErrorMsg] =...
                 obj.ProcessDataFiles( JobParamIn, CurrentUser, JobName );
@@ -51,7 +52,7 @@ classdef CmlJobManager < JobManager
                 return;
             end
             
-            OldPath = obj.SetCodePath(CodeRoot); % Set the path to CML.
+            
             
             [JobParam, CodeParam] = InitializeCodeParam( JobParam, CodeRoot ); % Initialize coding parameters.
             % Parity check matrix is stored as a data file for efficiency.
