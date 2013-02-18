@@ -853,12 +853,14 @@ classdef JobManager < handle
                 load(obj.JobManagerParam.JMInfoFullPath, 'JobManagerInfo');
             else
                 JobManagerInfo = struct('JobID', 0, 'UserUsageInfo', []);
+                JobManagerParam = obj.JobManagerParam;
+                UserList = [];
                 try
-                    save(obj.JobManagerParam.JMInfoFullPath, 'JobManagerInfo');
+                    save(obj.JobManagerParam.JMInfoFullPath, 'JobManagerParam', 'JobManagerInfo', 'UserList');
                 catch
                     [FileInfoPath, FileInfoName, FileInfoExt] = fileparts(obj.JobManagerParam.JMInfoFullPath);
                     if( isempty(FileInfoExt) ), FileInfoExt = '.mat'; end
-                    save( fullfile(obj.JobManagerParam.TempJMDir,[FileInfoName FileInfoExt]), 'JobManagerInfo' );
+                    save( fullfile(obj.JobManagerParam.TempJMDir,[FileInfoName FileInfoExt]), 'JobManagerParam', 'JobManagerInfo', 'UserList' );
                     obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[FileInfoName FileInfoExt]), obj.JobManagerParam.JMInfoFullPath);
                 end
             end
