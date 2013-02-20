@@ -30,9 +30,62 @@
 #####    
 
 
+### functions for testing inputs
+incorrect_inputs_return(){
+echo "Improper input arguments."
+echo "Usage:"
+echo "pcs {start|stop|restart|resume|shutdown}"
+echo "OR"
+echo "pcs {testing} {start|stop|restart|resume|shutdown}"
+exit 2
+}
+
+
+check_action(){
+case $1 in
+start);;
+stop);;
+resume);;
+shutdown);;
+*)
+incorrect_inputs_return
+esac
+}
+
+
+check_testing(){
+case $1 in
+testing);;
+*)
+incorrect_inputs_return
+esac
+}
+#########################
+
+
+#process input arguments
+#check for proper number of input arguments
+if [ $# -gt 2 ] || [ $# -lt 1 ]
+then
+incorrect_inputs_return
+fi
+
+
+# if only two args, check for proper keyword
+if [ $# -eq 2 ]
+then
+check_testing $1
+check_action $2
+RUNMODE=testing
+else
+check_action $1
+RUNMODE=normal
+fi
+
+
 
 ### paths #########                                                                                                                                    
-# task and worker controllers                                                                                                                          
+# task and worker controllers
 PATH_TC=/home/pcs/tc/ctc/src
 PATH_WC=/home/pcs/tc/cwc/src
 
@@ -40,14 +93,23 @@ PATH_WC=/home/pcs/tc/cwc/src
 PATH_CML_JM=/home/pcs/jm/cml/src
 
 
+#####################
+# testing queues
+PATH_TQI=/home/pcs/tc/queue/testing/short/iq  # input queue                                                                                            
+PATH_TQR=/home/pcs/tc/queue/testing/short/rq  # running queue                                                                                          
+PATH_TQO=/home/pcs/tc/queue/testing/short/oq  # output queue                                                  
+
+
 # short queues                                                                                                                                         
 PATH_SQI=/home/pcs/tc/queue/cluster/short/iq  # input queue                                                                                            
 PATH_SQR=/home/pcs/tc/queue/cluster/short/rq  # running queue                                                                                          
-PATH_SQO=/home/pcs/tc/queue/cluster/short/oq  # output queue                                                                                           
+PATH_SQO=/home/pcs/tc/queue/cluster/short/oq  # output queue                                                  
+                                         
+# long queues
 
 PATH_LQI=/home/pcs/tc/queue/cluster/long/iq   # input queue                                                                                            
 PATH_LQR=/home/pcs/tc/queue/cluster/long/rq   # running queue                                                                                          
-PATH_LQO=/home/pcs/tc/queue/cluster/long/oq   # output queue                                                                                           
+PATH_LQO=/home/pcs/tc/queue/cluster/long/oq   # output queue                                                  
 ######################                                                                                                                                 
 
 
@@ -56,17 +118,22 @@ STC=stc       # short task controller
 LTC=ltc       # long task controller                                                                                                                      
 SWC=swc       # short worker controller                                                                                                                   
 LWC=lwc       # long worker controller                                                                                
+TTC=ttc       # testing task controller
 
-CML_JM=CmlJm  # CML job manager                                   
+TWC=twc       # testing worker controller
+
+
+CML_JM=CmlJm     # CML job manager
+T_CML_JM=TCmlJm                                    
 ##########################                                                                                                                             
 
 
 # configuration files                                                                                                                                  
 scfg='pcs_short_384.cfg'   # short queue                                                                                                               
 lcfg='pcs_long_384.cfg'    # long queue                                                                                                                
-#####################                                                                                                                                  
-
-
+tcfg='pcs_test.cfg'        # testing queue
+tjmcfg='/home/pcs/jm/cml/cfg/TCmlJobManager_cfg'  # testing job manager
+#####################                                                                                                                                 
 
 # error messages
 LOCKFILE_EXISTS_ERR="PCS is already running."
@@ -75,19 +142,31 @@ LOCKFILE_DOESNOTEXIST_ERR="PCS is not running.  Execute 'pcs {start|restart}' to
 
 
 LOCKFILE=/home/pcs/tc/supp/lock/pcs_lock
+TLOCKFILE=/home/pcs/tc/supp/lock/tpcs_lock
 
 
 
 
-#### functions                                                                                                                                    
+#### functions                                                                                                
 start_job_managers(){
 screen -S $CML_JM -m -d matlab -r "cd $PATH_CML_JM; cml_jm_startup"
 }
 
+start_testing_job_managers(){
+screen -S $T_CML_JM -m -d matlab -r "cd $PATH_CML_JM;cml_jm_startup('$tjmcfg')"
+}
+
+
      
 start_workers(){
-screen -S $SWC -m -d matlab -r "cd $PATH_WC; startup_short; cwcobj.cSta"
-screen -S $LWC -m -d matlab -r "cd $PATH_WC; startup_long; cwcobj.cSta"
+screen -S $SWC -m -d matlab -r "cd $PATH_WC; cwcobj = startup_wc('$scfg'); cwcobj.cSta"
+screen -S $LWC -m -d matlab -r "cd $PATH_WC; cwcobj = startup_wc('$lcfg'); cwcobj.cSta"
+}
+
+
+
+start_testing_workers(){
+screen -S $TWC -m -d matlab -r "cd $PATH_WC; cwcobj = startup_wc('$tcfg'); cwcobj.cSta"
 }
 
 
@@ -98,12 +177,15 @@ screen -ls |grep $1 | awk -F . '{print $1}' |xargs kill
 
 
 stop_workers(){
-screen -S $SWC -m -d matlab -r "cd $PATH_WC; startup_short"
+WC=$1
+CFG=$2
+
+screen -S $WC -m -d matlab -r "cd $PATH_WC; cwcobj = startup_wc('$CFG')"
 sleep 5
-screen -S $SWC -p 0 -X eval 'stuff "\003"'
-screen -S $SWC -p 0 -X eval 'stuff "cwcobj.slay\015"'
+screen -S $WC -p 0 -X eval 'stuff "\003"'
+screen -S $WC -p 0 -X eval 'stuff "cwcobj.slay\015"'
 sleep 3
-stop_screen_session $SWC
+stop_screen_session $WC
 }
 
 
@@ -112,6 +194,13 @@ ss=$1
 
 screen -S $STC -m -d matlab -r "cd $PATH_TC;tc_startup('$scfg','$ss')"
 screen -S $LTC -m -d matlab -r "cd $PATH_TC;tc_startup('$lcfg','$ss')"
+}
+
+
+manage_testing_controllers(){
+ss=$1
+
+screen -S $TTC -m -d matlab -r "cd $PATH_TC;tc_startup('$tcfg','$ss')"
 }
 
 
@@ -137,7 +226,7 @@ wait_for_queue_to_empty(){
 
 
 does_lockfile_exist(){
-    if [ -e $LOCKFILE ]; then
+    if [ -e $1 ]; then
 	echo "1"
     else
 	echo "0"
@@ -147,9 +236,10 @@ does_lockfile_exist(){
 
 
 
+if [ $RUNMODE = "normal" ];then
 
-
-lockfile_exists=$(does_lockfile_exist)
+# if statement for testing
+lockfile_exists=$(does_lockfile_exist $LOCKFILE)
 
 case $1 in
     start)
@@ -186,7 +276,8 @@ case $1 in
 	    stop_screen_session $LTC
 	    stop_screen_session $CML_JM
 
-	    stop_workers
+	    stop_workers $SWC $scfg
+	    stop_workers $LWC $lcfg
 	    
 	    manage_controllers stop
 
@@ -215,7 +306,9 @@ case $1 in
         stop_screen_session $SWC
         stop_screen_session $LWC
 	
-        stop_workers
+        stop_workers $SWC $scfg
+	stop_workers $LWC $lcfg
+
 	
 	rm $LOCKFILE
 	else
@@ -231,3 +324,81 @@ esac
 
 
 
+elif [ $RUNMODE = "testing" ]
+then
+
+
+tlockfile_exists=$(does_lockfile_exist $TLOCKFILE)
+case $2 in
+    start)
+	if [ $tlockfile_exists -eq 0 ]; then
+	    start_testing_workers
+            manage_testing_controllers start
+	    start_testing_job_managers
+	    touch $TLOCKFILE
+	else
+	    echo $LOCKFILE_EXISTS_ERR
+	fi
+	;; 
+
+    restart)
+        $0 stop && sleep 5 && $0 start
+	;;
+
+    resume)
+	if [ $tlockfile_exists -eq 0 ]; then
+	    start_testing_workers
+	    manage_testing_controllers resume
+	    touch $TLOCKFILE
+	else
+	    echo $LOCKFILE_EXISTS_ERR
+	fi
+	;;
+
+    stop)
+	if [ $tlockfile_exists -eq 1 ]; then
+
+	    stop_screen_session $TWC
+	    stop_screen_session $TTC
+	    stop_screen_session $T_CML_JM
+
+            stop_workers $TWC $tcfg
+	    
+	    manage_testing_controllers stop
+
+	    rm $TLOCKFILE
+	else
+	    echo $LOCKFILE_DOESNOTEXIST_ERR
+	fi
+	;;
+
+    shutdown)
+	if [ $tlockfile_exists -eq 1 ]; then
+        stop_screen_session $TTC
+	stop_screen_session $T_CML_JM
+	
+        manage_testing_controllers shutdown
+	
+	wait_for_queue_to_empty $PATH_TQI
+	wait_for_queue_to_empty $PATH_TQR
+	wait_for_queue_to_empty $PATH_TQO
+
+        stop_screen_session $TWC
+	
+        stop_workers $TWC $tcfg
+
+	
+	rm $TLOCKFILE
+	else
+	    echo $LOCKFILE_DOESNOTEXIST_ERR
+	fi
+	;;
+
+    *)
+	echo "Usage: $0 {start|stop|restart|resume|shutdown}"
+	exit 2
+	;;
+esac
+
+
+fi
