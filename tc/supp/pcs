@@ -1,21 +1,41 @@
 #!/bin/bash
 ### BEGIN INIT INFO 
 # Provides:        pcs    
-# Required-Start:                                                                                                  
-# Required-Stop:                                                                                                   
-# Default-Start:   2 3 4 5                                                                                         
-# Default-Stop:                                                                                                    
-# Short-Description: Management script for pcs suite                                                   
-### END INIT INFO                                                                                                                                      
-
-
-#     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
+# Description: Management script for pcs suite                                                   
+#
+#              Starts and stops all daemon components of pcs:
+#               worker controllers
+#               task controllers
+#               job managers
+#              
+#
+#              PCS may be started in production or testing mode.
+#
+#              Production mode is meant for normal use.
+#              Testing mode is meant for developers to troubleshoot the system.
+#
+#              Both modes may be used simultaneously.
+#
+#              In production mode, the system monitors users in /home
+#               for work.
+#
+#              In testing mode, the system monitors users in
+#               /home/test for work
+#
+#              
+#
+### END INIT INFO                                                                                                                                 #     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
 #     For full copyright information see the bottom of this file.
 
 
 #####  Commands                                                                                                    
 #COMMAND      DESCRIPTION                                                                                          
 #                                                                                                                  
+#  == Production System ==
+#
+#  These commands start the system for normal operation,
+#   servicing users stored in /home.
+#
 #pcs start     clear all global queues                                                                             
 #              start task controllers, worker controllers, workers                                                 
 #                                     
@@ -27,6 +47,25 @@
 #
 #pcs shutdown  allow tasks in global queue to complete                                                             
 #              stop all controllers and workers                                                                    
+#
+#
+#  == Testing System ==
+#
+#  These commands start the system for testing, servicing users
+#   stored in /home/test
+#
+#pcs testing start     clear all global queues                                                                             
+#                       start testing task controllers,
+#                       worker controllers, workers                                                 
+#                                     
+#pcs testing stop      stop all testing controllers and workers                                                                    
+#                      save state of global queues                                                                         
+#                                                                                                                                                 
+#pcs testing resume    restore state of global queues at time of 
+#                      last stop start all controllers and workers                                                                   
+#
+#pcs testing shutdown  allow tasks in global queue to complete                                                             
+#                      stop all testing controllers and workers                                                                    
 #####    
 
 
