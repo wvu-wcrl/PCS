@@ -3,17 +3,18 @@
 #
 # Inputs
 #  1. hostname
-#
+#  2. Queue name
 #
 #     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
 #     For full copyright information see the bottom of this file.
 
 
 hostname=$1
+queuename=$2
 
 # Connect to the node and stop the worker.
 #ssh $hostname "ps aux|grep -i matlab| awk '{print $2}' |xargs kill"
-PIDS=`ssh $hostname "ps aux|grep -i matlab" | awk '{print $2}'`
+PIDS=`ssh $hostname "ps aux|grep -i matlab |grep -i $queuename" | awk '{print $2}'`
 ssh $hostname "kill -9 "$PIDS""
 
 

@@ -12,7 +12,13 @@
 
 
 function init_paths(obj)
- 
+
+  % queue name
+  heading = '[paths]';
+  key = 'queue_name';
+  out = util.fp(obj.cf, heading, key);
+  obj.qn = out{1};
+  
 
   % input path
   heading = '[paths]';
