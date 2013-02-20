@@ -27,7 +27,7 @@ while(1) %enter primary loop
     
     if IS_START || IS_RESUME
         [au fl] = scan_user_inputs(obj);                     % scan user input directories for new .mat inputs
-       
+
         [users_srt fl_srt] = schedule(obj, au, fl);          % decide which user to service
         
         place_user_input_in_queue(obj, users_srt, fl_srt);   % move input files to cluster input queue

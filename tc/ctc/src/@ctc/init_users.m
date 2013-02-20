@@ -2,8 +2,8 @@
 %
 % initialize user state
 %
-% Version 1
-% 12/7/2011
+% Version 2
+% 2/20/2013
 % Terry Ferrett
 %
 %     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
@@ -11,10 +11,11 @@
 
 function init_users(obj)
 
-% named constants
-HOME_ROOT = '/home';
-WEB_ROOT = '/home/web_users';
 
+% read the user directories from the configuration file
+heading = '[paths]';
+key = 'users';
+user_dirs = util.fp(obj.cfp, heading, key);
 
 % read the user configuration filename from the ctc config file
 heading = '[cfg]';
@@ -25,13 +26,11 @@ obj.ucfg = out{1}{1};
 CFG_FILENAME = obj.ucfg;
 
 obj.users = [];
-obj = scan_user_dirs(obj, CFG_FILENAME, HOME_ROOT);
-obj = scan_user_dirs(obj, CFG_FILENAME, WEB_ROOT);
-
-
+for k = 1:length(user_dirs)
+  obj = scan_user_dirs(obj, CFG_FILENAME, user_dirs{k}{1});
 end
 
-
+end
 
 
 
@@ -72,12 +71,15 @@ for k = 1:n,
         oq{cur_usr_cnt} = out{1};
 
 
+% always local user
+user_location = 'local';
+
 % specify whether this is a web or cluster user
-if( strcmp(USR_ROOT, '/home/web_users') )
-  user_location = 'web';
- elseif ( strcmp(USR_ROOT, '/home') )
-  user_location = 'local';
-end
+%if( strcmp(USR_ROOT, '/home/web_users') )
+%  user_location = 'web';
+% elseif ( strcmp(USR_ROOT, '/home') )
+%  user_location = 'local';
+%end
 
         tmp.username = users{cur_usr_cnt};
         tmp.iq = iq{cur_usr_cnt};
