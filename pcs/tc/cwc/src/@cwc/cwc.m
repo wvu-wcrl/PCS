@@ -38,6 +38,8 @@ classdef cwc < handle
         gwp             % generic worker path
         gwn             % generic worker script name
         
+        qn              % queue name
+
         gq     % global queue paths - read from config file
         % iq - input
         % oq - output

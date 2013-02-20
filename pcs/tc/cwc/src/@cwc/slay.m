@@ -19,9 +19,9 @@ m = length(obj.nodes);
 cmd_str_base = [obj.bs{1} '/slay_worker.sh'];
 
 
-% Slay the workers on all active nodes.
+% Slay the workers for this queue on all active nodes.
 for k = 1:m,
-cmd_str = [cmd_str_base, ' ' obj.nodes{k}];    
+ cmd_str = [cmd_str_base, ' ' obj.nodes{k} ' ' obj.qn{1} ];    
 [stat output] = system(cmd_str);
 end
 
