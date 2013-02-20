@@ -1,28 +1,24 @@
-% startup_long.m
+% startup_wc.m
 %
-% initialize the long queue worker controller
+% initialize the worker controller
 %
 %     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
 %     For full copyright information see the bottom of this file.
 
-rootdir = pwd;
-cd ..; cd ..; cd ..;
-cd util/;
-addpath(pwd);
+
+function cwcobj = startup_wc(cfg_file)
+
+   
+   % add file parser directory to path
+   addpath('/home/pcs/util');
 
 
+   cfg_file_dir = ['/home/pcs/tc/cfg'];
+   cfg_file_full = [ cfg_file_dir filesep cfg_file ];
 
-cfg_file = 'pcs_long_384.cfg';
+   cwcobj = cwc(cfg_file_full);
 
-cd(rootdir); cd ..; cd ..; cd cfg/;
-
-cfg_file = strcat(pwd, '/', cfg_file);
-
-cd(rootdir);
-
-cwcobj = cwc(cfg_file);
-
-
+end
 
 %     This library is free software;
 %     you can redistribute it and/or modify it under the terms of
