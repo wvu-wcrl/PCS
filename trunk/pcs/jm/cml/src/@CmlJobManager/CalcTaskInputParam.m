@@ -11,7 +11,7 @@ JobState = ResetJobState(JobState, JobParam);
 
 TaskInputParam = InitTaskInputParam( JobParam, JobState, NumNewTasks ); % Don't need to change.
 
-TaskInputParam = RandomlyPermuteSnrPoints( TaskInputParam, JobParam, JobState );
+TaskInputParam = RandomlyPermuteSnrPoints( obj, TaskInputParam, JobParam, JobState );
 
 end
 
@@ -112,7 +112,7 @@ end
 end
 
 
-function TaskInputParam = RandomlyPermuteSnrPoints( TaskInputParam, JobParam, JobState )
+function TaskInputParam = RandomlyPermuteSnrPoints( obj, TaskInputParam, JobParam, JobState )
 
 NumNewTasks = length(TaskInputParam);
 
