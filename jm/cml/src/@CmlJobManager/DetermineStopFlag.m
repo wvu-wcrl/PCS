@@ -101,11 +101,17 @@ end
 
 
 function StopFlagT = ComputeStopFlagT( LastInactivePoint, ActiveSNRPoints, JobParam, JobState )
+if( ~isempty(JobParam.minFER) && strcmpi(JobParam.sim_type, 'coded') )
+    MinFerCond = JobState.FER(end,LastInactivePoint) < JobParam.minFER;
+else
+    MinFerCond = false;
+end
+
 StopFlagT = ~isempty(LastInactivePoint) && ( LastInactivePoint ~= length(ActiveSNRPoints) ) && ...
     ... % Changed on February 24, 2012. When SNR point is inactive, its BER or FER CAN be ZERO.
     ... ( ( (JobState.BER(end, LastInactivePoint) ~=0) && (JobState.BER(end, LastInactivePoint) < JobParam.minBER) ) || ...
     ... ( (JobState.FER(end, LastInactivePoint) ~=0) && (JobState.FER(end, LastInactivePoint) < JobParam.minFER) ) );
-    (JobState.BER(end,LastInactivePoint) < JobParam.minBER || JobState.FER(end,LastInactivePoint) < JobParam.minFER);
+    (JobState.BER(end,LastInactivePoint) < JobParam.minBER || MinFerCond);
 end
 
 
