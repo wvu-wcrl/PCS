@@ -3,11 +3,10 @@ function [StopFlag, JobInfo, varargout] = DetermineStopFlag(obj, JobParam, JobSt
 % Furthermore, update Results file.
 % Calling syntax: [StopFlag, JobInfo [,JobParam]] = obj.DetermineStopFlag(JobParam, JobState, JobInfo [,JobName] [,Username] [,FiguresDir])
 
-[RemainingTrials RemainingFrameErrors RemainingMI] =  UpdateRemainingMetrics( JobParam, JobState );
+[RemainingTrials RemainingFrameErrors RemainingMI] =  obj.UpdateRemainingMetrics( JobParam, JobState );
 
 % Determine the position of active SNR points based on the number of remaining trials and frame errors.
-ActiveSNRPoints = FindActiveSnrPoints( RemainingTrials, RemainingFrameErrors, RemainingMI, JobParam.sim_type, ...
-    JobParam );
+ActiveSNRPoints = obj.FindActiveSnrPoints( RemainingTrials, RemainingFrameErrors, RemainingMI, JobParam.sim_type, JobParam.exit_param );
 
 switch JobParam.sim_type
     case {'coded', 'uncoded'}
@@ -34,7 +33,6 @@ if StopFlag == 1
             if strcmp( JobParam.exit_param.exit_phase, 'detector' )
                 JobState.exit_state.det_complete = 1;
             end
-            
     end
     
     
@@ -44,54 +42,6 @@ end
 
 varargout{1} = JobParam;
 varargout{2}= JobState;
-end
-
-
-
-
-function [RemainingTrials RemainingFrameErrors RemainingMI] =  UpdateRemainingMetrics( JobParam, JobState )
-
-switch JobParam.sim_type
-    case {'uncoded', 'coded'}
-        % First check to see if minimum number of trials or frame errors has been reached.
-        RemainingTrials = JobParam.max_trials - JobState.trials(end,:);
-        RemainingTrials(RemainingTrials<0) = 0;           % Force to zero if negative.
-        RemainingFrameErrors = JobParam.max_frame_errors - JobState.frame_errors(end,:);
-        RemainingFrameErrors(RemainingFrameErrors<0) = 0; % Force to zero if negative.
-        
-        RemainingMI = 0;
-        
-    case {'exit'}
-        % Check to see if exit_state vectors are full.
-        % If full, 1; if not, 0.
-        switch JobParam.exit_param.exit_phase,
-            case 'detector'
-                RemainingTrials = JobParam.max_trials - JobState.trials;
-                RemainingTrials(RemainingTrials<0) = 0;
-                RemainingFrameErrors = 0; %%%% refactor - replace output args with varargout!
-                RemainingMI = 0;
-            case 'decoder'
-                RemainingMI = (sum( JobState.exit_state.IA_cnd ) == 0);
-                RemainingFrameErrors = 0;
-                RemainingTrials = 0;
-        end
-end
-end
-
-
-function ActiveSNRPoints = FindActiveSnrPoints( RemainingTrials, RemainingFrameErrors, RemainingMI, SimType, JobParam )
-
-switch SimType
-    case {'uncoded', 'coded'}
-        ActiveSNRPoints  = ( (RemainingTrials>0) & (RemainingFrameErrors>0) );
-    case{'exit'}
-        switch JobParam.exit_param.exit_phase,
-            case 'detector'
-                ActiveSNRPoints  = ( RemainingTrials > 0);
-            case 'decoder'
-                ActiveSNRPoints = RemainingMI;
-        end
-end
 end
 
 

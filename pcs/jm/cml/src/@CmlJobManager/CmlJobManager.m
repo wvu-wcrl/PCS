@@ -91,6 +91,52 @@ classdef CmlJobManager < JobManager
         end
         
         
+        function [RemainingTrials RemainingFrameErrors RemainingMI] =  UpdateRemainingMetrics( obj, JobParam, JobState )
+            
+            switch JobParam.sim_type
+                case {'uncoded', 'coded'}
+                    % First check to see if minimum number of trials or frame errors has been reached.
+                    RemainingTrials = JobParam.max_trials - JobState.trials(end,:);
+                    RemainingTrials(RemainingTrials<0) = 0;           % Force to zero if negative.
+                    RemainingFrameErrors = JobParam.max_frame_errors - JobState.frame_errors(end,:);
+                    RemainingFrameErrors(RemainingFrameErrors<0) = 0; % Force to zero if negative.
+                    
+                    RemainingMI = 0;
+                    
+                case {'exit'}
+                    % Check to see if exit_state vectors are full.
+                    % If full, 1; if not, 0.
+                    switch JobParam.exit_param.exit_phase,
+                        case 'detector'
+                            RemainingTrials = JobParam.max_trials - JobState.trials;
+                            RemainingTrials(RemainingTrials<0) = 0;
+                            RemainingFrameErrors = 0; %%%% refactor - replace output args with varargout!
+                            RemainingMI = 0;
+                        case 'decoder'
+                            RemainingMI = (sum( JobState.exit_state.IA_cnd ) == 0);
+                            RemainingFrameErrors = 0;
+                            RemainingTrials = 0;
+                    end
+            end
+        end
+        
+        
+        function ActiveSNRPoints = FindActiveSnrPoints( obj, RemainingTrials, RemainingFrameErrors, RemainingMI, SimType, ExitParam )
+            
+            switch SimType
+                case {'uncoded', 'coded'}
+                    ActiveSNRPoints  = ( (RemainingTrials>0) & (RemainingFrameErrors>0) );
+                case{'exit'}
+                    switch ExitParam.exit_phase,
+                        case 'detector'
+                            ActiveSNRPoints  = ( RemainingTrials > 0);
+                        case 'decoder'
+                            ActiveSNRPoints = RemainingMI;
+                    end
+            end
+        end
+        
+        
         TaskInputParam = CalcTaskInputParam(obj, JobParam, JobState, NumNewTasks) % Need to modify.
         
         JobState = UpdateJobState(obj, JobStateIn, TaskState, JobParam)

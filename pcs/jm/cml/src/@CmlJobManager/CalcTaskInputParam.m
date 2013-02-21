@@ -116,6 +116,16 @@ function TaskInputParam = RandomlyPermuteSnrPoints( TaskInputParam, JobParam, Jo
 
 NumNewTasks = length(TaskInputParam);
 
+% Find out the SNR points at which more trials are needed.
+% We have to permute only those SNR points and move the rest of the finished SNR points to the end of the SNR vector.
+%%% Modified on 21/02/2013 to put active SNR points at the beginning so that workers do actually work on tasks(Mohammad Fanaei).
+[RemainingTrials RemainingFrameErrors RemainingMI] =  obj.UpdateRemainingMetrics( JobParam, JobState );
+
+ActiveSNRPoints = obj.FindActiveSnrPoints( RemainingTrials, RemainingFrameErrors, RemainingMI, JobParam.sim_type, JobParam.exit_param );
+
+IndexActiveSNRPoints = find(ActiveSNRPoints > 0);
+IndexInactiveSNRPoints = find(ActiveSNRPoints <= 0);
+
 switch JobParam.sim_type
     case {'uncoded', 'coded'}
         [SNR max_trials max_frame_errors trials bit_errors frame_errors symbol_errors] = ...
@@ -123,7 +133,12 @@ switch JobParam.sim_type
         
         for Task=1:NumNewTasks
             
-            RandPos = randperm( length(SNR) );
+            RandPermuteIndexActiveSNR = randperm( length(IndexActiveSNRPoints) );
+            PermutedIndexActiveSNRPoints = IndexActiveSNRPoints(RandPermuteIndexActiveSNR);
+            RandPos = [PermutedIndexActiveSNRPoints IndexInactiveSNRPoints];
+            
+            % RandPos = randperm( length(SNR) );
+            
             TaskInputParam(Task).JobState.RandPos = RandPos;
             
             TaskInputParam(Task).JobParam.SNR = SNR( RandPos );
@@ -150,7 +165,13 @@ switch JobParam.sim_type
             ShortenExitPermutingVariableNames( JobParam, JobState );
         
         for Task=1:NumNewTasks
-            RandPos = randperm( length(SNR) );
+            
+            RandPermuteIndexActiveSNR = randperm( length(IndexActiveSNRPoints) );
+            PermutedIndexActiveSNRPoints = IndexActiveSNRPoints(RandPermuteIndexActiveSNR);
+            RandPos = [PermutedIndexActiveSNRPoints IndexInactiveSNRPoints];
+            
+            %RandPos = randperm( length(SNR) );
+            
             TaskInputParam(Task).JobState.RandPos = RandPos;
             
             TaskInputParam(Task).JobParam.SNR = SNR( RandPos );
