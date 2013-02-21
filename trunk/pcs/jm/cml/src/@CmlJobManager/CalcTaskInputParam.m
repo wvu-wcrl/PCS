@@ -26,7 +26,7 @@ switch JobParam.sim_type
         
     case {'exit'}
         switch JobParam.exit_param.exit_phase
-            case 'detector',                
+            case 'detector',
                 JobParam.max_trials = JobParam.max_trials - JobState.trials(end,:);
                 JobParam.max_trials(JobParam.max_trials<0) = 0;
                 JobParam.max_trials = ceil(JobParam.max_trials/NumNewTasks);
@@ -38,7 +38,70 @@ end
 
 
 function TaskInputParam = InitTaskInputParam( JobParam, JobState, NumNewTasks )
+
+%%% Added on 02/20/2013 to fix the issue of double counting of trials and errors.
+% First clear the content of JobState (that is considered as the sim_state for each task).
+if isfield(JobParam, 'SNR')
+    NumSnrPoints = length(JobParam.SNR);
+end
+
+switch JobParam.sim_type
+    
+    case {'uncoded','coded'}
+        JobState.timing_data.trial_samples = 0;
+        JobState.timing_data.time_samples = 0;
+        JobState.timing_data.elapsed_time = 0;
+        
+        JobState.trials = zeros( JobParam.max_iterations, NumSnrPoints );
+        
+        switch JobParam.sim_type
+            case 'uncoded'
+                JobState.frame_errors = zeros( 1, NumSnrPoints );
+                JobState.symbol_errors = zeros( 1, NumSnrPoints );
+                JobState.bit_errors = zeros( 1, NumSnrPoints );
+                JobState.BER = JobState.trials;
+                JobState.SER = JobState.trials;
+                JobState.FER = JobState.trials;
+            case 'coded'
+                JobState.frame_errors = zeros( JobParam.max_iterations, NumSnrPoints );
+                JobState.bit_errors = JobState.frame_errors;
+                JobState.BER = JobState.trials;
+                JobState.FER = JobState.trials;
+        end
+        
+    case 'capacity'
+        JobState.trials = zeros( JobParam.max_iterations, NumSnrPoints );
+        JobState.capacity_sum = zeros( 1, NumSnrPoints );
+        JobState.capacity_avg = JobState.trials;
+        
+    case 'exit'
+        N = length(JobParam.exit_param.requested_IA);
+        JobState.trials = zeros( 1, NumSnrPoints );
+        JobState.exit_state.IA_det_sum = zeros( N, NumSnrPoints );
+        JobState.exit_state.IE_det_sum = zeros( N, NumSnrPoints );
+        JobState.exit_state.I_A_det = zeros( N, NumSnrPoints );
+        JobState.exit_state.I_E_det = zeros( N, NumSnrPoints );
+        JobState.exit_state.IE_vnd = zeros( N, NumSnrPoints );
+        JobState.exit_state.IE_cnd = zeros( N, NumSnrPoints );
+        JobState.exit_state.IA_cnd = zeros( N, NumSnrPoints );
+        
+    case 'bloutage'
+        JobState.trials = zeros( JobParam.max_iterations, NumSnrPoints );
+        JobState.frame_errors = JobState.trials;
+        JobState.FER = JobState.trials;
+        
+    case 'outage' % Outage probability in block fading.
+        JobState.trials = zeros( 1, NumSnrPoints );
+        JobState.frame_errors = JobState.trials;
+        JobState.FER = JobState.trials;
+        
+    case 'throughput'
+        JobState.throughput = zeros(1,NumSnrPoints);
+    otherwise
+end
+
 TaskInputParam(1:NumNewTasks,1) = struct('JobParam', JobParam, 'JobState', JobState); % Initialize TaskInputParam structure.
+
 end
 
 
@@ -79,7 +142,7 @@ switch JobParam.sim_type
         [ SNR max_trials trials IA_det_sum IE_det_sum IE_vnd IE_cnd IA_cnd I_A_det I_E_det ] = ...
             ShortenExitPermutingVariableNames( JobParam, JobState );
         
-        for Task=1:NumNewTasks            
+        for Task=1:NumNewTasks
             RandPos = randperm( length(SNR) );
             TaskInputParam(Task).JobState.RandPos = RandPos;
             
