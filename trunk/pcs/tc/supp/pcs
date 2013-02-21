@@ -1,129 +1,130 @@
 #!/bin/bash
 ### BEGIN INIT INFO 
 # Provides:        pcs    
-# Description: Management script for pcs suite                                                   
-#
-#              Starts and stops all daemon components of pcs:
-#               worker controllers
-#               task controllers
-#               job managers
-#              
-#
-#              PCS may be started in production or testing mode.
-#
-#              Production mode is meant for normal use.
-#              Testing mode is meant for developers to troubleshoot the system.
-#
-#              Both modes may be used simultaneously.
-#
-#              In production mode, the system monitors users in /home
-#               for work.
-#
-#              In testing mode, the system monitors users in
-#               /home/test for work
-#
-#              
-#
+# Short Description: Management script for pcs suite                                                   
 ### END INIT INFO                                                                                                                                 #     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
 #     For full copyright information see the bottom of this file.
-
-
-#####  Commands                                                                                                    
-#COMMAND      DESCRIPTION                                                                                          
-#                                                                                                                  
-#  == Production System ==
 #
-#  These commands start the system for normal operation,
-#   servicing users stored in /home.
 #
-#pcs start     clear all global queues                                                                             
-#              start task controllers, worker controllers, workers                                                 
+# Startup script for Parallel Computing Suite (PCS)
+# 
+#
+# Command syntax
+# > pcs {short|long|testing} {start|stop|shutdown|restart}
+#
+# where 
+#   Argument 1   Queue Type
+#   Argument 2   Daemon action
+#
+#   = Queue Type =
+#   
+#   short    used for short-running tasks
+#            The CML job manager executes in this queue
+#
+#   long     used for long running tasks
+#            by default no job manager services this queue
+#
+#   testing  used to test the CML job manager
+#
+#  
+#   = Daemon Action =
+#
+#   start     clear all global queues                                                                             
+#             start task controllers, worker controllers, workers                                                 
 #                                     
-#pcs stop      stop all controllers and workers                                                                    
-#              save state of global queues                                                                         
-#                                                                                                                                                     
-#pcs resume    restore state of global queues at time of last stop                                                 
-#              start all controllers and workers                                                                   
+#   stop      stop all controllers and workers                                                                    
+#             save state of global queues                                                                         
+#                                                                                                                                                 #    
+#   resume    restore state of global queues at time of last stop                                                 
+#             start all controllers and workers                                                                   
 #
-#pcs shutdown  allow tasks in global queue to complete                                                             
-#              stop all controllers and workers                                                                    
+#   shutdown  allow tasks in global queue to complete                                                             
+#             stop all controllers and workers                                                                    
 #
 #
-#  == Testing System ==
+#   = Examples =
+# 
+#   Start the short queue and long queue daemons
+#   > pcs short start
+#   > pcs long start
+#    
 #
-#  These commands start the system for testing, servicing users
-#   stored in /home/test
-#
-#pcs testing start     clear all global queues                                                                             
-#                       start testing task controllers,
-#                       worker controllers, workers                                                 
-#                                     
-#pcs testing stop      stop all testing controllers and workers                                                                    
-#                      save state of global queues                                                                         
-#                                                                                                                                                 
-#pcs testing resume    restore state of global queues at time of 
-#                      last stop start all controllers and workers                                                                   
-#
-#pcs testing shutdown  allow tasks in global queue to complete                                                             
-#                      stop all testing controllers and workers                                                                    
-#####    
+#   Stop the short queue
+#   > pcs short stop
+#   
+#####
 
 
-### functions for testing inputs
-incorrect_inputs_return(){
+
+### functions for testing inputs ######
+# echo input error and return
+eie_ret(){
 echo "Improper input arguments."
 echo "Usage:"
-echo "pcs {start|stop|restart|resume|shutdown}"
-echo "OR"
-echo "pcs {testing} {start|stop|restart|resume|shutdown}"
+echo "pcs {short|long|testing} {stop|start|resume|shutdown}"
 exit 2
 }
 
-
-check_action(){
+# check input action
+cia(){
 case $1 in
-start);;
-stop);;
-resume);;
-shutdown);;
+start)
+echo "start"
+;;
+stop)
+echo "stop"
+;;
+resume)
+echo "resume"
+;;
+shutdown)
+echo "shutdown"
+;;
 *)
-incorrect_inputs_return
+eie_ret
 esac
 }
 
 
-check_testing(){
+# check testing parameter
+cq(){
 case $1 in
-testing);;
+short)
+echo "short"
+;;
+long)
+echo "long"
+;;
+testing)
+echo "testing"
+;;
 *)
-incorrect_inputs_return
+eie_ret
 esac
 }
-#########################
+#####################################
 
 
-#process input arguments
+
+
+###process input arguments #########
+
 #check for proper number of input arguments
-if [ $# -gt 2 ] || [ $# -lt 1 ]
+if [ $# -ne 2 ]
 then
-incorrect_inputs_return
+eie_ret
 fi
 
 
-# if only two args, check for proper keyword
-if [ $# -eq 2 ]
-then
-check_testing $1
-check_action $2
-RUNMODE=testing
-else
-check_action $1
-RUNMODE=normal
-fi
+Q=$(cq $1)    # read requested queue
+IA=$(cia $2)  # read input argument
+##########################
 
 
 
-### paths #########                                                                                                                                    
+
+### paths can remain hard coded
+### paths #########                                                                                                                               
 # task and worker controllers
 PATH_TC=/home/pcs/tc/ctc/src
 PATH_WC=/home/pcs/tc/cwc/src
@@ -131,88 +132,92 @@ PATH_WC=/home/pcs/tc/cwc/src
 # job managers
 PATH_CML_JM=/home/pcs/jm/cml/src
 
-
+CFGP=/home/pcs/tc/cfg
 #####################
-# testing queues
-PATH_TQI=/home/pcs/tc/queue/testing/short/iq  # input queue                                                                                            
-PATH_TQR=/home/pcs/tc/queue/testing/short/rq  # running queue                                                                                          
-PATH_TQO=/home/pcs/tc/queue/testing/short/oq  # output queue                                                  
 
 
-# short queues                                                                                                                                         
-PATH_SQI=/home/pcs/tc/queue/cluster/short/iq  # input queue                                                                                            
-PATH_SQR=/home/pcs/tc/queue/cluster/short/rq  # running queue                                                                                          
-PATH_SQO=/home/pcs/tc/queue/cluster/short/oq  # output queue                                                  
-                                         
-# long queues
-
-PATH_LQI=/home/pcs/tc/queue/cluster/long/iq   # input queue                                                                                            
-PATH_LQR=/home/pcs/tc/queue/cluster/long/rq   # running queue                                                                                          
-PATH_LQO=/home/pcs/tc/queue/cluster/long/oq   # output queue                                                  
-######################                                                                                                                                 
-
-
-# names for screen sessions                                                                                                                            
-STC=stc       # short task controller                                                                                                                     
-LTC=ltc       # long task controller                                                                                                                      
-SWC=swc       # short worker controller                                                                                                                   
-LWC=lwc       # long worker controller                                                                                
-TTC=ttc       # testing task controller
-
-TWC=twc       # testing worker controller
-
-
-CML_JM=CmlJm     # CML job manager
-T_CML_JM=TCmlJm                                    
-##########################                                                                                                                             
-
-
-# configuration files                                                                                                                                  
-scfg='pcs_short_384.cfg'   # short queue                                                                                                               
-lcfg='pcs_long_384.cfg'    # long queue                                                                                                                
+# configuration files                                                                                                                             
+scfg='pcs_short_384.cfg'   # short queue
+lcfg='pcs_long_384.cfg'    # long queue
 tcfg='pcs_test.cfg'        # testing queue
-tjmcfg='/home/pcs/jm/cml/cfg/TCmlJobManager_cfg'  # testing job manager
-#####################                                                                                                                                 
+#####################                                                                                                                             
+
+
+# based on queue assign names
+case $Q in
+short)
+TC=stc
+WC=swc
+JM=CmlJm
+cfg=$scfg
+jmcfg='/home/pcs/jm/cml/cfg/CmlJobManager_cfg'
+LOCKFILE=/home/pcs/tc/supp/lock/spcs_lock
+;;
+long)
+TC=ltc
+WC=lwc
+JM=
+cfg=$lcfg
+jmcfg=
+LOCKFILE=/home/pcs/tc/supp/lock/lpcs_lock
+;;
+testing)
+TC=ttc
+WC=twc
+JM=TCmlJm
+cfg=$tcfg
+jmcfg='/home/pcs/jm/cml/cfg/TCmlJobManager_cfg'
+LOCKFILE=/home/pcs/tc/supp/lock/tpcs_lock
+;;
+esac
+
+
+# read config files
+### read queues from config files
+get_cfg_val(){
+file=$1
+key=$2
+awk -vk="$key" -F"=" '$1~k{ print $2}' $file
+}
+
+
+file=$CFGP/$cfg
+PATH_IQ=$(get_cfg_val $file input_queue)
+PATH_RQ=$(get_cfg_val $file run_queue)
+PATH_OQ=$(get_cfg_val $file output_queue)
+
+
+
 
 # error messages
-LOCKFILE_EXISTS_ERR="PCS is already running."
-LOCKFILE_DOESNOTEXIST_ERR="PCS is not running.  Execute 'pcs {start|restart}' to start the service."
+LOCKFILE_EXISTS_ERR="PCS $Q is already running."
+LOCKFILE_DOESNOTEXIST_ERR="PCS $Q is not running.  Execute 'pcs $Q {start|restart}' to start the service."
 ##########################
-
-
-LOCKFILE=/home/pcs/tc/supp/lock/pcs_lock
-TLOCKFILE=/home/pcs/tc/supp/lock/tpcs_lock
 
 
 
 
 #### functions                                                                                                
 start_job_managers(){
-screen -S $CML_JM -m -d matlab -r "cd $PATH_CML_JM; cml_jm_startup"
+TJM=$1
+thisjmcfg=$2
+if [ ! -z "$TJM" ]
+then
+screen -S $TJM -m -d matlab -r "cd $PATH_CML_JM; cml_jm_startup('$thisjmcfg')"
+fi
 }
-
-start_testing_job_managers(){
-screen -S $T_CML_JM -m -d matlab -r "cd $PATH_CML_JM;cml_jm_startup('$tjmcfg')"
-}
-
 
      
 start_workers(){
-screen -S $SWC -m -d matlab -r "cd $PATH_WC; cwcobj = startup_wc('$scfg'); cwcobj.cSta"
-screen -S $LWC -m -d matlab -r "cd $PATH_WC; cwcobj = startup_wc('$lcfg'); cwcobj.cSta"
-}
-
-
-
-start_testing_workers(){
-screen -S $TWC -m -d matlab -r "cd $PATH_WC; cwcobj = startup_wc('$tcfg'); cwcobj.cSta"
+WC=$1
+CFG=$2
+screen -S $WC -m -d matlab -r "cd $PATH_WC; cwcobj = startup_wc('$CFG'); cwcobj.cSta"
 }
 
 
 stop_screen_session(){
-screen -ls |grep $1 | awk -F . '{print $1}' |xargs kill
+screen -ls |grep $1 | awk -F . '{print $1}' |xargs kill >/dev/null
 }
-
 
 
 stop_workers(){
@@ -229,17 +234,11 @@ stop_screen_session $WC
 
 
 manage_controllers(){
-ss=$1
+TC=$1
+CFG=$2
+ss=$3
 
-screen -S $STC -m -d matlab -r "cd $PATH_TC;tc_startup('$scfg','$ss')"
-screen -S $LTC -m -d matlab -r "cd $PATH_TC;tc_startup('$lcfg','$ss')"
-}
-
-
-manage_testing_controllers(){
-ss=$1
-
-screen -S $TTC -m -d matlab -r "cd $PATH_TC;tc_startup('$tcfg','$ss')"
+screen -S $TC -m -d matlab -r "cd $PATH_TC;tc_startup('$CFG','$ss')"
 }
 
 
@@ -273,19 +272,16 @@ does_lockfile_exist(){
 }
 
 
-
-
-if [ $RUNMODE = "normal" ];then
-
 # if statement for testing
 lockfile_exists=$(does_lockfile_exist $LOCKFILE)
 
-case $1 in
+case $IA in
     start)
+
 	if [ $lockfile_exists -eq 0 ]; then
-	    start_workers
-            manage_controllers start
-	    start_job_managers
+	    start_workers $WC $cfg  
+            manage_controllers $TC $cfg start 
+	    start_job_managers $JM $jmcfg
 	    touch $LOCKFILE
 	else
 	    echo $LOCKFILE_EXISTS_ERR
@@ -298,8 +294,8 @@ case $1 in
 
     resume)
 	if [ $lockfile_exists -eq 0 ]; then
-	    start_workers
-	    manage_controllers resume
+	    start_workers $WC $cfg
+	    manage_controllers $TC $cfg resume
 	    touch $LOCKFILE
 	else
 	    echo $LOCKFILE_EXISTS_ERR
@@ -309,16 +305,13 @@ case $1 in
     stop)
 	if [ $lockfile_exists -eq 1 ]; then
 
-	    stop_screen_session $SWC
-	    stop_screen_session $LWC
-	    stop_screen_session $STC
-	    stop_screen_session $LTC
-	    stop_screen_session $CML_JM
-
-	    stop_workers $SWC $scfg
-	    stop_workers $LWC $lcfg
+	    stop_screen_session $WC
+	    stop_screen_session $TC
+	    stop_screen_session $JM
+ 
+	    stop_workers $WC $cfg
 	    
-	    manage_controllers stop
+	    manage_controllers $TC $cfg stop
 
 	    rm $LOCKFILE
 	else
@@ -328,26 +321,19 @@ case $1 in
 
     shutdown)
 	if [ $lockfile_exists -eq 1 ]; then
-        stop_screen_session $STC
-        stop_screen_session $LTC
-	stop_screen_session $CML_JM
-	
-        manage_controllers shutdown
-	
-	wait_for_queue_to_empty $PATH_SQI
-	wait_for_queue_to_empty $PATH_SQR
-	wait_for_queue_to_empty $PATH_SQO
-	wait_for_queue_to_empty $PATH_LQI
-	wait_for_queue_to_empty $PATH_LQR
-	wait_for_queue_to_empty $PATH_LQO
-	
 
-        stop_screen_session $SWC
-        stop_screen_session $LWC
+        stop_screen_session $TC
+	stop_screen_session $JM
 	
-        stop_workers $SWC $scfg
-	stop_workers $LWC $lcfg
-
+        manage_controllers $TC $cfg shutdown
+	
+	wait_for_queue_to_empty $PATH_IQ
+	wait_for_queue_to_empty $PATH_RQ
+	wait_for_queue_to_empty $PATH_OQ
+	
+        stop_screen_session $WC
+	
+        stop_workers $WC $cfg
 	
 	rm $LOCKFILE
 	else
@@ -363,81 +349,3 @@ esac
 
 
 
-elif [ $RUNMODE = "testing" ]
-then
-
-
-tlockfile_exists=$(does_lockfile_exist $TLOCKFILE)
-case $2 in
-    start)
-	if [ $tlockfile_exists -eq 0 ]; then
-	    start_testing_workers
-            manage_testing_controllers start
-	    start_testing_job_managers
-	    touch $TLOCKFILE
-	else
-	    echo $LOCKFILE_EXISTS_ERR
-	fi
-	;; 
-
-    restart)
-        $0 stop && sleep 5 && $0 start
-	;;
-
-    resume)
-	if [ $tlockfile_exists -eq 0 ]; then
-	    start_testing_workers
-	    manage_testing_controllers resume
-	    touch $TLOCKFILE
-	else
-	    echo $LOCKFILE_EXISTS_ERR
-	fi
-	;;
-
-    stop)
-	if [ $tlockfile_exists -eq 1 ]; then
-
-	    stop_screen_session $TWC
-	    stop_screen_session $TTC
-	    stop_screen_session $T_CML_JM
-
-            stop_workers $TWC $tcfg
-	    
-	    manage_testing_controllers stop
-
-	    rm $TLOCKFILE
-	else
-	    echo $LOCKFILE_DOESNOTEXIST_ERR
-	fi
-	;;
-
-    shutdown)
-	if [ $tlockfile_exists -eq 1 ]; then
-        stop_screen_session $TTC
-	stop_screen_session $T_CML_JM
-	
-        manage_testing_controllers shutdown
-	
-	wait_for_queue_to_empty $PATH_TQI
-	wait_for_queue_to_empty $PATH_TQR
-	wait_for_queue_to_empty $PATH_TQO
-
-        stop_screen_session $TWC
-	
-        stop_workers $TWC $tcfg
-
-	
-	rm $TLOCKFILE
-	else
-	    echo $LOCKFILE_DOESNOTEXIST_ERR
-	fi
-	;;
-
-    *)
-	echo "Usage: $0 {start|stop|restart|resume|shutdown}"
-	exit 2
-	;;
-esac
-
-
-fi
