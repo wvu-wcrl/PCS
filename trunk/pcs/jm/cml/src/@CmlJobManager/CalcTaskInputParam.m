@@ -5,6 +5,10 @@ function TaskInputParam = CalcTaskInputParam(obj, JobParam, JobState, NumNewTask
 
 JobParam = FindJobParam4NewTasks( JobParam, JobState, NumNewTasks ); % Need to modify!
 
+%%% Added on 02/20/2013 to fix the issue of double counting of trials and errors.
+% First clear the content of JobState (that is considered as the sim_state for each task).
+JobState = ResetJobState(JobState, JobParam);
+
 TaskInputParam = InitTaskInputParam( JobParam, JobState, NumNewTasks ); % Don't need to change.
 
 TaskInputParam = RandomlyPermuteSnrPoints( TaskInputParam, JobParam, JobState );
@@ -38,6 +42,11 @@ end
 
 
 function TaskInputParam = InitTaskInputParam( JobParam, JobState, NumNewTasks )
+TaskInputParam(1:NumNewTasks,1) = struct('JobParam', JobParam, 'JobState', JobState); % Initialize TaskInputParam structure.
+end
+
+
+function JobState = ResetJobState(JobState, JobParam)
 
 %%% Added on 02/20/2013 to fix the issue of double counting of trials and errors.
 % First clear the content of JobState (that is considered as the sim_state for each task).
@@ -99,8 +108,6 @@ switch JobParam.sim_type
         JobState.throughput = zeros(1,NumSnrPoints);
     otherwise
 end
-
-TaskInputParam(1:NumNewTasks,1) = struct('JobParam', JobParam, 'JobState', JobState); % Initialize TaskInputParam structure.
 
 end
 
