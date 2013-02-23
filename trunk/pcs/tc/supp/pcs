@@ -121,16 +121,19 @@ IA=$(cia $2)  # read input argument
 ##########################
 
 
-
-
-### paths can remain hard coded
-### paths #########                                                                                                                               
+### paths to daemons can be hard coded
+## paths
+                   
 # task and worker controllers
 PATH_TC=/home/pcs/tc/ctc/src
 PATH_WC=/home/pcs/tc/cwc/src
 
 # job managers
 PATH_CML_JM=/home/pcs/jm/cml/src
+
+# Worker controlling scripts
+#  commands used: slay_worker.sh
+PATH=$PATH:/home/pcs/tc/cwc/src/bs
 
 CFGP=/home/pcs/tc/cfg
 #####################
@@ -177,7 +180,8 @@ esac
 get_cfg_val(){
 file=$1
 key=$2
-awk -vk="$key" -F"=" '$1~k{ print $2}' $file
+lst=`awk -vk="$key" -F"=" '$1~k{ print $2}' $file`
+echo $lst
 }
 
 
@@ -185,7 +189,6 @@ file=$CFGP/$cfg
 PATH_IQ=$(get_cfg_val $file input_queue)
 PATH_RQ=$(get_cfg_val $file run_queue)
 PATH_OQ=$(get_cfg_val $file output_queue)
-
 
 
 
@@ -222,13 +225,25 @@ screen -ls |grep $1 | awk -F . '{print $1}' |xargs kill >/dev/null
 
 stop_workers(){
 WC=$1
-CFG=$2
+Q=$2
 
-screen -S $WC -m -d matlab -r "cd $PATH_WC; cwcobj = startup_wc('$CFG')"
-sleep 5
-screen -S $WC -p 0 -X eval 'stuff "\003"'
-screen -S $WC -p 0 -X eval 'stuff "cwcobj.slay\015"'
-sleep 3
+# get active nodes and worker instances from configuration file
+nodes_nums=$(get_cfg_val $file worker)
+
+# postprocess to remove instance numbers
+nodes=`echo $nodes_nums | awk -F" " '{ for (i = 1; i <= NF; i+=2) print $i; }'`
+
+# number of nodes
+NF=`echo $nodes| awk '{print NF}'`
+
+# slay matlab instances on nodes
+for((k=1;k<=NF;k++))
+do
+node=`echo $nodes |awk -vk="$k" '{print $k}'`
+slay_worker.sh $node $Q > /dev/null 2>&1
+done
+
+# stop worker controller screen session
 stop_screen_session $WC
 }
 
@@ -309,7 +324,7 @@ case $IA in
 	    stop_screen_session $TC
 	    stop_screen_session $JM
  
-	    stop_workers $WC $cfg
+	    stop_workers $WC $Q
 	    
 	    manage_controllers $TC $cfg stop
 
@@ -333,7 +348,7 @@ case $IA in
 	
         stop_screen_session $WC
 	
-        stop_workers $WC $cfg
+        stop_workers $WC $Q
 	
 	rm $LOCKFILE
 	else
