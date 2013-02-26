@@ -154,6 +154,15 @@ classdef JobManager < handle
                             % [Dummy, Username] = fileparts(CurrentUser.UserPath);
                             Username = obj.FindUsername(CurrentUser.UserPath);
                             
+                            [JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, DataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
+                            TaskInDir = CurrentUser.TaskInDir;
+                            TaskOutDir = CurrentUser.TaskOutDir;
+                            
+                            DJobInCurrentUser = dir( fullfile(JobInDir,'*.mat') );
+                            DJobRunningCurrentUser = dir( fullfile(JobRunningDir,'*.mat') );
+                            DTaskOutCurrentUser = dir( fullfile(TaskOutDir,'*.mat') );
+                            if ~( isempty(DJobInCurrentUser) && isempty(DJobRunningCurrentUser) && isempty(DTaskOutCurrentUser) )
+
                             TotalUserCount = length(obj.JobManagerInfo.UserUsageInfo);
                             CurrentUserInfoFlag = zeros(TotalUserCount,1);
                             for v = 1:TotalUserCount
@@ -163,10 +172,6 @@ classdef JobManager < handle
                             CurrentUserUsageInfo = obj.JobManagerInfo.UserUsageInfo(CurrentUserInfoFlag==1);
                             
                             CurrentUser.TaskID = CurrentUserUsageInfo.TaskID;
-                            
-                            [JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, DataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
-                            TaskInDir = CurrentUser.TaskInDir;
-                            TaskOutDir = CurrentUser.TaskOutDir;
                             
                             %******************************************************************
                             % MONITOR THE JOB INPUT AND JOB RUNNING QUEUES/DIRECTORIES OF CURRENT USER.
@@ -687,6 +692,8 @@ classdef JobManager < handle
                             
                             % Update the file containing user usage information.
                             obj.CreateUsageFile(obj.JobManagerInfo.UserUsageInfo);
+                            
+                            end
                             
                             % Wait briefly before looping for the next active user.
                             pause( CurrentUser.PauseTime );
