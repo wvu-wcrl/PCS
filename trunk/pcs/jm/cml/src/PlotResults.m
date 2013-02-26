@@ -1,4 +1,4 @@
-function PlotResults(JobParam, JobState, FiguresDir, JobName, TempJMDir)
+function PlotResults(obj, JobParam, JobState, FiguresDir, JobName, TempJMDir)
 % Plot the results.
 
 % set(gca,'FontSize',12, 'FontName','Times', 'FontWeight','normal')
