@@ -355,14 +355,20 @@ classdef JobManager < handle
                                     end
                                     
                                     if( strcmpi( JobDirectory, JobInDir ) || (strcmpi( JobDirectory, JobRunningDir ) && (ContinueRunningJob == 1)) )
-                                        % Divide the JOB into multiple TASKs.
-                                        CurrentUser.TaskID = obj.DivideJob2Tasks(JobParam, JobState, CurrentUser, JobName, TaskMaxRunTime);
+                                        % Determine the number of new tasks to be generated for the current user.
+                                        NumNewTasks = obj.FindNumNewTasks(CurrentUser);
+                                        
+                                        if NumNewTasks > 0
+                                            % Divide the JOB into multiple TASKs.
+                                            CurrentUser.TaskID = obj.DivideJob2Tasks(JobParam, JobState, CurrentUser, NumNewTasks, JobName, TaskMaxRunTime);
+                                            
+                                            % Done!
+                                            Msg = sprintf( '\n\nDividing Input/Running job to tasks for user %s is done at %s. Waiting for its next job or next job division! ...\n\n',...
+                                                Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+                                            PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
+                                        end
                                     end
                                 end
-                                % Done!
-                                Msg = sprintf( '\n\nDividing Input/Running job to tasks for user %s is done at %s. Waiting for its next job or next job division! ...\n\n',...
-                                    Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-                                PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                             end
                             
                             %******************************************************************
@@ -632,8 +638,13 @@ classdef JobManager < handle
                                                 TaskMaxRunTime = CurrentUser.MaxRunTime;
                                             end
                                             
-                                            % Divide the JOB into multiple TASKs.
-                                            CurrentUser.TaskID = obj.DivideJob2Tasks(JobParam, JobState, CurrentUser, JobName, TaskMaxRunTime);
+                                            % Determine the number of new tasks to be generated for the current user.
+                                            NumNewTasks = obj.FindNumNewTasks(CurrentUser);
+                                            
+                                            if NumNewTasks > 0
+                                                % Divide the JOB into multiple TASKs.
+                                                CurrentUser.TaskID = obj.DivideJob2Tasks(JobParam, JobState, CurrentUser, NumNewTasks, JobName, TaskMaxRunTime);
+                                            end
                                             
                                         else % If simulation of this job is done, save the result in JobOut queue/directory.
                                             StopTime = datenum(clock);
@@ -1490,9 +1501,9 @@ classdef JobManager < handle
         end
         
         
-        function FinalTaskID = DivideJob2Tasks(obj, JobParam, JobState, UserParam, JobName, TaskMaxRunTime)
+        function FinalTaskID = DivideJob2Tasks(obj, JobParam, JobState, UserParam, NumNewTasks, JobName, TaskMaxRunTime)
             % Divide the JOB into multiple TASKs.
-            % Calling syntax: obj.DivideJob2Tasks(JobParam, JobState, UserParam, JobName [,TaskMaxRunTime])
+            % Calling syntax: obj.DivideJob2Tasks(JobParam, JobState, UserParam, NumNewTasks, JobName [,TaskMaxRunTime])
             if( nargin<6 || isempty(TaskMaxRunTime) )
                 if( isfield(JobParam, 'MaxRunTime') && (JobParam.MaxRunTime ~= -1) )
                     TaskMaxRunTime = JobParam.MaxRunTime;
@@ -1505,9 +1516,6 @@ classdef JobManager < handle
             % [HomeRoot, Username, Extension, Version] = fileparts(UserParam.UserPath);
             % [Dummy, Username] = fileparts(UserParam.UserPath);
             Username = obj.FindUsername(UserParam.UserPath);
-            
-            % Determine the number of new tasks to be generated for the current user.
-            NumNewTasks = obj.FindNumNewTasks(UserParam);
             
             if NumNewTasks > 0
                 Msg = sprintf( 'Generating %d NEW TASK files corresponding to JOB %s of user %s and saving them to its TaskIn directory at %s.\n\n',...
