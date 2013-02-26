@@ -25,31 +25,31 @@ end
 
 
 function TaskState = DepermuteSnrPoints ( TaskState, JobState, JobParam )
-TaskState.trials(:,TaskState.RandPos) = TaskState.trials;
+TaskState.trials(:,TaskState.NewSnrPos) = TaskState.trials;
 
 switch JobState.sim_type
     case{'coded', 'uncoded'}
-        TaskState.bit_errors(:,TaskState.RandPos) = TaskState.bit_errors;
-        TaskState.frame_errors(:,TaskState.RandPos) = TaskState.frame_errors;
+        TaskState.bit_errors(:,TaskState.NewSnrPos) = TaskState.bit_errors;
+        TaskState.frame_errors(:,TaskState.NewSnrPos) = TaskState.frame_errors;
         
     case{'exit'}
         
         switch JobParam.exit_param.exit_phase
             case 'detector'
                 % Round 1
-                TaskState.exit_state.IA_det_sum(:,TaskState.RandPos) = TaskState.exit_state.IA_det_sum;
-                TaskState.exit_state.IE_det_sum(:,TaskState.RandPos) = TaskState.exit_state.IE_det_sum;
+                TaskState.exit_state.IA_det_sum(:,TaskState.NewSnrPos) = TaskState.exit_state.IA_det_sum;
+                TaskState.exit_state.IE_det_sum(:,TaskState.NewSnrPos) = TaskState.exit_state.IE_det_sum;
             case 'decoder'
-                TaskState.exit_state.IE_vnd(:,TaskState.RandPos)  = TaskState.exit_state.IE_vnd;
-                TaskState.exit_state.IA_cnd(:,TaskState.RandPos)  = TaskState.exit_state.IA_cnd;
-                TaskState.exit_state.IE_cnd(:,TaskState.RandPos)  = TaskState.exit_state.IE_cnd;
-                TaskState.exit_state.I_E_det(:,TaskState.RandPos) = TaskState.exit_state.I_E_det;
-                TaskState.exit_state.I_A_det(:,TaskState.RandPos) = TaskState.exit_state.I_A_det;
+                TaskState.exit_state.IE_vnd(:,TaskState.NewSnrPos)  = TaskState.exit_state.IE_vnd;
+                TaskState.exit_state.IA_cnd(:,TaskState.NewSnrPos)  = TaskState.exit_state.IA_cnd;
+                TaskState.exit_state.IE_cnd(:,TaskState.NewSnrPos)  = TaskState.exit_state.IE_cnd;
+                TaskState.exit_state.I_E_det(:,TaskState.NewSnrPos) = TaskState.exit_state.I_E_det;
+                TaskState.exit_state.I_A_det(:,TaskState.NewSnrPos) = TaskState.exit_state.I_A_det;
                 
-                % JobState.exit_state.IA_cnd(:,TaskState.RandPos)  = JobState.exit_state.IA_cnd;
-                % JobState.exit_state.IE_cnd(:,TaskState.RandPos)  = JobState.exit_state.IE_cnd;
-                % JobState.exit_state.I_E_det(:,TaskState.RandPos) = JobState.exit_state.I_E_det;
-                % JobState.exit_state.I_A_det(:,TaskState.RandPos) = JobState.exit_state.I_A_det;
+                % JobState.exit_state.IA_cnd(:,TaskState.NewSnrPos)  = JobState.exit_state.IA_cnd;
+                % JobState.exit_state.IE_cnd(:,TaskState.NewSnrPos)  = JobState.exit_state.IE_cnd;
+                % JobState.exit_state.I_E_det(:,TaskState.NewSnrPos) = JobState.exit_state.I_E_det;
+                % JobState.exit_state.I_A_det(:,TaskState.NewSnrPos) = JobState.exit_state.I_A_det;
         end
 end
 end
@@ -67,7 +67,7 @@ end
 function [JobState, TaskState] = UpdateSERStats( JobState, TaskState )
 if( JobState.mod_order > 2 )
     % Update symbol error counter.
-    TaskState.symbol_errors(:,TaskState.RandPos) = TaskState.symbol_errors;
+    TaskState.symbol_errors(:,TaskState.NewSnrPos) = TaskState.symbol_errors;
     JobState.symbol_errors = JobState.symbol_errors + TaskState.symbol_errors;
     JobState.SER = JobState.symbol_errors ./ ( JobState.trials * JobState.symbols_per_frame );
 else

@@ -11,7 +11,8 @@ JobState = ResetJobState(JobState, JobParam);
 
 TaskInputParam = InitTaskInputParam( JobParam, JobState, NumNewTasks ); % Don't need to change.
 
-TaskInputParam = RandomlyPermuteSnrPoints( obj, TaskInputParam, JobParam, JobState );
+% TaskInputParam = RandomlyPermuteSnrPoints( obj, TaskInputParam, JobParam, JobState );
+TaskInputParam = PermuteSnrPoints( obj, TaskInputParam, JobParam, JobState );
 
 end
 
@@ -25,6 +26,9 @@ switch JobParam.sim_type
         % JobParam.MaxBitErrors(JobParam.MaxBitErrors<0) = 0;
         JobParam.max_trials = JobParam.max_trials - JobState.trials(end,:);
         JobParam.max_trials(JobParam.max_trials<0) = 0;
+        
+        %%% Added on 02/25/2013 to remove SNR randomization in task generation.
+        JobParam.max_frame_errors = ceil(JobParam.max_frame_errors/NumNewTasks);
         
         JobParam.max_trials = ceil(JobParam.max_trials/NumNewTasks);
         
@@ -112,13 +116,13 @@ end
 end
 
 
-function TaskInputParam = RandomlyPermuteSnrPoints( obj, TaskInputParam, JobParam, JobState )
+function TaskInputParam = PermuteSnrPoints( obj, TaskInputParam, JobParam, JobState )
 
 NumNewTasks = length(TaskInputParam);
 
-% Find out the SNR points at which more trials are needed.
+% Find out the SNR points at which more trials and/or more frame errors are needed.
 % We have to permute only those SNR points and move the rest of the finished SNR points to the end of the SNR vector.
-%%% Modified on 21/02/2013 to put active SNR points at the beginning so that workers do actually work on tasks(Mohammad Fanaei).
+%%% Modified on 02/21/2013 to put active SNR points at the beginning so that workers do actually work on tasks(Mohammad Fanaei).
 [RemainingTrials RemainingFrameErrors RemainingMI] =  obj.UpdateRemainingMetrics( JobParam, JobState );
 
 ActiveSNRPoints = obj.FindActiveSnrPoints( RemainingTrials, RemainingFrameErrors, RemainingMI, JobParam.sim_type, JobParam.exit_param );
@@ -133,29 +137,33 @@ switch JobParam.sim_type
         
         for Task=1:NumNewTasks
             
-            RandPermuteIndexActiveSNR = randperm( length(IndexActiveSNRPoints) );
-            PermutedIndexActiveSNRPoints = IndexActiveSNRPoints(RandPermuteIndexActiveSNR);
-            RandPos = [PermutedIndexActiveSNRPoints IndexInactiveSNRPoints];
+            %%% Modified on 02/25/2013. The SNR points do not need to be randomly permuted.
             
-            % RandPos = randperm( length(SNR) );
+            % RandPermuteIndexActiveSNR = randperm( length(IndexActiveSNRPoints) );
+            % PermutedIndexActiveSNRPoints = IndexActiveSNRPoints(RandPermuteIndexActiveSNR);
+            % NewSnrPos = [PermutedIndexActiveSNRPoints IndexInactiveSNRPoints];
             
-            TaskInputParam(Task).JobState.RandPos = RandPos;
+            NewSnrPos = [IndexActiveSNRPoints IndexInactiveSNRPoints];
             
-            TaskInputParam(Task).JobParam.SNR = SNR( RandPos );
+            % NewSnrPos = randperm( length(SNR) );
             
-            TaskInputParam(Task).JobParam.max_trials = max_trials( RandPos );
+            TaskInputParam(Task).JobState.NewSnrPos = NewSnrPos;
             
-            TaskInputParam(Task).JobParam.max_frame_errors = max_frame_errors( RandPos );
+            TaskInputParam(Task).JobParam.SNR = SNR( NewSnrPos );
             
-            TaskInputParam(Task).JobState.trials = trials( :,RandPos );
+            TaskInputParam(Task).JobParam.max_trials = max_trials( NewSnrPos );
             
-            TaskInputParam(Task).JobState.bit_errors = bit_errors( :,RandPos );
-            %TaskInputParam(Task).JobState.BER = BER( :,RandPos );
-            TaskInputParam(Task).JobState.frame_errors = frame_errors( :,RandPos );
-            %TaskInputParam(Task).JobState.FER = FER( :,RandPos );
+            TaskInputParam(Task).JobParam.max_frame_errors = max_frame_errors( NewSnrPos );
+            
+            TaskInputParam(Task).JobState.trials = trials( :,NewSnrPos );
+            
+            TaskInputParam(Task).JobState.bit_errors = bit_errors( :,NewSnrPos );
+            %TaskInputParam(Task).JobState.BER = BER( :,NewSnrPos );
+            TaskInputParam(Task).JobState.frame_errors = frame_errors( :,NewSnrPos );
+            %TaskInputParam(Task).JobState.FER = FER( :,NewSnrPos );
             if ~strcmpi( JobState.sim_type, 'coded' )
-                TaskInputParam(Task).JobState.symbol_errors = symbol_errors( :,RandPos );
-                %TaskInputParam(Task).JobState.SER = SER( :,RandPos );
+                TaskInputParam(Task).JobState.symbol_errors = symbol_errors( :,NewSnrPos );
+                %TaskInputParam(Task).JobState.SER = SER( :,NewSnrPos );
             end
         end
         
@@ -166,33 +174,38 @@ switch JobParam.sim_type
         
         for Task=1:NumNewTasks
             
-            RandPermuteIndexActiveSNR = randperm( length(IndexActiveSNRPoints) );
-            PermutedIndexActiveSNRPoints = IndexActiveSNRPoints(RandPermuteIndexActiveSNR);
-            RandPos = [PermutedIndexActiveSNRPoints IndexInactiveSNRPoints];
+            %%% Modified on 02/25/2013. The SNR points do not need to be randomly permuted.
             
-            %RandPos = randperm( length(SNR) );
+            % RandPermuteIndexActiveSNR = randperm( length(IndexActiveSNRPoints) );
+            % PermutedIndexActiveSNRPoints = IndexActiveSNRPoints(RandPermuteIndexActiveSNR);
             
-            TaskInputParam(Task).JobState.RandPos = RandPos;
+            % NewSnrPos = [PermutedIndexActiveSNRPoints IndexInactiveSNRPoints];
             
-            TaskInputParam(Task).JobParam.SNR = SNR( RandPos );
+            NewSnrPos = [IndexActiveSNRPoints IndexInactiveSNRPoints];
             
-            TaskInputParam(Task).JobParam.max_trials = max_trials( RandPos );
+            % NewSnrPos = randperm( length(SNR) );
             
-            TaskInputParam(Task).JobState.trials = trials( :,RandPos );
+            TaskInputParam(Task).JobState.NewSnrPos = NewSnrPos;
             
-            TaskInputParam(Task).JobState.exit_state.IA_det_sum = IA_det_sum( :, RandPos );
+            TaskInputParam(Task).JobParam.SNR = SNR( NewSnrPos );
             
-            TaskInputParam(Task).JobState.exit_state.IE_det_sum = IE_det_sum( :, RandPos );
+            TaskInputParam(Task).JobParam.max_trials = max_trials( NewSnrPos );
             
-            TaskInputParam(Task).JobState.exit_state.IE_vnd = IE_vnd( :, RandPos );
+            TaskInputParam(Task).JobState.trials = trials( :,NewSnrPos );
             
-            TaskInputParam(Task).JobState.exit_state.IE_cnd = IE_cnd( :, RandPos );
+            TaskInputParam(Task).JobState.exit_state.IA_det_sum = IA_det_sum( :, NewSnrPos );
             
-            TaskInputParam(Task).JobState.exit_state.IA_cnd = IA_cnd( :, RandPos );
+            TaskInputParam(Task).JobState.exit_state.IE_det_sum = IE_det_sum( :, NewSnrPos );
             
-            TaskInputParam(Task).JobState.exit_state.I_A_det = I_A_det( :, RandPos );
+            TaskInputParam(Task).JobState.exit_state.IE_vnd = IE_vnd( :, NewSnrPos );
             
-            TaskInputParam(Task).JobState.exit_state.I_E_det = I_E_det( :, RandPos );
+            TaskInputParam(Task).JobState.exit_state.IE_cnd = IE_cnd( :, NewSnrPos );
+            
+            TaskInputParam(Task).JobState.exit_state.IA_cnd = IA_cnd( :, NewSnrPos );
+            
+            TaskInputParam(Task).JobState.exit_state.I_A_det = I_A_det( :, NewSnrPos );
+            
+            TaskInputParam(Task).JobState.exit_state.I_E_det = I_E_det( :, NewSnrPos );
             
         end
 end
