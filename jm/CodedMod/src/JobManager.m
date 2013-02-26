@@ -340,6 +340,9 @@ classdef JobManager < handle
                                     % Determine the running time for each task.
                                     if strcmpi( JobDirectory, JobInDir )
                                         TaskMaxRunTime = CurrentUser.InitialRunTime;
+                                        % This flag is used to prevent generating new tasks for an new INPUT job
+                                        % while the first round of generated tasks are not returned yet.
+                                        ContinueRunningJob = 0;
                                     elseif strcmpi( JobDirectory, JobRunningDir )
                                         if( isfield(JobParam, 'MaxRunTime') && (JobParam.MaxRunTime ~= -1) )
                                             TaskMaxRunTime = JobParam.MaxRunTime;
@@ -348,8 +351,10 @@ classdef JobManager < handle
                                         end
                                     end
                                     
-                                    % Divide the JOB into multiple TASKs.
-                                    CurrentUser.TaskID = obj.DivideJob2Tasks(JobParam, JobState, CurrentUser, JobName, TaskMaxRunTime);
+                                    if( strcmpi( JobDirectory, JobInDir ) || (strcmpi( JobDirectory, JobRunningDir ) && (ContinueRunningJob == 1)) )
+                                        % Divide the JOB into multiple TASKs.
+                                        CurrentUser.TaskID = obj.DivideJob2Tasks(JobParam, JobState, CurrentUser, JobName, TaskMaxRunTime);
+                                    end
                                 end
                                 % Done!
                                 Msg = sprintf( '\n\nDividing Input/Running job to tasks for user %s is done at %s. Waiting for its next job or next job division! ...\n\n',...
@@ -379,6 +384,9 @@ classdef JobManager < handle
                             DTaskOut(FailedTaskInd == 1) = [];
                             
                             if ~isempty(DTaskOut)
+                                
+                                ContinueRunningJob = 1;
+                                
                                 % Pick a finished task file at random.
                                 TaskOutFileIndex = randi( [1 NoTaskOut], [1 1] );
                                 
