@@ -340,13 +340,7 @@ classdef JobManager < handle
                                     % Determine the running time for each task.
                                     if strcmpi( JobDirectory, JobInDir )
                                         TaskMaxRunTime = CurrentUser.InitialRunTime;
-                                        % This flag is used to prevent generating new tasks for an new INPUT job
-                                        % while the first round of generated tasks are not returned yet.
-                                        ContinueRunningJob = 0;
                                     elseif strcmpi( JobDirectory, JobRunningDir )
-                                        if ~exist('ContinueRunningJob','var')
-                                            ContinueRunningJob = 1;
-                                        end
                                         if( isfield(JobParam, 'MaxRunTime') && (JobParam.MaxRunTime ~= -1) )
                                             TaskMaxRunTime = JobParam.MaxRunTime;
                                         else
@@ -354,14 +348,14 @@ classdef JobManager < handle
                                         end
                                     end
                                     
-                                    if( strcmpi( JobDirectory, JobInDir ) || (strcmpi( JobDirectory, JobRunningDir ) && (ContinueRunningJob == 1)) )
-                                        % Determine the number of new tasks to be generated for the current user.
-                                        NumNewTasks = obj.FindNumNewTasks(CurrentUser);
+                                    % Determine the number of new tasks to be generated for the current user.
+                                    NumNewTasks = obj.FindNumNewTasks(CurrentUser);
+                                    
+                                    if NumNewTasks > 0
+                                        % Divide the JOB into multiple TASKs.
+                                        CurrentUser.TaskID = obj.DivideJob2Tasks(JobParam, JobState, CurrentUser, NumNewTasks, JobName, TaskMaxRunTime);
                                         
-                                        if NumNewTasks > 0
-                                            % Divide the JOB into multiple TASKs.
-                                            CurrentUser.TaskID = obj.DivideJob2Tasks(JobParam, JobState, CurrentUser, NumNewTasks, JobName, TaskMaxRunTime);
-                                            
+                                        if NumNewTasks > 1
                                             % Done!
                                             Msg = sprintf( '\n\nDividing Input/Running job to tasks for user %s is done at %s. Waiting for its next job or next job division! ...\n\n',...
                                                 Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
@@ -393,9 +387,6 @@ classdef JobManager < handle
                             DTaskOut(FailedTaskInd == 1) = [];
                             
                             if ~isempty(DTaskOut)
-                                
-                                ContinueRunningJob = 1;
-                                
                                 % Pick a finished task file at random.
                                 TaskOutFileIndex = randi( [1 NoTaskOut], [1 1] );
                                 
@@ -705,7 +696,7 @@ classdef JobManager < handle
                             
                             Msg = sprintf( '\n\n\nSweeping JobIn, JobRunning, and TaskOut directories of user %s is finished at %s.\n\n\n',...
                                 Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-                            PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
+                            PrintOut(Msg, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
                             
                             CurrentUserUsageInfo.TaskID = CurrentUser.TaskID;
                             CurrentUser = rmfield(CurrentUser, 'TaskID');
