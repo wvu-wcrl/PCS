@@ -29,6 +29,7 @@ addpath( fullfile( filesep, 'home', 'pcs', 'util', 'log') );
 addpath( fullfile( filesep, 'home', 'pcs', 'projects',...
                    'cml', 'module', 'chan_code', 'ldpc',...
                    'decoder', 'supp') );
+addpath( fullfile( filesep, 'home', 'pcs', 'projects', 'cml', 'mat', 'plot') );
 
 CmlJMObj = CmlJobManager( cfgFile );
 
