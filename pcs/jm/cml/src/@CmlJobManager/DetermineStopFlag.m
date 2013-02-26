@@ -40,7 +40,7 @@ end
 
 [JobParam, JobInfo] = SaveJobProgress( obj, ActiveSNRPoints, RemainingTrials, JobParam, JobState, JobInfo, JobName, Username );
 
-PlotResults(JobParam, JobState, FiguresDir, JobName, obj.JobManagerParam.TempJMDir);
+PlotResults(obj, JobParam, JobState, FiguresDir, JobName, obj.JobManagerParam.TempJMDir);
 
 varargout{1} = JobParam;
 varargout{2}= JobState;
