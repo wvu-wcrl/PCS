@@ -19,13 +19,13 @@ FunctionPath = ['<user_home>' filesep 'EE567' filesep]
 [TasksInSpec]
 
 % Maximum number of input tasks in TaskIn queue/directory.
-MaxInputTasks = 1000
+MaxInputTasks = 350
 
 % Number of input tasks in TaskIn queue/directory beyond which generation of new tasks is slowed down until it reaches the maximum of MaxInputTasks.
-TaskGenDecelerate = 750
+TaskGenDecelerate = 300
 
 % Maximum number of input tasks to be submitted to TaskIn at a time/each step.
-MaxTaskGenStep = 60
+MaxTaskGenStep = 50
 
 % Number of new input tasks saved in temporary directory (TempJMDir) that should be moved to TaskIn directory of user at a time.
 TaskInFlushRate = 10
@@ -44,4 +44,4 @@ InitialRunTime = 60
 MaxRunTime = 300
 
 % Pause time to wait between task submissions.
-PauseTime = 0.5
+PauseTime = 0.05
