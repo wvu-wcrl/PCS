@@ -344,6 +344,9 @@ classdef JobManager < handle
                                         % while the first round of generated tasks are not returned yet.
                                         ContinueRunningJob = 0;
                                     elseif strcmpi( JobDirectory, JobRunningDir )
+                                        if ~exist('ContinueRunningJob','var')
+                                            ContinueRunningJob = 1;
+                                        end
                                         if( isfield(JobParam, 'MaxRunTime') && (JobParam.MaxRunTime ~= -1) )
                                             TaskMaxRunTime = JobParam.MaxRunTime;
                                         else
