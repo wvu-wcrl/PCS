@@ -32,7 +32,11 @@ switch JobParam.sim_type
         keyboard;
 end
 
+FigTitleText = ['The time of the last update of this figure is ' datestr(clock, 'dd/mm/yyyy at HH:MM:SS PM') '.'];
+
 for Fig = 1:FigNumber
+    figure(FigHandle(Fig));
+    title(FigTitleText);
     try
         saveas( FigHandle(Fig), fullfile(FiguresDir, [JobName(1:end-4) '_Fig' num2str(Fig) '.pdf']) );
     catch
