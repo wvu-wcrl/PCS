@@ -728,15 +728,15 @@ classdef JobManager < handle
                             CurrentUser = rmfield(CurrentUser, 'TaskID');
                             obj.UserList(User) = CurrentUser;
                             obj.JobManagerInfo.UserUsageInfo(CurrentUserInfoFlag==1) = CurrentUserUsageInfo;
-                            
-                            % Update the file containing user usage information.
-                            obj.CreateUsageFile(obj.JobManagerInfo.UserUsageInfo);
-                            
                             end
                             
                             % Wait briefly before looping for the next active user.
                             pause( CurrentUser.PauseTime );
                         end
+                        
+                        % Update the file containing user usage information.
+                        obj.CreateUsageFile(obj.JobManagerInfo.UserUsageInfo);
+                        
                         
                         if rem(Check4NewUser, obj.JobManagerParam.JMInfoUpdatePeriod)==0
                             JobManagerParam = obj.JobManagerParam;
