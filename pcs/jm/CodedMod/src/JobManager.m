@@ -148,6 +148,9 @@ classdef JobManager < handle
                     
                     while RunningUsers
                         Check4NewUser = Check4NewUser + 1;
+                        
+                        UserInfoUpdated = 0;
+                        
                         for User = 1:nActiveUsers
                             CurrentUser = obj.UserList(User);
                             % [HomeRoot, Username, Extension, Version] = fileparts(CurrentUser.UserPath);
@@ -728,6 +731,7 @@ classdef JobManager < handle
                             CurrentUser = rmfield(CurrentUser, 'TaskID');
                             obj.UserList(User) = CurrentUser;
                             obj.JobManagerInfo.UserUsageInfo(CurrentUserInfoFlag==1) = CurrentUserUsageInfo;
+                            UserInfoUpdated = 1;
                             end
                             
                             % Wait briefly before looping for the next active user.
@@ -735,7 +739,9 @@ classdef JobManager < handle
                         end
                         
                         % Update the file containing user usage information.
-                        obj.CreateUsageFile(obj.JobManagerInfo.UserUsageInfo);
+                        if UserInfoUpdated == 1
+                            obj.CreateUsageFile(obj.JobManagerInfo.UserUsageInfo);
+                        end
                         
                         
                         if rem(Check4NewUser, obj.JobManagerParam.JMInfoUpdatePeriod)==0
