@@ -149,7 +149,7 @@ classdef JobManager < handle
                     while RunningUsers
                         Check4NewUser = Check4NewUser + 1;
                         
-                        UserInfoUpdated = 0;
+                        UserInfoFileUpdated = 0;
                         
                         for User = 1:nActiveUsers
                             CurrentUser = obj.UserList(User);
@@ -505,6 +505,7 @@ classdef JobManager < handle
                                                 UserAllJobIDs = CurrentUserUsageInfo.UserUsage(1,:);
                                                 CurrentUserUsageInfo.UserUsage(4,UserAllJobIDs == JobInfo.JobID) = JobInfo.JobTiming.ProcessDuration;
                                                 CurrentUserUsageInfo.TotalProcessDuration = sum( CurrentUserUsageInfo.UserUsage(4,:) );
+                                                UserInfoFileUpdated = 1;
                                             end
                                             % else
                                             % Msg = sprintf( 'Task %s of user %s had done NO TRIALS.\n', TaskOutFileName(1:end-4), Username );
@@ -620,6 +621,7 @@ classdef JobManager < handle
                                     UserAllJobIDs = CurrentUserUsageInfo.UserUsage(1,:);
                                     CurrentUserUsageInfo.UserUsage(4,UserAllJobIDs == JobInfo.JobID) = JobInfo.JobTiming.ProcessDuration;
                                     CurrentUserUsageInfo.TotalProcessDuration = sum( CurrentUserUsageInfo.UserUsage(4,:) );
+                                    UserInfoFileUpdated = 1;
                                     
                                     Msg = sprintf( '\n\n\nConsolidating finished tasks associated with job %s for user %s is DONE at %s!\n\n\n',...
                                         JobName, Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
@@ -731,7 +733,6 @@ classdef JobManager < handle
                             CurrentUser = rmfield(CurrentUser, 'TaskID');
                             obj.UserList(User) = CurrentUser;
                             obj.JobManagerInfo.UserUsageInfo(CurrentUserInfoFlag==1) = CurrentUserUsageInfo;
-                            UserInfoUpdated = 1;
                             end
                             
                             % Wait briefly before looping for the next active user.
@@ -739,7 +740,7 @@ classdef JobManager < handle
                         end
                         
                         % Update the file containing user usage information.
-                        if UserInfoUpdated == 1
+                        if UserInfoFileUpdated == 1
                             obj.CreateUsageFile(obj.JobManagerInfo.UserUsageInfo);
                         end
                         
