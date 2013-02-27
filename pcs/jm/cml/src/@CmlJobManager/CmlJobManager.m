@@ -145,6 +145,8 @@ classdef CmlJobManager < JobManager
         
         [JobParam PPSuccessFlag PPErrorMsg] = ProcessDataFiles( obj, JobParam, CurrentUser, JobName )
         
+        PlotResults( obj, JobParam, JobState, FiguresDir, JobName, TempJMDir )
+        
     end
     
 end
