@@ -184,12 +184,18 @@ classdef JobManager < handle
                             if NumNewTasks > 0
                                 
                                 % Look to see if there are any new .mat files in JobInDir and old .mat files in JobRunningDir.
-                                SuccessMsgIn = sprintf( '\nLAUNCHING simulation for user %s NEW job at %s.\n\n', ...
-                                    Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-                                SuccessMsgRunning = sprintf( '\nCONTINUING simulation for user %s at %s by FURTHER generation of its tasks.\n\n', ...
-                                    Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-                                NoJobMsg = sprintf( '\nNo new tasks for user %s was generated at %s. Both JobIn and JobRunning directories are emty of job files.\n\n', ...
-                                    Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+                                if NumNewTasks > 1
+                                    SuccessMsgIn = sprintf( '\nLAUNCHING simulation for user %s NEW job at %s.\n\n', ...
+                                        Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+                                    SuccessMsgRunning = sprintf( '\nCONTINUING simulation for user %s at %s by FURTHER generation of its tasks.\n\n', ...
+                                        Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+                                    NoJobMsg = sprintf( '\nNo new tasks for user %s was generated at %s. Both JobIn and JobRunning directories are emty of job files.\n\n', ...
+                                        Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+                                else
+                                    SuccessMsgIn = [];
+                                    SuccessMsgRunning = [];
+                                    NoJobMsg = [];
+                                end
                                 [JobDirectory, JobName] = obj.SelectInRunningJob(JobInDir, JobRunningDir, CurrentUser.MaxRunningJobs, SuccessMsgIn, SuccessMsgRunning, NoJobMsg);
                                 
                                 if ~isempty(JobName)
