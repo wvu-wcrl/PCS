@@ -302,6 +302,10 @@ classdef JobManager < handle
                                     % Delete or copy (to JobRunning directory) the selected input job file from JobIn directory.
                                     if strcmpi( JobDirectory, JobInDir )
                                         if SuccessFlag ==1
+                                            % This flag is used to prevent generating new tasks for a new INPUT job
+                                            % while the first round of generated tasks are not returned yet.
+                                            JobParam.ContinueTaskGeneration = 0;
+                                            
                                             % Put a copy of the selected input job into JobRunning directory and delete it from JobIn directory.
                                             try
                                                 save( fullfile(JobRunningDir,JobName), 'JobParam', 'JobState', 'JobInfo' );
@@ -346,11 +350,6 @@ classdef JobManager < handle
                                         % Determine the running time for each task.
                                         if strcmpi( JobDirectory, JobInDir )
                                             TaskMaxRunTime = CurrentUser.InitialRunTime;
-                                            
-                                            % This flag is used to prevent generating new tasks for a new INPUT job
-                                            % while the first round of generated tasks are not returned yet.
-                                            JobParam.ContinueTaskGeneration = 0;
-                                            
                                         elseif strcmpi( JobDirectory, JobRunningDir )
                                             if( ~isfield(JobParam, 'ContinueTaskGeneration') || isempty(JobParam.ContinueTaskGeneration) )
                                                 JobParam.ContinueTaskGeneration = 1;
