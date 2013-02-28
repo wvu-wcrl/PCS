@@ -10,7 +10,7 @@
 # 
 #
 # Command syntax
-# > pcs {short|long|testing} {start|stop|shutdown|restart}
+# > pcs {short|long|testing} {start|stop|restart}
 #
 # where 
 #   Argument 1   Queue Type
@@ -29,18 +29,15 @@
 #  
 #   = Daemon Action =
 #
-#   start     clear all global queues                                                                             
+#   start     clear global queues                                                                             
+#             move user tasks in user running queues to user input queues
 #             start task controllers, worker controllers, workers                                                 
-#                                     
-#   stop      stop all controllers and workers                                                                    
-#             save state of global queues                                                                         
-#                                                                                                                                                 #    
-#   resume    restore state of global queues at time of last stop                                                 
-#             start all controllers and workers                                                                   
 #
-#   shutdown  allow tasks in global queue to complete                                                             
-#             stop all controllers and workers                                                                    
-#
+#   stop      clear global queues                                                                             
+#             move user tasks in user running queues to user input queues
+#             stop task controllers, worker controllers, workers                                                 
+#                                                                   
+#   restart   stop and start
 #
 #   = Examples =
 # 
@@ -61,7 +58,7 @@
 eie_ret(){
 echo "Improper input arguments."
 echo "Usage:"
-echo "pcs {short|long|testing} {stop|start|resume|shutdown}"
+echo "pcs {short|long|testing} {stop|start|restart}"
 exit 2
 }
 
@@ -74,11 +71,8 @@ echo "start"
 stop)
 echo "stop"
 ;;
-resume)
-echo "resume"
-;;
-shutdown)
-echo "shutdown"
+restart)
+echo "restart"
 ;;
 *)
 eie_ret
@@ -257,26 +251,6 @@ screen -S $TC -m -d matlab -r "cd $PATH_TC;tc_startup('$CFG','$ss')"
 }
 
 
-pidof_pcs() {
-        # if there is a pcs process whose pid is in PIDFILE,                                                                              
-        # print it and return 0.                                                                                                                        
-        if [ -e "$PIDFILE" ]; then
-                if pidof apache2 | tr ' ' '\n' | grep -w $(cat $PIDFILE); then
-                        return 0
-                fi
-        fi
-        return 1
-}
-
-
-wait_for_queue_to_empty(){
-    while [ "$(ls -A  $1/*.mat 2>/dev/null)" ]
-    do
-        sleep 2
-    done
-       
-}
-
 
 does_lockfile_exist(){
     if [ -e $1 ]; then
@@ -294,8 +268,15 @@ case $IA in
     start)
 
 	if [ $lockfile_exists -eq 0 ]; then
-	    start_workers $WC $cfg  
             manage_controllers $TC $cfg start 
+
+            # give task controller time to manipulate queues
+            #  before workers begin manipulating tasks
+	    sleep 10
+            #####
+
+	    start_workers $WC $cfg  
+
 	    start_job_managers $JM $jmcfg
 	    touch $LOCKFILE
 	else
@@ -304,17 +285,7 @@ case $IA in
 	;; 
 
     restart)
-        $0 stop && sleep 5 && $0 start
-	;;
-
-    resume)
-	if [ $lockfile_exists -eq 0 ]; then
-	    start_workers $WC $cfg
-	    manage_controllers $TC $cfg resume
-	    touch $LOCKFILE
-	else
-	    echo $LOCKFILE_EXISTS_ERR
-	fi
+        $0 $Q stop && sleep 5 && $0 $Q start
 	;;
 
     stop)
@@ -325,7 +296,10 @@ case $IA in
 	    stop_screen_session $JM
  
 	    stop_workers $WC $Q
-	    
+            # give workers time to die before manipulating
+            #  queues
+	    sleep 2
+            #####	    
 	    manage_controllers $TC $cfg stop
 
 	    rm $LOCKFILE
@@ -333,34 +307,7 @@ case $IA in
 	    echo $LOCKFILE_DOESNOTEXIST_ERR
 	fi
 	;;
-
-    shutdown)
-	if [ $lockfile_exists -eq 1 ]; then
-
-        stop_screen_session $TC
-	stop_screen_session $JM
-	
-        manage_controllers $TC $cfg shutdown
-	
-	wait_for_queue_to_empty $PATH_IQ
-	wait_for_queue_to_empty $PATH_RQ
-	wait_for_queue_to_empty $PATH_OQ
-	
-        stop_screen_session $WC
-	
-        stop_workers $WC $Q
-	
-	rm $LOCKFILE
-	else
-	    echo $LOCKFILE_DOESNOTEXIST_ERR
-	fi
-	;;
-
     *)
-	echo "Usage: $0 {start|stop|restart|resume|shutdown}"
-	exit 2
+        eie_ret
 	;;
 esac
-
-
-

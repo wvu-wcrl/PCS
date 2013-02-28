@@ -2,22 +2,24 @@
 %
 %
 %   Calling syntax:
-%   ctcobj = ctc(cfp)
+%   ctcobj = ctc(cfp, ss)
 %
 %   Inputs:
-%      cfp = path to configuration file
-%                  
+%      cfp   path to configuration file
+%      ss    starting state. see header of 'manage_queues.m' for
+%              details
+%           
 %   Outputs:
 %      ctcobj = cluster task controller object
 %
 %   Example:
-%      [ctcobj] = ctc(  'pcs_test.cfg' );
+%      [ctcobj] = ctc(  'pcs_test.cfg', 'start' );
 %
 %
 % Implementation of the cluster worker controller.
 %
-% Version 2
-% 11/29/2011
+% Version 3
+% 2/27/2013
 % Terry Ferrett
 %
 %     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
