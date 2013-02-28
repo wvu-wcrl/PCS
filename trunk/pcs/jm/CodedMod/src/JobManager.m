@@ -311,10 +311,6 @@ classdef JobManager < handle
                                     % Delete or copy (to JobRunning directory) the selected input job file from JobIn directory.
                                     if strcmpi( JobDirectory, JobInDir )
                                         if SuccessFlag ==1
-                                            % This flag is used to prevent generating new tasks for a new INPUT job
-                                            % while the first round of generated tasks are not returned yet.
-                                            JobParam.ContinueTaskGeneration = 0;
-                                            
                                             % Put a copy of the selected input job into JobRunning directory and delete it from JobIn directory.
                                             try
                                                 save( fullfile(JobRunningDir,JobName), 'JobParam', 'JobState', 'JobInfo' );
@@ -360,9 +356,6 @@ classdef JobManager < handle
                                         if strcmpi( JobDirectory, JobInDir )
                                             TaskMaxRunTime = CurrentUser.InitialRunTime;
                                         elseif strcmpi( JobDirectory, JobRunningDir )
-                                            if( ~isfield(JobParam, 'ContinueTaskGeneration') || isempty(JobParam.ContinueTaskGeneration) )
-                                                JobParam.ContinueTaskGeneration = 1;
-                                            end
                                             if( isfield(JobParam, 'MaxRunTime') && (JobParam.MaxRunTime ~= -1) )
                                                 TaskMaxRunTime = JobParam.MaxRunTime;
                                             else
@@ -370,8 +363,11 @@ classdef JobManager < handle
                                             end
                                         end
                                         
-                                        if( strcmpi(JobDirectory, JobInDir) || ...
-                                                ( strcmpi(JobDirectory,JobRunningDir) && (JobParam.ContinueTaskGeneration == 1) ) )
+                                        % This flag is used to prevent generating new tasks for a new INPUT job
+                                        % while the first round of generated tasks are not returned yet.
+                                        TimeFromFirstTaskGenRound =  etime(clock, datevec(JobInfo.JobTiming.StartTime,'ddd., mmm dd, yyyy HH:MM:SS PM'));
+                                        if( strcmpi( JobDirectory, JobInDir ) || (TimeFromFirstTaskGenRound > 1.2*CurrentUser.InitialRunTime) )
+                                            
                                             % Divide the JOB into multiple TASKs.
                                             CurrentUser.TaskID = obj.DivideJob2Tasks(JobParam, JobState, CurrentUser, NumNewTasks, JobName, TaskMaxRunTime);
                                             
@@ -645,14 +641,16 @@ classdef JobManager < handle
                                                 PrintOut(SuccessMsg, 0, obj.JobManagerParam.LogFileName);
                                             end
                                             
-                                            % Limit the simulation maximum runtime of each task.
-                                            if( isfield(JobParam, 'MaxRunTime') && (JobParam.MaxRunTime ~= -1) )
-                                                TaskMaxRunTime = JobParam.MaxRunTime;
-                                            else
-                                                TaskMaxRunTime = CurrentUser.MaxRunTime;
-                                            end
-                                            
-                                            if( ~isfield(JobParam, 'ContinueTaskGeneration') || (JobParam.ContinueTaskGeneration == 1) )
+                                            TimeFromFirstTaskGenRound =  etime(clock, datevec(JobInfo.JobTiming.StartTime,'ddd., mmm dd, yyyy HH:MM:SS PM'));
+                                            if( TimeFromFirstTaskGenRound > 1.2*CurrentUser.InitialRunTime )
+                                                
+                                                % Limit the simulation maximum runtime of each task.
+                                                if( isfield(JobParam, 'MaxRunTime') && (JobParam.MaxRunTime ~= -1) )
+                                                    TaskMaxRunTime = JobParam.MaxRunTime;
+                                                else
+                                                    TaskMaxRunTime = CurrentUser.MaxRunTime;
+                                                end
+                                                
                                                 % Determine the number of new tasks to be generated for the current user.
                                                 NumNewTasks = obj.FindNumNewTasks(CurrentUser);
                                                 
@@ -661,9 +659,6 @@ classdef JobManager < handle
                                                     CurrentUser.TaskID = obj.DivideJob2Tasks(JobParam, JobState, CurrentUser, NumNewTasks, JobName, TaskMaxRunTime);
                                                 end
                                             end
-                                            
-                                            JobParam.ContinueTaskGeneration = 1;
-                                            
                                         else % If simulation of this job is done, save the result in JobOut queue/directory.
                                             StopTime = datenum(clock);
                                             % Set the job StopTime.
@@ -675,10 +670,6 @@ classdef JobManager < handle
                                             
                                             % More Cleanup Needed: Any tasks associated with this job should be deleted from TaskIn directory.
                                             obj.DeleteFile( fullfile(TaskInDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) );
-                                            
-                                            if isfield(JobParam, 'ContinueTaskGeneration')
-                                                JobParam = rmfield(JobParam, 'ContinueTaskGeneration');
-                                            end
                                             
                                             try
                                                 save( fullfile(JobOutDir,JobName), 'JobParam', 'JobState', 'JobInfo' );
