@@ -163,7 +163,7 @@ classdef JobManager < handle
                             
                             DJobInCurrentUser = dir( fullfile(JobInDir,'*.mat') );
                             DJobRunningCurrentUser = dir( fullfile(JobRunningDir,'*.mat') );
-                            DTaskOutCurrentUser = dir( fullfile(TaskOutDir,'*.mat') );
+                            DTaskOutCurrentUser = dir( fullfile(TaskOutDir,[obj.JobManagerParam.ProjectName '_*.mat']) );
                             if ~( isempty(DJobInCurrentUser) && isempty(DJobRunningCurrentUser) && isempty(DTaskOutCurrentUser) )
 
                             TotalUserCount = length(obj.JobManagerInfo.UserUsageInfo);
