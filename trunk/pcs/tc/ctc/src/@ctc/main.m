@@ -81,14 +81,15 @@ au ={};
 
 fl = {};
 
+fprintf('1 ');
 for k = 1:nu,
     
     srch = strcat(obj.users{k}.iq, '/*.mat');      % form full dir string
-    
+
     sfl{k} = dir( srch{1} );                       % get list of .mat files in input queue directory
-    
+
     if length( sfl{k} ) > 0,
-        
+
         na = na + 1;
         
         au{na} = obj.users{k};
@@ -96,12 +97,12 @@ for k = 1:nu,
         nf(na) = length(sfl{k});                   % how many input files does this user have?
         
         fl{na} = sfl{k};
-        
+                   
     end
     
     
 end
-
+        fprintf('2 ');
 end
 
 
@@ -132,7 +133,7 @@ users_srt = {};             % users sorted by number of active users
 
 fl_srt = {};                % sorted list
 
-
+        fprintf('3 ');
 for k =1:nau,
     
     for l = 1:ntu,
@@ -147,7 +148,7 @@ for k =1:nau,
     end
     
 end
-
+        fprintf('4 ');
 
 if ~isempty(nw)
     
@@ -157,6 +158,7 @@ if ~isempty(nw)
     
     fl_srt = fl(P);
 end
+        fprintf('5 ');
 
 end
 
@@ -175,17 +177,18 @@ end
 function place_user_input_in_queue(obj, users_srt, fl_srt)
 
 PCSUSER = 'pcs';
-
+        fprintf('6 ');
 if ~isempty(users_srt)
     avw = obj.nw - obj.aw;   % available number of workers
     nf = length( fl_srt{1} );
     cnt = 0;
+        fprintf('7 ');
     while avw > 0 & nf > 0,   % add files to queue until the queue is full or no more files exist
         avw = avw - 1;
         nf = nf - 1;
         cnt = cnt + 1;
         
-        puif = strcat(users_srt.iq, '/', fl_srt{1}(cnt).name)  % path to input file
+puif = strcat(users_srt.iq, '/', fl_srt{1}(cnt).name);  % path to input file
         pgiq = obj.gq.iq;
         purq = users_srt.rq;
         
@@ -198,15 +201,17 @@ if ~isempty(users_srt)
         % copy user input file into user running queue
         cmd_str = ['sudo cp' ' ' puif{1} ' ' purq{1} '/' fn];
         system(cmd_str);
-        
+                fprintf('cp ');
         
         % change ownership to pcs user
-        cmd_str = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1}]
+        cmd_str = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1}];
         system(cmd_str);   % change ownership back to user
-        
+        fprintf('chown ');        
+
         % move user file into input queue
         cmd_str = ['sudo mv' ' ' puif{1} ' ' pgiq{1} '/' afn];
         system(cmd_str);
+        fprintf('mv ');
     end
     
     obj.aw = obj.aw + cnt;
@@ -214,7 +219,6 @@ if ~isempty(users_srt)
 end
 
 end
-
 
 
 
@@ -308,7 +312,7 @@ nf = length(bqf);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
+        fprintf('8 ');
 nu = length(obj.users);                % loop over all users
 
 for k = 1:nu,
@@ -334,6 +338,7 @@ for k = 1:nu,
     obj.users{k}.aw = nw;  % update active user count
     
 end
+        fprintf('9 ');
 
 
 nw = 0;         % add up all active workers for all users
@@ -356,17 +361,20 @@ function consume_output(obj)
 
 [fl nf] = get_files_in_output_queue(obj);
 
+        fprintf('10 ');
 for k = 1:nf,       % loop over all files in output queue
     
     [username location] = get_username_location_from_file( fl(k).name );
-        
+                fprintf('11 ');
     [does_user_exist user_ind] = compare_to_active_users( obj, username, location, obj.users );
-    
+            fprintf('12 ');
     switch does_user_exist,
         case 'yes',
             consume_output_file(obj, fl(k).name, user_ind);
+        fprintf('13 ');
         case 'no'
             delete_output_file( obj, fl(k).name );
+        fprintf('14 ');
     end
         
 end
@@ -405,6 +413,7 @@ end
 
 function consume_output_file(obj, output_task_filename, user_ind)
 
+        fprintf('15 ');
 [ownership_name ownership_group] = get_file_ownership( obj.users{user_ind}.username, obj.users{user_ind}.user_location );
 
 [on] = remove_username_loc_from_filename( output_task_filename );
@@ -414,12 +423,14 @@ function consume_output_file(obj, output_task_filename, user_ind)
 [ pgoq ] = get_path_global_output_queue( obj.gq.oq{1} );
 
 cmd_str = ['sudo chown' ' ' ownership_name ':' ownership_group ' ' pgoq '/' output_task_filename]; system(cmd_str);   % change ownership back to user
-
+        fprintf('chown 2 ');
 cmd_str = ['sudo mv' ' ' pgoq '/'  output_task_filename ' ' puoq '/' on];  system(cmd_str); % move file to user output queue
 
+        fprintf('mv 2 ');
 [ purq ] = get_path_user_running_queue( obj.users{user_ind}.rq{1} );
 
 clear_from_user_running_queue( on, purq );
+        fprintf('16 ');
 
 end
 
