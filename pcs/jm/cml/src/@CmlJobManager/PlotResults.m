@@ -38,8 +38,10 @@ for Fig = 1:FigNumber
     figure(FigHandle(Fig));
     title(FigTitleText);
     try
+        % print(FigHandle(Fig), '-dpdf', fullfile(FiguresDir, [JobName(1:end-4) '_Fig' num2str(Fig) '.pdf']));
         saveas( FigHandle(Fig), fullfile(FiguresDir, [JobName(1:end-4) '_Fig' num2str(Fig) '.pdf']) );
     catch
+        % print(FigHandle(Fig), '-dpdf', fullfile(FiguresDir, [JobName(1:end-4) '_Fig' num2str(Fig) '.pdf']));
         saveas( FigHandle(Fig), fullfile(TempJMDir, [JobName(1:end-4) '_Fig' num2str(Fig) '.pdf']) );
         obj.MoveFile( fullfile(TempJMDir, [JobName(1:end-4) '_Fig' num2str(Fig) '.pdf']), FiguresDir);
     end
