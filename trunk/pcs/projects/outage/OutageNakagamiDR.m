@@ -142,15 +142,14 @@ classdef OutageNakagamiDR < handle
         end
         
         
-        function obj = GenerateTable(obj,k)
+        function obj = GenerateTable(obj,k,mi)
             
             % generate the index of the vector l that we will use to compute Xi
             
             A1=[];
             l=k*ones(1,(obj.C-2));
-            
             A1=[A1;l];
-            stop=sum(l==obj.m);
+            stop=sum(l==mi);
             while stop~=(obj.C-2)
                 [~,index]=min(l);
                 
@@ -191,7 +190,7 @@ classdef OutageNakagamiDR < handle
                         end
                     end
                 end
-                stop=sum(l==obj.m);
+                stop=sum(l==mi);
                 A1=[A1;l];
             end
             obj.li=A1;
@@ -221,7 +220,8 @@ classdef OutageNakagamiDR < handle
                             Ti(k+sum(obj.m(1:i-1))*(i>1))=T;
                         elseif obj.C>3
                             T=0;
-                            obj.GenerateTable(k);
+                            k
+                            obj.GenerateTable(k,obj.m(i));
                             [N1,M1]=size(obj.li);
                             for lk=1:N1
                                 F=1;
