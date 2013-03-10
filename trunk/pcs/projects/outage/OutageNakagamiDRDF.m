@@ -1,6 +1,7 @@
-classdef OutageNakagamiDR < handle
+classdef OutageNakagamiDRDF < handle
     
-    % Computes average outage probability with diversity reception
+    % It computes average outage probability with diversity reception
+    % when the fading for the interferes is double faded
     
     % by S. Talarico
     
@@ -29,7 +30,7 @@ classdef OutageNakagamiDR < handle
     
     methods
         % constructor
-        function obj = OutageNakagamiDR( varargin )
+        function obj = OutageNakagamiDRDF( varargin )
             
             % X_i, alpha, m, m_i, C, Omega_j
             if (nargin == 6)
@@ -88,28 +89,10 @@ classdef OutageNakagamiDR < handle
             % create the indices structure
             % for r+1=1, the only set of indices is all zeros
             obj.indices{1} = zeros( 1, obj.M );
-            obj.coefficients{1} = ones( 1, obj.M );
-            
+
             for r=1:(obj.m-1)
                 % initialize this member of the cell arrays
                 obj.indices{r+1} = allVL1(obj.M,r);
-                obj.coefficients{r+1} = ones( size( obj.indices{r+1} ) );
-                for ell=1:r
-                    if ( size( obj.m_i ) == 1)
-                        % all m_i are the same
-                        this_coef = gamma( ell + obj.m_i )/factorial(ell)/gamma( obj.m_i );
-                        % the following line requires m_i to be integer valued
-                        % this_coef = nchoosek( ell + obj.m_i - 1, obj.m_i - 1);
-                        obj.coefficients{r+1}( obj.indices{r+1} == ell ) = this_coef;
-                    else
-                        for node=1:obj.M
-                            this_coef = gamma( ell + obj.m_i(node) )/factorial(ell)/gamma( obj.m_i(node) );
-                            % the following line requires m_i to be integer valued
-                            % this_coef = nchoosek( ell + obj.m_i(node) - 1, obj.m_i(node) - 1);
-                            obj.coefficients{r+1}( (obj.indices{r+1}(:,node) == ell), node ) = this_coef;
-                        end
-                    end
-                end
             end
         end
         
@@ -118,28 +101,10 @@ classdef OutageNakagamiDR < handle
             % create the indices structure
             % for r+1=1, the only set of indices is all zeros
             obj.indices{1} = zeros( 1, obj.M );
-            obj.coefficients{1} = ones( 1, obj.M );
             
             for r=1:(obj.C*obj.m-1)
                 % initialize this member of the cell arrays
                 obj.indices{r+1} = allVL1(obj.M,r);
-                obj.coefficients{r+1} = ones( size( obj.indices{r+1} ) );
-                for ell=1:r
-                    if ( size( obj.m_i ) == 1)
-                        % all m_i are the same
-                        this_coef = gamma( ell + obj.m_i )/factorial(ell)/gamma( obj.m_i );
-                        % the following line requires m_i to be integer valued
-                        % this_coef = nchoosek( ell + obj.m_i - 1, obj.m_i - 1);
-                        obj.coefficients{r+1}( obj.indices{r+1} == ell ) = this_coef;
-                    else
-                        for node=1:obj.M
-                            this_coef = gamma( ell + obj.m_i(node) )/factorial(ell)/gamma( obj.m_i(node) );
-                            % the following line requires m_i to be integer valued
-                            % this_coef = nchoosek( ell + obj.m_i(node) - 1, obj.m_i(node) - 1);
-                            obj.coefficients{r+1}( (obj.indices{r+1}(:,node) == ell), node ) = this_coef;
-                        end
-                    end
-                end
             end
         end
         
@@ -222,7 +187,6 @@ classdef OutageNakagamiDR < handle
                             Ti(k+sum(obj.m(1:i-1))*(i>1))=T;
                         elseif obj.C>3
                             T=0;
-                            k
                             obj.GenerateTable(k,obj.m(i));
                             [N1,M1]=size(obj.li);
                             for lk=1:N1
@@ -242,6 +206,65 @@ classdef OutageNakagamiDR < handle
         end
 
         
+        function obj = ComputeIntegralE( obj, Beta )
+            
+            factors=zeros(1,obj.M);
+            for numell=1:obj.M
+                f = @(x) x.^(obj.m+obj.m_i-1).*besselk(obj.m-obj.m_i,2*x*sqrt(obj.m_i*obj.m)/obj.Omega_i(numell)).*exp(-Beta/obj.Omega_j*obj.m*x);
+                integral = quadgk(f, 0, inf);
+                factors(numell) = 4/(gamma(obj.m)*gamma(obj.m_i)*(obj.Omega_i(numell)/sqrt(obj.m_i*obj.m))^(obj.m+obj.m_i))*integral;
+            end
+            obj.coefficients{1}=factors;            
+            for r=1:(obj.C*obj.m-1)
+                obj.coefficients{r+1} = ones( size( obj.indices{r+1} ) );
+                for ell=0:r
+                    if ( size( obj.m_i ) == 1)                        
+                        for numell=1:obj.M
+                            f = @(x) x.^(obj.m+obj.m_i+ell-1).*besselk(obj.m-obj.m_i,2*x*sqrt(obj.m_i*obj.m)/obj.Omega_i(numell)).*exp(-Beta/obj.Omega_j*obj.m*x);
+                            integral = quadgk(f, 0, inf);
+                            obj.coefficients{r+1}( (obj.indices{r+1}(:,numell) == ell), numell ) =  4/(factorial(ell)*gamma(obj.m)*gamma(obj.m_i)*(obj.Omega_i(numell)/sqrt(obj.m_i*obj.m))^(obj.m+obj.m_i))*integral;
+                        end
+                    else
+                        for numell=1:length(obj.Omega_i)
+                            f = @(x) x.^(obj.m+obj.m_i(numell)+ell-1).*besselk(obj.m-obj.m_i(numell),2*x*sqrt(obj.m_i(numell)*obj.m)/obj.Omega_i(numell)).*exp(-Beta/obj.Omega_j*obj.m*x);
+                            integral = quadgk(f, 0, inf);
+                            obj.coefficients{r+1}( (obj.indices{r+1}(:,numell) == ell), numell ) =  4/(factorial(ell)*gamma(obj.m)*gamma(obj.m_i(numell))*(obj.Omega_i(numell)/sqrt(obj.m_i(numell)*obj.m))^(obj.m+obj.m_i(numell)))*integral;
+                        end
+                    end
+                end
+            end
+        end
+        
+        function obj = ComputeIntegral( obj, Beta, j )
+
+            factors=zeros(1,obj.M);
+            for numell=1:obj.M
+                f = @(x) x.^(obj.m(j)+obj.m_i-1).*besselk(obj.m(j)-obj.m_i,2*x*sqrt(obj.m_i*obj.m(j))/obj.Omega_i(numell)).*exp(-Beta/obj.Omega_j(j)*obj.m(j)*x);
+                integral = quadgk(f, 0, inf);
+                factors(numell) = 4/(gamma(obj.m(j))*gamma(obj.m_i)*(obj.Omega_i(numell)/sqrt(obj.m_i*obj.m(j)))^(obj.m(j)+obj.m_i))*integral;
+            end
+            obj.coefficients{1}=factors;            
+            for r=1:obj.m(j)-1
+                obj.coefficients{r+1} = ones( size( obj.indices{r+1} ) );
+                for ell=0:r
+                    if ( size( obj.m_i ) == 1)                        
+                        for numell=1:obj.M
+                            f = @(x) x.^(obj.m(j)+obj.m_i+ell-1).*besselk(obj.m(j)-obj.m_i,2*x*sqrt(obj.m_i*obj.m(j))/obj.Omega_i(numell)).*exp(-Beta/obj.Omega_j(j)*obj.m(j)*x);
+                            integral = quadgk(f, 0, inf);
+                            obj.coefficients{r+1}( (obj.indices{r+1}(:,numell) == ell), numell ) =  4/(factorial(ell)*gamma(obj.m(j))*gamma(obj.m_i)*(obj.Omega_i(numell)/sqrt(obj.m_i*obj.m(j)))^(obj.m(j)+obj.m_i))*integral;
+                        end
+                    else
+                        for numell=1:length(obj.Omega_i)
+                            f = @(x) x.^(obj.m(j)+obj.m_i(numell)+ell-1).*besselk(obj.m(j)-obj.m_i(numell),2*x*sqrt(obj.m_i(numell)*obj.m(j))/obj.Omega_i(numell)).*exp(-Beta/obj.Omega_j(j)*obj.m(j)*x);
+                            integral = quadgk(f, 0, inf);
+                            obj.coefficients{r+1}( (obj.indices{r+1}(:,numell) == ell), numell ) =  4/(factorial(ell)*gamma(obj.m(j))*gamma(obj.m_i(numell))*(obj.Omega_i(numell)/sqrt(obj.m_i(numell)*obj.m(j)))^(obj.m(j)+obj.m_i(numell)))*integral;
+                        end
+                    end
+                end
+            end
+        end
+        
+         
         function epsilon = ComputeSingleOutage( obj, Gamma, Beta, p )
             % computes the outage for a single set of beta, gamma, and p
             % averaged over the N networks
@@ -257,9 +280,9 @@ classdef OutageNakagamiDR < handle
             
             % loop over the N networks
             if length(unique(obj.Omega_j))==1 || obj.C==1
-                
-                % loop over the N networks
+                % loop over the N networks            
                 for trial=1:obj.N
+                    obj.ComputeIntegralE(Beta ); 
                     sum_s = zeros(1,NumberSNR);
                     for s=0:obj.C*obj.m-1
                         sum_r = zeros(1,NumberSNR);
@@ -267,8 +290,7 @@ classdef OutageNakagamiDR < handle
                             sum_ell = 0;
                             for ellset=1:size( obj.indices{r+1}, 1)
                                 elli = obj.indices{r+1}(ellset,:); % the vector of indices
-                                coef = obj.coefficients{r+1}(ellset,:); % the multinomial coefficients
-                                factors = coef.*obj.Omega_i_norm(trial,:).^elli./( (Beta/obj.Omega_j*obj.m*obj.Omega_i_norm(trial,:)+1).^(elli+obj.m_i) );
+                                factors=obj.coefficients{r+1}(ellset,:);
                                 sum_ell = sum_ell + prod( p*factors + (1-p)*(elli==0) );
                             end
                             sum_r = sum_r + z.^(-r)*sum_ell/factorial(s-r);
@@ -280,6 +302,7 @@ classdef OutageNakagamiDR < handle
             elseif length(unique(obj.Omega_j))==obj.C
                 for trial=1:obj.N
                     for j=1:obj.C
+                        obj.ComputeIntegral(Beta,j); 
                         for n=1:obj.m(j)
                             sum_n = zeros(1,NumberSNR);
                             for u=0:n-1
@@ -288,8 +311,7 @@ classdef OutageNakagamiDR < handle
                                     sum_ell = 0;
                                     for ellset=1:size( obj.indices{k+1}, 1)
                                         elli = obj.indices{k+1}(ellset,:); % the vector of indices
-                                        coef = obj.coefficients{k+1}(ellset,:); % the multinomial coefficients
-                                        factors = coef.*obj.Omega_i_norm(trial,:).^elli./( (Beta*obj.m(j)/obj.Omega_j(j)*obj.Omega_i_norm(trial,:)+1).^(elli+obj.m_i) );
+                                        factors=obj.coefficients{k+1}(ellset,:);                                
                                         sum_ell = sum_ell + prod( p*factors + (1-p)*(elli==0) );
                                     end
                                     sum_k = sum_k + z.^(-k)*sum_ell/factorial(u-k);
@@ -328,10 +350,9 @@ classdef OutageNakagamiDR < handle
                     epsilon(:,j,k) = obj.ComputeSingleOutage( Gamma, Beta(j), p(k) );
                 end
             end
-            
+                   
             % note that the Gamma, Beta, p properties of the class are never actually set
         end
     end
     
 end
-
