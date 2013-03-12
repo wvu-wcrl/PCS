@@ -1,0 +1,33 @@
+#!/bin/bash
+#jms
+#
+# This file stores startup functions for the job managers supported by pcs
+#
+# Functions are named by convention
+#  jm_<name>
+# where <name> is the job manager name
+# 
+# Available job managers
+#  cml
+
+
+
+# CML job manager                                                                                                
+jm_cml(){
+Q=$1
+
+# exit if not short queue
+case $Q in
+short)
+;;
+*)
+echo "CML JM currently only supported using short queue."
+return
+;;
+}
+
+PATH_JM=/home/pcs/jm/cml/src                    # path to CML JM startup script
+JM_CFG=/home/pcs/jm/cml/cfg/CmlJobManager_cfg   # path to configuration file
+
+screen -S cml_$Q -m -d matlab -r "cd $PATH_JM; cml_jm_startup('$JM_CFG')"
+}
