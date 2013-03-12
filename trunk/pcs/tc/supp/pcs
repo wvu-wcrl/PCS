@@ -212,6 +212,7 @@ LOCKFILE_DOESNOTEXIST_ERR="PCS $Q is not running.  Execute 'pcs $Q {start|restar
 start_job_managers(){
 JMS=$1
 n_jms=$2
+Q=$3
 
 for((k=0;k<n_jms;k++))
 do
@@ -308,7 +309,8 @@ case $IA in
 
 	    stop_screen_session $WC
 	    stop_screen_session $TC
-	    stop_screen_session $JM
+	    # stop all screen sessions associated with this queue
+#	    stop_screen_session $JM
  
 	    stop_workers $WC $Q
             # give workers time to die before manipulating
