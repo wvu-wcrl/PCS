@@ -2,7 +2,8 @@
 ### BEGIN INIT INFO 
 # Provides:        pcs    
 # Short Description: Management script for pcs suite                                                   
-### END INIT INFO                                                                                                                                 #     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
+### END INIT INFO                                                             
+#     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
 #     For full copyright information see the bottom of this file.
 #
 #
@@ -13,8 +14,9 @@
 # > pcs {short|long|testing} {start|stop|restart}
 #
 # where 
-#   Argument 1   Queue Type
-#   Argument 2   Daemon action
+#   Argument 1     Queue Type
+#   Argument 2     Daemon action
+#   Arguments 3-N  Optional. Specify job manager to associate with this queue.
 #
 #   = Queue Type =
 #   
@@ -36,22 +38,30 @@
 #   stop      clear global queues                                                                             
 #             move user tasks in user running queues to user input queues
 #             stop task controllers, worker controllers, workers                                                 
+#             stop all job managers associated with this queue
 #                                                                   
-#   restart   stop and start
+#   restart   execute stop and start operations
+#
+#
+#   = Job Manager =
+#   
+#   cml       CML Job Manager
+#
 #
 #   = Examples =
 # 
-#   Start the short queue and long queue daemons
+#   Start the short queue and long queue daemons with no job managers
 #   > pcs short start
 #   > pcs long start
-#    
 #
-#   Stop the short queue
+#    
+#   Start the short queue daemon with CML job manager and stop
+#   > pcs short start cml
 #   > pcs short stop
 #   
 #####
 
-# define job manager functions stored in file 'jms'
+# define job manager startup functions stored in file 'jms'
 source jms 
 
 
@@ -61,7 +71,6 @@ eie_ret(){
 echo "Improper input arguments."
 echo "Usage:"
 echo "pcs {short|long|testing} {stop|start|restart}"
-exit 2
 }
 
 # check input action
@@ -77,12 +86,13 @@ restart)
 echo "restart"
 ;;
 *)
-eie_ret
+echo "error"
+;;
 esac
 }
 
 
-# check testing parameter
+# check queue parameter
 cq(){
 case $1 in
 short)
@@ -95,7 +105,8 @@ testing)
 echo "testing"
 ;;
 *)
-eie_ret
+echo "error"
+;;
 esac
 }
 #####################################
@@ -114,9 +125,14 @@ eie_ret
 fi
 
 
-
 Q=$(cq $1)    # read requested queue
 IA=$(cia $2)  # read input argument
+
+# exit only terminates calling shell so use
+#  the following syntax for checking command line args
+[[ "${Q:0:5}" == "error" ]] && eie_ret && exit
+[[ "${IA:0:5}" == "error" ]] && eie_ret && exit
+
 
 # every input argument past 2 is assumed to be a jm name
 n_jms=0
@@ -127,6 +143,33 @@ n_jms=$n_jms+1
 done
 # now have n_jms and JMS
 ##########################
+
+
+
+#### Special case: CML JM can only start in short queue
+#### Check for this condition
+#### Remove this code once CML JM can start in any queue
+# exit if not short queue                                                                                     
+for i in ${@:3}
+do
+
+if [ "$i" = "cml" ]
+then
+case $Q in
+short)
+;;
+*)
+echo "CML JM currently only supported using short queue."
+exit 2
+;;
+esac
+fi
+
+done
+#############
+#############
+
+
 
 
 ### paths to daemons can be hard coded
@@ -216,7 +259,7 @@ Q=$3
 
 for((k=0;k<n_jms;k++))
 do
-jm_$JMS[$k] $Q
+jm_${JMS[$k]} $Q
 done
 }
 
@@ -250,7 +293,8 @@ NF=`echo $nodes| awk '{print NF}'`
 for((k=1;k<=NF;k++))
 do
 node=`echo $nodes |awk -vk="$k" '{print $k}'`
-slay_worker.sh $node $Q > /dev/null 2>&1
+slay_worker.sh $node $Q > /dev/null 
+#2>&1
 done
 
 # stop worker controller screen session
@@ -309,8 +353,7 @@ case $IA in
 
 	    stop_screen_session $WC
 	    stop_screen_session $TC
-	    # stop all screen sessions associated with this queue
-#	    stop_screen_session $JM
+	    stop_screen_session \_$Q   # stop all JM's associated with this queue     
  
 	    stop_workers $WC $Q
             # give workers time to die before manipulating
