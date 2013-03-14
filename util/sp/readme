@@ -15,7 +15,7 @@ inspecting the headers and script implementations.
 
 
 
-= Running Speed Profiling Simulations =
+= Running A Single Speed Profiling Simulation =
 
 The script
   sp
@@ -23,14 +23,18 @@ The script
 executes and stops speed profiling simulations.
 
 The syntax of sp is
-sp <action> <scenario> <record>
+sp <action> <scenario> <record> <(optional) ns>
 where
 <action> indicates whether to run or stop speed profiling.
 <scenario> is a CML scenario file
 <record> specifies the record to simulate within the scenario.
+<(optional) ns> is an optional flag taking a single value 'ns'
+                which indicates that standalone simulation
+                will not be performed.
 
 
-After completion, a MATLAB figure of type .fig is placed in
+= Result Plotting =
+If standalone simulation has been performed, a MATLAB figure of type .fig is placed in
 /home/pcs/util/sp/output
 
 with naming convention
@@ -39,8 +43,6 @@ with naming convention
 containing the results of speed profiling, which is a plot
 of trials computed as a function of time for both
 cluster and standalone simulation.
-
-
 
 
 = Example 1 - profile uncoded BPSK in Rayleigh Fading:
@@ -57,6 +59,27 @@ record 2 - uncoded BPSK in Rayleigh fading.
 
 executes a speed profiling job and stops prior to completion.
 In this case, no results are generated.
+
+
+
+
+
+== Running Multiple Speed Profiling Simulations in Sequence ==
+
+The script
+ spm
+
+executes multiple speed profiling simulations one at a time.
+
+The syntax of spm is
+ spm <scenario> <record 1> <record 2> ... <record N>
+
+The script executes each record using the 'sp' script without
+standalone simulation.  Once spm has completed, the user accesses
+results by reading the completed project files contained in
+
+/home/pcs/Projects/cml/JobOut
+
 
 
 

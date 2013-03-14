@@ -30,6 +30,7 @@ RECORD=$7
 
 FIG_DIR=$8       # speed test result output
 FIG_FONTSIZE=$9  # font size for trial figure
+NS=$10           # no standalone simulation if "true"
 
 
 check_for_screen_session(){
@@ -92,8 +93,13 @@ create_table(){
 }
 
 monitor_sims
+
+# if standalone simulation requested, plot data and create table
+if [ ! -z "$NS" ]
+then
 plot_data 
 create_table
+fi
 
 #     This library is free software; you can redistribute it and/or modify it under the terms of
 #     the GNU Lesser General Public License as published by the
