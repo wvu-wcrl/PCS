@@ -44,9 +44,24 @@
 # 2. Move cluster simulation job file from JobRunning to JobOut
 
 
+### error check input
+if [ $# -lt 3 ]
+then
+echo "Not enough input arguments."
+echo
+echo "Usage:"
+echo "sp {run|stop} {scenario} {record} {optional:ns}"
+exit 1
+fi
+
 ACTION=$1
 SCENARIO=$2                          # cml scenario and record to simulate
 RECORD=$3
+
+if [ $# -gt 3 ]
+then
+NS="true"
+fi
 
 ST_ROOT=`pwd`                        # speed test root
 SUPP_DIR=$ST_ROOT/supp               # supporting matlab and bash scripts
@@ -106,7 +121,7 @@ screen -S $C_SS -m -d matlab -r "cd $CML_ROOT; CmlStartup; CmlClusterSubmit('$SC
 
 
 start_monitor(){
-screen -S $M_SS -m -d $SUPP_DIR/monitor_sims $SC_SS $C_SS $JOB_OUT_FN $CML_ROOT $SUPP_DIR $SCENARIO $RECORD $FIG_DIR $FIG_FONTSIZE
+screen -S $M_SS -m -d $SUPP_DIR/monitor_sims $SC_SS $C_SS $JOB_OUT_FN $CML_ROOT $SUPP_DIR $SCENARIO $RECORD $FIG_DIR $FIG_FONTSIZE $NS
 }
 
 
@@ -114,7 +129,13 @@ case "$ACTION" in
 
 run)
 destroy_existing_speed_test
+
+# don't start standalone if requested by user
+if [ -z "$NS" ]
+then
 start_local_sim 
+fi
+
 start_cluster_sim 
 start_monitor
 ;;
