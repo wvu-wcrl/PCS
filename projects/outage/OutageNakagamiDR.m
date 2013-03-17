@@ -20,6 +20,7 @@ classdef OutageNakagamiDR < handle
         Omega_j           % Power of each transmitter
         Xi                % coefficients X_i
         li                % terms used to compute X_i
+        TableDir
     end
     
     properties (GetAccess='private' , SetAccess='private')
@@ -31,36 +32,15 @@ classdef OutageNakagamiDR < handle
         % constructor
         function obj = OutageNakagamiDR( varargin )
             
-            % X_i, alpha, m, m_i, C, Omega_j
-            if (nargin == 6)
-                
-                X_i = varargin{1};
-                alpha = varargin{2};
-                obj.m = varargin{3};
-                obj.m_i = varargin{4};
-                obj.C = varargin{5};
-                obj.Omega_j  = varargin{6};
-                
-                % Compute Omega
-                obj.Omega_i = abs(X_i).^(-alpha);
-                
-            else % Omega_i, m, m_i, C, Omega_j
-                obj.Omega_i = varargin{1};
-                obj.m = varargin{2};
-                obj.m_i = varargin{3};
-                obj.C = varargin{4};
-                obj.Omega_j  = varargin{5};
-            end
             
-            % determine the number of networks and interferers 
+            obj.Omega_i = varargin{1};
+            obj.m = varargin{2};
+            obj.m_i = varargin{3};
+            obj.C = varargin{4};
+            obj.Omega_j  = varargin{5};
+            
+            % determine the number of networks and interferers
             [obj.N obj.M] = size( obj.Omega_i );
-            
-            % normalize by m_i
-            if (length( obj.m_i ) == 1)
-                obj.Omega_i_norm = obj.Omega_i./repmat( obj.m_i, obj.N, obj.M);
-            else
-                obj.Omega_i_norm = obj.Omega_i./repmat( obj.m_i, obj.N, 1);
-            end
             
             % distinction between the two cases:
             % 1- The normalized received powers are the same for all the
@@ -69,17 +49,59 @@ classdef OutageNakagamiDR < handle
             % transmitters;
             
             if length(unique(obj.Omega_j))==1 || obj.C==1
-                obj.ComputeIndicesE( );
-                % if the normalized power is the same for all the transmitters just use the first and save memory 
                 obj.Omega_j=obj.Omega_j(1);
                 obj.m=obj.m(1);
             elseif length(unique(obj.Omega_j))==obj.C
-                obj.ComputeIndices( );
-                % compute the index X_i
                 obj.ComputeXi();
             else
                 fprintf('Error');
                 return;
+            end
+            
+            obj.TableDir = varargin{6};
+            
+            if length(unique(obj.Omega_j))==1 || obj.C==1
+                IndexTable = [obj.TableDir 'IndicesEM' int2str( obj.M ) 'm' int2str(obj.m) 'mi' int2str(obj.m_i) '.mat'];
+            elseif length(unique(obj.Omega_j))==obj.C && length(unique(obj.m))==1
+                IndexTable = [obj.TableDir 'IndicesM' int2str( obj.M ) 'm' int2str(obj.m(1)) 'mi' int2str(obj.m_i) '.mat'];
+            end
+            
+            if length(unique(obj.m))==1
+                % either create or load the file
+                try
+                    % try to load the file
+                    load( IndexTable, 'indices','coefficients' );
+                    
+                    % it loaded, assign results to indices
+                    obj.indices = indices;
+                    obj.coefficients = coefficients;
+                catch
+                    
+                    % distinction between the two cases:
+                    % 1- The normalized received powers are the same for all the
+                    % transmitters;
+                    % 2- The normalized received powers are all different for the
+                    % transmitters;
+                    
+                    if length(unique(obj.Omega_j))==1 || obj.C==1
+                        obj.ComputeIndicesE( );
+                    elseif length(unique(obj.Omega_j))==obj.C && length(unique(obj.m))==1
+                        obj.ComputeIndices( );
+                    end
+                    
+                    indices = obj.indices;
+                    coefficients = obj.coefficients;
+                    save( IndexTable, 'indices','coefficients' );
+                    
+                end
+            end
+            
+            
+            % normalize by m_i
+            if (length( obj.m_i ) == 1)
+                obj.Omega_i_norm = obj.Omega_i./repmat( obj.m_i, obj.N, obj.M);
+            else
+                obj.Omega_i_norm = obj.Omega_i./repmat( obj.m_i, obj.N, 1);
             end
             
         end
@@ -93,20 +115,51 @@ classdef OutageNakagamiDR < handle
             for r=1:(obj.m-1)
                 % initialize this member of the cell arrays
                 obj.indices{r+1} = allVL1(obj.M,r);
-                obj.coefficients{r+1} = ones( size( obj.indices{r+1} ) );
+                obj.coefficients{r+1} = ones( length(unique(obj.indices{r+1})),obj.M );
                 for ell=1:r
                     if ( size( obj.m_i ) == 1)
                         % all m_i are the same
                         this_coef = gamma( ell + obj.m_i )/factorial(ell)/gamma( obj.m_i );
                         % the following line requires m_i to be integer valued
                         % this_coef = nchoosek( ell + obj.m_i - 1, obj.m_i - 1);
-                        obj.coefficients{r+1}( obj.indices{r+1} == ell ) = this_coef;
+                        obj.coefficients{r+1}( ell,: ) = this_coef*ones(1,obj.M);
                     else
                         for node=1:obj.M
                             this_coef = gamma( ell + obj.m_i(node) )/factorial(ell)/gamma( obj.m_i(node) );
                             % the following line requires m_i to be integer valued
                             % this_coef = nchoosek( ell + obj.m_i(node) - 1, obj.m_i(node) - 1);
-                            obj.coefficients{r+1}( (obj.indices{r+1}(:,node) == ell), node ) = this_coef;
+                            obj.coefficients{r+1}( ell,node ) = this_coef;
+                        end
+                    end
+                end
+            end
+        end
+        
+        
+        
+        function obj = ComputeIndicesDM( obj,mDM )
+            % create the indices structure
+            % for r+1=1, the only set of indices is all zeros
+            obj.indices{1} = zeros( 1, obj.M );
+            obj.coefficients{1} = ones( 1, obj.M );
+            
+            for r=1:(mDM-1)
+                % initialize this member of the cell arrays
+                obj.indices{r+1} = allVL1(obj.M,r);
+                obj.coefficients{r+1} = ones( length(unique(obj.indices{r+1})),obj.M );
+                for ell=1:r
+                    if ( size( obj.m_i ) == 1)
+                        % all m_i are the same
+                        this_coef = gamma( ell + obj.m_i )/factorial(ell)/gamma( obj.m_i );
+                        % the following line requires m_i to be integer valued
+                        % this_coef = nchoosek( ell + obj.m_i - 1, obj.m_i - 1);
+                        obj.coefficients{r+1}( ell,: ) = this_coef*ones(1,obj.M);
+                    else
+                        for node=1:obj.M
+                            this_coef = gamma( ell + obj.m_i(node) )/factorial(ell)/gamma( obj.m_i(node) );
+                            % the following line requires m_i to be integer valued
+                            % this_coef = nchoosek( ell + obj.m_i(node) - 1, obj.m_i(node) - 1);
+                            obj.coefficients{r+1}( ell,node ) = this_coef;
                         end
                     end
                 end
@@ -123,20 +176,20 @@ classdef OutageNakagamiDR < handle
             for r=1:(obj.C*obj.m-1)
                 % initialize this member of the cell arrays
                 obj.indices{r+1} = allVL1(obj.M,r);
-                obj.coefficients{r+1} = ones( size( obj.indices{r+1} ) );
+                obj.coefficients{r+1} = ones( length(unique(obj.indices{r+1})),obj.M );
                 for ell=1:r
                     if ( size( obj.m_i ) == 1)
                         % all m_i are the same
                         this_coef = gamma( ell + obj.m_i )/factorial(ell)/gamma( obj.m_i );
                         % the following line requires m_i to be integer valued
                         % this_coef = nchoosek( ell + obj.m_i - 1, obj.m_i - 1);
-                        obj.coefficients{r+1}( obj.indices{r+1} == ell ) = this_coef;
+                        obj.coefficients{r+1}( ell,: ) = this_coef*ones(1,obj.M);
                     else
                         for node=1:obj.M
                             this_coef = gamma( ell + obj.m_i(node) )/factorial(ell)/gamma( obj.m_i(node) );
                             % the following line requires m_i to be integer valued
                             % this_coef = nchoosek( ell + obj.m_i(node) - 1, obj.m_i(node) - 1);
-                            obj.coefficients{r+1}( (obj.indices{r+1}(:,node) == ell), node ) = this_coef;
+                            obj.coefficients{r+1}( ell,node ) = this_coef;
                         end
                     end
                 end
@@ -206,7 +259,7 @@ classdef OutageNakagamiDR < handle
             
             u=obj.Omega_j'./(obj.m)';
             if obj.C==1
-                Ti=1*ones(1,obj.m);
+                Ti=[zeros(1,obj.m-1),1];
             else
                 for i=1:obj.C
                     for k=1:obj.m(i)
@@ -222,7 +275,6 @@ classdef OutageNakagamiDR < handle
                             Ti(k+sum(obj.m(1:i-1))*(i>1))=T;
                         elseif obj.C>3
                             T=0;
-                            k
                             obj.GenerateTable(k,obj.m(i));
                             [N1,M1]=size(obj.li);
                             for lk=1:N1
@@ -240,9 +292,10 @@ classdef OutageNakagamiDR < handle
             end
             obj.Xi=Ti;
         end
-
         
-        function epsilon = ComputeSingleOutage( obj, Gamma, Beta, p )
+        
+        
+        function epsilon = ComputeSingleOutage( obj, Gamma, Beta, p)
             % computes the outage for a single set of beta, gamma, and p
             % averaged over the N networks
             
@@ -250,54 +303,80 @@ classdef OutageNakagamiDR < handle
             z = 1./Gamma;
             
             % determine how many SNR points
-            NumberSNR = length( Gamma );
+            NumberBeta = length( Beta );
             
             % initialize epsion
-            epsilon = zeros(1,NumberSNR);
+            epsilon = zeros(1,NumberBeta);
             
             % loop over the N networks
             if length(unique(obj.Omega_j))==1 || obj.C==1
                 
                 % loop over the N networks
                 for trial=1:obj.N
-                    sum_s = zeros(1,NumberSNR);
+                    sum_s = zeros(1,NumberBeta);
                     for s=0:obj.C*obj.m-1
-                        sum_r = zeros(1,NumberSNR);
+                        sum_r = zeros(1,NumberBeta);
                         for r=0:s
-                            sum_ell = 0;
+                            sum_ell = zeros(1,NumberBeta);
                             for ellset=1:size( obj.indices{r+1}, 1)
                                 elli = obj.indices{r+1}(ellset,:); % the vector of indices
-                                coef = obj.coefficients{r+1}(ellset,:); % the multinomial coefficients
-                                factors = coef.*obj.Omega_i_norm(trial,:).^elli./( (Beta/obj.Omega_j*obj.m*obj.Omega_i_norm(trial,:)+1).^(elli+obj.m_i) );
-                                sum_ell = sum_ell + prod( p*factors + (1-p)*(elli==0) );
+                                [L,~]=size(obj.coefficients{r+1});
+                                index=((1:obj.M)-1)*L+(elli+1);
+                                coef = obj.coefficients{r+1}(index); % the multinomial coefficients
+                                factors = (repmat(coef.*obj.Omega_i_norm(trial,:).^elli,length(Beta),1))./(((repmat(Beta,obj.M,1))'.*repmat(obj.m*obj.Omega_i_norm(trial,:)/obj.Omega_j,length(Beta),1)+1).^(repmat(elli+obj.m_i,length(Beta),1)));
+                                sum_ell = sum_ell + prod( (p*factors + (1-p)*repmat((elli==0),length(Beta),1))' );
                             end
                             sum_r = sum_r + z.^(-r)*sum_ell/factorial(s-r);
                         end
-                        sum_s = sum_s + ((Beta/obj.Omega_j*obj.m*z).^s).*sum_r;
+                        sum_s = sum_s + ((Beta./obj.Omega_j*obj.m*z).^s).*sum_r;
                     end
-                    epsilon = epsilon + 1 - sum_s.*exp(-Beta/obj.Omega_j*obj.m*z);
+                    epsilon = epsilon + 1 - sum_s.*exp(-Beta./obj.Omega_j*obj.m*z);
                 end
             elseif length(unique(obj.Omega_j))==obj.C
                 for trial=1:obj.N
                     for j=1:obj.C
+                        
+                        if length(unique(obj.m))~=1
+                            IndexTable = [obj.TableDir 'IndicesM' int2str( obj.M ) 'm' int2str(obj.m(j)) 'mi' int2str(obj.m_i) '.mat'];
+                            % either create or load the file
+                            try
+                                % try to load the file
+                                load( IndexTable, 'indices','coefficients' );
+                                
+                                % it loaded, assign results to indices
+                                obj.indices = indices;
+                                obj.coefficients = coefficients;
+                            catch
+                                                                
+                                obj.ComputeIndicesDM(obj.m(j));
+                                
+                                indices = obj.indices;
+                                coefficients = obj.coefficients;
+                                save( IndexTable, 'indices','coefficients' );
+
+                            end
+                        end
+
                         for n=1:obj.m(j)
-                            sum_n = zeros(1,NumberSNR);
+                            sum_n = zeros(1,NumberBeta);
                             for u=0:n-1
-                                sum_k = zeros(1,NumberSNR);
+                                sum_k = zeros(1,NumberBeta);
                                 for k=0:u
-                                    sum_ell = 0;
+                                    sum_ell = zeros(1,NumberBeta);
                                     for ellset=1:size( obj.indices{k+1}, 1)
                                         elli = obj.indices{k+1}(ellset,:); % the vector of indices
-                                        coef = obj.coefficients{k+1}(ellset,:); % the multinomial coefficients
-                                        factors = coef.*obj.Omega_i_norm(trial,:).^elli./( (Beta*obj.m(j)/obj.Omega_j(j)*obj.Omega_i_norm(trial,:)+1).^(elli+obj.m_i) );
-                                        sum_ell = sum_ell + prod( p*factors + (1-p)*(elli==0) );
+                                        [L,~]=size(obj.coefficients{k+1});
+                                        index=((1:obj.M)-1)*L+(elli+1);
+                                        coef = obj.coefficients{k+1}(index); % the multinomial coefficients
+                                        factors = (repmat(coef.*obj.Omega_i_norm(trial,:).^elli,length(Beta),1))./(((repmat(Beta,obj.M,1))'.*repmat(obj.m(j)*obj.Omega_i_norm(trial,:)/obj.Omega_j(j),length(Beta),1)+1).^(repmat(elli+obj.m_i,length(Beta),1)));
+                                        sum_ell = sum_ell + prod( (p*factors + (1-p)*repmat((elli==0),length(Beta),1))' );
                                     end
                                     sum_k = sum_k + z.^(-k)*sum_ell/factorial(u-k);
                                 end
-                                sum_n=sum_n+((Beta*obj.m(j).*z/obj.Omega_j(j)).^u).*sum_k;
+                                sum_n=sum_n+((Beta.*obj.m(j).*z/obj.Omega_j(j)).^u).*sum_k;
                             end
                             T=obj.Xi(n+sum(obj.m(1:j-1))*(j>1));
-                            epsilon = epsilon + T.*ones(1,NumberSNR)- T.*exp(-Beta*obj.m(j).*z/obj.Omega_j(j)).*sum_n;
+                            epsilon = epsilon + T.*ones(1,NumberBeta)- T.*exp(-Beta.*obj.m(j).*z/obj.Omega_j(j)).*sum_n;
                         end
                     end
                 end
@@ -331,6 +410,7 @@ classdef OutageNakagamiDR < handle
             
             % note that the Gamma, Beta, p properties of the class are never actually set
         end
+        
     end
     
 end
