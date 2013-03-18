@@ -181,23 +181,24 @@ while(1)
             %        
 	        
 
-
+	% reset path to default
         path(default_path); 
 
         % if the error results from a consumed file, do not write to the log file
         if isempty(strfind(exception.message, 'Unable to read file'))
+
+        % get the current user and location
+        [name_loc en] = get_name_loc(next_running);	
 
 	% the task failed to execute.  write the appropriate log message,
         % including MATLAB's exception message, allowing debugging.
         write_task_failed_to_log(next_input, next_running, IS_NOT_VERBOSE,...
                                   VERBOSE_MODE, name_loc, exception.message );
 
-
         % write error message to TaskInfo
         TaskInfo.ErrorMsg = exception.message;
 
         TaskInfo.StopTime = clock;
-
 
         % append "_failed" to the task filename and move to output queue
         move_failed_task_to_output_queue(next_input, TaskParam, TaskInfo, oq, next_running, rq);
