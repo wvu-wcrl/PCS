@@ -4,11 +4,14 @@
 %
 % Functionality
 %  1. General-purpose file parser, fp()
+%  2. Figure exporting as EPS or PDF with adjusted bounding boxes,
+%      plexport()
 %
 % Version 1, 02/27/2011, Terry Ferrett
 % Version 2, 08/01/2012, Mohammad Fanaei
+% Version 3, 3/19/2013, Terry Ferrett
 %
-%     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
+%     Copyright (C) 2012, Terry Ferrett, Mohammad Fanaei and Matthew C. Valenti
 %     For full copyright information see the bottom of this file.
 
 
@@ -54,7 +57,7 @@ classdef util < handle
                     
                     % Remove equal sign
                     l_val = strtok(l_val(2:end), '=');
-
+                    
                     
                     % Ignore ';' at the end of line, if any.
                     Ind_lVal = strfind(l_val, ';');
@@ -63,7 +66,7 @@ classdef util < handle
                     switch l_key
                         case key
                             temp_cell = textscan(l_val, '%s');
-
+                            
                             out{k} = temp_cell{1};
                             k = k+1;
                         otherwise
@@ -85,6 +88,33 @@ classdef util < handle
                 out = {};
             end
         end
+        
+        % exports figure handles as .pdf files. Linux-specific.
+        function plexport(fhd, it, figpath)
+            
+            switch it
+                case 'eps'
+                    epsfn = [figpath '.eps']
+                    print(fhd, '-depsc', '-r600', epsfn);
+                case 'pdf'
+                    tmpprefix = '/var/tmp/tmpimg';
+                    tmpeps = [tmpprefix '.eps'];
+                    print(fhd, '-depsc', tmpeps);
+                    
+                    cmd = ['epstopdf' ' ' tmpeps];
+                    system(cmd);
+                    
+                    tmppdf = [tmpprefix '.pdf'];
+                    pdffn = [figpath '.pdf'];
+                    cmd = ['mv' ' ' tmppdf ' ' pdffn];
+                    system(cmd);
+                otherwise
+                    error('Image export type must be ''eps'' or ''pdf'' ');
+            end
+            
+        end
+        
+        
         
     end
 end
