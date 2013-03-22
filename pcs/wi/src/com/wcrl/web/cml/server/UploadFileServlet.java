@@ -30,7 +30,7 @@ import com.wcrl.web.cml.client.account.User;
       
 	 private static final long serialVersionUID = -1660370413961174966L;
 	 private Map<String, String> jobDetailsMap = new HashMap<String, String>();
-	 private ArrayList<String> allowedFormats = new ArrayList<String>();
+	 //private ArrayList<String> allowedFormats = new ArrayList<String>();
 	 private String login;
 	 private String project;
 	 private String overwrite;
@@ -49,51 +49,11 @@ import com.wcrl.web.cml.client.account.User;
     	 if (session.getAttribute("Username") != null)
     	 {
              // process only multipart requests
-        	 DBConnection connection = new DBConnection();
+        	 
         	 response.setContentType("text/html");
         	 String path = constants.getString("path");
     	
-        	ResultSet rs = null;
-     		try
-     		{
-     			connection.openConnection();
-     			CallableStatement cs = connection.getConnection().prepareCall("{ call GetJobFileExtensions() }");
-     		    boolean hasResults = cs.execute();
-     	  
-     		    if(hasResults)
-     		    {
-    		    	rs = cs.getResultSet();
-     		    	allowedFormats.clear();
-     		    	while(rs.next())
-    				{
-     		    		allowedFormats.add(rs.getString("FileExtension"));
-    				}
-     		    } 	
-     		    rs.close();
-     		}
-     		catch(SQLException e)
-     		{
-     			e.printStackTrace();
-     		}
-     		finally
-     		{
-     			try 
-    			{
-    				if(rs != null && !rs.isClosed())
-    				{
-    					rs.close();
-    				}
-    				if(connection.getConnection() != null)
-    				{
-    					connection.closeConnection();				
-    				}
-    			} 
-    			catch (SQLException e) 
-    			{			
-    				e.printStackTrace();
-    			}
-     		}
-     		
+        	    		
              if (ServletFileUpload.isMultipartContent(request)) 
              {            
                  FileItemFactory factory = new DiskFileItemFactory();
@@ -113,6 +73,9 @@ import com.wcrl.web.cml.client.account.User;
                      project = jobDetailsMap.get("projectName");
                      login = jobDetailsMap.get("user");
                      overwrite = jobDetailsMap.get("overwrite");
+                     
+                     ArrayList<String> allowedFormats = getJobFileExtensions(project);                    
+                     
                      
                      //System.out.println(" Items size:" + items.size() + " Login: " + login + " Project: " + project);
                      boolean fileFlag = true;  
@@ -198,6 +161,54 @@ import com.wcrl.web.cml.client.account.User;
              }  
     	 }       
      }    
+     
+     private  ArrayList<String> getJobFileExtensions(String project)
+     {
+    	 ArrayList<String> allowedFormats = new ArrayList<String>();
+    	 DBConnection connection = new DBConnection();
+    	 ResultSet rs = null;
+  		try
+  		{
+  			connection.openConnection();
+  			CallableStatement cs = connection.getConnection().prepareCall("{ call GetJobFileExtensions(?) }");
+  			cs.setString(1, project);
+  		    boolean hasResults = cs.execute();
+  	  
+  		    if(hasResults)
+  		    {
+ 		    	rs = cs.getResultSet();
+  		    	allowedFormats.clear();
+  		    	while(rs.next())
+ 				{
+  		    		allowedFormats.add(rs.getString("FileExtension"));
+ 				}
+  		    } 	
+  		    rs.close();
+  		}
+  		catch(SQLException e)
+  		{
+  			e.printStackTrace();
+  		}
+  		finally
+  		{
+  			try 
+ 			{
+ 				if(rs != null && !rs.isClosed())
+ 				{
+ 					rs.close();
+ 				}
+ 				if(connection.getConnection() != null)
+ 				{
+ 					connection.closeConnection();				
+ 				}
+ 			} 
+ 			catch (SQLException e) 
+ 			{			
+ 				e.printStackTrace();
+ 			}
+  		}
+		return allowedFormats;
+     }
      
      private User getUser(String login) 
  	{

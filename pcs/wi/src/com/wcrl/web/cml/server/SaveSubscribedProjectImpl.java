@@ -18,7 +18,7 @@ public class SaveSubscribedProjectImpl extends RemoteServiceServlet implements S
 	
 	private static final long serialVersionUID = 1L;	
 	
-	public int saveProject(int projectId, int userId, int preferredProject, String login, String projectName)
+	public int saveProject(int projectId, int userId, int addProjectDirectory, String login, String projectName, int preferredProject)
 	{			
 		int project = -1;
 		CallableStatement cs;			
@@ -34,14 +34,11 @@ public class SaveSubscribedProjectImpl extends RemoteServiceServlet implements S
 			cs.close();
 			project = projectId;
 			System.out.println("Save project: " + userId + " " + projectId + " " + preferredProject + " project: " + project);	
-			if(preferredProject == 0)
+			if(addProjectDirectory == 0)
 			{
-				/*ProjectDirectories projectDirectories = new ProjectDirectories();
-				projectDirectories.createUserProjectDirectories(login, projectName);
-				projectDirectories.copyProjectConfigFile(projectName, login);*/
 				if(File.separator.equals("/"))
 				{
-					createProjectDirectories(projectName, login);
+					createProjectDirectories(login, projectName);
 				}
 			}
 		}
@@ -56,16 +53,23 @@ public class SaveSubscribedProjectImpl extends RemoteServiceServlet implements S
 	public void createProjectDirectories(String username, String project) 
 	{
 		 ResourceBundle scriptsPathConstants = ResourceBundle.getBundle("Scripts");
-		 File wd = new File(scriptsPathConstants.getString("project"));
-		 String path = wd + File.separator;
+		 ResourceBundle pathConstants = ResourceBundle.getBundle("Paths");
+		 String usersRootPath = pathConstants.getString("path");
+		 
+		 //File wd = new File(scriptsPathConstants.getString("project"));
+		 String path = scriptsPathConstants.getString("project").trim() + File.separator + scriptsPathConstants.getString("create_proj").trim();
 		 System.out.println("Working Directory of project script: " + path);
-		 Log.info("Working Directory of project script: " + path);	     
-	     @SuppressWarnings("unused")
-	     Process proc = null;
+		 Log.info("Project creation script: " + path);	     
+	   
 	     try 
 	     {
-	    	 proc = Runtime.getRuntime().exec(path + scriptsPathConstants.getString("create_proj") + " " + project + " " + username, null);
-	    	 Log.info("After executing project script." + path);
+	    	 String homeDir = usersRootPath + username;
+	    	 ProcessBuilder processBuilder = new ProcessBuilder();
+	    	 processBuilder.command(path, homeDir, username, project);	 
+	    	 Process proc = processBuilder.start();
+	    	 int exitValue = proc.waitFor();    	 
+	    	 Log.info("CreateProjectDirectories after executing project creation script: " + path + " exitValue: " + exitValue);
+	    	 Log.info("CreateProjectDirectories after executing project creation script parameters: " + homeDir + ", " + username + ", " + project);
 	     }	    
 		 catch (Exception e)
 		 {

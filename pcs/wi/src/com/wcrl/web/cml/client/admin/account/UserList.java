@@ -30,6 +30,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -38,6 +39,8 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
+import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
@@ -51,6 +54,8 @@ import com.wcrl.web.cml.client.admin.accountService.DeleteUsersService;
 import com.wcrl.web.cml.client.admin.accountService.DeleteUsersServiceAsync;
 import com.wcrl.web.cml.client.admin.accountService.GetUsersService;
 import com.wcrl.web.cml.client.admin.accountService.GetUsersServiceAsync;
+import com.wcrl.web.cml.client.admin.accountService.SaveandDownloadUserListFileService;
+import com.wcrl.web.cml.client.admin.accountService.SaveandDownloadUserListFileServiceAsync;
 import com.wcrl.web.cml.client.custom.CustomSimplePager;
 import com.wcrl.web.cml.client.login.Login;
 import com.wcrl.web.cml.client.user.accountService.ResetPasswordAndSendEmailService;
@@ -58,6 +63,7 @@ import com.wcrl.web.cml.client.user.accountService.ResetPasswordAndSendEmailServ
 
 public class UserList extends Composite implements ClickHandler
 {
+	private static String DOWNLOAD_ACTION_URL = GWT.getModuleBaseURL() + "downloadUserListFile";
 	private ClientContext ctx;
 	private User currentUser;
 	private VerticalPanel vPanel;
@@ -73,6 +79,7 @@ public class UserList extends Composite implements ClickHandler
 	private Label lblMsg;
 	private HorizontalPanel buttonPanel;
 	private Button btnSendEmail;	
+	private Button btnDownloadUserList;
 	private Button btnDelete;
 	private UserItems userItems;
 	private final int PAGE_COUNT = 25;
@@ -143,7 +150,7 @@ public class UserList extends Composite implements ClickHandler
 	    vPanel.setVerticalAlignment(VerticalPanel.ALIGN_TOP);
 		
 		lblMsg = new Label();
-		btnAddUsers = new Button("Add Users");
+		btnAddUsers = new Button("Add users");
 		btnAddUsers.addClickHandler(this);
 		linksPanel = new HorizontalPanel();		
 		hlAll = new Anchor("All");
@@ -158,15 +165,18 @@ public class UserList extends Composite implements ClickHandler
 		linksPanel.add(hlNone);
 		
 		buttonPanel = new HorizontalPanel();
-		btnSendEmail = new Button("Email");
-		btnDelete = new Button("Delete");
+		btnSendEmail = new Button("Reset password and Email");
+		btnDelete = new Button("Disable");
+		btnDownloadUserList = new Button("Export users"); 
 		
 		buttonPanel.add(btnSendEmail);
 		buttonPanel.add(btnDelete);
 		buttonPanel.add(btnAddUsers);
+		buttonPanel.add(btnDownloadUserList);
 				
 		btnSendEmail.addClickHandler(this);
 		btnDelete.addClickHandler(this);
+		btnDownloadUserList.addClickHandler(this);
 				
 		lblMsg.addStyleName("warnings");
    		
@@ -230,6 +240,16 @@ public class UserList extends Composite implements ClickHandler
 			service.resetAndSendEmail(emailUsers, resetSendEmailCallback);
 		}
 		
+		if(sender == btnDownloadUserList)
+		{
+			ArrayList<User> users = getUserList();			
+			if(users.size() > 0)
+			{
+				SaveandDownloadUserListFileServiceAsync service = SaveandDownloadUserListFileService.Util.getInstance();
+				service.saveandDownloadUserListFile(users, downloadUserListCallback);				
+			}			
+		}
+		
 		//Send a request to the server to delete users
 		if(sender == btnDelete)
 		{
@@ -244,6 +264,24 @@ public class UserList extends Composite implements ClickHandler
 				}
 			}			
 		}		
+	}
+	
+	//Get a list of selected users
+	 private ArrayList<User> getUserList() 
+	 {
+		 ArrayList<User> users = new ArrayList<User>();
+		 List<User> lst = dataProvider.getList();
+		 for(int i = 0; i < lst.size(); i++)
+		 {
+				User item = lst.get(i);
+				boolean selected = selectionModel.isSelected(item);
+				//Log.info("User: " + item.getUserId() + " Checked: " + selected);
+				if (selected) 
+				{				
+					users.add(item);					
+	            }
+		 }			
+		return users;
 	}
 	
 	//Get a list of selected users
@@ -427,11 +465,15 @@ public class UserList extends Composite implements ClickHandler
 	    	  String status = "";
 	    	  if(value == 1)
 	    	  {
-	    		  status = "Approved";
+	    		  status = "Enabled";
 	    	  }
 	    	  else if(value == 0)
 	    	  {
 	    		  status = "Not approved";
+	    	  }
+	    	  else if(value == 2)
+	    	  {
+	    		  status = "Disabled";
 	    	  }
 	        return status;
 	      }
@@ -502,7 +544,7 @@ public class UserList extends Composite implements ClickHandler
 					List<User> userList = dataProvider.getList();
 					Iterator<User> itr = userList.iterator();
 					int index = 0;
-					lblMsg.setText("All the selected users are deleted.");
+					lblMsg.setText("All the selected users are disabled.");
 					for(int cnt  =  0; cnt < userIds.size(); cnt++)
 					{
 						int userId = userIds.get(cnt);
@@ -517,11 +559,17 @@ public class UserList extends Composite implements ClickHandler
 							User user = itr.next();
 							if(user.getUserId() == userId)
 							{
+								user.setStatus(2);
+								if(selectionModel.isSelected(user))
+								{
+									selectionModel.setSelected(user, false);
+								}
+								dataProvider.getList().set(index, user);
 								break;
 							}
 							index = index + 1;
 						}
-						dataProvider.getList().remove(index);					
+						//dataProvider.getList().remove(index);					
 					}
 					dataProvider.refresh();					
 					currentUser.setUserItems(useritems);
@@ -532,6 +580,50 @@ public class UserList extends Composite implements ClickHandler
 					lblMsg.setText("Error in deleting selected users. Please try again later.");
 				}				
 			}						
+		}
+	};
+	
+	AsyncCallback<Boolean> downloadUserListCallback = new AsyncCallback<Boolean>()
+	{
+		public void onFailure(Throwable caught)
+		{
+			Log.info("UserList deleteUsersCallback error: " + caught.toString());
+		}
+		public void onSuccess(Boolean value)
+		{
+			if(value)
+			{
+				System.out.println("In form");
+				FormPanel form = new FormPanel();
+				form.setAction(DOWNLOAD_ACTION_URL);
+				form.setEncoding(FormPanel.ENCODING_MULTIPART);
+				form.setMethod(FormPanel.METHOD_POST);
+				vPanel.add(form);
+				form.submit();
+				form.addSubmitHandler(new FormPanel.SubmitHandler() 
+		        {
+		        	public void onSubmit(SubmitEvent event) 
+		        	{
+		        		
+		        	}
+		        });
+				form.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() 
+		        {
+		            public void onSubmitComplete(SubmitCompleteEvent event) 
+		            {
+		            	 List<User> lst = dataProvider.getList();
+		        		 for(int i = 0; i < lst.size(); i++)
+		        		 {
+		        			 User item = lst.get(i);
+		        			 boolean selected = selectionModel.isSelected(item);
+		        			 if (selected)
+		        			 {
+		        				 selectionModel.setSelected(item, false);
+		        			 }
+		        		 }	
+		            }
+		        });
+			}
 		}
 	};
 }

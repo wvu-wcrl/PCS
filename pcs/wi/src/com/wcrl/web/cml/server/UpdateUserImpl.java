@@ -17,7 +17,7 @@ public class UpdateUserImpl extends RemoteServiceServlet implements UpdateUserSe
 	private static final long serialVersionUID = 1L;
 	private DBConnection connection = new DBConnection();
 		
-	public int updateUserStatus(int userId, int status, String username, String primaryEmail) 
+	public int updateUserStatus(int userId, int newStatus, int currentStatus, String username, String primaryEmail) 
 	{
 		int flag = -1;
 		try 
@@ -25,8 +25,8 @@ public class UpdateUserImpl extends RemoteServiceServlet implements UpdateUserSe
 			connection.openConnection();
 			CallableStatement cs = connection.getConnection().prepareCall("{ call UPDATEUSERSTATUS(?, ?) }");
 			cs.setInt(1, userId);
-			cs.setInt(2, status);
-			flag = 0;
+			cs.setInt(2, newStatus);
+			flag = newStatus;
 			cs.execute();	
 			cs.close();
 			
@@ -37,10 +37,38 @@ public class UpdateUserImpl extends RemoteServiceServlet implements UpdateUserSe
         	e.printStackTrace();
         }
     	
-    	ResetPasswordAndSendEmailImpl sendEmail = new ResetPasswordAndSendEmailImpl();
-		sendEmail.createUserDirectories(username);
-    	sendEmail.resetAndEmail(userId, username, primaryEmail);
+    	if(currentStatus == 0)
+    	{
+    		ResetPasswordAndSendEmailImpl sendEmail = new ResetPasswordAndSendEmailImpl();
+    		sendEmail.createUserDirectories(username);
+        	sendEmail.resetAndEmail(userId, username, primaryEmail);
+    	}
+    	
 		return flag;  
+	}
+	
+	public int updateNewsletterSubscription(int userId, int subscription)
+	{
+		int flag = -1;
+		try 
+    	{    		
+			connection.openConnection();
+			CallableStatement cs = connection.getConnection().prepareCall("{ call UPDATENEWSLETTERSUBSCRIPTION(?, ?) }");
+			cs.setInt(1, userId);
+			cs.setInt(2, subscription);
+			cs.execute();			
+			flag = 0;
+			cs.close();
+			System.out.println("user: " + userId + " subscription :" + subscription);
+			Log.info("subscription Flag:" + flag);
+			
+			connection.closeConnection();
+		}
+    	catch (SQLException e) 
+        {
+        	e.printStackTrace();
+        }
+		return flag;		
 	}
 	
 	public int updateFirstName(int userId, String firstName) 

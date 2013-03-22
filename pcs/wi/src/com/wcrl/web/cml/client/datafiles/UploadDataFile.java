@@ -55,7 +55,7 @@ public class UploadDataFile extends Composite implements ClickHandler, ChangeHan
     private FlexTable table = new FlexTable();
     private FileUpload upload = new FileUpload();
     //private FileUpload fileUpload = new FileUpload();
-    private TextBox tbName = new TextBox();
+    //private TextBox tbName = new TextBox();
     private TextBox tbDescription = new TextBox();
     //private TextArea txtFileNotes = new TextArea();
     private HTML txtWarnings = new HTML();
@@ -172,12 +172,12 @@ public class UploadDataFile extends Composite implements ClickHandler, ChangeHan
 			table.setCellSpacing(5);
 			table.setCellPadding(0);
 			table.setWidth("100%");
-			tbName.setWidth("300px");
+			//tbName.setWidth("300px");
 			//tbDescription.setWidth("300px");
 			//txtFileNotes.setHeight("75px");
 			upload.setName("uploadFormElement");
 			//fileUpload.setName("fileuploadFormElement");
-			tbName.setName("name");
+			//tbName.setName("name");
 			tbDescription.setName("description");
 			//txtFileNotes.setName("notes");
 			lbProjects.setName("projectDetails");
@@ -185,7 +185,7 @@ public class UploadDataFile extends Composite implements ClickHandler, ChangeHan
 			txtWarnings.setStylePrimaryName("warnings");
 			txtWarningDesc.setStylePrimaryName("warnings");
 			//txtFileNotes.setCharacterWidth(50);
-			tbName.setMaxLength(50);
+			//tbName.setMaxLength(50);
 			//tbDescription.setMaxLength(255);
 			//tbDescription.setText("");
 			txtLogin = new TextBox();
@@ -223,13 +223,13 @@ public class UploadDataFile extends Composite implements ClickHandler, ChangeHan
 			table.setWidget(0, 1, txtWarnings);
 			table.setText(1, 0, "");
 	        table.setWidget(1, 1, txtWarningDesc);
-	        table.setWidget(2, 0, new HTML("<b>Data filename:</b>&nbsp;&nbsp;&nbsp;"));
-			table.setWidget(2, 1, tbName);
-			table.setWidget(3, 0, new HTML("<b>File:</b>&nbsp;&nbsp;&nbsp;"));
+	        //table.setWidget(2, 0, new HTML("<b>Data filename:</b>&nbsp;&nbsp;&nbsp;"));
+			//table.setWidget(2, 1, tbName);
+			table.setWidget(3, 0, new HTML("File:&nbsp;&nbsp;&nbsp;"));
 			table.setWidget(3, 1, upload);
 			//table.setWidget(4, 0, new HTML("<b>Description:</b>&nbsp;&nbsp;&nbsp;"));
 			//table.setWidget(4, 1, fileUpload);
-			table.setWidget(5, 0, new HTML("<b>Project:</b>&nbsp;&nbsp;&nbsp;"));
+			table.setWidget(5, 0, new HTML("Project:&nbsp;&nbsp;&nbsp;"));
 			table.setWidget(5, 1, lbProjects);
 			//table.setWidget(6, 0, new HTML("<b>Notes:</b>&nbsp;&nbsp;&nbsp;"));
 			//table.setWidget(6, 1, txtFileNotes);
@@ -294,7 +294,7 @@ public class UploadDataFile extends Composite implements ClickHandler, ChangeHan
 	        			//txtWarningDesc.setHTML("*Please enter the Job name.");
 	        			event.cancel();
 	        		}
-	        		if((fileName1.length() == 0) && tbName.getText().length() != 0)
+	        		if(fileName1.length() == 0)
 	        		{
 	        			txtWarnings.setText("");
 	        			txtWarningDesc.setText("");

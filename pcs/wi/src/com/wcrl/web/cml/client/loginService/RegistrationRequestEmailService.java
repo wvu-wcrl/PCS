@@ -21,6 +21,6 @@ public interface RegistrationRequestEmailService extends RemoteService {
 		}
 	}
 	
-	public boolean sendEmail(String firstName, String lastName, String primaryEmail);
+	public boolean sendEmail(String firstName, String lastName, String primaryEmail, String username);
 
 }

@@ -154,7 +154,8 @@ public class Login extends Composite implements EntryPoint, ClickHandler
 		{
 			String username = getUsername();
 			String password = getPassword();
-			String usernameRegex = "^[A-Za-z][A-Za-z0-9._]+";
+			//String usernameRegex = "^[A-Za-z][A-Za-z0-9._]+";
+			String usernameRegex = "^[a-z][-a-z0-9_]*$";
 			String passwordRegex = "^.*(?=.{8,})(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(^[a-zA-Z0-9@$=!:.#%]+$)";
 
 			if(username.matches(usernameRegex))

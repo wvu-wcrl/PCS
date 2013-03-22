@@ -32,14 +32,15 @@ public class ArchiveJobImpl extends RemoteServiceServlet implements ArchiveJobSe
 		String projectName = item.getProjectName();
 		String userName = item.getUsername();
 					
+		String userProjectPath = userName + File.separator + projectConstant + File.separator + projectName + File.separator;
 		String rootPath = path + userName + File.separator + projectConstant + File.separator + projectName + File.separator;
 		ArchiveJobsImpl archive = new ArchiveJobsImpl();
 		Map<Integer, String[]> outputFiles = new HashMap<Integer, String[]>();
-		if(archive.checkAndMoveFile(statusDirectory, fileName, rootPath))
+		if(archive.checkAndMoveFile(statusDirectory, fileName, rootPath, userProjectPath))
 		{				
 			//String newPath = rootPath + constants.getString("Suspend") + File.separator;
-			String suspendConstant = constants.getString("Suspend");
-			String filePath = rootPath + suspendConstant + File.separator + fileName;
+			String archiveConstant = constants.getString("archive");
+			String filePath = rootPath + archiveConstant + File.separator + fileName;
 			String[] fileData = new String[2];
 			fileData[0] = fileName;
 			fileData[1] = filePath;
@@ -47,7 +48,7 @@ public class ArchiveJobImpl extends RemoteServiceServlet implements ArchiveJobSe
 			
 			//GetJobDetails jobDetails = new GetJobDetails();				
 			//outputFiles = jobDetails.getOutputFiles(newPath, fileName, outputFiles);
-			item.setStatus(suspendConstant);
+			item.setStatus("Archived");
 			//item.setOutputFiles(outputFiles);
 		}
 		System.out.println("Output files after suspension: " + item.getOutputFiles().size() + " Status: " + item.getStatus() + " Job: " + item);

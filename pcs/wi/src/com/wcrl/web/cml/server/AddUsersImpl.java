@@ -30,9 +30,14 @@ public class AddUsersImpl extends RemoteServiceServlet implements AddUsersServic
 		//ArrayList to store the usernames that are not created (A Reason - Username might already exist in the database)
 		ArrayList<String> errorUsersList = new ArrayList<String>();
 		HttpSession session = this.getThreadLocalRequest().getSession();
+		System.out.println("# users: " + usernames.length);
+		Log.info("# users: " + usernames.length);
+		System.out.println("Session: " + session.getAttribute("Username"));
+		Log.info("Session: " + session.getAttribute("Username"));
 		if (session.getAttribute("Username") != null)
 		{
 			Log.info("AddUsersImpl Number of users to create: " + usernames.length);
+			System.out.println("AddUsersImpl Number of users to create: " + usernames.length);
 			Set<Entry<Integer, String>> projectSet = subscribedProjectsMap.entrySet();
 			for(int i = 0; i < usernames.length; i++)
 			{				
@@ -53,8 +58,9 @@ public class AddUsersImpl extends RemoteServiceServlet implements AddUsersServic
 					username = tokens[0].trim();
 					
 					Log.info("AddUsersImpl Adding user: " + username);
+					System.out.println("AddUsersImpl Adding user: " + username);
 					registrationCnt = checkUser(email);
-					
+					System.out.println("Registration count: " + registrationCnt);
 					if(registrationCnt == 0)
 					{
 						while(bool)
@@ -83,6 +89,31 @@ public class AddUsersImpl extends RemoteServiceServlet implements AddUsersServic
 								break;
 							}
 						}
+					}					
+					else
+					{
+						// New code: Add new projects if username already exists
+						int userId = checkUserId(username);
+						int projCount = projectSet.size();
+						int k = 0;
+						for(Entry<Integer, String> project : projectSet)
+						{
+							int projectId = project.getKey();
+							String projectName = project.getValue();
+							SaveSubscribedProjectImpl addProject = new SaveSubscribedProjectImpl();
+							if(k == (projCount - 1))
+							{
+								/* Set the last subscribed project as the default preferred project */
+								//addProject.saveProject(projectId, flag, 1, username, projectName);								
+								addProject.saveProject(projectId, userId, 0, username, projectName, 1);
+							}
+							else
+							{
+								//addProject.saveProject(projectId, flag, 0, username, projectName);
+								addProject.saveProject(projectId, userId, 0, username, projectName, 0);
+							}							
+							k++;
+						}
 					}
 					
 					if(bool)
@@ -91,16 +122,29 @@ public class AddUsersImpl extends RemoteServiceServlet implements AddUsersServic
 					}					
 					else
 					{
-						//For each user subscribe to the selected projects
+						//For each user subscribe to the selected projects						
+						ResetPasswordAndSendEmailImpl sendEmail = new ResetPasswordAndSendEmailImpl();
+						sendEmail.createUserDirectories(username);
+						int projCount = projectSet.size();
+						int k = 0;
 						for(Entry<Integer, String> project : projectSet)
 						{
 							int projectId = project.getKey();
 							String projectName = project.getValue();
 							SaveSubscribedProjectImpl addProject = new SaveSubscribedProjectImpl();
-							addProject.saveProject(projectId, flag, 0, username, projectName);
+							if(k == (projCount - 1))
+							{
+								/* Set the last subscribed project as the default preferred project */
+								//addProject.saveProject(projectId, flag, 1, username, projectName);								
+								addProject.saveProject(projectId, flag, 0, username, projectName, 1);
+							}
+							else
+							{
+								//addProject.saveProject(projectId, flag, 0, username, projectName);
+								addProject.saveProject(projectId, flag, 0, username, projectName, 0);
+							}							
+							k++;
 						}
-						ResetPasswordAndSendEmailImpl sendEmail = new ResetPasswordAndSendEmailImpl();
-						sendEmail.createUserDirectories(username);
 				    	sendEmail.resetAndEmail(flag, username, email);
 					}										
 				}				
@@ -121,6 +165,7 @@ public class AddUsersImpl extends RemoteServiceServlet implements AddUsersServic
     	{
     		registrationCnt = checkUser(email);
     		System.out.println("RegisterCnt: " + registrationCnt);
+    		Log.info("email:  " + email + " RegisterCnt: " + registrationCnt);
     	}
     	if(registrationCnt == 0)
     	{
@@ -130,7 +175,7 @@ public class AddUsersImpl extends RemoteServiceServlet implements AddUsersServic
     		System.out.println("Password hash: " + hash);
     		try 
     		{
-    			cs = connection.getConnection().prepareCall("{ call ADDUSER(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }");
+    			cs = connection.getConnection().prepareCall("{ call ADDUSER(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }");
     			cs.setString(1, username);
     			cs.setString(2, hash);
     			cs.setString(3, firstName);
@@ -141,9 +186,10 @@ public class AddUsersImpl extends RemoteServiceServlet implements AddUsersServic
     			cs.setString(8, country);
     			cs.setString(9, organization);
     			cs.setString(10, jobTitle);
-    			cs.registerOutParameter(11, java.sql.Types.INTEGER);
+    			cs.setInt(11, 1); /* Newsletter: Set to receive by default. */
+    			cs.registerOutParameter(12, java.sql.Types.INTEGER);
     			cs.execute();
-    			flag = cs.getInt(11);			
+    			flag = cs.getInt(12);			
     			cs.execute();
     			cs.close();
     			connection.closeConnection();
@@ -175,5 +221,13 @@ public class AddUsersImpl extends RemoteServiceServlet implements AddUsersServic
 			e.printStackTrace();
 		}		
 		return registrationCnt;		
+	}
+	
+	public int checkUserId(String username)
+	{
+		int userId = 0;
+		UserAvailabilityImpl checkUsernameAvailability = new UserAvailabilityImpl();
+		userId = checkUsernameAvailability.checkUserAvailability(username);
+		return userId;
 	}
 }

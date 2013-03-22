@@ -33,6 +33,8 @@ import com.google.gwt.user.client.ui.Widget;
 import com.seventhdawn.gwt.rpc.context.client.RPCClientContext;
 import com.wcrl.web.cml.client.account.ClientContext;
 import com.wcrl.web.cml.client.account.User;
+import com.wcrl.web.cml.client.admin.accountService.GetUserStatusService;
+import com.wcrl.web.cml.client.admin.accountService.GetUserStatusServiceAsync;
 import com.wcrl.web.cml.client.admin.accountService.SaveSubscribedProjectService;
 import com.wcrl.web.cml.client.admin.accountService.SaveSubscribedProjectServiceAsync;
 import com.wcrl.web.cml.client.admin.accountService.UnSubscribeUserProjectService;
@@ -66,6 +68,7 @@ public class UserDetails extends Composite implements ClickHandler
 	private ListBox lstSelectedProjects;
 	private Button btnAdd;
 	private Button btnRemove;
+	private Button btnActivate;
 	private Anchor assumeIdentity;
 	private User receivedUser;
 	private ArrayList<ProjectItem> subscribedProjects;
@@ -78,7 +81,7 @@ public class UserDetails extends Composite implements ClickHandler
 	private Label lblOrganization;
 	private Label lblJobTitle;
 	private Label lblCountry;
-	private Label lblEmail;
+	private Label lblEmail;	
 	private Label lblFirstName;
 	private Label lblLastName;
 	private Label lblTotalQuota;
@@ -206,6 +209,8 @@ public class UserDetails extends Composite implements ClickHandler
 		lblEmail.addClickHandler(this);
 		lblNewQuota.addClickHandler(this);
 		
+		btnActivate = new Button("Activate");
+		btnActivate.addClickHandler(this);
 		btnAdd = new Button(">>");
 		btnAdd.addClickHandler(this);
 		btnRemove = new Button("<<");
@@ -369,7 +374,10 @@ public class UserDetails extends Composite implements ClickHandler
 		 String status = "";
 		 if(value == 1)   	  
 		 {
-			 status = "Approved";
+			 status = "Enabled";
+			 btnActivate.setText("Disable");
+			 statusPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));			 
+			 statusPanel.add(btnActivate);
 		 }
 		 else if(value == 0)
 		 {
@@ -377,6 +385,13 @@ public class UserDetails extends Composite implements ClickHandler
 			 statusPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
 			 statusPanel.add(btnApprove);
 		 }	 
+		 else if(value == 2)
+		 {
+			 status = "Disabled";
+			 btnActivate.setText("Enable");
+			 statusPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
+			 statusPanel.add(btnActivate);
+		 }
 		lblStatus.setText(status);
 		if(receivedUser.getFirstName().length() == 0)
 		{
@@ -521,10 +536,24 @@ public class UserDetails extends Composite implements ClickHandler
 	public void onClick(ClickEvent event) 
 	{
 		Widget source = (Widget) event.getSource();
-		if(source == btnApprove)
+		if(source == btnActivate)
 		{
+			if(receivedUser.getStatus() == 2)
+			{
+				UpdateUserServiceAsync service = UpdateUserService.Util.getInstance();
+				service.updateUserStatus(receivedUser.getUserId(), 1, receivedUser.getStatus(), receivedUser.getUsername(), receivedUser.getPrimaryemail(), activateUserCallback);				
+			}
+			else if(receivedUser.getStatus() == 1)
+			{
+				UpdateUserServiceAsync service = UpdateUserService.Util.getInstance();
+				service.updateUserStatus(receivedUser.getUserId(), 2, receivedUser.getStatus(), receivedUser.getUsername(), receivedUser.getPrimaryemail(), activateUserCallback);
+			}
+		}
+		if(source == btnApprove)
+		{		
 			UpdateUserServiceAsync service = UpdateUserService.Util.getInstance();
-			service.updateUserStatus(receivedUser.getUserId(), 1, receivedUser.getUsername(), receivedUser.getPrimaryemail(), updateUserStatusCallback);
+			//service.updateUserStatus(receivedUser.getUserId(), 1, receivedUser.getUsername(), receivedUser.getPrimaryemail(), updateUserStatusCallback);
+			service.updateQuota(receivedUser.getUserId(), receivedUser, 6000, updateUserQuotaCallback);
 		}	
 		if(source == btnAdd)
 		{
@@ -543,8 +572,6 @@ public class UserDetails extends Composite implements ClickHandler
 						item.setProjectId(projectId);
 						item.setProjectName(project);
 						projectList.add(item);
-						SaveSubscribedProjectServiceAsync service = SaveSubscribedProjectService.Util.getInstance();
-			    	  	service.saveProject(projectId, receivedUser.getUserId(), 0, receivedUser.getUsername(), project, addProjectCallback);
 					}
 					catch(NumberFormatException e)
 					{
@@ -552,6 +579,34 @@ public class UserDetails extends Composite implements ClickHandler
 					}					
 				}
 			}
+			int projCount = projectList.size();
+			int k = 0;
+			for(int i = 0; i < projCount; i++)
+			{
+				ProjectItem item = projectList.get(i);
+				int projectId = item.getProjectId();
+				String project = item.getProjectName();
+				int preferredProject = 0;
+				
+				if(k == (projCount - 1))
+				{
+					preferredProject = 1;
+				}
+				System.out.println("Project: " + project + " project count: " + (projCount - 1) + " k: " + k + " preferredProject: " + preferredProject);
+				if(receivedUser.getStatus() != 0)
+				{
+					SaveSubscribedProjectServiceAsync service = SaveSubscribedProjectService.Util.getInstance();
+		    	  	service.saveProject(projectId, receivedUser.getUserId(), 0, receivedUser.getUsername(), project, preferredProject, addProjectCallback);
+					k++;					
+				}
+				else
+				{
+					lblMessage.setVisible(true);
+					lblMessage.setText("User should be approved before adding projects.");
+					break;
+				}
+			}
+			
 		}
 		if(source == btnRemove)
 		{
@@ -964,6 +1019,51 @@ public class UserDetails extends Composite implements ClickHandler
 			});
 		}		
 	}	
+	
+	AsyncCallback<Integer> activateUserCallback = new AsyncCallback<Integer>()
+	{		
+		public void onFailure(Throwable arg0) 
+		{
+			Log.info("UserDetails activateUserCallback error: " +  arg0.toString());				
+		}		
+		public void onSuccess(Integer status)
+		{
+			if(status == 1)
+			{
+				if(receivedUser.getStatus() == 0)
+				{
+					lblMessage.setText("User approved and enabled.");
+				}				
+				lblStatus.setText("Enabled");
+				btnActivate.setText("Disable");
+				statusPanel.remove(btnApprove);
+				statusPanel.add(btnActivate);				
+			}
+			else if(status == 2)
+			{
+				lblStatus.setText("Disabled");
+				btnActivate.setText("Enable");
+				statusPanel.remove(btnApprove);
+				statusPanel.add(btnActivate);				
+			}
+			receivedUser.setStatus(status);
+		}
+	};
+	
+	/*AsyncCallback<Integer> deActivateUserCallback = new AsyncCallback<Integer>()
+	{		
+		public void onFailure(Throwable arg0) 
+		{
+			Log.info("UserDetails activateUserCallback error: " +  arg0.toString());				
+		}		
+		public void onSuccess(Integer flag)
+		{
+			if(flag == 1)
+			{
+				btnActivate.setText("Deactivate");
+			}
+		}
+	};*/
 		
 	//Callback from server - To set the list of users enrolled in the web application
 	AsyncCallback<ArrayList<User>> usersCallback = new AsyncCallback<ArrayList<User>>()
@@ -1361,6 +1461,35 @@ public class UserDetails extends Composite implements ClickHandler
 			}
 			//lblTotalQuota.setText(newTotalUnits.substring(0, index) + " units");			
 			lblNewQuota.setText("0");
+			
+			if(receivedUser.getStatus() == 0)
+			{
+				GetUserStatusServiceAsync service = GetUserStatusService.Util.getInstance();
+				service.getUserStatus(receivedUser.getUserId(), getUserStatusCallback);
+			}
+		}
+	};
+	
+	AsyncCallback<Integer> getUserStatusCallback = new AsyncCallback<Integer>()
+	{
+		public void onFailure(Throwable arg0)
+		{
+			System.out.print(arg0.toString());
+			Log.info("UserDetails updateUserQuotaCallback: " + arg0.toString());
+		}
+		public void onSuccess(Integer userStatus)
+		{
+			if(userStatus == 1)
+			{
+				btnActivate.setText("Disable");
+				statusPanel.remove(btnApprove);
+				statusPanel.add(btnActivate);
+			}
+			else if(userStatus == 0)
+			{
+				UpdateUserServiceAsync service = UpdateUserService.Util.getInstance();
+				service.updateUserStatus(receivedUser.getUserId(), 1, receivedUser.getStatus(), receivedUser.getUsername(), receivedUser.getPrimaryemail(), activateUserCallback);
+			}
 		}
 	};
 }

@@ -45,6 +45,7 @@ public class User implements IsSerializable
     private double totalRuntime;
     private double usedRuntime;
     private String sessionID;
+    private int newsletter;
         
     public String getOrganization() {
 		return organization;
@@ -247,6 +248,14 @@ public class User implements IsSerializable
 
 	public void setUsedRuntime(double usedRuntime) {
 		this.usedRuntime = usedRuntime;
+	}
+
+	public int getNewsletter() {
+		return newsletter;
+	}
+
+	public void setNewsletter(int newsletter) {
+		this.newsletter = newsletter;
 	}
 
 }

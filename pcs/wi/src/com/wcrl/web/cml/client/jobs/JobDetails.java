@@ -811,6 +811,7 @@ public class JobDetails extends Composite implements ClickHandler
 				btnArchive.setEnabled(false);	
 				jobItem = item;		
 				System.out.println("After archive Status: " + jobItem.getStatus());
+				jobStatusDirectory = jobItem.getStatus();
 				setJobValues(jobItem);
 			}			
 		}
@@ -887,7 +888,7 @@ public class JobDetails extends Composite implements ClickHandler
 			btnArchive.setEnabled(false);
 		}*/
 		
-		if(selectedStatus.equalsIgnoreCase("Failed") || selectedStatus.equalsIgnoreCase("Archive"))
+		if(selectedStatus.equalsIgnoreCase("Failed") || selectedStatus.equalsIgnoreCase("Archive") || selectedStatus.equalsIgnoreCase("Archived"))
 		{
 			btnSuspend.setEnabled(false);
 			btnResume.setEnabled(false);
