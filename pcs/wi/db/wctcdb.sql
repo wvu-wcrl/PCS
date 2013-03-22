@@ -37,14 +37,15 @@ CREATE TABLE `userreg` (
   `JobTitle` varchar(255) NOT NULL,
   `CreatedAt` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `UpdatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `TotalUnits` double DEFAULT '100',
+  `TotalUnits` double DEFAULT '6000',
   `RequestedUnits` double DEFAULT '0',
   `GrantedUnits` double DEFAULT '0',
   `RemainingUnits` double DEFAULT '100',
   `Status` int(11) NOT NULL DEFAULT '1',
   `LastLogin` timestamp NULL DEFAULT '0000-00-00 00:00:00',
+  `Newsletter` int(11) DEFAULT '1',
   PRIMARY KEY (`UserId`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1 COMMENT='User preference table';
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=latin1 COMMENT='User preference table';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -66,36 +67,6 @@ CREATE TABLE `projectdatafileextension` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `fileextension`
---
-
-DROP TABLE IF EXISTS `fileextension`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fileextension` (
-  `FileExtensionId` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique Identifier',
-  `FileExtension` varchar(10) DEFAULT NULL COMMENT 'Ex: ''.jpeg'', ''.mat''',
-  `Description` varchar(150) DEFAULT NULL,
-  PRIMARY KEY (`FileExtensionId`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1 COMMENT='File extensions valid for the input data files.';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `jobfileextensiontypes`
---
-
-DROP TABLE IF EXISTS `jobfileextensiontypes`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `jobfileextensiontypes` (
-  `JobFileExtensionTypeId` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique Identifier',
-  `FileExtension` varchar(10) DEFAULT NULL COMMENT 'Ex: ''.jpeg'', ''.mat''',
-  `Description` varchar(150) DEFAULT NULL,
-  PRIMARY KEY (`JobFileExtensionTypeId`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1 COMMENT='File extensions valid for the input files of the Jobs.';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `projects`
 --
 
@@ -112,7 +83,55 @@ CREATE TABLE `projects` (
   `DataFile` int(11) DEFAULT '0',
   `Path` varchar(255) DEFAULT '',
   PRIMARY KEY (`ProjectId`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `fileextension`
+--
+
+DROP TABLE IF EXISTS `fileextension`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `fileextension` (
+  `FileExtensionId` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique Identifier',
+  `FileExtension` varchar(10) DEFAULT NULL COMMENT 'Ex: ''.jpeg'', ''.mat''',
+  `Description` varchar(150) DEFAULT NULL,
+  PRIMARY KEY (`FileExtensionId`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 COMMENT='File extensions valid for the input data files.';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `jobfileextensiontypes`
+--
+
+DROP TABLE IF EXISTS `jobfileextensiontypes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobfileextensiontypes` (
+  `JobFileExtensionTypeId` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique Identifier',
+  `FileExtension` varchar(10) DEFAULT NULL COMMENT 'Ex: ''.jpeg'', ''.mat''',
+  `Description` varchar(150) DEFAULT NULL,
+  PRIMARY KEY (`JobFileExtensionTypeId`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 COMMENT='File extensions valid for the input files of the Jobs.';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `projectjobfileextension`
+--
+
+DROP TABLE IF EXISTS `projectjobfileextension`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `projectjobfileextension` (
+  `ProjectId` int(10) unsigned NOT NULL,
+  `FileExtensionId` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`ProjectId`,`FileExtensionId`),
+  KEY `projectjobfileextension_fk_1` (`ProjectId`),
+  KEY `projectjobfileextension_fk_2` (`FileExtensionId`),
+  CONSTRAINT `projectjobfileextension_fk_1` FOREIGN KEY (`ProjectId`) REFERENCES `projects` (`ProjectId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `projectjobfileextension_fk_2` FOREIGN KEY (`FileExtensionId`) REFERENCES `fileextension` (`FileExtensionId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -186,7 +205,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `ADDUSER`(IN USERNAME VARCHAR(150), IN PASSWORD VARCHAR(255), IN FIRSTNAME VARCHAR(150), IN LASTNAME VARCHAR(150), IN EMAIL VARCHAR(150), IN USERTYPE VARCHAR(32), IN STATUS INT, IN COUNTRY VARCHAR(255), IN ORGANIZATION VARCHAR(255), IN JOBTITLE VARCHAR(255), OUT FLAG INT)
+/*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `ADDUSER`(IN USERNAME VARCHAR(150), IN PASSWORD VARCHAR(255), IN FIRSTNAME VARCHAR(150), IN LASTNAME VARCHAR(150), IN EMAIL VARCHAR(150), IN USERTYPE VARCHAR(32), IN STATUS INT, IN COUNTRY VARCHAR(255), IN ORGANIZATION VARCHAR(255), IN JOBTITLE VARCHAR(255), IN NEWSLETTER INT, OUT FLAG INT)
 BEGIN
   DECLARE CNT INT;
   DECLARE USERID INT;
@@ -199,7 +218,7 @@ BEGIN
   WHERE USERREG.USERNAME = USERNAME;
 
   IF (CNT = 0) THEN
-    INSERT INTO USERREG(USERNAME, PASSWORD, FIRSTNAME, LASTNAME, USERTYPE, PRIMARYEMAIL, STATUS, COUNTRY, ORGANIZATION, JOBTITLE, CREATEDAT, UPDATEDAT) VALUES(USERNAME, PASSWORD, FIRSTNAME, LASTNAME, USERTYPE, EMAIL, STATUS, COUNTRY, ORGANIZATION, JOBTITLE, NULL, NULL);
+    INSERT INTO USERREG(USERNAME, PASSWORD, FIRSTNAME, LASTNAME, USERTYPE, PRIMARYEMAIL, STATUS, COUNTRY, ORGANIZATION, JOBTITLE, CREATEDAT, UPDATEDAT, NEWSLETTER) VALUES(USERNAME, PASSWORD, FIRSTNAME, LASTNAME, USERTYPE, EMAIL, STATUS, COUNTRY, ORGANIZATION, JOBTITLE, NULL, NULL, NEWSLETTER);
     
     SELECT USERREG.USERID INTO FLAG
     FROM USERREG
@@ -287,8 +306,9 @@ BEGIN
   FROM USERREG
   WHERE USERREG.USERID = USERID;
 
-  IF (CNT >= 0) THEN
-     DELETE FROM USERREG WHERE USERREG.USERID = USERID;
+  IF (CNT > 0) THEN
+     UPDATE USERREG SET USERREG.STATUS = 2 WHERE USERREG.USERID = USERID;
+     /*DELETE FROM USERREG WHERE USERREG.USERID = USERID;*/
      SET FLAG = 0;
   ELSE
      SET FLAG = 1;
@@ -378,9 +398,19 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `GETJOBFILEEXTENSIONS`()
+/*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `GETJOBFILEEXTENSIONS`(IN PROJECT VARCHAR(255))
 BEGIN
-   Select * from JobFileExtensionTypes;
+    DECLARE PROJECTID INT;
+    SET PROJECTID = 0;
+    
+    SELECT PROJECTS.PROJECTID INTO PROJECTID
+    FROM PROJECTS WHERE PROJECTS.PROJECTNAME = PROJECT;
+    
+    SELECT * FROM FILEEXTENSION 
+    WHERE FILEEXTENSION.FILEEXTENSIONID IN(
+        SELECT PROJECTJOBFILEEXTENSION.FILEEXTENSIONID FROM PROJECTJOBFILEEXTENSION 
+        WHERE PROJECTJOBFILEEXTENSION.PROJECTID = PROJECTID
+    );
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -476,16 +506,73 @@ DELIMITER ;;
 BEGIN
 
   IF (USERID > 0) THEN  
-    SELECT U.PROJECTID, P.PROJECTNAME, P.DESCRIPTION
+    SELECT U.PROJECTID, P.PROJECTNAME, P.DESCRIPTION, P.DATAFILE
     FROM PROJECTS P, USERPROJECTS U
     WHERE U.USERID = USERID 
     AND P.PROJECTID = U.PROJECTID   
     ORDER BY P.PROJECTID;
   ELSE
-    SELECT DISTINCT(U.PROJECTID), P.PROJECTNAME, P.DESCRIPTION
+    SELECT DISTINCT(U.PROJECTID), P.PROJECTNAME, P.DESCRIPTION, P.DATAFILE
     FROM PROJECTS P, USERPROJECTS U
     WHERE P.PROJECTID = U.PROJECTID   
     ORDER BY P.PROJECTID;
+  END IF;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GETUSERSTATUS` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `GETUSERSTATUS`(IN USERID BIGINT(20), OUT USERSTATUS INT(11))
+BEGIN
+  SELECT USERREG.STATUS INTO USERSTATUS FROM USERREG WHERE USERREG.USERID = USERID;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `REGISTERUSER` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `REGISTERUSER`(IN USERNAME VARCHAR(150), IN PASSWORD VARCHAR(255), IN FIRSTNAME VARCHAR(150), IN LASTNAME VARCHAR(150), IN EMAIL VARCHAR(150), IN USERTYPE VARCHAR(32), IN STATUS INT, IN TOTALUNITS DOUBLE, IN NEWSLETTER INT, OUT FLAG INT)
+BEGIN
+  DECLARE CNT INT;
+  DECLARE USERID INT;
+  SET CNT = 0;
+  SET FLAG = -1;
+  SET USERID = 0;
+
+  SELECT COUNT(USERREG.USERID) INTO CNT
+  FROM USERREG
+  WHERE USERREG.USERNAME = USERNAME;
+
+  IF (CNT = 0) THEN
+    INSERT INTO USERREG(USERNAME, PASSWORD, FIRSTNAME, LASTNAME, USERTYPE, PRIMARYEMAIL, STATUS, COUNTRY, ORGANIZATION, JOBTITLE, CREATEDAT, UPDATEDAT, NEWSLETTER, TOTALUNITS) VALUES(USERNAME, PASSWORD, FIRSTNAME, LASTNAME, USERTYPE, EMAIL, STATUS, COUNTRY, ORGANIZATION, JOBTITLE, NULL, NULL, NEWSLETTER, TOTALUNITS);
+    
+    SELECT USERREG.USERID INTO FLAG
+    FROM USERREG
+    WHERE USERREG.USERNAME = USERNAME;
+      
+  ELSE
+    SET FLAG = 0;
   END IF;
 END */;;
 DELIMITER ;
@@ -506,12 +593,19 @@ DELIMITER ;;
 /*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `SAVEUSERPROJECT`(IN USERID INT, IN PROJECTID INT, IN PREFERREDPROJECT INT)
 BEGIN
   DECLARE CNT INT;
+  DECLARE PREFERREDPRJCNT INT;
   SET CNT = 0;
+  SET PREFERREDPRJCNT = 0;
   SELECT COUNT(PROJECTID) INTO CNT FROM USERPROJECTS U WHERE U.USERID = USERID AND U.PROJECTID = PROJECTID;
   IF(CNT = 0) THEN
+    SELECT COUNT(PROJECTID) INTO PREFERREDPRJCNT FROM USERPROJECTS U WHERE U.USERID = USERID;
+    IF(PREFERREDPRJCNT > 0 && PREFERREDPROJECT = 1) THEN
+	UPDATE USERPROJECTS SET USERPROJECTS.PREFERREDPROJECT = 0 WHERE USERPROJECTS.USERID = USERID;
+    END IF;
+    
     INSERT INTO USERPROJECTS(USERID, PROJECTID, CREATEDON, PREFERREDPROJECT) VALUES(USERID, PROJECTID, NULL, PREFERREDPROJECT);
   ELSE 
-    /*UPDATE USERPROJECTS SET USERPROJECTS.PREFERREDPROJECT = 0 WHERE USERPROJECTS.USERID = USERID;*/
+    UPDATE USERPROJECTS SET USERPROJECTS.PREFERREDPROJECT = 0 WHERE USERPROJECTS.USERID = USERID;
     UPDATE USERPROJECTS SET USERPROJECTS.PREFERREDPROJECT = PREFERREDPROJECT WHERE USERPROJECTS.USERID = USERID AND USERPROJECTS.PROJECTID = PROJECTID;
   END IF;
 END */;;
@@ -633,6 +727,25 @@ DELIMITER ;;
 /*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `UPDATELASTNAME`(IN USERID INT, IN LASTNAME VARCHAR(255))
 BEGIN
 UPDATE USERREG SET USERREG.LASTNAME = LASTNAME WHERE USERREG.USERID = USERID;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `UPDATENEWSLETTERSUBSCRIPTION` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `UPDATENEWSLETTERSUBSCRIPTION`(IN USERID INT, IN SUBSCRIPTION INT)
+BEGIN
+UPDATE USERREG SET USERREG.NEWSLETTER = SUBSCRIPTION WHERE USERREG.USERID = USERID;
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -886,4 +999,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-02-04 17:05:12
+-- Dump completed on 2013-03-22 12:40:38
