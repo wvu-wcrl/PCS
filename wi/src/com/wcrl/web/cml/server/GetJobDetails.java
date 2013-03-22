@@ -153,10 +153,11 @@ public class GetJobDetails extends RemoteServiceServlet implements GetJobDetails
 		//outputFiles = getOutputFiles(outputFilesDir, fileName, outputFiles, rootPathForDownload + path1 + File.separator + userProjectPath);
 		outputFiles = getOutputFiles(outputFilesDir, fileName, outputFiles, path1 + File.separator + userProjectPath);
 		
-		String[] fileData = new String[2];
+		String[] fileData = new String[3];
 		fileData[0] = fileName;
 		//fileData[1] = rootPathForDownload + path1 + File.separator + userProjectPath + dir + File.separator + fileName;
 		fileData[1] = path1 + File.separator + userProjectPath + dir + File.separator + fileName;
+		fileData[2] = rootPath + dir + File.separator + fileName;
 		System.out.println("Link File path: " + fileData[1]);
 		Log.info("Link File path: " + fileData[1]);
 		outputFiles.put(1, fileData);

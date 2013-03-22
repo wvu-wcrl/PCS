@@ -121,7 +121,7 @@ public class ProjectSettings extends Composite implements ClickHandler, ChangeHa
 		table.setCellPadding(10);
 		table.setWidget(0, 0, programTable);
 				
-		String lblProgram = "Project: ";
+		String lblProgram = "Default Project: ";
 		programTable.setText(0, 0, lblProgram);
 		programTable.setWidget(0, 1, lbProjects);
 		programTable.setWidget(1, 1, btnSubmit);
@@ -151,7 +151,7 @@ public class ProjectSettings extends Composite implements ClickHandler, ChangeHa
 			if(projectId > 0)
 			{
 				SaveSubscribedProjectServiceAsync service = SaveSubscribedProjectService.Util.getInstance();			
-	    	  	service.saveProject(projectId, user.getUserId(), 1, user.getUsername(), projectName, saveSubscribedProjectCallback);
+	    	  	service.saveProject(projectId, user.getUserId(), 0, user.getUsername(), projectName, 1, saveSubscribedProjectCallback);
 			}			
 			else
 			{

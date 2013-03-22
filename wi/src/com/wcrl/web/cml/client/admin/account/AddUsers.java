@@ -217,21 +217,45 @@ public class AddUsers extends Composite implements ClickHandler
 			//String[] usernamesTemp = usernames.clone();
 			int userCount = usernames.length;
 			boolean validUsers = true;
-			String usernameRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}$";
-			for(int i = 0; i < userCount; i++)
+			//String usernameRegex = "^[a-z][-a-z0-9_]*$";
+			//String usernameRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}$";
+			String usernameRegex = "^[a-z][-a-z0-9_]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}$";
+			//String usernameRegex = "^[a-z][-a-z0-9_]*+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}$";
+		
+			try
 			{
-				String username = usernames[i].trim();
-				if(username.length() > 0)
+				for(int i = 0; i < userCount; i++)
 				{
-					if(!username.matches(usernameRegex))
+					String username = usernames[i].trim();
+					Log.info("Checking for user: " + username);
+					Log.info("Checking for user: " + username + " length: " + username.length());
+					Log.info("Checking for user: " + username + " length: " + username.length() + " match regex: " + username.matches(usernameRegex));
+					if(username.length() > 0)
 					{
-						validUsers = false;
-						System.out.println("User: " + username + " validUsers: " + validUsers);
-						break;
+						if(!username.matches(usernameRegex))
+						{
+							validUsers = false;
+							System.out.println("User: " + username + " validUsers: " + validUsers);
+							break;
+						}					
 					}					
-				}				
+				}
 			}
+			catch (Exception e)
+			{
+				System.out.println(e.getClass().getName() + ": " + e.getMessage());
+				Log.info(e.getClass().getName() + ": " + e.getMessage());
+				StackTraceElement[] trace = e.getStackTrace();
+				for(int i = 0; i < trace.length; i++)
+				{
+					System.out.println("\t" + trace[i].toString());
+					Log.info("\n\t" + trace[i].toString());
+				}
+				e.printStackTrace();
+			}
+			
 			System.out.println(" validUsers: " + validUsers);
+			
 			/* End - Check validity of usernames */
 			
 			if(validUsers)
@@ -251,6 +275,7 @@ public class AddUsers extends Composite implements ClickHandler
 						e.printStackTrace();
 					}				
 				}			
+				System.out.println("In add users");
 				
 				//Send the add request to the server side
 				AddUsersServiceAsync service = AddUsersService.Util.getInstance();
@@ -387,7 +412,7 @@ public class AddUsers extends Composite implements ClickHandler
 						errorUsernames = errorUsernames + errorUsers.get(i) + ", ";
 					}					
 				}
-				lblMessage.setText("Error in creating " + errorUsers.size()  + " users. Usernames not created: " + errorUsernames +".");
+				lblMessage.setText("All the users are subscribed to selected projects. Following usernames/email address already exists: " + errorUsernames +". ");
 			}
 			//Request to get list of all users
 			GetUsersServiceAsync service = GetUsersService.Util.getInstance();			

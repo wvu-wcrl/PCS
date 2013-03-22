@@ -51,7 +51,6 @@ public class AddProject extends Composite{
 	private TextBox txtProject;
 	private TextBox txtDirectoryPath;
 	private ListBox lstDataFile;
-	//private CheckBox chkDataFile = new CheckBox();
 	private TextArea txtDescription;	
 		
 	private Button btnClear;
@@ -98,7 +97,6 @@ public class AddProject extends Composite{
 		txtProject = new TextBox();
 		txtDirectoryPath = new TextBox();
 		lstDataFile = new ListBox();
-		//chkDataFile = new CheckBox();
 		txtDescription = new TextArea();	
 		
 		lstDataFile.addItem("Not Required", "0");
@@ -109,7 +107,6 @@ public class AddProject extends Composite{
 		txtProject.setName("projectName");
 		txtDescription.setName("description");
 		txtDirectoryPath.setName("directoryPath");
-		//chkDataFile.setName("dataFile");
 		lstDataFile.setName("dataFile");
 		table.setCellPadding(2);
 		txtProject.setWidth("175px");
@@ -146,12 +143,9 @@ public class AddProject extends Composite{
 	    table.getCellFormatter().setVerticalAlignment(2, 1, HasVerticalAlignment.ALIGN_MIDDLE);
 	    table.getCellFormatter().setHorizontalAlignment(3, 1, HasHorizontalAlignment.ALIGN_LEFT);
 	    table.getCellFormatter().setVerticalAlignment(3, 1, HasVerticalAlignment.ALIGN_MIDDLE);
-	   	
-	   				
-		lblMsg.addStyleName("warnings");
-								
-		HorizontalPanel buttonPanel = new HorizontalPanel();
-		
+	   		   				
+		lblMsg.addStyleName("warnings");								
+		HorizontalPanel buttonPanel = new HorizontalPanel();		
 		hlBack.addClickHandler(new ClickHandler()
 		{
 			public void onClick(ClickEvent event) 
@@ -265,4 +259,3 @@ public class AddProject extends Composite{
 		}	
 	};	
 }
-

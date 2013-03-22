@@ -23,6 +23,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -30,6 +31,7 @@ import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
@@ -50,25 +52,29 @@ import com.wcrl.web.cml.client.projects.ProjectItems;
 
 public class UploadJob extends Composite implements ClickHandler, ChangeHandler 
 {
-	private static String UPLOAD_ACTION_URL = GWT.getModuleBaseURL() + "uploadFile";
-	private VerticalPanel vPanel = new VerticalPanel();
-    private FormPanel form = new FormPanel();
-    private FlexTable table = new FlexTable();
-    private FileUpload upload = new FileUpload();
-    //private FileUpload fileUpload = new FileUpload();
-    private TextBox tbName = new TextBox();
-    private TextBox tbDescription = new TextBox();
-    private TextArea txtFileNotes = new TextArea();
-    private HTML txtWarnings = new HTML();
-    private HTML txtWarningDesc = new HTML();
+	private static String UPLOAD_ACTION_URL = GWT.getModuleBaseURL() + "uploadJobnDataFile";
+	private VerticalPanel vPanel;	
+	private VerticalPanel dataPanel;
+    private FormPanel form;
+    private FlexTable table;
+    private FileUpload upload;
+    private TextBox tbDescription;
+    private TextArea txtFileNotes;
+    private CheckBox ckDataFile;
+	private FileUpload dataUpload;
+	private HorizontalPanel dataFileUploadPanel;
+    private HTML dtFile;
+    private HTML txtWarnings;
+    private HTML txtWarningDesc;
     private TextBox txtLogin;
     private TextBox txtProject;
     private TextBox txtOverwrite;
+    private TextBox txtDataFileName;
+    
     private ListBox lbProjects;
-    private Button btnSubmit = new Button("Upload & Run");
+    private Button btnSubmit;
     private ClientContext userCtx;
     private User currentUser;
-    //private int jobId;
     private Anchor hlBack;
     private int tab;
     private static int cnt = 1;    
@@ -79,6 +85,7 @@ public class UploadJob extends Composite implements ClickHandler, ChangeHandler
     	if ( sessionID != null )
     	{
         	this.tab = tab;
+        	vPanel = new VerticalPanel();
         	initWidget(vPanel);
         	userCtx = (ClientContext) RPCClientContext.get();
         	if(userCtx != null)
@@ -97,6 +104,20 @@ public class UploadJob extends Composite implements ClickHandler, ChangeHandler
     	}
     }
     
+    private VerticalPanel getDataPanel()
+    {    	
+    	dataPanel.setSpacing(5);   	
+    	dataFileUploadPanel.add(dataUpload);
+    	
+    	dataPanel.add(dataFileUploadPanel);
+    	if(!ckDataFile.getValue())
+    	{
+    		dataPanel.setVisible(false);
+    	}
+    	System.out.println("Data panel checkbox: " + ckDataFile.getValue() + " datapanel visibility: " + dataPanel.isVisible());
+		return dataPanel;    	
+    }
+    
     public void setProjects()
 	{		
 		if(currentUser != null)
@@ -112,11 +133,67 @@ public class UploadJob extends Composite implements ClickHandler, ChangeHandler
     	}
 	}
     
+    /*private void setSelectionDataFileList()
+    {
+    	if(rdList.getValue())
+		{
+    		String user = currentUser.getUsername();
+    		String project = lbProjects.getItemText(lbProjects.getSelectedIndex());
+    		System.out.println("List - User: " + user + " Project: " + project);
+			lbDataFiles.setEnabled(true);
+			dataUpload.setEnabled(false);
+			GetUserProjectDataFilesListServiceAsync service = GetUserProjectDataFilesListService.Util.getInstance();
+    	  	service.userProjectDataFilesList(user, project, dataFilesCallback);
+		}
+		else
+		{
+			lbDataFiles.setEnabled(false);
+			dataUpload.setEnabled(true);
+		}
+    }
+    
+    AsyncCallback<ArrayList<DataFileItem>> dataFilesCallback = new AsyncCallback<ArrayList<DataFileItem>>()
+	{
+		public void onFailure(Throwable caught)
+		{
+			Log.info("DataFilesCallback dataFilesCallback error: " + caught.toString());
+		}
+		
+		public void onSuccess(ArrayList<DataFileItem> items)
+		{
+			lbDataFiles.clear();
+			int count = 0;
+			if(items != null)
+			{
+				count = items.size();
+				if(count > 0)
+				{
+					for(int i = 0; i < count; i++)
+					{
+						DataFileItem item = items.get(i);
+						String fileName = item.getFileName();
+						lbDataFiles.addItem(fileName);
+					}
+					lbDataFiles.setSelectedIndex(0);
+				}
+				else
+				{
+					txtWarnings.setText("");
+        			txtWarningDesc.setText("");
+        			txtWarnings.setHTML("*Data files doesn't exist for the selected project. Please add a new data file.");
+					lbDataFiles.setEnabled(false);
+					
+				}
+			}
+			System.out.println("After return file count: " + count);
+		}
+	};*/
+    
     AsyncCallback<ArrayList<ProjectItem>> projectListCallback = new AsyncCallback<ArrayList<ProjectItem>>()
 	{
 		public void onFailure(Throwable caught)
 		{
-			Log.info("ProjectList projectListCallback error: " + caught.toString());
+			Log.info("UploadJob projectList projectListCallback error: " + caught.toString());
 		}
 		
 		public void onSuccess(ArrayList<ProjectItem> items)
@@ -125,6 +202,7 @@ public class UploadJob extends Composite implements ClickHandler, ChangeHandler
 	      	projectItems.setItems(items);	      	
 	      	currentUser.setProjectItems(projectItems);
 	      	userCtx.setCurrentUser(currentUser);
+	      	System.out.println("Upload Job projectList: " + projectItems.getProjectItemCount());
 	      	GetPreferredProjectServiceAsync service = GetPreferredProjectService.Util.getInstance();
 	      	service.getPreferredProject(currentUser.getUserId(), preferredProjectCallback);	      	
 	      }
@@ -155,9 +233,23 @@ public class UploadJob extends Composite implements ClickHandler, ChangeHandler
 
 	private void createComponent() 
 	{	
+		dataPanel = new VerticalPanel();
+		dataFileUploadPanel = new HorizontalPanel();
+		form = new FormPanel();
+	    table = new FlexTable();
+	    upload = new FileUpload();
+	    	        
+	    tbDescription = new TextBox();
+	    txtFileNotes = new TextArea();
+	    ckDataFile = new CheckBox("Add data file");
+	    txtWarnings = new HTML();
+	    txtWarningDesc = new HTML();
+	    btnSubmit = new Button("Upload & Run");
 		hlBack = new Anchor("<<back");
 		hlBack.addClickHandler(this);		
     	vPanel.add(hlBack);
+    	dataUpload = new FileUpload();
+    	
     	ProjectItems projectItems = currentUser.getProjectItems();
     	if(projectItems.getProjectItemCount() == 0)
 		{
@@ -172,12 +264,12 @@ public class UploadJob extends Composite implements ClickHandler, ChangeHandler
 			table.setCellSpacing(5);
 			table.setCellPadding(0);
 			table.setWidth("100%");
-			tbName.setWidth("300px");
-			//tbDescription.setWidth("300px");
 			txtFileNotes.setHeight("75px");
-			upload.setName("uploadFormElement");
-			//fileUpload.setName("fileuploadFormElement");
-			tbName.setName("name");
+						
+			ckDataFile.addClickHandler(this);			
+			ckDataFile.setName("df");
+			dataUpload.setName("dataUpload");			
+			upload.setName("jobUpload");			
 			tbDescription.setName("description");
 			txtFileNotes.setName("notes");
 			lbProjects.setName("projectDetails");
@@ -185,9 +277,11 @@ public class UploadJob extends Composite implements ClickHandler, ChangeHandler
 			txtWarnings.setStylePrimaryName("warnings");
 			txtWarningDesc.setStylePrimaryName("warnings");
 			txtFileNotes.setCharacterWidth(50);
-			tbName.setMaxLength(50);
-			//tbDescription.setMaxLength(255);
-			//tbDescription.setText("");
+			
+			txtDataFileName = new TextBox();
+			txtDataFileName.setName("dataFile");
+		    txtDataFileName.setVisible(false);
+			
 			txtLogin = new TextBox();
 			txtLogin.setName("user");
 			txtLogin.setVisible(false);
@@ -200,6 +294,9 @@ public class UploadJob extends Composite implements ClickHandler, ChangeHandler
 			txtOverwrite.setName("overwrite");
 			txtOverwrite.setVisible(false);
 			
+			ckDataFile.setValue(false);
+			ckDataFile.setEnabled(false);
+			
 			int projectId = currentUser.getPreferredProjectId();
 					
 			for(int i = 0; i < projectItems.getProjectItemCount(); i++)
@@ -211,11 +308,50 @@ public class UploadJob extends Composite implements ClickHandler, ChangeHandler
 					if(projectId == item.getProjectId())
 					{
 						lbProjects.setItemSelected(i, true);
+						String dtFileRequired = item.getDataFile();
+						if(dtFileRequired.equalsIgnoreCase("Possibly Required"))
+						{
+							ckDataFile.setValue(true);
+							ckDataFile.setEnabled(true);			
+						}
+						if(dtFileRequired.equalsIgnoreCase("Required"))
+						{
+							ckDataFile.setValue(true);
+							ckDataFile.setEnabled(true);			
+						}
+						if(dtFileRequired.equalsIgnoreCase("Not Required"))
+						{
+							ckDataFile.setValue(false);
+							ckDataFile.setEnabled(false);
+							ckDataFile.setVisible(false);
+						}						
 					}
+					System.out.println("Project: " + item.getProjectName() + " ckDataFile: " + ckDataFile.getValue());
 				}
 				else
 				{
 					lbProjects.setItemSelected(0, true);
+					String projectName = lbProjects.getItemText(0);
+					if(projectName.equalsIgnoreCase(item.getProjectName()))
+					{
+						String dtFileRequired = item.getDataFile();
+						if(dtFileRequired.equalsIgnoreCase("Possibly Required"))
+						{
+							ckDataFile.setValue(true);
+							ckDataFile.setEnabled(true);			
+						}
+						if(dtFileRequired.equalsIgnoreCase("Required"))
+						{
+							ckDataFile.setValue(true);
+							ckDataFile.setEnabled(true);			
+						}
+						if(dtFileRequired.equalsIgnoreCase("Not Required"))
+						{
+							ckDataFile.setValue(false);
+							ckDataFile.setEnabled(false);
+							ckDataFile.setVisible(false);
+						}
+					}					
 				}			
 			}	
 							
@@ -223,20 +359,32 @@ public class UploadJob extends Composite implements ClickHandler, ChangeHandler
 			table.setWidget(0, 1, txtWarnings);
 			table.setText(1, 0, "");
 	        table.setWidget(1, 1, txtWarningDesc);
-	        table.setWidget(2, 0, new HTML("<b>Job Name:</b>&nbsp;&nbsp;&nbsp;"));
-			table.setWidget(2, 1, tbName);
-			table.setWidget(3, 0, new HTML("<b>File:</b>&nbsp;&nbsp;&nbsp;"));
+	        //table.setWidget(2, 0, new HTML("<b>Job Name:</b>&nbsp;&nbsp;&nbsp;"));
+			//table.setWidget(2, 1, tbName);
+			table.setWidget(3, 0, new HTML("Job file:&nbsp;&nbsp;&nbsp;"));
 			table.setWidget(3, 1, upload);
 			//table.setWidget(4, 0, new HTML("<b>Description:</b>&nbsp;&nbsp;&nbsp;"));
 			//table.setWidget(4, 1, fileUpload);
-			table.setWidget(5, 0, new HTML("<b>Project:</b>&nbsp;&nbsp;&nbsp;"));
+			table.setWidget(5, 0, new HTML("Project:&nbsp;&nbsp;&nbsp;"));
 			table.setWidget(5, 1, lbProjects);
 			//table.setWidget(6, 0, new HTML("<b>Notes:</b>&nbsp;&nbsp;&nbsp;"));
-			//table.setWidget(6, 1, txtFileNotes);
-			table.setWidget(7, 1, btnSubmit);
-			table.setWidget(7, 2, txtLogin);
-			table.setWidget(7, 3, txtProject);
-			table.setWidget(7, 4, txtOverwrite);
+			table.setWidget(6, 1, ckDataFile);
+			dtFile = new HTML("Data file:&nbsp;&nbsp;&nbsp;");
+			if(dataPanel.isVisible())
+			{
+				dtFile.setVisible(true);
+			}
+			else
+			{
+				dtFile.setVisible(false);
+			}
+			table.setWidget(7, 0, dtFile);
+			table.setWidget(7, 1, getDataPanel());
+			table.setWidget(8, 1, btnSubmit);
+			table.setWidget(8, 2, txtLogin);
+			table.setWidget(8, 3, txtProject);
+			table.setWidget(8, 4, txtOverwrite);
+			table.setWidget(8, 5, txtDataFileName);
 			
 			table.getCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 			table.getCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_TOP);
@@ -282,31 +430,46 @@ public class UploadJob extends Composite implements ClickHandler, ChangeHandler
 	        {
 	        	public void onSubmit(SubmitEvent event) 
 	        	{
-	        		// This event is fired just before the form is submitted. We can
-	        		// take this opportunity to perform validation. 
+	        		txtWarnings.setText("");
+        			txtWarningDesc.setText("");
+	        		// This event is fired just before the form is submitted to perform validation. 
 	        		String fileName1 = upload.getFilename().trim();
-	        		//String fileName2 = fileUpload.getFilename().trim();
-	        		//System.out.println("File1: " + fileName1);
-	        		if(fileName1.length() == 0 && tbName.getText().length() == 0)
+	        		String dataFileName = "";
+	        		String fileName = "";
+	        		
+	        		fileName = dataUpload.getFilename().trim();
+	        		if(ckDataFile.getValue())
 	        		{
-	        			txtWarnings.setHTML("*Please upload a file.");
-	        			txtWarningDesc.setHTML("*Please enter the Job name.");
+	        			if(fileName.length() == 0)
+	        			{
+	        				txtWarnings.setText("");
+		        			txtWarningDesc.setText("");
+		        			txtWarnings.setHTML("*Please upload a data file.");
+		        			event.cancel();
+	        			}
+	        			else
+	        			{
+	        				dataFileName = fileName;
+	        			}
+	        		}
+	        		else
+        			{
+        				dataFileName = fileName;
+        			}
+        			
+	        		txtDataFileName.setText(dataFileName);
+	        		
+	        		if(fileName1.length() == 0)
+	        		{
+	        			txtWarnings.setText("");
+	        			txtWarningDesc.setText("");
+	        			txtWarnings.setHTML("*Please upload a job file.");
 	        			event.cancel();
 	        		}
-	        		if((fileName1.length() == 0) && tbName.getText().length() != 0)
-	        		{
-	        			txtWarnings.setText("");
-	        			txtWarningDesc.setText("");
-	        			txtWarnings.setHTML("*Please upload a file.");
-	        			event.cancel();
-	        		}        		
-	        		if((!(fileName1.length() == 0)) && tbName.getText().length() == 0)
-	        		{
-	        			txtWarnings.setText("");
-	        			txtWarningDesc.setText("");
-	        			txtWarnings.setHTML("*Please enter the Job name.");
-	        			event.cancel();
-	        		}        		        				
+	        		
+	        		System.out.println("Job: " + fileName1 + " ckDataFile: " + ckDataFile.getValue() + " dataFileName: " + dataFileName + " New: " + fileName);
+	        		 
+	        		//event.cancel();
 	        	}
 	        });
 	       
@@ -434,6 +597,19 @@ public class UploadJob extends Composite implements ClickHandler, ChangeHandler
 			/*UserHistory userHistory = new UserHistory();
 			userHistory.history();*/
 		}
+		if(source == ckDataFile)
+		{
+			if(ckDataFile.getValue())
+			{
+				dtFile.setVisible(true);
+				dataPanel.setVisible(true);
+			}
+			else
+			{
+				dtFile.setVisible(false);
+				dataPanel.setVisible(false);
+			}
+		}
 	}	
 	
 	public void onChange(ChangeEvent event) 
@@ -441,7 +617,47 @@ public class UploadJob extends Composite implements ClickHandler, ChangeHandler
 		Widget source = (Widget)event.getSource();
 		if(source == lbProjects)
 		{
-			txtProject.setValue(lbProjects.getItemText(lbProjects.getSelectedIndex()));
+			String selectedProject = lbProjects.getItemText(lbProjects.getSelectedIndex());
+			txtProject.setValue(selectedProject);
+			currentUser = userCtx.getCurrentUser();
+			ProjectItems projectItems = currentUser.getProjectItems();
+			ArrayList<ProjectItem> projectList = projectItems.getItems();
+			int count = projectList.size();
+			
+			for(int i = 0; i < count; i++)
+			{
+				ProjectItem project = projectList.get(i);
+				String projectName = project.getProjectName();
+				System.out.println("ProjectName: " + projectName + " " + " required? " + project.getDataFile());
+				if(selectedProject.equalsIgnoreCase(projectName))
+				{
+					if(project.getDataFile().equalsIgnoreCase("Possibly Required"))
+					{			
+						ckDataFile.setVisible(true);
+						ckDataFile.setValue(true);
+						ckDataFile.setEnabled(true);
+						dataPanel.setVisible(true);
+						dtFile.setVisible(true);
+					}
+					else if(project.getDataFile().equalsIgnoreCase("Required"))
+					{
+						ckDataFile.setVisible(true);
+						ckDataFile.setValue(true);
+						ckDataFile.setEnabled(true);
+						dataPanel.setVisible(true);
+						dtFile.setVisible(true);
+					}
+					if(project.getDataFile().equalsIgnoreCase("Not Required"))
+					{
+						ckDataFile.setValue(false);
+						ckDataFile.setEnabled(false);
+						ckDataFile.setVisible(false);
+						dataPanel.setVisible(false);
+						dtFile.setVisible(false);
+					}
+					break;
+				}
+			}			
 		}				
 	}
 }

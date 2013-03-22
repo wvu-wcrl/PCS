@@ -73,10 +73,10 @@ public class UserValidationImpl extends RemoteServiceServlet implements UserVali
 	{
 		HttpServletRequest request = this.getThreadLocalRequest();
 		HttpSession session = request.getSession();
-		System.out.println("Session on server side: " + session);
-		System.out.println("Session value on server side: " + session.getAttribute(username));
-		Log.info("ValidateSession: Session on server side: " + session);
-		Log.info("ValidateSession: Session value on server side: " + session.getAttribute(username));
+		//System.out.println("Session on server side: " + session);
+		//System.out.println("Session value on server side: " + session.getAttribute(username));
+		//Log.info("ValidateSession: Session on server side: " + session);
+		//Log.info("ValidateSession: Session value on server side: " + session.getAttribute(username));
 		if (session.getAttribute(username) != null)
 		{
 			return (String) session.getAttribute(username);
@@ -91,7 +91,7 @@ public class UserValidationImpl extends RemoteServiceServlet implements UserVali
 	{
 		HttpServletRequest request = this.getThreadLocalRequest();
 		HttpSession session = request.getSession();
-		System.out.println("Clearing session on server side: " + session);
+		//System.out.println("Clearing session on server side: " + session);
 		System.out.println("Clearing session value on server side: " + session.getAttribute("Username"));
 		boolean sessionValue = false;
 		if (session.getAttribute("Username") != null)
@@ -211,6 +211,7 @@ public class UserValidationImpl extends RemoteServiceServlet implements UserVali
 								double usedRuntime = userUsage.getUserUsage(currentUser.getUserId()) ;
 								currentUser.setUsedRuntime(usedRuntime);
 								currentUser.setTotalRuntime(rs.getDouble("TotalUnits"));
+								currentUser.setNewsletter(rs.getInt("Newsletter"));
 							    break;							
 							}
 						}

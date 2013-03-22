@@ -14,5 +14,5 @@ public interface SaveSubscribedProjectService extends RemoteService {
 			return GWT.create(SaveSubscribedProjectService.class);
 		}
 	}
-	public int saveProject(int projectId, int userId, int preferredProject, String username, String projectName);
+	public int saveProject(int projectId, int userId, int addProjectDirectory, String username, String projectName, int preferredProject);
 }

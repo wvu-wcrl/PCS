@@ -41,7 +41,7 @@ public class AdminPage extends Composite implements SelectionHandler<Integer>
 	private String selectUser;
 	private String selectProject;
 	private String selectStatus;
-	
+	private ClusterStatus clusterStatus;
 	
 			    			
 	public AdminPage(int selectedIndex, String selectUser, String selectProject, String selectStatus) 
@@ -93,6 +93,7 @@ public class AdminPage extends Composite implements SelectionHandler<Integer>
    		projectList = new ProjectList(selectedIndex);
    		userFileList = new DataFileList();
    		fileList = new DataFileList();
+   		clusterStatus = new ClusterStatus();
    		
    		if(selectedIndex == 0)
    		{
@@ -130,6 +131,11 @@ public class AdminPage extends Composite implements SelectionHandler<Integer>
    			History.newItem("adminFileList");
    			fileList.refresh(-1, 0, 5, selectUser, selectProject);
    		}
+   		else if(selectedIndex == 6)
+   		{
+   			History.newItem("clusterStatus");
+   			clusterStatus.createComponents();
+   		}
    		
 	    panel.add(tPanel);
 	    
@@ -140,6 +146,7 @@ public class AdminPage extends Composite implements SelectionHandler<Integer>
 	    tPanel.add(projectList, "Projects");    
 	    tPanel.add(userFileList, "My Data files");
 	    tPanel.add(fileList, "Data files");
+	    tPanel.add(clusterStatus, "Cluster Status");
 	    
 	    idx = selectedIndex;
 	    tPanel.selectTab(selectedIndex);
@@ -226,6 +233,19 @@ public class AdminPage extends Composite implements SelectionHandler<Integer>
 				fileList.refresh(-1, 0, index, selectUser, selectProject);
 				tPanel.remove(index);
 				tPanel.insert(fileList, "Data files", index);
+				idx = index;
+				tPanel.selectTab(index);
+			}			
+		}
+		if(index == 6)
+		{	
+			if(!(idx == index))
+			{
+				History.newItem("clusterStatus");
+				clusterStatus = new ClusterStatus();
+				clusterStatus.createComponents();
+				tPanel.remove(index);
+				tPanel.insert(clusterStatus, "Cluster Status", index);
 				idx = index;
 				tPanel.selectTab(index);
 			}			

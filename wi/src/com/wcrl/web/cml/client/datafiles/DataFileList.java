@@ -210,51 +210,7 @@ public class DataFileList extends Composite implements ClickHandler, ChangeHandl
 	    		lstUsers.addChangeHandler(this);
 	    		lstProjects.addChangeHandler(this);
 	    			    		
-	    		populateUsersAndProjects();	    		
-	    		System.out.println("Users: " + lstUsers.getItemCount() + " User: " + lstUsers.getItemText(0) + " Selected: " + lstUsers.getSelectedIndex() + " " + lstUsers.getItemText(lstUsers.getSelectedIndex()) + " Project: " + lstProjects.getItemText(lstProjects.getSelectedIndex()) + " selectProject: " + selectProject);
-				
-				VerticalPanel panel = new VerticalPanel();
-				btnDelete = new Button("Delete");
-								
-				btnDelete.addClickHandler(this);
-				
-				panel.setSize("100%", "100%");
-				panel.setSpacing(10);
-				panel.add(lblMsg);
-				//Initialize the CellTable
-				table = (CellTable<DataFileItem>) onInitialize();
-				table.setStyleName("hand");
-				HorizontalPanel topPanel = new HorizontalPanel();
-				btnAddDataFile = new Button("Add File");
-				btnAddDataFile.addClickHandler(this);
-				topPanel.add(btnDelete);
-
-				topPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
-				topPanel.add(btnAddDataFile);
-				topPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
-				topPanel.add(lstUsers);
-				topPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
-				topPanel.add(lstProjects);
-				
-				topPanel.setCellHorizontalAlignment(lstUsers, HasHorizontalAlignment.ALIGN_CENTER);
-				topPanel.setCellVerticalAlignment(lstUsers, HasVerticalAlignment.ALIGN_MIDDLE);
-				topPanel.setCellHorizontalAlignment(lstProjects, HasHorizontalAlignment.ALIGN_CENTER);
-				topPanel.setCellVerticalAlignment(lstProjects, HasVerticalAlignment.ALIGN_MIDDLE);
-				/*topPanel.setCellHorizontalAlignment(lstStatus, HasHorizontalAlignment.ALIGN_CENTER);
-				topPanel.setCellVerticalAlignment(lstStatus, HasVerticalAlignment.ALIGN_MIDDLE);*/
-				
-				//panel.add(btnDelete);
-				panel.add(topPanel);
-				panel.add(linksPanel);
-				//Add the Pagers (top and bottom) and the CellTable to the panel
-				panel.add(topPager);
-				panel.add(table);
-				panel.add(pager);
-				panel.setCellHorizontalAlignment(topPager, HasHorizontalAlignment.ALIGN_CENTER);
-				panel.setCellHorizontalAlignment(pager, HasHorizontalAlignment.ALIGN_CENTER);
-				vPanel.add(panel);
-				vPanel.setCellHorizontalAlignment(panel, HasHorizontalAlignment.ALIGN_LEFT);
-	    		vPanel.setCellVerticalAlignment(panel, HasVerticalAlignment.ALIGN_TOP);       	   	    		
+	    		populateUsersAndProjects();    		     	   	    		
 	    	}
 	    }
 	    else
@@ -264,6 +220,54 @@ public class DataFileList extends Composite implements ClickHandler, ChangeHandl
 			login.displayLoginBox();
 	    }	    		
 	 }
+	
+	private void afterLoadingUsersAndProjects()
+	{
+		System.out.println("Users: " + lstUsers.getItemCount() + " User: " + lstUsers.getItemText(0) + " Selected: " + lstUsers.getSelectedIndex() + " " + lstUsers.getItemText(lstUsers.getSelectedIndex()) + " Project: " + lstProjects.getItemText(lstProjects.getSelectedIndex()) + " selectProject: " + selectProject);
+		
+		VerticalPanel panel = new VerticalPanel();
+		btnDelete = new Button("Delete");
+						
+		btnDelete.addClickHandler(this);
+		
+		panel.setSize("100%", "100%");
+		panel.setSpacing(10);
+		panel.add(lblMsg);
+		//Initialize the CellTable
+		table = (CellTable<DataFileItem>) onInitialize();
+		table.setStyleName("hand");
+		HorizontalPanel topPanel = new HorizontalPanel();
+		btnAddDataFile = new Button("Add File");
+		btnAddDataFile.addClickHandler(this);
+		topPanel.add(btnDelete);
+
+		topPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
+		topPanel.add(btnAddDataFile);
+		topPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
+		topPanel.add(lstUsers);
+		topPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
+		topPanel.add(lstProjects);
+		
+		topPanel.setCellHorizontalAlignment(lstUsers, HasHorizontalAlignment.ALIGN_CENTER);
+		topPanel.setCellVerticalAlignment(lstUsers, HasVerticalAlignment.ALIGN_MIDDLE);
+		topPanel.setCellHorizontalAlignment(lstProjects, HasHorizontalAlignment.ALIGN_CENTER);
+		topPanel.setCellVerticalAlignment(lstProjects, HasVerticalAlignment.ALIGN_MIDDLE);
+		/*topPanel.setCellHorizontalAlignment(lstStatus, HasHorizontalAlignment.ALIGN_CENTER);
+		topPanel.setCellVerticalAlignment(lstStatus, HasVerticalAlignment.ALIGN_MIDDLE);*/
+		
+		//panel.add(btnDelete);
+		panel.add(topPanel);
+		panel.add(linksPanel);
+		//Add the Pagers (top and bottom) and the CellTable to the panel
+		panel.add(topPager);
+		panel.add(table);
+		panel.add(pager);
+		panel.setCellHorizontalAlignment(topPager, HasHorizontalAlignment.ALIGN_CENTER);
+		panel.setCellHorizontalAlignment(pager, HasHorizontalAlignment.ALIGN_CENTER);
+		vPanel.add(panel);
+		vPanel.setCellHorizontalAlignment(panel, HasHorizontalAlignment.ALIGN_LEFT);
+		vPanel.setCellVerticalAlignment(panel, HasVerticalAlignment.ALIGN_TOP);  
+	}
 	
 	private void populateUsersAndProjects()
 	{
@@ -376,6 +380,7 @@ public class DataFileList extends Composite implements ClickHandler, ChangeHandl
 			projectMap.clear();
 			System.out.println("Number of projects: " + projectList.size() + " users: " + lstUsers.getItemCount());
 			Log.info("Number of projects: " + projectList.size() + " users: " + lstUsers.getItemCount());
+			afterLoadingUsersAndProjects();
 		}
 	};
 		
