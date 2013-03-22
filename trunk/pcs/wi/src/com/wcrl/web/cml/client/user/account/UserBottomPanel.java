@@ -154,7 +154,7 @@ public class UserBottomPanel extends Composite implements ClickHandler
 	  }
   	};
   	
-  	private void setRuntime(User currentUser)
+  	/*private void setRuntime(User currentUser)
     {
   	  String runtimeVal = "0";
   	  double usedRuntime = currentUser.getUsedRuntime();
@@ -187,10 +187,10 @@ public class UserBottomPanel extends Composite implements ClickHandler
   		  percentRuntime = (usedRuntime * 100)/(totalRuntime);
   	  }
   	  String percentVal = "0";
-  	  /*if(percentRuntime != 0)
+  	  if(percentRuntime != 0)
   	  {
   		  percentVal = Double.valueOf(percentRuntime).toString();
-  	  }*/
+  	  }
   	  percentVal = Double.valueOf(percentRuntime).toString();
   	  if(percentVal.length() > 5)
   	  {
@@ -201,6 +201,80 @@ public class UserBottomPanel extends Composite implements ClickHandler
   	  
   	  lblRuntime.setText(runtimeStr);
   	  
+    }*/
+  	
+  	private void setRuntime(User currentUser)
+    {
+  	  String runtimeVal = "0";
+  	  double usedRuntime = currentUser.getUsedRuntime();
+  	  double totalRuntime = currentUser.getTotalRuntime();
+  	  
+  	  if(usedRuntime > 0)
+  	  {
+  		  usedRuntime = usedRuntime/60; 
+  		  runtimeVal = Double.valueOf(usedRuntime).toString();
+  	  }
+  	  //System.out.println("runtimeVal: " + runtimeVal + " ");
+  	  int runtimeDecimalIndex = runtimeVal.indexOf(".");
+  	  if(runtimeDecimalIndex != -1)
+  	  {
+  		  if(runtimeVal.length() >= (runtimeDecimalIndex+3))
+  		  {
+  			runtimeVal = runtimeVal.substring(0, (runtimeDecimalIndex+3));
+  		  }
+  		  else
+  		  {
+  			runtimeVal = runtimeVal.substring(0, (runtimeDecimalIndex+2));
+  		  }  		
+  	  }
+  	  
+  	  String totalRuntimeVal = "0";
+  	  if(totalRuntime > 0)
+  	  {
+  		  totalRuntime = totalRuntime/60;
+  		  totalRuntimeVal = Double.valueOf(totalRuntime).toString();
+  	  }
+  	  //System.out.println("totalRuntimeVal: " + totalRuntimeVal + " ");
+  	  int totalRuntimeDecimalIndex = totalRuntimeVal.indexOf(".");
+  	  if(totalRuntimeDecimalIndex != -1)
+  	  {
+  		  if(totalRuntimeVal.length() >= (totalRuntimeDecimalIndex+3))
+  		  {
+  			totalRuntimeVal = totalRuntimeVal.substring(0, (totalRuntimeDecimalIndex+3));
+  		  }
+  		  else
+  		  {
+  			totalRuntimeVal = totalRuntimeVal.substring(0, (totalRuntimeDecimalIndex+2));
+  		  }
+  		
+  	  }
+  	  
+  	  double percentRuntime = 0;
+  	  if(usedRuntime > 0)
+  	  {
+  		  percentRuntime = (usedRuntime * 100)/(totalRuntime);
+  	  }
+  	  
+  	  String percentVal = "0";  	
+  	  percentVal = Double.valueOf(percentRuntime).toString();
+  	  int percentValIndex = percentVal.indexOf(".");
+  	  //System.out.println("PercentVal: " + percentVal + " ");
+  	  if(percentValIndex != -1)
+  	  {
+  		  if(percentVal.length() >= (percentValIndex+3))
+  		  {
+  			  percentVal = percentVal.substring(0, (percentValIndex+3));
+  		  }
+  		  else
+  		  {
+  			  percentVal = percentVal.substring(0, (percentValIndex+2));
+  		  }  		
+  	  }  	  
+  	  
+  	  //String runtimeStr = "You have used " + runtimeVal + " units of your " + totalRuntimeVal + " units of runtime (" + percentVal + "%).";
+  	  String runtimeStr = "You are using " + runtimeVal + " credits (" + percentVal + "%) of your " + totalRuntimeVal + " credits.";
+  	  
+  	  lblRuntime.setText(runtimeStr);  	  
     }
   
   private Widget getSeparator() 

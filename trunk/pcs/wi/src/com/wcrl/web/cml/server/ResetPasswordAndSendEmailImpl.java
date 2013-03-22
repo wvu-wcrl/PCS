@@ -6,8 +6,6 @@ Purpose: Java class to get a random password from ResetPassword.java, update it 
 package com.wcrl.web.cml.server;
 
 import java.io.File;
-import java.sql.CallableStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
@@ -63,10 +61,12 @@ public class ResetPasswordAndSendEmailImpl extends RemoteServiceServlet implemen
 	
 	public boolean resetAndEmail(int userId, String username, String primaryEmail)
 	{
-		DBConnection connection = new DBConnection();
-    	CallableStatement cs = null;
-    	String password = null;
+		//String password = "*****";
     	boolean flag = false;
+    	
+		/*DBConnection connection = new DBConnection();
+    	CallableStatement cs = null;
+    	
     	try 
     	{    		
     		connection.openConnection();
@@ -86,8 +86,8 @@ public class ResetPasswordAndSendEmailImpl extends RemoteServiceServlet implemen
     	catch(SQLException e)
     	{
     		e.printStackTrace();
-    	}   
-    	String content = getEmailContent(username, password);
+    	}*/   
+    	String content = getEmailContent(username);
     	/*@SuppressWarnings("unused")
     	SendEmail email = new SendEmail(primaryEmail, content, "welcomesubject");*/
     	SendEmail email = new SendEmail();
@@ -95,20 +95,20 @@ public class ResetPasswordAndSendEmailImpl extends RemoteServiceServlet implemen
 		return flag;
 	}
 	
-	public void createUserDirectories(String username) 
+	public int createUserDirectories(String username) 
 	{
-		 //File wd = new File(File.separator + "home" + File.separator + "abommaga" + File.separator);
 		 ResourceBundle scriptsPathConstants = ResourceBundle.getBundle("Scripts");
-		 File wd = new File(scriptsPathConstants.getString("tasks"));
-		 String path = wd + File.separator;
-		 //System.out.println("Working Directory: " + path);
-		 //Log.info("Working Directory: " + path);	     
-	     @SuppressWarnings("unused")
-	     Process proc = null;
+		 String path = scriptsPathConstants.getString("create_user_path").trim() + File.separator + scriptsPathConstants.getString("create_web_user").trim();
+		 Log.info("User creation path: " + path);	   
+		 int exitValue = -1;
 	     try 
 	     {
-	    	 proc = Runtime.getRuntime().exec(path + scriptsPathConstants.getString("create_web_user") + " " + username, null);
-	    	 //Log.info("After executing script." + path);
+	    	 ProcessBuilder processBuilder = new ProcessBuilder();
+	    	 processBuilder.command(path, username);
+	    	 Process proc = processBuilder.start();	    
+	    	 exitValue = proc.waitFor();    
+	    	 Log.info("CreateUserDirectories after executing user creation script: " + path + " exitValue: " + exitValue);
+	    	 Log.info("CreateUserDirectories after executing user creation script parameters: " + username);
 	     }	    
 		 catch (Exception e)
 		 {
@@ -121,17 +121,17 @@ public class ResetPasswordAndSendEmailImpl extends RemoteServiceServlet implemen
 				 Log.info("\n\t" + trace[i].toString());
 			 }
 			 e.printStackTrace();
-		 }		
+		 }
+		return exitValue;		
 	}
 
-	private String getEmailContent(String username, String password) 
+	private String getEmailContent(String username) 
 	{
 		String str = constants.getString("msg1") + "\\n\\n";
 		str = str + constants.getString("msg2") + "\\n";
 		str = str + constants.getString("msg3") + "\\n\\n";
 		str = str + constants.getString("msg4") + "\\n";
-		str = str + "Username: " + username + "\\n";
-		str = str + "Password: " + password + "\\n\\n";
+		str = str + "Username: " + username + "\\n\\n";
 		str = str + constants.getString("msg5") + "\\n\\n";
 		str = str + constants.getString("msg6") + "\\n\\n";
 		str = str + constants.getString("msg7");		

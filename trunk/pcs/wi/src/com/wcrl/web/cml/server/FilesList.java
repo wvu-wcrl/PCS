@@ -74,30 +74,48 @@ public class FilesList
 	
 	public ArrayList<JobItem> filesList(File aFile, String status, int start, int length, boolean ascend, String column, String userName, String projectName, int tab)
 	{  
-		String statusDirectory = "";
+		ArrayList<String> statusDirectory = new ArrayList<String>();
+		System.out.println("FileList status: " + status);
+		
+		//String statusDirectory = "";
 		if(status.equals("Queued"))
 		{
-			statusDirectory = "JobIn";
+			statusDirectory.add("JobIn");
+			//statusDirectory = "JobIn";
 		}
 		else if(status.equals("Running"))
 		{	
-			statusDirectory = "JobRunning";
+			statusDirectory.add("JobRunning");
+			//statusDirectory = "JobRunning";
 		}
 		else if(status.equals("Done"))
 		{
-			statusDirectory = "JobOut";
+			statusDirectory.add("JobOut");
+			//statusDirectory = "JobOut";
 		}
 		else if(status.equals("Archive"))
 		{
-			statusDirectory = "archive";
+			statusDirectory.add("archive");
+			//statusDirectory = "archive";
 		}
 		else if(status.equals("Suspended"))
 		{
-			statusDirectory = "Suspended";
+			statusDirectory.add("Suspend");
+			//statusDirectory = "Suspended";
 		}
 		else if(status.equals("Failed"))
 		{
-			statusDirectory = "JobFailed";
+			statusDirectory.add("JobFailed");
+			//statusDirectory = "JobFailed";
+		}
+		else
+		{
+			statusDirectory.add("JobIn");
+			statusDirectory.add("JobRunning");
+			statusDirectory.add("JobOut");
+			statusDirectory.add("archive");
+			statusDirectory.add("Suspend");
+			statusDirectory.add("JobFailed");
 		}
 	  
 		ArrayList<JobItem> items = new ArrayList<JobItem>();
@@ -108,11 +126,17 @@ public class FilesList
 		{
 			/*System.out.println("Parent DIR: " + aFile.getName());
 			System.out.println("Username not empty: " + userName);*/
+			int count = statusDirectory.size();
 			if(userName.length() > 0)
 			{
 				String userDirectoryPath = aFile.getPath() + File.separator + userName;
 				File userDirectory = new File(userDirectoryPath);
-				fileItems = getProjects(userDirectory, statusDirectory, projectName, fileItems, tab);
+				
+				for(int i = 0; i < count; i++)
+				{
+					String statusDirectoryKey = statusDirectory.get(i);
+					fileItems = getProjects(userDirectory, statusDirectoryKey, projectName, fileItems, tab);
+				}				
 			}
 			else
 			{
@@ -123,19 +147,26 @@ public class FilesList
 					for (int i = 0; i < usersDirList.length; i++)
 					{
 						File userDirectory  = usersDirList[i];
-						fileItems = getProjects(userDirectory, statusDirectory, projectName, fileItems, tab);					  
+						for(int k = 0; k < count; k++)
+						{
+							String statusDirectoryKey = statusDirectory.get(k);
+							fileItems = getProjects(userDirectory, statusDirectoryKey, projectName, fileItems, tab);
+						}											  
 					}
 				}
 			}
-			items = getJobFiles(fileItems, statusDirectory, start, length, ascend, column);
+			//items = getJobFiles(fileItems, statusDirectory, start, length, ascend, column);
+			items = getJobFiles(fileItems, start, length, ascend, column);
 		}	  
 		return items;
 	}
 	
-	public ArrayList<JobItem> getProjects(File userDirectory, String statusDirectory, String projectName, ArrayList<JobItem> fileItems, int tab)
+	public ArrayList<JobItem> getProjects(File userDirectory, String statusDirectoryKey, String projectName, ArrayList<JobItem> fileItems, int tab)
 	{
 		ResourceBundle constants = ResourceBundle.getBundle("Paths");
 		String projects = constants.getString("projects");
+		System.out.println("statusDirectoryKey: " + statusDirectoryKey);
+		String statusDirectory = constants.getString(statusDirectoryKey);
 		
 		if(userDirectory != null)
 		{
@@ -220,7 +251,7 @@ public class FilesList
 												status = getJobData(jobFile.getPath());
 											}																						
 										}
-										else if(statusDirectory.equals("JobOut") || statusDirectory.equals("archive"))
+										else if(statusDirectory.equals("JobOut") || statusDirectory.equals("Archive"))
 										{
 											status = "Done";
 										}
@@ -251,7 +282,8 @@ public class FilesList
 		return fileItems;
 	}
 	
-	public ArrayList<JobItem> getJobFiles(ArrayList<JobItem> fileItems, String statusDirectory, int start, int length, boolean ascend, String column)
+	//public ArrayList<JobItem> getJobFiles(ArrayList<JobItem> fileItems, String statusDirectory, int start, int length, boolean ascend, String column)
+	public ArrayList<JobItem> getJobFiles(ArrayList<JobItem> fileItems, int start, int length, boolean ascend, String column)
 	{
 		ArrayList<JobItem> items = new ArrayList<JobItem>();
 		fileItems = sort(fileItems, ascend, column);

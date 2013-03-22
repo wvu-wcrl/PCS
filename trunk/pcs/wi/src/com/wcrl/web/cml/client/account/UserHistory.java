@@ -272,6 +272,21 @@ public class UserHistory
 						RootPanel.get("content").add(userPage);
 	    	    	}	        		
 	        	}
+	        	if(historyToken.equals("clusterStatus"))
+	        	{
+	        		if(ctx.getCurrentUser().getUsertype().equalsIgnoreCase("Admin"))
+	    	    	{
+	        			AdminPage adminPage = new AdminPage(6, "", "", "");
+		        		VerticalPanel contentPanel = new VerticalPanel();
+						DockPanel outer = new DockPanel();		        	
+						outer.add(adminPage, DockPanel.CENTER);
+			        	outer.setWidth("100%");
+			        	outer.setCellWidth(adminPage, "100%");
+			        	contentPanel.add(outer);
+			        	RootPanel.get("content").clear();
+						RootPanel.get("content").add(adminPage);
+	    	    	}	        		
+	        	}
 	        	else if ("".equals(History.getToken()) || History.getToken().equalsIgnoreCase("Signout"))
 	      		{
 	        		//System.out.println("@@@In login");

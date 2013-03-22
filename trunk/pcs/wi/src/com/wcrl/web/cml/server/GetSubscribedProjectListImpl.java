@@ -26,9 +26,11 @@ public class GetSubscribedProjectListImpl extends RemoteServiceServlet implement
 	{	
 		ProjectItems projectItems = new ProjectItems();
 		HttpSession session = this.getThreadLocalRequest().getSession();
+		Log.info("Getting projectlist session: " + session.getAttribute("Username"));	
 		if (session.getAttribute("Username") != null)
 		{
 			projectItems = getProjects(userId);
+			Log.info("Getting projectlist projectItems: " + projectItems.getProjectItemCount());
 		}			
 		return projectItems.getItems();		
 	}	
@@ -46,7 +48,7 @@ public class GetSubscribedProjectListImpl extends RemoteServiceServlet implement
 			cs = connection.getConnection().prepareCall("{ call GetUserProjects(?) }");
 			cs.setInt(1, userId);
 			hasResults = cs.execute();
-			System.out.println("Getting projectlist: " + hasResults);			
+			Log.info("Getting projectlist: " + hasResults + " userid: " + userId);			
 			if(hasResults)
 			{
 				rs = cs.getResultSet();				
@@ -56,10 +58,25 @@ public class GetSubscribedProjectListImpl extends RemoteServiceServlet implement
 					int projectId = rs.getInt("projectId");
 					String projectName = rs.getString("projectname");
 					System.out.println("Getting projectlist: " + projectId + " Name: " +  projectName);
-					Log.info("Getting projectlist: " + projectId + " Name: " +  projectName);
+					Log.info("Getting projectlist: " + projectId + " Name: " +  projectName + " userid: " + userId + " row: " + rs.getRow());
 					projectItem.setProjectId(projectId);
 					projectItem.setProjectName(projectName);
 					projectItem.setDescription(rs.getString("description"));
+					
+					int dataFileRequired = rs.getInt("datafile");
+					if(dataFileRequired == 0)
+					{
+						projectItem.setDataFile("Not Required");
+					}
+					else if(dataFileRequired == 1)
+					{
+						projectItem.setDataFile("Required");
+					}
+					else
+					{
+						projectItem.setDataFile("Possibly Required");
+					}
+					
 					projectItems.addProjectItem(projectItem);
 				}									
 				rs.close();

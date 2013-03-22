@@ -8,7 +8,6 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.wcrl.web.cml.client.jobs.JobItem;
 
 @RemoteServiceRelativePath("getPage")
-
 public interface GetPageService extends RemoteService {
 
 	public static class Util {

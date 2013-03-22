@@ -17,6 +17,7 @@ import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -26,6 +27,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -74,6 +76,7 @@ public class EditUserProfile extends Composite implements ClickHandler
 	private Label lblEmail;
 	private Label lblFirstName;
 	private Label lblLastName;
+	private CheckBox ckNewsletter;
 	
 	public EditUserProfile()
 	{
@@ -165,6 +168,7 @@ public class EditUserProfile extends Composite implements ClickHandler
 		lblJobTitle = new Label();
 		lblCountry = new Label();
 		lblEmail = new Label();
+		ckNewsletter = new CheckBox();
 		
 		lblFirstName.addClickHandler(this);
 		lblLastName.addClickHandler(this);
@@ -172,7 +176,8 @@ public class EditUserProfile extends Composite implements ClickHandler
 		lblJobTitle.addClickHandler(this);
 		lblCountry.addClickHandler(this);
 		lblEmail.addClickHandler(this);
-		
+		ckNewsletter.addClickHandler(this);
+				
 		btnAdd = new Button(">>");
 		btnAdd.addClickHandler(this);
 		btnRemove = new Button("<<");
@@ -287,6 +292,10 @@ public class EditUserProfile extends Composite implements ClickHandler
 	    table.getCellFormatter().setVerticalAlignment(11, 2, HasVerticalAlignment.ALIGN_MIDDLE);
 	    table.getCellFormatter().setHorizontalAlignment(11, 3, HasHorizontalAlignment.ALIGN_LEFT);
 	    table.getCellFormatter().setVerticalAlignment(11, 3, HasVerticalAlignment.ALIGN_MIDDLE);
+	    table.getCellFormatter().setHorizontalAlignment(12, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+	    table.getCellFormatter().setVerticalAlignment(12, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+	    table.getCellFormatter().setHorizontalAlignment(12, 1, HasHorizontalAlignment.ALIGN_LEFT);
+	    table.getCellFormatter().setVerticalAlignment(12, 1, HasVerticalAlignment.ALIGN_MIDDLE);
 	    
 	    VerticalPanel backPanel = new VerticalPanel();
 	    backPanel.add(hlBack);
@@ -317,6 +326,12 @@ public class EditUserProfile extends Composite implements ClickHandler
 			 status = "Not approved";
 		 }	 
 		lblStatus.setText(status);
+		
+		if(receivedUser.getNewsletter() == 1)
+		{
+			ckNewsletter.setValue(true);
+		}
+		
 		if(receivedUser.getFirstName().length() == 0)
 		{
 			lblFirstName.setText(receivedUser.getFirstName() + ".");
@@ -379,30 +394,36 @@ public class EditUserProfile extends Composite implements ClickHandler
 		table.setWidget(9, 1, lblJobTitle);
 		table.setWidget(10, 0, new HTML("<b>Country:</b>&nbsp;&nbsp;&nbsp;"));
 		table.setWidget(10, 1, lblCountry);
-		table.setWidget(11, 0, new HTML("<b>Projects:</b>&nbsp;&nbsp;&nbsp;"));
+		
 		
 		VerticalPanel projectsPanel = new VerticalPanel();
 		projectsPanel.add(new HTML("<br>"));
 		projectsPanel.add(new Label("Projects"));
 		//projectsPanel.add(new HTML("<br>"));
 		projectsPanel.add(lstProjects);
-		
+					
 		VerticalPanel subscribedProjectsPanel = new VerticalPanel();
 		subscribedProjectsPanel.add(new HTML("<br>"));
 		subscribedProjectsPanel.add(new Label("Subscribed Projects"));
 		//subscribedProjectsPanel.add(new HTML("<br>"));
 		subscribedProjectsPanel.add(lstSelectedProjects);
-		
-		table.setWidget(11, 1, projectsPanel);
-		table.setWidget(11, 2, buttonPanel);
-		table.setWidget(11, 3, subscribedProjectsPanel);			
+				
+		if(receivedUser.getStatus() == 1)
+		{
+			table.setWidget(11, 0, new HTML("<b>Projects:</b>&nbsp;&nbsp;&nbsp;"));
+			table.setWidget(11, 1, projectsPanel);
+			table.setWidget(11, 2, buttonPanel);
+			table.setWidget(11, 3, subscribedProjectsPanel);
+		}
+		table.setWidget(12, 0, new HTML("<b>Subscribe to Newsletters:</b>&nbsp;&nbsp;&nbsp;"));
+		table.setWidget(12, 1, ckNewsletter);
 	}
 
 	
 	public void onClick(ClickEvent event) 
 	{
 		Widget source = (Widget) event.getSource();
-		if(source == btnAdd)
+		/*if(source == btnAdd)
 		{
 			projectList = new ArrayList<ProjectItem>();
 			for(int i = 0; i < lstProjects.getItemCount(); i++)
@@ -420,7 +441,7 @@ public class EditUserProfile extends Composite implements ClickHandler
 						item.setProjectName(project);
 						projectList.add(item);
 						SaveSubscribedProjectServiceAsync service = SaveSubscribedProjectService.Util.getInstance();
-			    	  	service.saveProject(projectId, receivedUser.getUserId(), 0, receivedUser.getUsername(), project, addProjectCallback);
+			    	  	service.saveProject(projectId, receivedUser.getUserId(), 0, receivedUser.getUsername(), project, 1, addProjectCallback);
 					}
 					catch(NumberFormatException e)
 					{
@@ -428,6 +449,50 @@ public class EditUserProfile extends Composite implements ClickHandler
 					}					
 				}
 			}
+		}*/
+		if(source == btnAdd)
+		{
+			projectList = new ArrayList<ProjectItem>();
+			for(int i = 0; i < lstProjects.getItemCount(); i++)
+			{
+				if(lstProjects.isItemSelected(i))
+				{
+					String project = lstProjects.getItemText(i);
+					String value = lstProjects.getValue(i);
+					Log.info("Project to subscribe: " + project);
+					ProjectItem item = new ProjectItem();
+					try
+					{
+						int projectId = Integer.parseInt(value);
+						item.setProjectId(projectId);
+						item.setProjectName(project);
+						projectList.add(item);
+					}
+					catch(NumberFormatException e)
+					{
+						e.printStackTrace();
+					}					
+				}
+			}
+			int projCount = projectList.size();
+			int k = 0;
+			for(int i = 0; i < projCount; i++)
+			{
+				ProjectItem item = projectList.get(i);
+				int projectId = item.getProjectId();
+				String project = item.getProjectName();
+				int preferredProject = 0;
+				
+				if(k == (projCount - 1))
+				{
+					preferredProject = 1;
+				}
+				System.out.println("Project: " + project + " project count: " + (projCount - 1) + " k: " + k + " preferredProject: " + preferredProject);
+				SaveSubscribedProjectServiceAsync service = SaveSubscribedProjectService.Util.getInstance();
+	    	  	service.saveProject(projectId, receivedUser.getUserId(), 0, receivedUser.getUsername(), project, preferredProject, addProjectCallback);
+				k++;
+			}
+			
 		}
 		if(source == btnRemove)
 		{
@@ -457,11 +522,32 @@ public class EditUserProfile extends Composite implements ClickHandler
 			}
 		}
 		if (source == hlBack) 
-		{			
+		{		
+			if(History.getToken().length() == 0)
+			{
+				RootPanel.get("content").clear();
+				AccountSettings accountSettings = new AccountSettings(0);
+				RootPanel.get("content").add(accountSettings);
+			}
+			History.newItem("settings");
 			/*RootPanel.get("content").clear();
 			AccountSettings accountSettings = new AccountSettings();
 			RootPanel.get("content").add(accountSettings);*/
-			History.newItem("settings");
+		}
+		if(source == ckNewsletter)
+		{			
+			boolean subscriptionValue = ckNewsletter.getValue();
+			System.out.println("User: " + receivedUser.getUserId() + " subscriptionValue: " + subscriptionValue);
+			if(subscriptionValue)
+			{
+				UpdateUserServiceAsync service = UpdateUserService.Util.getInstance();
+				service.updateNewsletterSubscription(receivedUser.getUserId(), 1, updateUserNewsletterSubscriptionCallback);
+			}
+			else
+			{
+				UpdateUserServiceAsync service = UpdateUserService.Util.getInstance();
+				service.updateNewsletterSubscription(receivedUser.getUserId(), 0, updateUserNewsletterSubscriptionCallback);
+			}			
 		}
 		if(source == lblEmail)
 		{
@@ -888,7 +974,7 @@ public class EditUserProfile extends Composite implements ClickHandler
 			}			
 		}
 	};
-	
+		
 	AsyncCallback<Boolean> editEmailCallback = new AsyncCallback<Boolean>()
 	{
 		public void onFailure(Throwable caught) 
@@ -1113,6 +1199,42 @@ public class EditUserProfile extends Composite implements ClickHandler
 					lblCountry.setText(receivedUser.getCountry());
 					lblMessage.setText("Error in the update of country. Please try again later.");
 				}
+			}
+		}
+	};
+	
+	AsyncCallback<Integer> updateUserNewsletterSubscriptionCallback = new AsyncCallback<Integer>()
+	{
+		public void onFailure(Throwable arg0)
+		{
+			System.out.print(arg0.toString());
+			Log.info("EditUserProfile updateUserNewsletterSubscriptionCallback: "+  arg0.toString());
+		}
+		public void onSuccess(Integer flag)
+		{
+			lblMessage.setText("");
+			boolean newsletterValue = ckNewsletter.getValue();
+			int newsletter = 0;
+			if(newsletterValue)
+			{
+				newsletter = 1;
+			}
+			else
+			{
+				newsletter = 0;
+			}
+			int userNewsletter = receivedUser.getNewsletter();
+			if(flag == 0)
+			{								
+				if(userNewsletter != newsletter)
+				{
+					lblMessage.setText("User newsletter subscription is updated.");
+				}
+				receivedUser.setNewsletter(newsletter);
+			}
+			else
+			{
+				lblMessage.setText("Error in the update of newsletter subscription. Please try again later.");
 			}
 		}
 	};

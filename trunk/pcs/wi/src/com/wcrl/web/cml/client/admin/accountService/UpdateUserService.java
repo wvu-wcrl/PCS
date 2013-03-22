@@ -16,11 +16,12 @@ public interface UpdateUserService extends RemoteService {
 		}
 	}
 	
-	public int updateUserStatus(int userId, int status, String username, String primaryEmail);	
+	public int updateUserStatus(int userId, int newStatus, int currentStatus, String username, String primaryEmail);	
 	public int updateFirstName(int userId, String firstName);
 	public int updateLastName(int userId, String lastName);
 	public int updateOrganization(int userId, String organization);
 	public int updateJobTitle(int userId, String jobTitle);
 	public int updateCountry(int userId, String country);
 	public double updateQuota(int userId, User user, double newQuota);
+	public int updateNewsletterSubscription(int userId, int subscription);
 }

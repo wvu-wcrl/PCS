@@ -98,8 +98,8 @@ public class SendEmail
 	{
 		 String subject = constants.getString(subjectContext);
 		 ResourceBundle scriptsPathConstants = ResourceBundle.getBundle("Scripts");
-		 File wd = new File(scriptsPathConstants.getString("send_email_path"));
-		 String scriptFileName = scriptsPathConstants.getString("send_project_email");
+		 File wd = new File(scriptsPathConstants.getString("send_email_path").trim());
+		 String scriptFileName = scriptsPathConstants.getString("send_project_email").trim();
 		 String path = wd + File.separator + scriptFileName;		 
 		 System.out.println("Script Working Directory: " + path);
 		 Log.info("Script Working Directory: " + path);	     

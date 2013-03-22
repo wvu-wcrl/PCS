@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.cell.client.CheckboxCell;
@@ -65,6 +67,8 @@ import com.wcrl.web.cml.client.jobService.DeleteJobsService;
 import com.wcrl.web.cml.client.jobService.DeleteJobsServiceAsync;
 import com.wcrl.web.cml.client.jobService.GetPageService;
 import com.wcrl.web.cml.client.jobService.GetPageServiceAsync;
+import com.wcrl.web.cml.client.jobService.GetPreferredProjectService;
+import com.wcrl.web.cml.client.jobService.GetPreferredProjectServiceAsync;
 import com.wcrl.web.cml.client.jobService.GetSubscribedProjectListService;
 import com.wcrl.web.cml.client.jobService.GetSubscribedProjectListServiceAsync;
 import com.wcrl.web.cml.client.jobService.ResumeJobsService;
@@ -107,6 +111,7 @@ public class JobList extends Composite implements ClickHandler, ChangeHandler
 	private int from;
 	private String selectUser;
 	private String selectProject;
+	private String selectStatus;
 	private int counter;
 	private MyDataProvider dataProvider1;
 	
@@ -116,7 +121,7 @@ public class JobList extends Composite implements ClickHandler, ChangeHandler
 		vPanel = new VerticalPanel();		
 		initWidget(vPanel);
 		ctx = (ClientContext) RPCClientContext.get();	
-		System.out.println("sessionID: " + sessionID + " ctx: " + ctx); 
+		Log.info("sessionID: " + sessionID + " ctx: " + ctx); 
 		if(sessionID != null)
 		{
 			 if(ctx != null)
@@ -142,6 +147,9 @@ public class JobList extends Composite implements ClickHandler, ChangeHandler
 	{		
 		this.selectUser = selectUser;
 		this.selectProject = selectProject;
+		this.selectStatus = selectStatus;
+		
+		Log.info("JobList selectProject: " + selectProject);
 		
 		if(fromTab == 0)
 		{			
@@ -169,8 +177,40 @@ public class JobList extends Composite implements ClickHandler, ChangeHandler
 			this.Start = start;
 		}
 		
-		getJobList(selectStatus);
+		GetPreferredProjectServiceAsync service = GetPreferredProjectService.Util.getInstance();
+      	service.getPreferredProject(currentUser.getUserId(), preferredProjectCallback);		
 	}
+	
+	AsyncCallback<HashMap<Integer, String>> preferredProjectCallback = new AsyncCallback<HashMap<Integer, String>>()
+	  {
+		  public void onFailure(Throwable caught)
+		  {
+			  Log.info("UploadJob preferredProjectCallback error: " + caught.toString());
+		  }
+		  public void onSuccess(HashMap<Integer, String> project)
+		  {
+			  if(project != null)
+			  {
+				  Set<Entry<Integer, String>> entrySet = project.entrySet();
+				  for(Entry<Integer, String> entry : entrySet)
+				  {
+					  currentUser.setPreferredProjectId(entry.getKey());
+					  currentUser.setPreferredProject(entry.getValue());
+					  Log.info("JobList: " + entry.getKey() + " " + entry.getValue());
+				  }
+				  ctx.setCurrentUser(currentUser);				  
+			  }
+			  /*if(selectProject != null)
+			  {
+				  if(selectProject.length() == 0)
+				  {
+					  selectProject = currentUser.getPreferredProject();
+				  }
+			  }*/
+			  selectProject = currentUser.getPreferredProject();
+			  getJobList(selectStatus);
+		  }
+	  };
 	
 	
 	public void getJobList(String selectStatus) 
@@ -204,13 +244,14 @@ public class JobList extends Composite implements ClickHandler, ChangeHandler
 				btnResume = new Button("Resume");
 				btnArchive = new Button("Archive");
 				
-				lstStatus.addItem("Queued", "0");
-				lstStatus.addItem("Running", "1");				
-				lstStatus.addItem("Done", "2");
-				lstStatus.addItem("Archive", "3");
-				lstStatus.addItem("Suspended", "4");
-				lstStatus.addItem("Failed", "5");
-				lstStatus.setItemSelected(1, true);
+				lstStatus.addItem("All", "0");
+				lstStatus.addItem("Queued", "1");
+				lstStatus.addItem("Running", "2");				
+				lstStatus.addItem("Done", "3");
+				lstStatus.addItem("Archive", "4");
+				lstStatus.addItem("Suspended", "5");
+				lstStatus.addItem("Failed", "6");
+				lstStatus.setItemSelected(2, true);
 				//lstStatus.setItemSelected(2, true);
 				
 				
@@ -251,59 +292,7 @@ public class JobList extends Composite implements ClickHandler, ChangeHandler
 	    		lstUsers.addChangeHandler(this);
 	    		lstProjects.addChangeHandler(this);
 	    			    		
-	    		populateUsersAndProjects();	    		
-	    		System.out.println("Users: " + lstUsers.getItemCount() + " User: " + lstUsers.getItemText(0) + " Selected: " + lstUsers.getSelectedIndex() + " " + lstUsers.getItemText(lstUsers.getSelectedIndex()) + " Project: " + lstProjects.getItemText(lstProjects.getSelectedIndex()) + " selectProject: " + selectProject);
-				
-				VerticalPanel panel = new VerticalPanel();
-				btnDelete = new Button("Delete");
-								
-				btnDelete.addClickHandler(this);
-				btnSuspend.addClickHandler(this);
-				btnResume.addClickHandler(this);
-				btnArchive.addClickHandler(this);
-				
-				panel.setSize("100%", "100%");
-				panel.setSpacing(10);
-				panel.add(lblMsg);
-				//Initialize the CellTable
-				table = (CellTable<JobItem>) onInitialize();
-				table.setStyleName("hand");
-				HorizontalPanel topPanel = new HorizontalPanel();
-				btnAddJob = new Button("Add Job");
-				btnAddJob.addClickHandler(this);
-				topPanel.add(btnDelete);
-				topPanel.add(btnSuspend);
-				topPanel.add(btnResume);
-				topPanel.add(btnArchive);
-
-				topPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
-				topPanel.add(btnAddJob);
-				topPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
-				topPanel.add(lstUsers);
-				topPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
-				topPanel.add(lstProjects);
-				topPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
-				topPanel.add(lstStatus);
-				
-				topPanel.setCellHorizontalAlignment(lstUsers, HasHorizontalAlignment.ALIGN_CENTER);
-				topPanel.setCellVerticalAlignment(lstUsers, HasVerticalAlignment.ALIGN_MIDDLE);
-				topPanel.setCellHorizontalAlignment(lstProjects, HasHorizontalAlignment.ALIGN_CENTER);
-				topPanel.setCellVerticalAlignment(lstProjects, HasVerticalAlignment.ALIGN_MIDDLE);
-				topPanel.setCellHorizontalAlignment(lstStatus, HasHorizontalAlignment.ALIGN_CENTER);
-				topPanel.setCellVerticalAlignment(lstStatus, HasVerticalAlignment.ALIGN_MIDDLE);
-				
-				//panel.add(btnDelete);
-				panel.add(topPanel);
-				panel.add(linksPanel);
-				//Add the Pagers (top and bottom) and the CellTable to the panel
-				panel.add(topPager);
-				panel.add(table);
-				panel.add(pager);
-				panel.setCellHorizontalAlignment(topPager, HasHorizontalAlignment.ALIGN_CENTER);
-				panel.setCellHorizontalAlignment(pager, HasHorizontalAlignment.ALIGN_CENTER);
-				vPanel.add(panel);
-				vPanel.setCellHorizontalAlignment(panel, HasHorizontalAlignment.ALIGN_LEFT);
-	    		vPanel.setCellVerticalAlignment(panel, HasVerticalAlignment.ALIGN_TOP);       	   	    		
+	    		populateUsersAndProjects();	    		      	   	    		
 	    	}
 	    }
 	    else
@@ -313,6 +302,62 @@ public class JobList extends Composite implements ClickHandler, ChangeHandler
 			login.displayLoginBox();
 	    }	    		
 	 }
+	
+	private void afterLoadingUsersAndProjects()
+	{
+		Log.info("Users: " + lstUsers.getItemCount() + " User: " + lstUsers.getItemText(0) + " Selected: " + lstUsers.getSelectedIndex() + " " + lstUsers.getItemText(lstUsers.getSelectedIndex()) + " Project: " + lstProjects.getItemText(lstProjects.getSelectedIndex()) + " selectProject: " + selectProject);
+		
+		VerticalPanel panel = new VerticalPanel();
+		btnDelete = new Button("Delete");
+						
+		btnDelete.addClickHandler(this);
+		btnSuspend.addClickHandler(this);
+		btnResume.addClickHandler(this);
+		btnArchive.addClickHandler(this);
+		
+		panel.setSize("100%", "100%");
+		panel.setSpacing(10);
+		panel.add(lblMsg);
+		//Initialize the CellTable
+		table = (CellTable<JobItem>) onInitialize();
+		table.setStyleName("hand");
+		HorizontalPanel topPanel = new HorizontalPanel();
+		btnAddJob = new Button("Add Job");
+		btnAddJob.addClickHandler(this);
+		topPanel.add(btnDelete);
+		topPanel.add(btnSuspend);
+		topPanel.add(btnResume);
+		topPanel.add(btnArchive);
+
+		topPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
+		topPanel.add(btnAddJob);
+		topPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
+		topPanel.add(lstUsers);
+		topPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
+		topPanel.add(lstProjects);
+		topPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
+		topPanel.add(lstStatus);
+		
+		topPanel.setCellHorizontalAlignment(lstUsers, HasHorizontalAlignment.ALIGN_CENTER);
+		topPanel.setCellVerticalAlignment(lstUsers, HasVerticalAlignment.ALIGN_MIDDLE);
+		topPanel.setCellHorizontalAlignment(lstProjects, HasHorizontalAlignment.ALIGN_CENTER);
+		topPanel.setCellVerticalAlignment(lstProjects, HasVerticalAlignment.ALIGN_MIDDLE);
+		topPanel.setCellHorizontalAlignment(lstStatus, HasHorizontalAlignment.ALIGN_CENTER);
+		topPanel.setCellVerticalAlignment(lstStatus, HasVerticalAlignment.ALIGN_MIDDLE);
+		
+		//panel.add(btnDelete);
+		panel.add(topPanel);
+		panel.add(linksPanel);
+		//Add the Pagers (top and bottom) and the CellTable to the panel
+		panel.add(topPager);
+		panel.add(table);
+		panel.add(pager);
+		panel.setCellHorizontalAlignment(topPager, HasHorizontalAlignment.ALIGN_CENTER);
+		panel.setCellHorizontalAlignment(pager, HasHorizontalAlignment.ALIGN_CENTER);
+		vPanel.add(panel);
+		vPanel.setCellHorizontalAlignment(panel, HasHorizontalAlignment.ALIGN_LEFT);
+		vPanel.setCellVerticalAlignment(panel, HasVerticalAlignment.ALIGN_TOP); 
+	}
 	
 	private void populateUsersAndProjects()
 	{
@@ -338,7 +383,7 @@ public class JobList extends Composite implements ClickHandler, ChangeHandler
 					currentUser.setUserItems(userItems);
 					ctx.setCurrentUser(currentUser);
 				}
-				System.out.println("In testing 2: " + systemUsers.size());
+				Log.info("In testing 2: " + systemUsers.size());
 				
 				HashMap<Integer, String> userMap = new HashMap<Integer, String>();				
 				if(tab == 2)
@@ -401,6 +446,7 @@ public class JobList extends Composite implements ClickHandler, ChangeHandler
 		
 		public void onSuccess(ArrayList<ProjectItem> projectList)
 		{
+			Log.info("JobList subscribedProjectsCallback projectList: " + projectList + " cnt: " + projectList.size());
 			HashMap<Integer, String> projectMap = new HashMap<Integer, String>();
 			int count = projectList.size();
 			for(int index = 0; index < count; index++)
@@ -412,13 +458,16 @@ public class JobList extends Composite implements ClickHandler, ChangeHandler
 				{
 					projectMap.put(projectId, projectName);					
 					lstProjects.addItem(projectName, Integer.valueOf(projectId).toString());
-					System.out.println("Project: " + projectName + " Select: " + selectProject);
-					if(selectProject.equalsIgnoreCase(projectName))
+					Log.info("JobList Project: " + projectName + " Select: " + selectProject);
+					if(selectProject != null)
 					{
-						int projectCountInList = lstProjects.getItemCount();
-						lstProjects.setItemSelected(projectCountInList-1, true);
-						System.out.println("Item selected Project: " + projectName);
-					}
+						if(selectProject.equalsIgnoreCase(projectName))
+						{
+							int projectCountInList = lstProjects.getItemCount();
+							lstProjects.setItemSelected(projectCountInList-1, true);
+							System.out.println("Item selected Project: " + projectName);
+						}						
+					}					
 				}
 			}
 			if(lstProjects.getSelectedIndex() == -1)
@@ -426,9 +475,11 @@ public class JobList extends Composite implements ClickHandler, ChangeHandler
 				lstProjects.setItemSelected(0, true);
 			}
 			System.out.println("Project selected: " + lstProjects.getItemText(lstProjects.getSelectedIndex()));
+			Log.info("Project selected: " + lstProjects.getItemText(lstProjects.getSelectedIndex()));
 			projectMap.clear();
 			System.out.println("Number of projects: " + projectList.size() + " users: " + lstUsers.getItemCount());
-			Log.info("Number of projects: " + projectList.size() + " users: " + lstUsers.getItemCount());
+			Log.info("JobList Number of projects: " + projectList.size() + " users: " + lstUsers.getItemCount());
+			afterLoadingUsersAndProjects();
 		}
 	};
 		
@@ -482,7 +533,7 @@ public class JobList extends Composite implements ClickHandler, ChangeHandler
 	    initTableColumns(selectionModel, sortHandler);	
 	    sortList = table.getColumnSortList();
 	    ArrayList<String> nameValues = getSelectedUserAndProjectName();
-	    System.out.println("Users: " + lstUsers.getItemCount() + " User: " + lstUsers.getItemText(0) + " Username: " + nameValues.get(0) + " Project: " + nameValues.get(1));
+	    Log.info("onInitialize Users: " + lstUsers.getItemCount() + " User: " + lstUsers.getItemText(0) + " Username: " + nameValues.get(0) + " Project: " + nameValues.get(1));
 
 	    // Create a data provider.
 	    dataProvider1 = new MyDataProvider();
@@ -590,14 +641,14 @@ public class JobList extends Composite implements ClickHandler, ChangeHandler
 				{					
 					from = -1;
 					ArrayList<String> nameValues = getSelectedUserAndProjectName();
-					System.out.println("Start: " + Start + " End: " + (Start + length) + " Date: " + new Date() /*+ " sortList: " + column.getColumn()*/ + " Compare: " + "Rate3by4n1000".compareTo("Rate3by4n1000_1") + " user: " + nameValues.get(0) + " project: " + nameValues.get(1));
+					Log.info("Start: " + Start + " End: " + (Start + length) + " Date: " + new Date() /*+ " sortList: " + column.getColumn()*/ + " Compare: " + "Rate3by4n1000".compareTo("Rate3by4n1000_1") + " user: " + nameValues.get(0) + " project: " + nameValues.get(1));
 					service.getPage(Start, Start + length, !sortList.get(0).isAscending(), lstStatus.getItemText(lstStatus.getSelectedIndex()), nameValues.get(0), nameValues.get(1), tab, callback);
 				}
 				else
 				{
 					Start = start;
 					ArrayList<String> nameValues = getSelectedUserAndProjectName();	
-					System.out.println("@@@Start: " + start + " End: " + (start + length) + " Date: " + new Date() /*+ " sortList: " + column.getColumn()*/ + " Compare: " + "Rate3by4n1000".compareTo("Rate3by4n1000_1") + " user: " + nameValues.get(0) + " project: " + nameValues.get(1));
+					Log.info("@@@Start: " + start + " End: " + (start + length) + " Date: " + new Date() /*+ " sortList: " + column.getColumn()*/ + " Compare: " + "Rate3by4n1000".compareTo("Rate3by4n1000_1") + " user: " + nameValues.get(0) + " project: " + nameValues.get(1));
 					service.getPage(start, start + length, !sortList.get(0).isAscending(), lstStatus.getItemText(lstStatus.getSelectedIndex()), nameValues.get(0), nameValues.get(1), tab, callback);
 				}				
 		    }
@@ -679,11 +730,13 @@ public class JobList extends Composite implements ClickHandler, ChangeHandler
 	    		return object.getStatus();
 	    	}
 	    };
-	    if(tab != 2)
+	    table.addColumn(statusColumn, "Status");
+	    table.setColumnWidth(statusColumn, 10, Unit.PCT);
+	    /*if(tab != 2)
 	    {
 	    	table.addColumn(statusColumn, "Status");
 		    table.setColumnWidth(statusColumn, 10, Unit.PCT);
-	    }	    	    
+	    }*/	    	    
 	  }
 	
 	public void onClick(ClickEvent event) 

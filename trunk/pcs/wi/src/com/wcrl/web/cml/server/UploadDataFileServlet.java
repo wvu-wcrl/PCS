@@ -28,11 +28,6 @@ import com.allen_sauer.gwt.log.client.Log;
  public class UploadDataFileServlet extends HttpServlet {
       
 	 private static final long serialVersionUID = -1660370413961174966L;
-	 /*private Map<String, String> fileDetailsMap = new HashMap<String, String>();
-	 private ArrayList<String> allowedFormats = new ArrayList<String>();
-	 private String login;
-	 private String project;
-	 private String overwrite;*/
 	 private ResourceBundle constants = ResourceBundle.getBundle("Paths");
 	 	 	 
 	 public UploadDataFileServlet()
@@ -79,7 +74,6 @@ import com.allen_sauer.gwt.log.client.Log;
                      
                      allowedFormats = getDataFileExtensionsForProject(project);
                      
-                     //System.out.println(" Items size:" + items.size() + " Login: " + login + " Project: " + project);
                      boolean fileFlag = true;  
                      String[] files = new String[2];
                      ArrayList<FileItem> fileItems = new ArrayList<FileItem>();
@@ -261,7 +255,7 @@ import com.allen_sauer.gwt.log.client.Log;
 			     item.write(uploadedFile);
 			     response.setStatus(HttpServletResponse.SC_CREATED);			     
 			     response.flushBuffer();
-			     String msg = 1 + "~Job created and queued for execution.";
+			     String msg = 1 + "~Data file added.";
 					 
 			     Log.info("Message: " + msg + " Absolute path: " + uploadedFile.getAbsolutePath() + " Path: " + uploadedFile.getPath());
 			     /*Log.info("Absolute path: " + uploadedFile.getAbsolutePath() + " Path: " + uploadedFile.getPath());
@@ -292,7 +286,7 @@ import com.allen_sauer.gwt.log.client.Log;
 			 else
 			 {
 				//Code Added
-				 String msg = 2 + "~Error in adding job. Please try again later.";
+				 String msg = 2 + "~Error in adding file. Please try again later.";
 				 response.getWriter().print(msg);
 			     //throw new IOException(msg);                        
 			 }    		 

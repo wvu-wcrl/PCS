@@ -524,7 +524,7 @@ public class UserDetails_ver1 extends Composite implements ClickHandler
 		if(source == btnApprove)
 		{
 			UpdateUserServiceAsync service = UpdateUserService.Util.getInstance();
-			service.updateUserStatus(receivedUser.getUserId(), 1, receivedUser.getUsername(), receivedUser.getPrimaryemail(), updateUserStatusCallback);
+			//service.updateUserStatus(receivedUser.getUserId(), 1, receivedUser.getUsername(), receivedUser.getPrimaryemail(), updateUserStatusCallback);
 		}	
 		if(source == btnAdd)
 		{
@@ -544,7 +544,7 @@ public class UserDetails_ver1 extends Composite implements ClickHandler
 						item.setProjectName(project);
 						projectList.add(item);
 						SaveSubscribedProjectServiceAsync service = SaveSubscribedProjectService.Util.getInstance();
-			    	  	service.saveProject(projectId, receivedUser.getUserId(), 0, receivedUser.getUsername(), project, addProjectCallback);
+			    	  	service.saveProject(projectId, receivedUser.getUserId(), 0, receivedUser.getUsername(), project, 1, addProjectCallback);
 					}
 					catch(NumberFormatException e)
 					{
