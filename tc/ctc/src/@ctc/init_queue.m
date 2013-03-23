@@ -1,29 +1,26 @@
-% init.m
+% init_queue.m
 %
-% initialization routine for ctc
+% read queue parameters from queue configuration file
 %
 % Version 1
-% 12/7/2011
+% 3/23/2013
 % Terry Ferrett
 %
-%     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
+%     Copyright (C) 2013, Terry Ferrett and Matthew C. Valenti
 %     For full copyright information see the bottom of this file.
 
-function init(obj)
+function init_queue(obj)
+ 
 
-% init global paths
-init_paths(obj);
-
-% init worker state structures
-init_ws(obj);
-
-% init users structure
-init_users(obj) 
-
-% init queue parameters
-init_queue(obj)
-
+  % maximum files in input queue at any time
+  heading = '[queue]';
+  key = 'queue';
+  out = util.fp(obj.cfp, heading, key);
+  obj.mfiq = out{1};
+  
+  
 end
+
 
 
 
@@ -41,7 +38,6 @@ end
 %     You should have received a copy of the GNU Lesser General Public
 %     License along with this library; if not, write to the Free Software
 %     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
 
 
 
