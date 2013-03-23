@@ -45,8 +45,10 @@ classdef ctc < handle
         % status - worker status
      
         
-        nw % total number of workers
-        aw % active workers
+        nw   % total number of workers
+        aw   % active workers
+        mfiq % maximum files allowed in input queue
+        
         
         users  % cell array of structs containg active users
         % username -                           username
