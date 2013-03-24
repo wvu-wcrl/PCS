@@ -185,7 +185,7 @@ if ~isempty(users_srt)
     
     % mfiq - Max Files Input Queue - maximum number of files available
     %        in input queue.
-    avq = obj.mfiq - obj.aw;
+    avw = obj.mfiq - obj.aw;
     %avw = obj.nw - obj.aw;   % available number of workers
     nf = length( fl_srt{1} );
     cnt = 0;
@@ -207,17 +207,20 @@ if ~isempty(users_srt)
         
         % copy user input file into user running queue
         cmd_str = ['sudo cp' ' ' puif{1} ' ' purq{1} '/' fn];
-        system(cmd_str);
+        [st res] = system(cmd_str);
+fprintf('%s', res);
         fprintf('cp ');
         
         % change ownership to pcs user
         cmd_str = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1}];
-        system(cmd_str);   % change ownership back to user
+        [st res] = system(cmd_str);   % change ownership back to user
+fprintf('%s', res);
         fprintf('chown ');
         
         % move user file into input queue
         cmd_str = ['sudo mv' ' ' puif{1} ' ' pgiq{1} '/' afn];
-        system(cmd_str);
+        [st res] = system(cmd_str);
+fprintf('%s', res);
         fprintf('mv ');
     end
     
@@ -261,7 +264,8 @@ if ~isempty(users_srt)
         
         cmd_str = ['sudo mv' ' ' puiq '/' af ' ' purq '/' af ];
         
-        system(cmd_str);
+        [st res] = system(cmd_str);
+fprintf('%s', res);
         
     end
     
@@ -433,9 +437,15 @@ fprintf('15 ');
 
 [ pgoq ] = get_path_global_output_queue( obj.gq.oq{1} );
 
-cmd_str = ['sudo chown' ' ' ownership_name ':' ownership_group ' ' pgoq '/' output_task_filename]; system(cmd_str);   % change ownership back to user
+cmd_str = ['sudo chown' ' ' ownership_name ':' ownership_group ' ' pgoq '/' output_task_filename]; 
+[st res] = system(cmd_str);   % change ownership back to user
+fprintf('%s', res);
+
 fprintf('chown 2 ');
-cmd_str = ['sudo mv' ' ' pgoq '/'  output_task_filename ' ' puoq '/' on];  system(cmd_str); % move file to user output queue
+cmd_str = ['sudo mv' ' ' pgoq '/'  output_task_filename ' ' puoq '/' on];  
+fprintf('%s\n', cmd_str);
+[st res] = system(cmd_str); % move file to user output queue
+fprintf('%s load COMP_RC_Shad_50', res);
 
 fprintf('mv 2 ');
 [ purq ] = get_path_user_running_queue( obj.users{user_ind}.rq{1} );
@@ -450,7 +460,9 @@ function delete_output_file( obj, output_task_filename )
 
 [ pgoq ] = get_path_global_output_queue( obj.gq.oq{1} );
 
-cmd_str = ['sudo rm' ' ' pgoq '/'  output_task_filename ];  system(cmd_str); % delete file from output queue
+cmd_str = ['sudo rm' ' ' pgoq '/'  output_task_filename ];  
+[st res] = system(cmd_str); % delete file from output queue
+fprintf('%s', res);
 
 end
 
@@ -512,7 +524,9 @@ if findstr( on, 'failed')
     suffix = '.mat';
     on = [prefix suffix];
 end
-cmd_str = ['sudo rm' ' ' purq '/'  on]; system(cmd_str); % remove file from user running queue
+cmd_str = ['sudo rm' ' ' purq '/'  on]; 
+[st res] = system(cmd_str); % remove file from user running queue
+fprintf('%s', res);
 
 end
 

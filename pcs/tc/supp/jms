@@ -6,7 +6,14 @@
 #
 # Functions are named by convention
 #  jm_<name>
-# where <name> is the job manager name
+# where <name> is the job manager name.
+# This name is passed to the pcs startup script to specify
+#  job manager startup.
+#
+#  Example
+#  Start the job manager having name "cml" in the short queue
+#  > pcs short start cml
+#
 #
 #
 # All functions accept a single input argument - the queue name
