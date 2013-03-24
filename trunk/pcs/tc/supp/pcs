@@ -1,11 +1,5 @@
 #!/bin/bash
-### BEGIN INIT INFO 
-# Provides:        pcs    
-# Short Description: Management script for pcs suite                                                   
-### END INIT INFO                                                             
-#     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
-#     For full copyright information see the bottom of this file.
-#
+# pcs
 #
 # Startup script for Parallel Computing Suite (PCS)
 # 
@@ -59,6 +53,9 @@
 #   > pcs short start cml
 #   > pcs short stop
 #   
+#
+#     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
+#     For full copyright information see the bottom of this file.
 #####
 
 # define job manager startup functions stored in file 'jms'
@@ -70,7 +67,10 @@ source jms
 eie_ret(){
 echo "Improper input arguments."
 echo "Usage:"
-echo "pcs {short|long|testing} {stop|start|restart}"
+echo "pcs {short|long|testing} {stop|start|restart} {job manager(s)}"
+echo 
+echo "Example: Start short queue and CML Job Manager"
+echo " > pcs short start cml "
 }
 
 # check input action
@@ -122,6 +122,7 @@ esac
 if [ $# -lt 2 ]
 then
 eie_ret
+exit 1
 fi
 
 
@@ -294,6 +295,7 @@ for((k=1;k<=NF;k++))
 do
 node=`echo $nodes |awk -vk="$k" '{print $k}'`
 slay_worker.sh $node $Q > /dev/null 
+echo $node
 #2>&1
 done
 

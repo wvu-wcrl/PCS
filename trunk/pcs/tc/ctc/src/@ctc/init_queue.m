@@ -14,9 +14,9 @@ function init_queue(obj)
 
   % maximum files in input queue at any time
   heading = '[queue]';
-  key = 'queue';
+  key = 'mfiq';
   out = util.fp(obj.cfp, heading, key);
-  obj.mfiq = out{1};
+  obj.mfiq = str2double(out{1}{1});
   
   
 end
