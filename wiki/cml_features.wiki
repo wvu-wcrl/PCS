@@ -64,3 +64,38 @@
 == Misc ==
 
   * High-performance simulation of error rate using a computing cluster.
+
+
+
+
+
+= Standards =
+
+The following functionality based on communication standards are given as examples
+
+  * IEEE 802.16e (mobile WiMax) 
+    * tail-biting convolutional code
+    * convolutional turbo code (CTC)
+    * block turbo code (BTC)
+    * LDPC code
+
+  * DVB-RCS
+    * turbo code
+
+  * DVB-S2
+    * LDPC code
+
+  * UMTS (WCDMA) 
+    * turbo code
+
+  * HSDPA 
+    * hybrid-ARQ using a rate-matched UMTS turbo code and QPSK/16-QAM   modulation.
+
+  * LTE 
+    * turbo code
+
+  * CCSDS 
+    * turbo code
+
+  * cdma2000 
+    * turbo code
