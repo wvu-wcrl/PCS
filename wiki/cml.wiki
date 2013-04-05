@@ -15,6 +15,7 @@ system simulations developed at WVU.
   * Information theoretic bounds: channel capacity, outage probability
   * Two-way relay channel phyical-layer network coding: noncoherent FSK relay receiver
 
+A detailed list of features can be found [cml_features here].
 
 = Download and Installation =
 
