@@ -1,17 +1,66 @@
 = CML Features =
 
-  * Rate 1/n convolutional codes with log-MAP, max-log-MAP, constant-log-MAP, and linear-log-MAP soft-in/soft-out SISO decoding, and Viterbi soft-in/hard-out decoding.
+== Channel Coding ==
+
+  * Rate 1/n convolutional codes 
+   *   Decoding: log-MAP and linear log-MAP soft-in/soft-out (SISO), Viterbi soft-in/hard-out
+
   * Tail-biting convolutional codes.
-  * Two types of convolutional turbo codes (CTCs): (1) binary turbo codes with terminated trellises; (2) duo-binary tail-biting turbo codes.
+
+  * Convolutional turbo codes (CTCS)
+    * Binary CTCs with terminated trellises
+    * Duo-binary tail-biting turbo codes
+
   * Block turbo codes (BTCs).
-  * Low density parity check (LDPC) codes, both decoding and encoding (encoding limited to certain types of LDPC codes).
-Puncturing and rate-matching to change the base code rate to a desired rate.
-  * log-MAP (APP) and Viterbi decoding of binary cyclic block codes (Golay, Hamming, etc).
-  * Arbitrary complex modulation formats: BPSK, QPSK, M-ary PSK, QAM,   APSK, with SISO demodulation.
-  * FSK modulation with multiple tones, arbitrary modulation index (orthogonal or nonorthogonal), and either coherent or noncoherent demodulation.
-  * Iterative demodulation and decoding, i.e. bit interleaved coded modulation with iterative decoding (BICM-ID).
-  * Channel types: AWGN, fully-interleaved (ergodic) Rayleigh fading, or block Rayleigh fading.
-  * Monte Carlo computation of modulation constrained channel capacity (in AWGN and ergodic fading) and information outage probability (in block fading).
-  * Calculation of throughput of hybrid-ARQ systems.
+
+  * Low density parity check (LDPC) codes, decoding and encoding (encoding limited to certain classes of LDPC codes).
+
+  * Puncturing and rate-matching to change the base code rate to a desired rate.
+
+  * Binary cyclic block codes
+    * Golay, Hamming, etc
+    * Decoding: log-MAP (APP) and Viterbi
+
   * Generation of s-random (spread) interleaver and interleavers conforming to UMTS, LTE, cdma2000, CCSDS,  IEEE 802.16 and DVB-RCS standards.
-  * Ability to run on a grid computer using the Frontier Compute Engine
+
+== Modulation ==
+  * Complex modulation formats with soft-in/soft-out (SISO) demodulation
+    * M-PSK
+    * APSK
+    * QAM
+ 
+  * M-FSK modulation 
+    * arbitrary modulation index (orthogonal or nonorthogonal)
+    * Coherent or noncoherent demodulation
+
+  * Iterative demodulation and decoding
+    * Bit-interleaved coded modulation (BICM)
+    * Bit interleaved coded modulation with iterative decoding (BICM-ID)
+
+
+== Channel Modeling ==
+
+  * Channel types supported
+    * AWGN
+    * Fully-interleaved (ergodic) Rayleigh fading
+    * Block Rayleigh fading
+
+
+== Information Theoretic Metrics ==
+  * Monte Carlo computation of 
+    * Modulation constrained channel capacity in AWGN and ergodic fading  
+    * Information outage probability in block fading
+
+  * Calculation of throughput of hybrid-ARQ systems
+
+
+== Physical-layer Network Coding ==
+
+  * Error-rate and capacity simulation of physical-layer network coding (PNC) in the two-way relay channel (TWRC)
+   * Modulation supported: M-FSK, coherent and noncoherent
+   * Decoding of Turbo and LDPC channel codes in the source-relay phase (decode and forward)
+   * BICM and BICM-ID decoding frameworks supported
+
+== Misc ==
+
+  * High-performance simulation of error rate using a computing cluster.
