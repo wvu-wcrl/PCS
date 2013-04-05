@@ -17,6 +17,12 @@ system simulations developed at WVU.
 
 A detailed list of features can be found [cml_features here].
 
-= Download and Installation =
+= Download, Installation and Getting Started =
 
-Download CML [https://iscml.googlecode.com/files/cml.zip here].
+CML Download: [https://iscml.googlecode.com/files/cml.zip CML 1.2 ]
+
+Uncompress to any desired directory to install.
+
+Quickstart demonstrating simulation of BPSK in AWGN: [CmlQuickStart quickstart].
+
+Complete overview of CML usage: [overview]
