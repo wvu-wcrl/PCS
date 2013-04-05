@@ -8,12 +8,16 @@ system simulations developed at WVU.
 
 
 == Brief List of Features ==
-  * Modulation: PSK, QAM, APSK, CPM (CPFSK)
-  * Channel models: AWGN, ergodic Rayleigh, block Rayleigh
-  * Channel Coding: convolutional, turbo, BTC, LDPC, Hybrid-ARQ
-  * User-specified LDPC parity-check matrices
-  * Information theoretic bounds: channel capacity, outage probability
-  * Two-way relay channel phyical-layer network coding: noncoherent FSK relay receiver
+  * *Modulation*: PSK, QAM, APSK, CPM (CPFSK)
+
+  * *Channel models*: AWGN, ergodic Rayleigh, block Rayleigh
+ 
+ * *Channel Coding*: convolutional, turbo, BTC, LDPC, Hybrid-ARQ
+    * User-specified LDPC parity-check matrices
+
+  * *Information theoretic bounds*: channel capacity, outage probability
+
+  * *Two-way relay channel physical-layer network coding*: noncoherent FSK relay receiver
 
 A detailed list of features can be found [cml_features here].
 
