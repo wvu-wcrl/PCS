@@ -1,18 +1,17 @@
-# Coded Modulation Library (CML) Quickstart and download link
-
 = Introduction =
 
 The Coded Modulation Library (CML) is a library of communication
 system simulations developed at WVU.
 
-* Implemented using MATLAB and C-mex
-* Free software licensed under the lesser GPL
+  * Implemented using MATLAB and C-mex
+  * Free software licensed under the lesser GPL
+
 
 == Brief List of Features ==
-* Modulation: PSK, QAM, APSK, CPM (CPFSK)
-* Channel Coding: convolutional, turbo, BTC, LDPC, Hybrid-ARQ
-* Information theoretic bounds: channel capacity, outage probability
-* Two-way relay channel phyical-layer network coding: noncoherent FSK relay receiver
+  * Modulation: PSK, QAM, APSK, CPM (CPFSK)
+  * Channel Coding: convolutional, turbo, BTC, LDPC, Hybrid-ARQ
+  * Information theoretic bounds: channel capacity, outage probability
+  * Two-way relay channel phyical-layer network coding: noncoherent FSK relay receiver
 
 
 = Download and Installation =
