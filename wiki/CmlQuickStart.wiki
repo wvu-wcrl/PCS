@@ -1,13 +1,12 @@
-#summary One-sentence summary of this page.
-
 = Introduction =
 
-Add your content here.
+The purpose of this tutorial is to acquaint a new user with the fundamentals of CML.
 
 
-= Details =
+= Assumptions =
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+In this tutorial, it is assumed that the user has
+
+  * An installation of MATLAB >= 7.6 (R2008a)
+
+  * Downloaded CML from [cml]
