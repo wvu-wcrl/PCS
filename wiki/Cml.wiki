@@ -19,7 +19,7 @@ system simulations developed at WVU.
 
   * *Two-way relay channel physical-layer network coding*: noncoherent FSK relay receiver
 
-A detailed list of features can be found [cml_features here].
+A detailed list of features can be found [CmlFeatures here].
 
 = Download, Installation and Getting Started =
 
