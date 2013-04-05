@@ -14,6 +14,7 @@
   * Block turbo codes (BTCs).
 
   * Low density parity check (LDPC) codes, decoding and encoding (encoding limited to certain classes of LDPC codes).
+    * Supports user-specified parity check matrices
 
   * Puncturing and rate-matching to change the base code rate to a desired rate.
 
@@ -73,7 +74,7 @@
 
 The following functionality based on communication standards are given as examples
 
-  * IEEE 802.16e (mobile WiMax) 
+  * IEEE 802.16e (mobile !WiMax) 
     * tail-biting convolutional code
     * convolutional turbo code (CTC)
     * block turbo code (BTC)
