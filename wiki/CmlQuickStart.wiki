@@ -17,7 +17,7 @@ In this tutorial, it is assumed that the user has
 = Simulating BPSK in AWGN using CML =
 
   # Start MATLAB and cd to *{{{<CMLROOT>}}}*
-  # Execute CmlStartup to set paths to CML functions and classes
+  # Execute !CmlStartup to set paths to CML functions and classes
 
   https://iscml.googlecode.com/svn/trunk/pcs/projects/cml/doc/src/wctc/fig/jpg/cml_startup.jpg
 
