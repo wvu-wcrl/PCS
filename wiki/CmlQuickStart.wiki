@@ -11,7 +11,7 @@ In this tutorial, it is assumed that the user has
 
   * Downloaded and installed CML from the [Cml CML Project Page]
 
-  * Uncompressed CML to the local directory *{{{<CMLROOT>}}}*.
+  * Uncompressed CML to the directory *{{{<CMLROOT>}}}*.
 
 
 = Simulating BPSK in AWGN using CML =
