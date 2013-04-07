@@ -19,7 +19,7 @@ In this tutorial, it is assumed that the user has
   # Start MATLAB and cd to *{{{<CMLROOT>}}}*
   # Execute function '!CmlStartup' to set paths to CML functions and classes
 
-  https://iscml.googlecode.com/svn/trunk/pcs/projects/cml/doc/src/wctc/fig/jpg/cml_startup.jpg
+  https://iscml.googlecode.com/svn/trunk/pcs/projects/cml/doc/web/cml_startup.jpg
 
   * CML simulations are specified by a _simulation record_ stored in a _scenario file_.
   * Simulation records contain a complete set of parameters to specify the simulation type, such as modulation, channel type, and channel code.
