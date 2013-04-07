@@ -14,15 +14,17 @@ In this tutorial, it is assumed that the user has
   * Uncompressed CML to the directory *{{{<CMLROOT>}}}*.
 
 
-= Simulating BPSK in AWGN using CML =
+= Simulating BPSK Error Rate in AWGN =
 
   # Start MATLAB and cd to *{{{<CMLROOT>}}}*
   # Execute function '!CmlStartup' to set paths to CML functions and classes
 
   https://iscml.googlecode.com/svn/trunk/pcs/projects/cml/doc/web/cml_startup.jpg
 
-  * CML simulations are specified by a _simulation record_ stored in a _scenario file_.
-  * Simulation records contain a complete set of parameters to specify the simulation type, such as modulation, channel type, and channel code.
+  * CML simulations are specified by _simulation records_ stored in _scenario files_.
+  * A simulation record contains a complete set of parameters to specify a particular simulation, such as modulation, channel type, and channel code.
+  * Several example simulation records are stored in scenario files located in *{{{<CMLROOT>}}}*/scenarios.
+  * In this example, we will use a simulation record specifying error-rate simulation
 
 
 {{{
