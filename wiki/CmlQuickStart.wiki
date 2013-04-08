@@ -33,11 +33,11 @@ In this tutorial, it is assumed that the user has
   * A record contains a complete set of parameters to specify a simulation, such as modulation, channel type, and channel code.
 
   * In this example, we will illustrate usage of a record specifying error-rate simulation of BPSK in AWGN.
-    * *Scenario file location:* *{{{<CMLROOT>}}}*/scenarios/UncodedScenarios.m
+    * *Scenario file location:* *{{{<CMLROOT>}}}*/scenarios/!UncodedScenarios.m
     * *Record:* 1
 
   * To view this scenario file in MATLAB,
-    * >> edit UncodedScenarios.m
+    * {{{ >> edit UncodedScenarios.m }}}
 
 === !UncodedScenarios.m ===
 {{{
