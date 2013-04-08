@@ -19,6 +19,8 @@ In this tutorial, it is assumed that the user has
 = Simulating BPSK Error Rate in AWGN =
 
 == Starting CML == 
+  * Download and install CML from
+ 
   * Start MATLAB and cd to *{{{<CMLROOT>}}}*
 
   * Execute function '!CmlStartup' to set paths to CML functions and classes
@@ -91,3 +93,18 @@ https://iscml.googlecode.com/svn/trunk/pcs/projects/cml/doc/web/cml_simulate.jpg
   * which are identical under binary modulation.
 
 http://wcrl.csee.wvu.edu/cml_plot.jpg
+
+
+== Summary of Steps ==
+  * Download and install CML from the [Cml CML Project Page].
+
+
+  * Start MATLAB and initialize CML.
+    * {{{>> cd}}} *{{{<CMLROOT>}}}*
+    * {{{>> CmlStartup}}}
+
+  * Execute simulation of BPSK in AWGN.
+    * {{{ >> CmlSimulate('UncodedScenarios', 1)}}}
+
+  * Plot results
+    * {{{ >> CmlPlot('UncodedScenarios',1)}}}
