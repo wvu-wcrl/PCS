@@ -1,9 +1,8 @@
-*Table of Contents*
-<wiki:toc max_depth="2" />
-
-= Introduction =
-
 The purpose of this tutorial is to acquaint a new user with the fundamentals of CML using simulation of BPSK error-rate in AWGN as an example.
+
+
+*Contents*
+<wiki:toc max_depth="2" />
 
 
 = Assumptions =
