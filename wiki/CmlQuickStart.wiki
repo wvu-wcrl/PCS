@@ -88,7 +88,7 @@ https://iscml.googlecode.com/svn/trunk/pcs/projects/cml/doc/web/cml_simulate.jpg
 
   * Two BPSK error-rate plots will be generated
     # Bit-error rate (BER) vs SNR
-    # Symbol-error rate vs SNR
+    # Symbol-error rate (SER) vs SNR
   * which are identical under binary modulation.
 
 http://wcrl.csee.wvu.edu/cml_plot.jpg
