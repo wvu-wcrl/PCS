@@ -19,20 +19,25 @@ In this tutorial, it is assumed that the user has
 = Simulating BPSK Error Rate in AWGN =
 
 == Starting CML == 
-  # Start MATLAB and cd to *{{{<CMLROOT>}}}*
-  # Execute function '!CmlStartup' to set paths to CML functions and classes
+  * Start MATLAB and cd to *{{{<CMLROOT>}}}*
 
+  * Execute function '!CmlStartup' to set paths to CML functions and classes
+    * {{{ >> CmlStartup}}}
   https://iscml.googlecode.com/svn/trunk/pcs/projects/cml/doc/web/cml_startup.jpg
 
 
 
-== Specifying the Simulation ==
-  * CML simulations are specified by _simulation records_ stored in _scenario files_.
-  * A simulation record contains a complete set of parameters to specify a particular simulation, such as modulation, channel type, and channel code.
-  * Several example scenario files may befound in *{{{<CMLROOT>}}}*/scenarios.
-  * In this example, we will illustrate usage of a simulation record specifying error-rate simulation of BPSK in AWGN.
-    * *Scenario:* *{{{<CMLROOT>}}}*/localscenarios/UncodedScenarios.m
+== Simulation Specification ==
+  * CML simulations are specified by _records_ stored in _scenario files_.
+
+  * A record contains a complete set of parameters to specify a simulation, such as modulation, channel type, and channel code.
+
+  * In this example, we will illustrate usage of a record specifying error-rate simulation of BPSK in AWGN.
+    * *Scenario file location:* *{{{<CMLROOT>}}}*/scenarios/UncodedScenarios.m
     * *Record:* 1
+
+  * To view this scenario file in MATLAB,
+    * >> edit UncodedScenarios.m
 
 === !UncodedScenarios.m ===
 {{{
@@ -58,13 +63,18 @@ sim_param(record).filename = strcat( data_directory, 'BPSKAWGN.mat');
 sim_param(record).reset = 0;
 }}}
 
+  * Several example scenario files may be found in *{{{<CMLROOT>}}}*/scenarios.
 
+  * User-created scenario files are stored in *{{{<CMLROOT>}}}*/localscenarios.
+    * The recommended procedure for creating a new scenario file is to copy an existing scenario from *{{{<CMLROOT>}}}*/scenarios to *{{{<CMLROOT>}}}*/localscenarios and modifying the contents of the copy.
+  
 == Executing the Simulation ==
 
-  * To simulate the record, execute the following command
+  * To execute simulation of the record,
     * {{{ >> CmlSimulate('UncodedScenarios', 1) }}}
 
   * The simulation will execute, stopping at the SNR point satisfying the minimum error-rate criteria.
+
   * Simulation time will range from 1-5 minutes depending on the speed of the executing computer.
 
 
@@ -74,5 +84,10 @@ https://iscml.googlecode.com/svn/trunk/pcs/projects/cml/doc/web/cml_simulate.jpg
 == Plotting Results ==
   * Once the simulation is complete, error-rate results may be plotted using
     * {{{ >> CmlPlot('UncodedScenarios', 1) }}}
+
+  * Two BPSK error-rate plots will be generated
+    # Bit-error rate (BER) vs SNR
+    # Symbol-error rate vs SNR
+  * which are identical under binary modulation.
 
 http://wcrl.csee.wvu.edu/cml_plot.jpg
