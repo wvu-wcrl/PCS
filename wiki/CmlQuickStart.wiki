@@ -16,11 +16,15 @@ In this tutorial, it is assumed that the user has
 
 = Simulating BPSK Error Rate in AWGN =
 
+== Starting CML == 
   # Start MATLAB and cd to *{{{<CMLROOT>}}}*
   # Execute function '!CmlStartup' to set paths to CML functions and classes
 
   https://iscml.googlecode.com/svn/trunk/pcs/projects/cml/doc/web/cml_startup.jpg
 
+
+
+== Specifying the Simulation ==
   * CML simulations are specified by _simulation records_ stored in _scenario files_.
   * A simulation record contains a complete set of parameters to specify a particular simulation, such as modulation, channel type, and channel code.
   * Several example scenario files may befound in *{{{<CMLROOT>}}}*/scenarios.
@@ -28,7 +32,7 @@ In this tutorial, it is assumed that the user has
     * *Scenario:* *{{{<CMLROOT>}}}*/localscenarios/UncodedScenarios.m
     * *Record:* 1
 
-== UncodedScenarios.m ==
+=== !UncodedScenarios.m ===
 {{{
 record = 1;
 sim_param(record).sim_type = 'uncoded';    % This is an uncoded error-rate simulation.
@@ -53,6 +57,7 @@ sim_param(record).reset = 0;
 }}}
 
 
+== Executing the Simulation ==
 
   * To simulate the record, execute the following command
     * {{{ >> CmlSimulate('UncodedScenarios', 1) }}}
@@ -63,6 +68,8 @@ sim_param(record).reset = 0;
 
 https://iscml.googlecode.com/svn/trunk/pcs/projects/cml/doc/web/cml_simulate.jpg
 
+
+== Plotting Results ==
   * Once the simulation is complete, error-rate results may be plotted using
     * {{{ >> CmlPlot('UncodedScenarios', 1) }}}
 
