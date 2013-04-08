@@ -54,11 +54,16 @@ sim_param(record).reset = 0;
 
 
 
-  * To simulate the record,
+  * To simulate the record, execute the following command
     * {{{ >> CmlSimulate('UncodedScenarios', 1) }}}
+
+  * The simulation will execute, stopping at the SNR point satisfying the minimum error-rate criteria.
+  * Simulation time will range from 1-5 minutes depending on the speed of the executing computer.
 
 
 https://iscml.googlecode.com/svn/trunk/pcs/projects/cml/doc/web/cml_simulate.jpg
 
+  * Once the simulation is complete, error-rate results may be plotted using
+    * {{{ >> CmlPlot('UncodedScenarios', 1) }}}
 
 http://wcrl.csee.wvu.edu/cml_plot.jpg
