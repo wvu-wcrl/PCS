@@ -23,7 +23,7 @@ A detailed list of features can be found [CmlFeatures here].
 
 = Download, Installation and Getting Started =
 
-CML Download: [https://iscml.googlecode.com/files/cml120.zip CML 1.20 ]
+CML Download: [https://iscml.googlecode.com/files/cml112.zip CML 1.12 ]
 
 Uncompress to any desired directory to install.
 
