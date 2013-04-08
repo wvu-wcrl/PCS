@@ -106,5 +106,5 @@ http://wcrl.csee.wvu.edu/cml_plot.jpg
   * Execute simulation of BPSK in AWGN.
     * {{{ >> CmlSimulate('UncodedScenarios', 1)}}}
 
-  * Plot results
+  * Plot results.
     * {{{ >> CmlPlot('UncodedScenarios',1)}}}
