@@ -23,10 +23,12 @@ In this tutorial, it is assumed that the user has
 
   * CML simulations are specified by _simulation records_ stored in _scenario files_.
   * A simulation record contains a complete set of parameters to specify a particular simulation, such as modulation, channel type, and channel code.
-  * Several example simulation records are stored in scenario files located in *{{{<CMLROOT>}}}*/scenarios.
-  * In this example, we will use a simulation record specifying error-rate simulation
+  * Several example scenario files may befound in *{{{<CMLROOT>}}}*/scenarios.
+  * In this example, we will illustrate usage of a simulation record specifying error-rate simulation of BPSK in AWGN.
+    * *Scenario:* *{{{<CMLROOT>}}}*/localscenarios/UncodedScenarios.m
+    * *Record:* 1
 
-
+== UncodedScenarios.m ==
 {{{
 record = 1;
 sim_param(record).sim_type = 'uncoded';    % This is an uncoded error-rate simulation.
@@ -49,3 +51,14 @@ sim_param(record).legend = sim_param(record).comment;
 sim_param(record).filename = strcat( data_directory, 'BPSKAWGN.mat');
 sim_param(record).reset = 0;
 }}}
+
+
+
+  * To simulate the record,
+    * {{{ >> CmlSimulate('UncodedScenarios', 1) }}}
+
+
+https://iscml.googlecode.com/svn/trunk/pcs/projects/cml/doc/web/cml_simulate.jpg
+
+
+http://wcrl.csee.wvu.edu/cml_plot.jpg
