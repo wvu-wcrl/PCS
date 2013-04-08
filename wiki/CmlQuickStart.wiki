@@ -19,7 +19,6 @@ In this tutorial, it is assumed that the user has
 = Simulating BPSK Error Rate in AWGN =
 
 == Starting CML == 
-  * Download and install CML from
  
   * Start MATLAB and cd to *{{{<CMLROOT>}}}*
 
