@@ -27,6 +27,6 @@ CML Download: [https://iscml.googlecode.com/files/cml.zip CML 1.2 ]
 
 Uncompress to any desired directory to install.
 
-Quickstart demonstrating simulation of BPSK in AWGN: [CmlQuickStart quickstart]
+Quickstart demonstrating simulation of BPSK in AWGN: [CmlQuickStart Quickstart]
 
-Complete overview of CML usage: [https://iscml.googlecode.com/files/CMLoverview.pdf overview]
+Complete overview of CML usage: [https://iscml.googlecode.com/files/CMLoverview.pdf Overview]
