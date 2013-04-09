@@ -22,7 +22,11 @@ IS_START = strcmp(ss, 'start');
 IS_RESUME = strcmp(ss, 'resume');
 IS_SHUTDOWN = strcmp(ss, 'shutdown');
 
-tic;  % start timer to update user list
+timer_users = tic;  % start timer to update user list
+timer_heartbeat = tic; % start timer to update heartbeat file
+heartbeat_oneshot=1; % tc just started. touch the heartbeat file
+
+
 while(1) %enter primary loop
     
     if IS_START || IS_RESUME
@@ -60,15 +64,38 @@ while(1) %enter primary loop
         break;
     end
     
-    
-    if toc > 120,  % check for new users after 2 minutes
+       
+    %% timed events
+    if toc(timer_users) > 120,  % check for new users after 2 minutes
         obj.init_users();
-        tic;
+        timer_users = tic;
     end
-    
+
+
+    % heartbeat conditions
+    c1 = heartbeat_oneshot;
+    c2 = toc(timer_heartbeat) > obj.hb_period; 
+    if c1 | c2,
+      123456
+        heartbeat(obj);
+        timer_heartbeat = tic;
+        heartbeat_oneshot = 0;
+    end
+    %%%
+   
 end
 
 end
+
+
+% touch heartbeat file to signal task controller status
+function heartbeat(obj)
+hb_file = [ obj.hb_path filesep 'tc_' obj.gq_name ];
+hb_file
+% touch implemented as file opening and closing
+fid = fopen(hb_file, 'w+'); fclose(fid);
+end
+
 
 
 function [au fl] = scan_user_inputs(obj)

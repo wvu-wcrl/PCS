@@ -28,38 +28,39 @@
 classdef ctc < handle
     
     
-    properties       % cluster state
-        cfp    % config file path
+    properties  % cluster state
+        cfp     % config file path
 
-        ucfg   % user configuration filename
+        ucfg    % user configuration filename
         
-        gq     % global queue paths - read from config file
-               % iq - input 
-               % oq - output 
-               % rq - running 
-               % log - log files 
+        gq_name % global queue name - {short, long, testing} 
+
+        gq      % global queue paths - read from config file
+                % iq - input 
+                % oq - output 
+                % rq - running 
+                % log - log files 
        
-        ws % worker state - cell array of structures
-        % wid - worker id
-        % user - user
-        % status - worker status
+        ws      % worker state - cell array of structures
+                % wid - worker id
+                % user - user
+                % status - worker status
      
         
-        nw   % total number of workers
-        aw   % active workers
-        mfiq % maximum files allowed in input queue
+        nw      % total number of workers
+        aw      % active workers
+        mfiq    % maximum files allowed in input queue
         
         
         users  % cell array of structs containg active users
-        % username -                           username
-        % input queue path -                 iq
-        % running path -                       rq
-        % output path -                         oq
-        % active workers for this user-        aw
-        % user location - web or local        user_location        
+               % username - username
+               % iq - input queue path
+               % rq - running path
+               % oq - output path
+               % aw - active workers for this user
+               % user_location - user location - web or local
 
-	bs        % bash script path
-        
+	bs     % bash script path        
     end
     
     
@@ -73,9 +74,13 @@ classdef ctc < handle
         lfup     % log function path
         ctc_logfile % log file path
     end
-        
-    
-    
+   
+   properties % heartbeat properties
+   hb_path    % path to heartbeat directory
+   hb_period  % heartbeat period in seconds    
+   end    
+   
+
     methods
 	function obj = ctc(cfp, ss) % ctc constructor
             

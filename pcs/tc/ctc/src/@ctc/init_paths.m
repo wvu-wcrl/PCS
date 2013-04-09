@@ -12,6 +12,13 @@
 function init_paths(obj)
  
 
+  % global queue name
+  heading = '[paths]';
+  key = 'queue_name';
+  out = util.fp(obj.cfp, heading, key);
+  obj.gq_name = out{1}{1};
+
+
   % input path
   heading = '[paths]';
   key = 'input_queue';
