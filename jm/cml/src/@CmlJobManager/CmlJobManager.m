@@ -25,16 +25,24 @@ classdef CmlJobManager < JobManager
     
     
     methods
-        function obj = CmlJobManager( cfgRoot )
+	    function obj = CmlJobManager( cfgRoot, queueCfg )
             % Distributed CML Simulation Job Manager.
-            % Calling syntax: obj = CmlJobManager([cfgRoot])
+            % Calling syntax: obj = CmlJobManager([cfgRoot, varargin])
             % Optional input cfgRoot is the FULL path to the configuration file of the job manager.
             % Default: cfgRoot = [filesep,'home','pcs','jm',ProjectName,'cfg',CFG_Filename]
             % ProjectName = 'cml';
             % CFG_Filename = 'CmlJobManager_cfg';
-            if( nargin<1 || isempty(cfgRoot) ), cfgRoot = []; end
-            obj@JobManager(cfgRoot);
-        end
+      
+            % input argument 'queueCfg' stores the full path to the queue configuration file
+          
+            % Both input arguments must be defined.
+            % If no specific job manager configuration file is desired,
+            %  the argument must be specified as '[]'
+
+        
+%        if( nargin<2 || isempty(cfgRoot) ), cfgRoot = []; end
+     obj@JobManager(cfgRoot, queueCfg, 'cml');
+       end
         
         
         function [JobParam, JobState, PPSuccessFlag, PPErrorMsg] =...

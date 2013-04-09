@@ -67,12 +67,16 @@ classdef JobManager < handle
     
     methods
         
-        function obj = JobManager(cfgRoot)
-            % Calling syntax: obj = JobManager([cfgRoot])
-            % Optional input cfgRoot is the FULL path to the configuration file of the job manager.
+        function obj = JobManager(cfgRoot, queueCfg, JmName)
+            % Calling syntax: obj = JobManager([cfgRoot, queueCfg])
+            % input cfgRoot is the FULL path to the configuration file of the job manager.
             % Default: cfgRoot = [filesep,'home','pcs','jm',ProjectName,'cfg',CFG_Filename]
-            if( nargin<1 || isempty(cfgRoot) ), cfgRoot = []; end
-            obj.JobManagerParam = obj.InitJobManager(cfgRoot);
+            % input queueCfg specifies queue configuration file
+            % input JmName specifies job manager name
+
+            %if( nargin<1 || isempty(cfgRoot) ), cfgRoot = []; end
+            
+            obj.JobManagerParam = obj.InitJobManager(cfgRoot, JmName);
             obj.JobManagerInfo = obj.InitJobManagerInfo();
             [obj.UserList, obj.JobManagerInfo.UserUsageInfo] = obj.InitUsers();
             
@@ -95,8 +99,48 @@ classdef JobManager < handle
             Msg = sprintf( '\n\n\nThe list of ACTIVE users is extracted at %s.\n\nThere are %d ACTIVE users in the system.\n\n',...
                 datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM'), length(obj.UserList) );
             PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
+
+
+            obj.InitHeartBeat( queueCfg );   % Initialize heartbeat parameters.
+
+            obj.InitQueueInfo( queueCfg );   % Initialize queue info.
         end
+
+
+        % Initialize heartbeat parameters
+        function InitHeartBeat( obj, queueCfg )
+
+            heading = '[heartbeat]';
+            key = 'hb_path';
+            out = util.fp( queueCfg, heading, key );
+            obj.JobManagerParam.hb_path = out{1}{1};
+
+            heading = '[heartbeat]';
+            key = 'hb_period';
+            out = util.fp( queueCfg, heading, key );
+            obj.JobManagerParam.hb_period = str2double(out{1}{1});
+ 
+        end
+
+        % Initialize queue information
+        function InitQueueInfo( obj, queueCfg )
+
+            heading = '[paths]';
+            key = 'queue_name';
+            out = util.fp( queueCfg, heading, key );
+            obj.JobManagerParam.queue_name = out{1}{1};
+ 
+        end
+
         
+        % touch heartbeat file to signal task controller status
+        function heartbeat(obj)
+        %jm_name: 'cml' for CmlJm
+        hb_file = [ obj.JobManagerParam.hb_path filesep obj.JobManagerParam.JmName '_' obj.JobManagerParam.queue_name ];
+        % touch implemented as file opening and closing
+        fid = fopen(hb_file, 'w+'); fclose(fid);
+        end
+
         
         function RunJobManager(obj)
             % Main function that runs the whole Job Manager.
@@ -110,6 +154,11 @@ classdef JobManager < handle
             
             JMGlobalTimer = tic;   % Global timer of job manager to keep track of timing information of finished tasks.
             
+            % heartbeat parameters
+            timer_heartbeat = tic;
+            heartbeat_oneshot = 1;
+
+
             if( exist(obj.JobManagerParam.JMInfoFullPath, 'file') ~= 0 )
                 % Load JobManagerParam and JobManagerInfo (containing UserUsageInfo).
                 JMInfoFileContent = load( obj.JobManagerParam.JMInfoFullPath, 'JobManagerParam', 'JobManagerInfo', 'UserList' );
@@ -119,7 +168,18 @@ classdef JobManager < handle
             end
             
             while RunningJobManager
-                
+
+
+                 % update heartbeat file
+                 c1 = heartbeat_oneshot;
+                 c2 = toc(timer_heartbeat) > obj.JobManagerParam.hb_period;
+                 if c1 | c2,
+                   heartbeat(obj);
+                   timer_heartbeat = tic;
+                   heartbeat_oneshot = 0;
+                 end
+
+
                 Check4NewUser = 0;
                 Msg = sprintf( '\n\n\nThe list of all ACTIVE users is extracted and updated at %s.\n', datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
                 PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
@@ -762,7 +822,7 @@ classdef JobManager < handle
         end
         
         
-        function JobManagerParam = InitJobManager(obj, cfgFullFile)
+        function JobManagerParam = InitJobManager(obj, cfgFullFile, JmName)
             % Initialize job manager's parameters in JobManagerParam structure.
             %
             % Calling syntax: JobManagerParam = obj.InitJobManager([cfgFullFile])
@@ -777,6 +837,8 @@ classdef JobManager < handle
             
             % Named constants.
             JobManagerParam = struct;
+            JobManagerParam.JmName = JmName;
+ 
             if( nargin<2 || isempty(cfgFullFile) )
                 JobManagerParam.ProjectName = input(['\nWhat is the name of the current project for which this Job Manager is running?\n',...
                     'This will be used to locate the configuration file of this Job Manager.\n\n'],'s');

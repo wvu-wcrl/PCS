@@ -35,15 +35,24 @@ end
 FigTitleText = ['The time of the last update of this figure is ' datestr(clock, 'dd/mm/yyyy at HH:MM:SS PM') '.'];
 
 for Fig = 1:FigNumber
-    figure(FigHandle(Fig));
-    title(FigTitleText);
-    try
-        % print(FigHandle(Fig), '-dpdf', fullfile(FiguresDir, [JobName(1:end-4) '_Fig' num2str(Fig) '.pdf']));
-        saveas( FigHandle(Fig), fullfile(FiguresDir, [JobName(1:end-4) '_Fig' num2str(Fig) '.pdf']) );
-    catch
-        % print(FigHandle(Fig), '-dpdf', fullfile(FiguresDir, [JobName(1:end-4) '_Fig' num2str(Fig) '.pdf']));
-        saveas( FigHandle(Fig), fullfile(TempJMDir, [JobName(1:end-4) '_Fig' num2str(Fig) '.pdf']) );
-        obj.MoveFile( fullfile(TempJMDir, [JobName(1:end-4) '_Fig' num2str(Fig) '.pdf']), FiguresDir);
+    % figure(FigHandle(Fig));
+    AxisHandle = get(FigHandle(Fig),'CurrentAxes');
+    title( AxisHandle, FigTitleText );
+    if ispc
+        try
+            % print(FigHandle(Fig), '-dpdf', fullfile(FiguresDir, [JobName(1:end-4) '_Fig' num2str(Fig) '.pdf']));
+            saveas( FigHandle(Fig), fullfile(FiguresDir, [JobName(1:end-4) '_Fig' num2str(Fig) '.pdf']) );
+        catch
+            % print(FigHandle(Fig), '-dpdf', fullfile(FiguresDir, [JobName(1:end-4) '_Fig' num2str(Fig) '.pdf']));
+            saveas( FigHandle(Fig), fullfile(TempJMDir, [JobName(1:end-4) '_Fig' num2str(Fig) '.pdf']) );
+            obj.MoveFile( fullfile(TempJMDir, [JobName(1:end-4) '_Fig' num2str(Fig) '.pdf']), FiguresDir);
+        end
+    else
+        % util.plexport( FigHandle(Fig), 'eps', fullfile(FiguresDir, [JobName(1:end-4) '_Fig' num2str(Fig)]) );
+        util.plexport( FigHandle(Fig), 'pdf', fullfile(FiguresDir, [JobName(1:end-4) '_Fig' num2str(Fig)]) );
     end
 end
+
+close all
+
 end
