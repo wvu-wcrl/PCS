@@ -151,22 +151,22 @@ done
 #### Check for this condition
 #### Remove this code once CML JM can start in any queue
 # exit if not short queue                                                                                     
-for i in ${@:3}
-do
+#for i in ${@:3}
+#do
 
-if [ "$i" = "cml" ]
-then
-case $Q in
-short)
-;;
-*)
-echo "CML JM currently only supported using short queue."
-exit 2
-;;
-esac
-fi
+#if [ "$i" = "cml" ]
+#then
+#case $Q in
+#short)
+#;;
+#*)
+#echo "CML JM currently only supported using short queue."
+#exit 2
+#;;
+#esac
+#fi
 
-done
+#done
 #############
 #############
 
