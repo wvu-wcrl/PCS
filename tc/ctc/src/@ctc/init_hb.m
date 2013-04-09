@@ -1,32 +1,33 @@
-% init.m
+% init_hb.m
 %
-% initialization routine for ctc
+% read heartbeat parameters from queue configuration file
 %
 % Version 1
-% 12/7/2011
+% 4/8/2013
 % Terry Ferrett
 %
-%     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
+%     Copyright (C) 2013, Terry Ferrett and Matthew C. Valenti
 %     For full copyright information see the bottom of this file.
 
-function init(obj)
+function init_hb(obj)
+ 
+  % heartbeat path
+  heading = '[heartbeat]';
+  key = 'hb_path';
+  out = util.fp(obj.cfp, heading, key);
+  obj.hb_path = out{1}{1};
 
-% init global paths
-init_paths(obj);
 
-% init worker state structures
-init_ws(obj);
+  % heartbeat period in seconds
+  heading = '[heartbeat]';
+  key = 'hb_period';
+  out = util.fp(obj.cfp, heading, key);
+  obj.hb_period = str2double(out{1}{1});
 
-% init users structure
-init_users(obj) 
-
-% init queue parameters
-init_queue(obj)
-
-% init heartbeat parameters
-init_hb(obj)
-
+ 
+  
 end
+
 
 
 
@@ -44,7 +45,6 @@ end
 %     You should have received a copy of the GNU Lesser General Public
 %     License along with this library; if not, write to the Free Software
 %     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
 
 
 
