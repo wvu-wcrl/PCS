@@ -76,7 +76,6 @@ while(1) %enter primary loop
     c1 = heartbeat_oneshot;
     c2 = toc(timer_heartbeat) > obj.hb_period; 
     if c1 | c2,
-      123456
         heartbeat(obj);
         timer_heartbeat = tic;
         heartbeat_oneshot = 0;
@@ -91,7 +90,6 @@ end
 % touch heartbeat file to signal task controller status
 function heartbeat(obj)
 hb_file = [ obj.hb_path filesep 'tc_' obj.gq_name ];
-hb_file
 % touch implemented as file opening and closing
 fid = fopen(hb_file, 'w+'); fclose(fid);
 end

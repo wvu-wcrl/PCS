@@ -260,7 +260,7 @@ Q=$3
 
 for((k=0;k<n_jms;k++))
 do
-jm_${JMS[$k]} $Q
+jm_${JMS[$k]} $file $Q
 done
 }
 
