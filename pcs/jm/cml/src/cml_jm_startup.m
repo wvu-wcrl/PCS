@@ -15,7 +15,7 @@
 
 
 
-function CmlJMObj = cml_jm_startup(cfgFile)
+   function CmlJMObj = cml_jm_startup(cfgFile, queueCfg)
 
 if( nargin<1 || isempty(cfgFile) )
     cfgFile = fullfile(filesep, 'home', 'pcs', 'jm', 'cml', 'cfg', 'CmlJobManager_cfg');
@@ -31,7 +31,7 @@ addpath( fullfile( filesep, 'home', 'pcs', 'projects',...
                    'decoder', 'supp') );
 addpath( fullfile( filesep, 'home', 'pcs', 'projects', 'cml', 'mat', 'plot') );
 
-CmlJMObj = CmlJobManager( cfgFile );
+CmlJMObj = CmlJobManager( cfgFile, queueCfg );
 
 CmlJMObj.RunJobManager();
 
