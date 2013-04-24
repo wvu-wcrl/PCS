@@ -10,7 +10,7 @@ CodeRoot = <user_home>/CodedMod
 JobQueueRoot = <user_home>/Projects/CodedMod
 
 % Name and full path of project-specific worker function.
-FunctionName = CodedModTaskInit
+FunctionName = CodedModWorker
 % FunctionPath = [filesep 'rhome' filesep 'pcs' filesep 'projects' filesep 'cml2' filesep 'mat' filesep]
 FunctionPath = [ '<user_home>' filesep 'cml2' filesep 'mat' filesep ]
 
