@@ -43,13 +43,15 @@ BlockLength = 10;
 
 MM = CreateModulation(SignalSet, SymbolProb);
 C = AWGN( MM, 10^(SNRdB/10) );
-D = UncodedModulation(4, 10*SymbolProb, BlockLength);
+DemodType = 0;
+ZeroRandFlag = 1;
+D = UncodedModulation(4, DemodType, ZeroRandFlag, BlockLength, 10*SymbolProb);
 
 M = D.Encode()
 DataBits = D.DataBits
 SymbolLikelihood = C.ChannelUse(M);
-[EstBits, EstSymbols] = D.Decode(SymbolLikelihood)
-[NumBitError, NumSymbolError] = D.ErrorCount(SymbolLikelihood)
+[EstBits, NumBitError, NumSymbolError, EstSymbols] = D.Decode(SymbolLikelihood)
+% [NumBitError, NumSymbolError] = D.ErrorCount(SymbolLikelihood)
 
 %% Testing UncodedModulation class for a large block and finding the error rate:
 clear all
@@ -62,13 +64,13 @@ BlockLength = 10000;
 
 MM = CreateModulation(SignalSet, SymbolProb);
 C = AWGN( MM, 10^(SNRdB/10) );
-D = UncodedModulation(4, 10*SymbolProb, BlockLength);
+D = UncodedModulation(4, [], [], BlockLength, 10*SymbolProb);
 hist(D.DataSymbols, [1:length(D.SymbolProb)]);
 
 M = D.Encode();
 SymbolLikelihood = C.ChannelUse(M);
-[EstBits, EstSymbols] = D.Decode(SymbolLikelihood);
-[NumBitError, NumSymbolError] = D.ErrorCount(SymbolLikelihood)
+[EstBits, NumBitError, NumSymbolError, EstSymbols]  = D.Decode(SymbolLikelihood);
+% [NumBitError, NumSymbolError] = D.ErrorCount(SymbolLikelihood)
 
 %% Testing BinaryUncodedModulation class for a small block:
 clear all
@@ -133,7 +135,7 @@ BlockLength = 10000;
 
 MM = CreateModulation(SignalSet, SymbolProb);
 ChannelObj = AWGN( MM, 10^(SNRdB/10) );
-CodedModObj = UncodedModulation(4, 10*SymbolProb, BlockLength);
+CodedModObj = UncodedModulation(4, [], [], BlockLength, 10*SymbolProb);
 
 SimParam = struct(...
     'CodedModObj', CodedModObj, ...    % Coded modulation object.
@@ -178,7 +180,7 @@ QAM_ExactPs
 BlockLength = 10240;
 
 ChannelObj = AWGN( MM, 10^(SNRdB(1)/10) );
-CodedModObj = UncodedModulation(16, 10*SymbolProb, BlockLength);
+CodedModObj = UncodedModulation(16, [], [], BlockLength, 10*SymbolProb);
 
 SimParam = struct(...
     'CodedModObj', CodedModObj, ...    % Coded modulation object.
