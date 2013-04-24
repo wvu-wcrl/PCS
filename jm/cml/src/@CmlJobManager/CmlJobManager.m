@@ -11,7 +11,7 @@ classdef CmlJobManager < JobManager
         
         
         function CodeParam = RmHmat(CodeParam)
-        % Remove parity check matrix from CodeParam for efficiency.
+            % Remove parity check matrix from CodeParam for efficiency.
             
             if isfield(CodeParam, 'H_rows')
                 CodeParam = rmfield(CodeParam, 'H_rows');
@@ -25,24 +25,23 @@ classdef CmlJobManager < JobManager
     
     
     methods
-	    function obj = CmlJobManager( cfgRoot, queueCfg )
+        function obj = CmlJobManager( cfgRoot, queueCfg )
             % Distributed CML Simulation Job Manager.
-            % Calling syntax: obj = CmlJobManager([cfgRoot, varargin])
-            % Optional input cfgRoot is the FULL path to the configuration file of the job manager.
+            % Calling syntax: obj = CmlJobManager([cfgRoot, queueCfg])
+            % Optional input 'cfgRoot' is the FULL path to the configuration file of the job manager.
             % Default: cfgRoot = [filesep,'home','pcs','jm',ProjectName,'cfg',CFG_Filename]
             % ProjectName = 'cml';
             % CFG_Filename = 'CmlJobManager_cfg';
-      
-            % input argument 'queueCfg' stores the full path to the queue configuration file
-          
+            
+            % (Optional) input argument 'queueCfg' stores the full path to the queue configuration file.
+            
             % Both input arguments must be defined.
-            % If no specific job manager configuration file is desired,
-            %  the argument must be specified as '[]'
-
-        
-%        if( nargin<2 || isempty(cfgRoot) ), cfgRoot = []; end
-     obj@JobManager(cfgRoot, queueCfg, 'cml');
-       end
+            % If no specific job manager configuration file is desired, the argument must be specified as '[]'.
+            
+            if( nargin<1 || isempty(cfgRoot) ), cfgRoot = []; end
+            if( nargin<2 || isempty(queueCfg) ), queueCfg = []; end
+            obj@JobManager(cfgRoot, queueCfg, 'cml');
+        end
         
         
         function [JobParam, JobState, PPSuccessFlag, PPErrorMsg] =...
