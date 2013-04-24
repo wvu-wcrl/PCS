@@ -126,7 +126,7 @@ classdef LinkSimulation < Simulation
                         ...( (obj.SimState.FER(end, LastInactivePoint) ~=0) && (obj.SimState.FER(end, LastInactivePoint) < obj.SimParam.minFER) ) ) )
                         ( obj.SimState.BER(end,LastInactivePoint) < obj.SimParam.minBER || obj.SimState.FER(end,LastInactivePoint) < obj.SimParam.minFER ) )
                     ActiveSNRPoints(LastInactivePoint:end) = 0;
-                    if(Test && (sum(OldActiveSNRPoints-ActiveSNRPoints) ~= 0) && TestInactivation)
+                    if(Test && TestInactivation && (sum(OldActiveSNRPoints-ActiveSNRPoints) ~= 0))
                         fprintf( '\nThe simulation for SNR=%.2f dB and all SNRs above it is not required since BER=%e @ SNR=%.2f dB.\n', ...
                             obj.SimParam.SNR(LastInactivePoint+1), obj.SimState.BER(end, LastInactivePoint), obj.SimParam.SNR(LastInactivePoint) );
                         OldActiveSNRPoints = ActiveSNRPoints;
