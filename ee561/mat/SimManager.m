@@ -32,7 +32,7 @@ TaskID = 0;
 running = 1;
 while( running )
     % MONITOR THE JOB INPUT QUEUE
-        
+    
     % look to see if there are any .mat files in the JobInDir
     D = dir( [JobInDir '*.mat'] );
     
@@ -40,7 +40,7 @@ while( running )
     StoppingCriteria = 0;
     
     if ~isempty(D)
-       
+        
         % pick a file at random
         InFileIndex = randint( 1, 1, [1 length(D)]);
         
@@ -49,7 +49,7 @@ while( running )
         
         msg = sprintf( 'Lauching job %s at %s\n', InFile, datestr(clock) );
         fprintf( msg );
-
+        
         % try to load it
         try
             msg = sprintf( 'Loading input file\n' );
@@ -76,7 +76,7 @@ while( running )
                 % if could not delete, just a warning
                 msg = sprintf( 'Warning: Input job file could not be deleted.\n' );
                 fprintf( msg );
-            end        
+            end
         end
         
         if (success)
@@ -93,7 +93,7 @@ while( running )
             SimParamLocal.MaxSymErrors = SimParamGlobal.MaxSymErrors - SimStateGlobal.SymbolErrors;
             SimParamLocal.MaxBitErrors = SimParamGlobal.MaxBitErrors - SimStateGlobal.BitErrors;
             SimParamLocal.MaxTrials    = SimParamGlobal.MaxTrials    - SimStateGlobal.Trials;
-                       
+            
             % divide into multiple tasks
             % Sense the load of the task input queue (TaskInDir)
             DTask = dir( [TaskInDir '*.mat'] );
@@ -129,9 +129,9 @@ while( running )
                 % Pause briefly for flow control
                 pause( PauseTime );
             end
-        end  
+        end
         
-        % Done!       
+        % Done!
         msg = sprintf( '\nWaiting for next task or job ...\n\n' );
         fprintf( msg );
         
@@ -142,17 +142,17 @@ while( running )
     % look to see if there are any .mat files in the TaskOutDir
     D = dir( [TaskOutDir '*.mat'] );
     
-    if ~isempty(D)            
+    if ~isempty(D)
         % pick a file at random
         InFileIndex = randint( 1, 1, [1 length(D)]);
         
         % construct the filename
         InFile = D(InFileIndex).name;
         OutFile = InFile;
-            
+        
         msg = sprintf( 'Receiving task %s at %s\n', InFile, datestr(clock) );
         fprintf( msg );
-
+        
         % try to load the task file
         try
             msg = sprintf( 'Loading input file\n' );
@@ -181,8 +181,8 @@ while( running )
                 msg = sprintf( 'Warning: Task file could not be deleted\n' );
                 fprintf( msg );
             end
-        end        
-       
+        end
+        
         % Try to load the correspoding file from the Jobs Running Directory (if it is there)
         if (success)
             try
@@ -231,7 +231,7 @@ while( running )
             RemainingSymError(RemainingSymError<0) = 0;  % force to zero if negative
             
             % Determine the position of active SNR points based on the number of remaining symbol errors and trials.
-            ActiveSNRPoints = ( (RemainingSymError>0) & (RemainingTrials>0) );         
+            ActiveSNRPoints = ( (RemainingSymError>0) & (RemainingTrials>0) );
             StoppingCriteria = ( sum(ActiveSNRPoints) == 0 );
             if StoppingCriteria
                 fprintf( 'Stopping simulation because enough trials and/or errors observed\n' );
@@ -255,8 +255,8 @@ while( running )
             % determine and echo progress
             Remaining = sum( (ActiveSNRPoints==1).*RemainingTrials );
             Completed = sum( SimStateGlobal.Trials );
-            fprintf( '  Progress update: %d trials completed, %d trials remaining, %2.4f percent complete\n', Completed, Remaining, 100*Completed/(Completed+Remaining) );            
-        
+            fprintf( '  Progress update: %d trials completed, %d trials remaining, %2.4f percent complete\n', Completed, Remaining, 100*Completed/(Completed+Remaining) );
+            
             % Simulation is not done, resubmit another round of tasks
             if ~StoppingCriteria
                 % Update the Running File
@@ -306,7 +306,7 @@ while( running )
                 end
                 
             else % Simulation is done, save to JobsOut queue
-
+                
                 % Set SimState and SimParam to their global values
                 SimState = SimStateGlobal;
                 SimParam = SimParamGlobal;
@@ -336,7 +336,7 @@ while( running )
         fprintf( msg );
         
     end
- 
+    
     % wait before looping
     pause( PauseTime );
     

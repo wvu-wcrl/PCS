@@ -38,7 +38,6 @@ while running
     %     heartbeat_counter = column_width;
     %     fprintf('\n');
     % end
-        
     
     % check the queue for files
     D = dir( queue );
@@ -75,7 +74,7 @@ while running
             
             % output file name
             outfile = [outdir 'Result' job '.mat' ];
-
+            
             % name of output text file
             txtfile = [outdir 'results.txt'];
             fid = fopen( txtfile, 'w+' );
@@ -87,7 +86,7 @@ while running
             catch
                 % file was bad, kick out of loop
                 fprintf( '\nWarning: File could not be loaded\n\n' );
-                fprintf( fid, 'Error: (1)\nN/A\nN/A\nN/A' ); 
+                fprintf( fid, 'Error: (1)\nN/A\nN/A\nN/A' );
                 fclose( fid );
                 break
             end
@@ -102,7 +101,7 @@ while running
                 break;
             end
             
-            % make sure it is numeric 
+            % make sure it is numeric
             if ~isnumeric( S )
                 fprintf( '\nWarning: S matrix is not numeric\n\n' );
                 break;
@@ -120,11 +119,11 @@ while running
                 fprintf( fid, 'Error: (3)\nN/A\nN/A\nN/A' );
                 fclose( fid );
                 break;
-            end           
-           
+            end
+            
             fprintf( 'Tring to Process signal matrix\n' );
             
-            try          
+            try
                 % normalize
                 S = sqrt(M)*S./norm( S, 'fro' );
                 
@@ -137,7 +136,7 @@ while running
             catch
                 % file was bad, kick out of loop
                 fprintf( '\nWarning: Error processing S matrix \n\n' );
-                fprintf( fid, 'Error: (4)\nN/A\nN/A\nN/A' ); 
+                fprintf( fid, 'Error: (4)\nN/A\nN/A\nN/A' );
                 fclose( fid );
                 break
             end
@@ -158,13 +157,10 @@ while running
             fprintf( '\nWarning: The following directory did not contain a .mat file: \n' );
             fprintf( indir );
             fprintf( '\n\n' );
-        end     
-      
-      
+        end
+        
     end
-    
     % sleep briefly before checking again
     pause(1);
     
 end
-
