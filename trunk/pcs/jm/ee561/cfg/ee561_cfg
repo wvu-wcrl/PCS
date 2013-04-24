@@ -1,28 +1,28 @@
 [GeneralSpec]
 
 % Name and fuLL path to user's project code directory.
-CodeRoot = <user_home>/cml
-% CodeRoot = /home/pcs/projects/cml
+% All of the code required to run user's simulation resides under this directory.
+% CodeRoot = /home/pcs/projects/cml2
+CodeRoot = <user_home>/cml2
 
 % Name and FULL path to user's job queue root directory.
-JobQueueRoot = <user_home>/Projects/cml
+% JobIn, JobRunning, and JobOut directories are under this full path.
+JobQueueRoot = <user_home>/Projects/ee561
 
 % Name and full path of project-specific worker function.
-% Default is to use CML stored on cluster under pcs user account.
-% FunctionPath = ['<user_home>' filesep 'cml' filesep 'mat' filesep]
-FunctionName = CmlWorker
-FunctionPath = /rhome/pcs/projects/cml/mat
-
+FunctionName = CodedModWorker
+% FunctionPath = [filesep 'rhome' filesep 'pcs' filesep 'projects' filesep 'cml2' filesep 'mat' filesep]
+FunctionPath = [ '<user_home>' filesep 'cml2' filesep 'mat' filesep ]
 
 
 
 [TasksInSpec]
 
 % Maximum number of input tasks in TaskIn queue/directory.
-MaxInputTasks = 350
+MaxInputTasks = 250
 
 % Number of input tasks in TaskIn queue/directory beyond which generation of new tasks is slowed down until it reaches the maximum of MaxInputTasks.
-TaskGenDecelerate = 300
+TaskGenDecelerate = 200
 
 % Maximum number of input tasks to be submitted to TaskIn at a time/each step.
 MaxTaskGenStep = 50
@@ -31,7 +31,7 @@ MaxTaskGenStep = 50
 TaskInFlushRate = 10
 
 % Maximum number of parallel jobs running at a time.
-MaxRunningJobs = 3
+MaxRunningJobs = 2
 
 
 

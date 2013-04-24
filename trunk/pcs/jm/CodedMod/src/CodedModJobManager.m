@@ -2,15 +2,20 @@ classdef CodedModJobManager < JobManager
     
     
     methods
-        function obj = CodedModJobManager(cfgRoot)
+        function obj = CodedModJobManager(cfgRoot, queueCfg, JmName)
             % Coded-Modulation Simulation Job Manager.
             % Calling syntax: obj = CodedModJobManager([cfgRoot])
             % Optional input cfgRoot is the FULL path to the configuration file of the job manager.
             % Default: cfgRoot = [filesep,'home','pcs','jm',ProjectName,'cfg',CFG_Filename]
             % ProjectName = 'CodedMod';
             % CFG_Filename = 'CodedModJobManager_cfg';
+            
+            % JmName can be empty if the CodedModJobManager is created.
+            % It should be specified if a subclass of this class calls its constructor.
+            
             if( nargin<1 || isempty(cfgRoot) ), cfgRoot = []; end
-            obj@JobManager(cfgRoot);
+            if( nargin<3 || isempty(JmName) ), JmName = 'CodedMod'; end
+            obj@JobManager(cfgRoot, queueCfg, JmName);
         end
         
         
@@ -179,14 +184,46 @@ classdef CodedModJobManager < JobManager
             % Update simulation progress in STAUS field of JobInfo.
             msgStatusFile = sprintf( '%2.2f%% of Trials Completed.', 100*CompletedTJob/(CompletedTJob+RemainingTJob) );
             JobInfo = obj.UpdateJobInfo( JobInfo, 'Status', msgStatusFile );
-            % Save simulation progress in STATUS file. Update Results file.
+            % Save simulation progress in STATUS file.
             % if( nargin>=5 && ~isempty(JobName) && ~isempty(JobRunningDir) )
             % SuccessFlagStatus = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
             % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Status.txt'], msgStatusFile, 'w+');
             
+            % Update Results file.
             % SuccessFlagResults = obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
             % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
             % end
+            
+            JobInfo = UpdateResultsInfo(obj, JobParam, JobState, JobInfo);
+            
+            obj.PlotResults( JobParam, JobState, FiguresDir, JobName, obj.JobManagerParam.TempJMDir );
+            
+            varargout{1} = JobParam;
+            varargout{2} = JobState;
+        end
+        
+        
+        function PlotResults( obj, JobParam, JobState, FiguresDir, JobName, TempJMDir )
+            % Plot functionality could be added to this project later.
+        end
+        
+        
+        function NumProcessUnit = FindNumProcessUnits(obj, TaskState)
+            NumProcessUnit = sum(TaskState.Trials(end,:));
+        end
+        
+        
+        function JobInfo = UpdateResultsInfo(obj, JobParam, JobState, JobInfo)
+            RemainingTrials = JobParam.MaxTrials - JobState.Trials(end,:);
+            RemainingTrials(RemainingTrials<0) = 0;             % Force to zero if negative.
+            RemainingFrameErrors = JobParam.MaxFrameErrors - JobState.FrameErrors(end,:);
+            RemainingFrameErrors(RemainingFrameErrors<0) = 0;   % Force to zero if negative.
+            
+            % Determine the position of active SNR points based on the number of remaining trials and frame errors.
+            ActiveSNRPoints  = ( (RemainingTrials>0) & (RemainingFrameErrors>0) );
+            
+            RemainingTJob = sum( (ActiveSNRPoints==1) .* RemainingTrials );
+            CompletedTJob = sum( JobState.Trials(end,:) );
             
             Results = struct( 'CompletedTrials', CompletedTJob, 'RemainingTrials', RemainingTJob );
             % Results = struct( 'SNR', num2str(JobParam.SNR), ...
@@ -196,14 +233,6 @@ classdef CodedModJobManager < JobManager
             %     'Progress', msgStatus);
             
             JobInfo = obj.UpdateJobInfo( JobInfo, 'Results', Results );
-            
-            varargout{1} = JobParam;
-            varargout{2} = JobState;
-        end
-        
-        
-        function NumProcessUnit = FindNumProcessUnits(obj, TaskState)
-            NumProcessUnit = sum(TaskState.Trials(end,:));
         end
         
     end
