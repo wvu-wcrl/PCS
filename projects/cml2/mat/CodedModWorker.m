@@ -1,9 +1,10 @@
-function TaskState = CodedModTaskInit(CodedModParam)
+function TaskState = CodedModWorker(CodedModParam)
 % This function uses LinkSimulation class to simulate the performance of a coded-modulation communication system.
 %
 % CodedModParam is a structure defining simulation parameters.
 % CodedModParam = struct(...
 %     'CodeType', [],...        % Type of the channel code used.
+%                               % ='Uncoded' (Uncoded system, DEFAULT).
 %     ...                       % =00 (Recursive Systematic Convolutional (RSC) code).
 %     ...                       % =01 (Non-Systematic Convolutional (NSC) code), =02 (Tail-biting NSC code).
 %     ...                       % =20 (General LDPC code specified by its parity-check matrix in alist format saved in a file).
@@ -79,10 +80,15 @@ if( ~isfield(CodedModParam, 'CodedModObj') || isempty(CodedModParam.CodedModObj)
     if( ~isfield(CodedModParam, 'DemodType') || isempty(CodedModParam.DemodType) ), CodedModParam.DemodType = 0; end
     if( ~isfield(CodedModParam, 'ZeroRandFlag') || isempty(CodedModParam.ZeroRandFlag) ), CodedModParam.ZeroRandFlag = 0; end
     if( ~isfield(CodedModParam, 'ChannelCodeObject') || isempty(CodedModParam.ChannelCodeObject) )
-        if( ~isfield(CodedModParam, 'CodeType') || isempty(CodedModParam.CodeType) ), CodedModParam.CodeType = 21; end
+        if( ~isfield(CodedModParam, 'CodeType') || isempty(CodedModParam.CodeType) ), CodedModParam.CodeType = 'Uncoded'; end
         if( ~isfield(CodedModParam, 'MaxIteration') || isempty(CodedModParam.MaxIteration) ), CodedModParam.MaxIteration = 30; end
         if( ~isfield(CodedModParam, 'DecoderType') || isempty(CodedModParam.DecoderType) ), CodedModParam.DecoderType = 0; end
         switch CodedModParam.CodeType
+            case 'Uncoded' % Uncoded system.
+                CodedModParam.MaxIteration = 1;
+                if( ~isfield(CodedModParam, 'BlockLength') || isempty(CodedModParam.BlockLength) ), CodedModParam.BlockLength = 1024; end
+                CodedModParam.ChannelCodeObject.DataLength = CodedModParam.BlockLength * log2(CodedModParam.ChannelObj.ModulationObj.Order);
+                CodedModParam.ChannelCodeObject.Rate = 1;
             case 00 % Recursive Systematic Convolutional (RSC) code.
                 % Default generator matrix for convolutional code is the constituent code of UMTS turbo code.
                 if( ~isfield(CodedModParam, 'Generator') || isempty(CodedModParam.Generator) ), CodedModParam.Generator = [1 0 1 1 ; 1 1 0 1]; end
@@ -122,7 +128,7 @@ if( ~isfield(CodedModParam, 'CodedModObj') || isempty(CodedModParam.CodedModObj)
         CodedModParam.DemodType, CodedModParam.ZeroRandFlag);
 end
 
-CheckPeriod = 10;   % Checking time in number of Trials to see if the time is up.
+CheckPeriod = 1000;   % Checking time in number of Trials to see if the time is up.
 
 TaskParam = struct(...
     'CodedModObj', CodedModParam.CodedModObj, ...   % Coded modulation object.
