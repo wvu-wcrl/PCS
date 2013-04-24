@@ -124,10 +124,10 @@ classdef ee561JobManager < CodedModJobManager
                 
                 JobParam.JobFileSetFlag = 1;
                 
-                if( ~isfield(JobState, 'Trials') ), JobState.Trials = []; end
-                if( ~isfield(JobState, 'SymbolErrors') ), JobState.SymbolErrors = []; end
-                if( ~isfield(JobState, 'BitErrors') ), JobState.BitErrors = []; end
-                if( ~isfield(JobState, 'FrameErrors') ), JobState.FrameErrors = []; end
+                if( ~isfield(JobState, 'Trials') ), JobState.Trials = zeros(1, length(JobParam.SNR)); end
+                if( ~isfield(JobState, 'SymbolErrors') ), JobState.SymbolErrors = zeros(1, length(JobParam.SNR)); end
+                if( ~isfield(JobState, 'BitErrors') ), JobState.BitErrors = zeros(1, length(JobParam.SNR)); end
+                if( ~isfield(JobState, 'FrameErrors') ), JobState.FrameErrors = zeros(1, length(JobParam.SNR)); end
                 if( ~isfield(JobState, 'SER') ), JobState.SER = []; end
                 if( ~isfield(JobState, 'BER') ), JobState.BER = []; end
                 if( ~isfield(JobState, 'FER') ), JobState.FER = []; end
