@@ -1,19 +1,19 @@
 [GeneralSpec]
 
 % Name of the current project for which this job manager is running.
-ProjectName = CodedMod
+ProjectName = ee561
 
 % Root directory in which the job manager looks for users of the system.
 % HomeRoot = pwd
-% HomeRoot = /home
-HomeRoot = /home/web_users
+HomeRoot = /home
+% HomeRoot = /home/web_users
 
 % Temporary directory in which the job manager saves intermediate files before moving them to their ultimate destination.
 % This folder solves the problem of write permissions in directories of users.
-TempJMDir = /home/pcs/jm/CodedMod/Temp
+TempJMDir = /home/pcs/jm/ee561/Temp
 
 % FULL path (including name) of .mat file containing job manager Info Usage (including timing and credit usage info of users).
-JMInfoFullPath = /home/pcs/jm/CodedMod/Usage/CodedMod_jmUsageInfo.mat
+JMInfoFullPath = /home/pcs/jm/ee561/Usage/ee561_jmUsageInfo.mat
 
 % Period by which the job manager parameters and information containing the user list and user usage information is saved.
 JMInfoUpdatePeriod = 10
@@ -26,7 +26,7 @@ Check4NewUserPeriod = 50
 JMPause = 60
 
 % Name of configuration file for each user, which stores location of JOB queues for each project (among other information).
-UserCfgFilename = CodedMod_cfg
+UserCfgFilename = ee561_cfg
 
 
 [LogSpec]
@@ -39,7 +39,7 @@ LogFileName = 0
 % Verbose/quiet mode of intermediate message logging.
 % If vqFlag=0 (verbose mode), all detailed intermediate messages are printed out.
 % If vqFlag=1 (quiet mode), just important intermediate  messages are printed out.
-vqFlag = 1
+vqFlag = 0
 
 
 [eTimeProcessUnitSpec]

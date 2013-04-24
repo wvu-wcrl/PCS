@@ -15,7 +15,7 @@
 
 
 
-   function CmlJMObj = cml_jm_startup(cfgFile, queueCfg)
+function CmlJMObj = cml_jm_startup(cfgFile, queueCfg)
 
 if( nargin<1 || isempty(cfgFile) )
     cfgFile = fullfile(filesep, 'home', 'pcs', 'jm', 'cml', 'cfg', 'CmlJobManager_cfg');
@@ -27,8 +27,8 @@ addpath( fullfile( filesep, 'home', 'pcs', 'jm', 'cml', 'src' ) );
 addpath( fullfile( filesep, 'home', 'pcs', 'jm', 'cml', 'src', 'share' ) );
 addpath( fullfile( filesep, 'home', 'pcs', 'util', 'log') );
 addpath( fullfile( filesep, 'home', 'pcs', 'projects',...
-                   'cml', 'module', 'chan_code', 'ldpc',...
-                   'decoder', 'supp') );
+    'cml', 'module', 'chan_code', 'ldpc',...
+    'decoder', 'supp') );
 addpath( fullfile( filesep, 'home', 'pcs', 'projects', 'cml', 'mat', 'plot') );
 
 CmlJMObj = CmlJobManager( cfgFile, queueCfg );
