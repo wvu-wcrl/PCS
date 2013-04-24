@@ -39,8 +39,8 @@ fprintf( 'Starting\nLocation of input queue: ' );
 fprintf( queue );
 fprintf( '\n' );
 
-while running   
-   
+while running
+    
     % check the queue for files
     D = dir( queue );
     
@@ -76,7 +76,7 @@ while running
         if (length( Z ) == 1)
             % input file name
             infile = [indir Z(1).name];
-
+            
             % name of output text file
             txtfile = [outdir 'results.txt'];
             fid = fopen( txtfile, 'w+' );
@@ -89,12 +89,12 @@ while running
             catch
                 % file was bad, kick out of loop
                 fprintf( '\nWarning: File could not be loaded\n\n' );
-                fprintf( fid, 'Error: (1)\nN/A\nN/A\nN/A' ); 
+                fprintf( fid, 'Error: (1)\nN/A\nN/A\nN/A' );
                 fclose( fid );
                 break
             end
-                       
-            % make sure it is numeric 
+            
+            % make sure it is numeric
             if ~isnumeric( S )
                 fprintf( '\nWarning: S matrix is not numeric\n\n' );
                 break;
@@ -111,11 +111,11 @@ while running
                 fprintf( fid, 'Error: (3)\nN/A\nN/A\nN/A' );
                 fclose( fid );
                 break;
-            end           
-           
+            end
+            
             fprintf( 'Tring to Process signal matrix\n' );
             
-            try          
+            try
                 % normalize
                 S = sqrt(M)*S./norm( S, 'fro' );
                 
@@ -128,7 +128,7 @@ while running
             catch
                 % file was bad, kick out of loop
                 fprintf( '\nWarning: Error processing S matrix \n\n' );
-                fprintf( fid, 'Error: (4)\nN/A\nN/A\nN/A' ); 
+                fprintf( fid, 'Error: (4)\nN/A\nN/A\nN/A' );
                 fclose( fid );
                 break
             end
@@ -147,7 +147,7 @@ while running
             
             % create the SimParam and SimState structures
             % Create Simulation Parameters
-                        
+            
             % create a modulation object with equally-likely symbols
             SymbolProb = ones(1,M);
             ModObj = CreateModulation( S, SymbolProb );
@@ -164,8 +164,8 @@ while running
             LastSNR = InversePsUB( S, 1e-6 );
             SNRperdB = 2;
             SNRdB = 1/SNRperdB*[ round( SNRperdB*FirstSNR):ceil( SNRperdB*LastSNR) ];
-            SNRdB = [10 SNRdB];            
-           
+            SNRdB = [10 SNRdB];
+            
             SimParam = struct(...
                 'CodedModObj', CodedModObj, ...    % Coded modulation object.
                 'ChannelObj', ChannelObj, ...     % Channel object (Modulation is a property of channel).
@@ -187,20 +187,18 @@ while running
             SimState = LinkObjGlobal.SimState;
             
             % Save
-            save( [JobInDir MatlabFileName], 'SimParam', 'SimState' ); 
-            
+            save( [JobInDir MatlabFileName], 'SimParam', 'SimState' );
             
         else
             fprintf( '\nWarning: The following directory did not contain a .mat file: \n' );
             fprintf( indir );
             fprintf( '\n\n' );
-        end     
-      
-      
+        end
+        
     end
     
     % reset the check flag
-    checkflag = 0;      
+    checkflag = 0;
     
     % check to see if there are any results in the JobOut directory
     D = dir( [JobOutDir '*.mat'] );
@@ -222,7 +220,7 @@ while running
         % try to copy the file to the proper directory
         outdir = [TomcatDir 'Jobs/' user '/' job_str '/output/'];
         fprintf( 'Copying %s to %s\n', InFile, outdir );
-
+        
         try
             fprintf( 'Loading Job File\n' );
             load( [JobOutDir InFile], 'SimParam', 'SimState' );
@@ -250,17 +248,17 @@ while running
             fprintf( fid, '%s\n', status );
             fprintf( fid, '%2.4f\n', PAPR );
             fprintf( fid, '%2.4f\n', GammaPs );
-            fprintf( fid, '%2.4f', GammaPb );  
+            fprintf( fid, '%2.4f', GammaPb );
             
             % close results file
             fclose( fid );
-           
+            
             success = 1;
         catch
             % file was bad or nonexistent, kick out of loop
             msg = sprintf( 'Error: JobsRunning File could not be loaded and/or saved\n' );
-            fprintf( msg );            
-           
+            fprintf( msg );
+            
             success = 0;
         end
         
@@ -270,19 +268,19 @@ while running
                 msg = sprintf( 'Deleting output job file\n' );
                 fprintf( msg );
                 delete( [JobOutDir InFile] );
-
+                
             catch
                 % fcould not delete, just a warning
                 msg = sprintf( 'Warning: Could not make figure\n' );
                 fprintf( msg );
-            end        
+            end
         end
         
         % create and save the figure
         if (success)
             try
                 h = figure(1);
-                fprintf( 'Making figure\n'); 
+                fprintf( 'Making figure\n');
                 semilogy( SimParam.SNR, PsUB( S, 10.^(SimParam.SNR/10) ), '--b',...
                     SimParam.SNR, SimState.SER, '.b-', ...
                     SimParam.SNR, PbUB( S, 10.^(SimParam.SNR/10) ), '--r', ...
@@ -297,21 +295,18 @@ while running
                 title( TitleTxt );
                 
                 axis( [min(SimParam.SNR) max(SimParam.SNR) 1e-6 1] );
-
-
-                print( h, '-dpdf', [outdir 'figure.pdf'] );               
                 
-
+                print( h, '-dpdf', [outdir 'figure.pdf'] );
+                
             catch
                 % fcould not delete, just a warning
                 msg = sprintf( 'Warning: Input job file could not be deleted\n' );
                 fprintf( msg );
-            end        
+            end
         end
         
-        
     end
-   
+    
     % sleep briefly before checking again
     pause(1);
     

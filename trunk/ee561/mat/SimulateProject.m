@@ -38,7 +38,7 @@ ChannelObj = AWGN( ModObj, 1 );
 BlockLength = 1000;  % number of symbols per block.
 CodedModObj = UncodedModulation( M, SymbolProb, BlockLength );
 
-% Deterine the SNR vector
+% Determine the SNR vector
 FirstSNR = InversePsUB( S, 1 );
 LastSNR = InversePsUB( S, 1e-6 );
 SNRperdB = 2;
@@ -78,7 +78,7 @@ if resume
     end
     
     if ChangedSNR
-        fprintf( '  SNR vector does not matched saved vector\n' );
+        fprintf( '  SNR vector does not match saved vector\n' );
         
         % restore saved state, one element at a time
         NumberSNRPoints = length( SimParamGlobal.SNR );
