@@ -143,9 +143,10 @@ classdef ee561JobManager < CodedModJobManager
             JobState.FrameErrors = JobState.FrameErrors + TaskState.FrameErrors;
             
             Trials = repmat(JobState.Trials,[size(JobState.BitErrors,1) 1]);
-            JobState.BER = JobState.BitErrors   ./ ( Trials * JobParam.CodedModObj.NumCodewords *...
+            JobState.BER = JobState.BitErrors   ./ ( Trials * TaskState.NumCodewords * ...
                 JobParam.CodedModObj.ChannelCodeObject.DataLength );
-            JobState.FER = JobState.FrameErrors ./ ( Trials * JobParam.CodedModObj.NumCodewords );
+            % TaskState.NumCodewords = JobParam.CodedModObj.NumCodewords;
+            JobState.FER = JobState.FrameErrors ./ ( Trials * TaskState.NumCodewords );
         end
         
         
