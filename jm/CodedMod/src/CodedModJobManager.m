@@ -194,7 +194,7 @@ classdef CodedModJobManager < JobManager
             % obj.UpdateResultsStatusFile(JobRunningDir, [JobName(1:end-4) '_Results.txt'], [msgResults '\r\n' msgStatus], 'w+');
             % end
             
-            JobInfo = UpdateResultsInfo(obj, JobParam, JobState, JobInfo);
+            JobInfo = obj.UpdateResultsInfo(JobParam, JobState, JobInfo);
             
             obj.PlotResults( JobParam, JobState, FiguresDir, JobName, obj.JobManagerParam.TempJMDir );
             
