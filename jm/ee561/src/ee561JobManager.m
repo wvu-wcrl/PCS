@@ -86,7 +86,8 @@ classdef ee561JobManager < CodedModJobManager
                 % Deterine the SNR vector.
                 SNRdBIncrement = 0.5;
                 EsN0dB = SNRdBIncrement * [ floor(FirstEsN0dB/SNRdBIncrement):ceil(LastEsN0dB/SNRdBIncrement) ];
-                JobParam.SNR = [10 EsN0dB]; % Add 10 to the vector just for comparison purposes.
+                % JobParam.SNR = [10 EsN0dB]; % Add 10 to the vector just for comparison purposes.
+                JobParam.SNR = EsN0dB;
                 JobParam.SNRType = 'Es/N0 in dB';
                 
                 % Compute the union bound on bit- and symbol-error probability over an AWGN channel for the given signal set.
