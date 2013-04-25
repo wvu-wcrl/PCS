@@ -107,7 +107,7 @@ classdef util < handle
                     
                     tmppdf = [tmpprefix '.pdf'];
                     pdffn = [figpath '.pdf'];
-                    cmd = ['mv ' tmppdf ' ' pdffn];
+                    cmd = ['sudo mv ' tmppdf ' ' pdffn];
                     system(cmd);
                 otherwise
                     error('Image export type must be either ''eps'' or ''pdf''.');
