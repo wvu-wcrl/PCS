@@ -72,7 +72,7 @@ classdef UncodedModulation < CodedModulation
             if (nargin>=4 && ~isempty(BlockLength))
                 obj.BlockLength = BlockLength;
             end
-            obj.ChannelCodeObject.DataLength = obj.BlockLength * obj.Mapper.NoBitsPerSymb;
+            obj.ChannelCodeObject.DataLength = obj.Mapper.NoBitsPerSymb;
             obj.ChannelCodeObject.CodewordLength = obj.ChannelCodeObject.DataLength;
             obj.ChannelCodeObject.Rate = 1;
             obj.ChannelCodeObject.MaxIteration = 1;
@@ -81,7 +81,7 @@ classdef UncodedModulation < CodedModulation
         
         function DataSymbolsOut = Encode(obj, DataSymbolsIn)
             % DataBitLength = obj.Mapper.NoBitsPerSymb * obj.BlockLength;
-            obj.NumCodewords = 1;
+            obj.NumCodewords = obj.BlockLength;
             if( nargin>=2 && ~isempty(DataSymbolsIn) )
                 obj.CheckSymbols(DataSymbolsIn);
             else
