@@ -62,12 +62,12 @@ classdef ee561JobManager < CodedModJobManager
                     % Create the modulation object using the given signal set.
                     ModObj = CreateModulation(SignalSet, SignalProb);
                     % Determine the threshold SNRs (Es/N0 in dB) that achieve the BER or SER of 1e-5.
-                    JobState.GammaPs = InversePsUB( SignalSet, 1e-5 );
-                    JobState.GammaPb = InversePbUB( SignalSet, 1e-5 );
+                    JobState.GammaPs = InversePsUB( ModObj.SignalSet, 1e-5 );
+                    JobState.GammaPb = InversePbUB( ModObj.SignalSet, 1e-5 );
                     
                     % Determine the range of the required SNR points for simulation.
-                    FirstEsN0dB = InversePbUB( SignalSet, 1 );
-                    LastEsN0dB = InversePbUB( SignalSet, 1e-6 );
+                    FirstEsN0dB = InversePbUB( ModObj.SignalSet, 1 );
+                    LastEsN0dB = InversePbUB( ModObj.SignalSet, 1e-6 );
                 catch
                     SuccessFlag = 0;
                     Msg1 = 'Type-ONE/3 Error (Job Content Error: UNABLE TO PROCESS SIGNALSET): ';
@@ -92,8 +92,8 @@ classdef ee561JobManager < CodedModJobManager
                 
                 % Compute the union bound on bit- and symbol-error probability over an AWGN channel for the given signal set.
                 EsN0 = 10.^(JobParam.SNR/10);
-                JobState.PsUpperBound = PsUB( SignalSet, EsN0 );
-                JobState.PbUpperBound = PbUB( SignalSet, EsN0 );
+                JobState.PsUpperBound = PsUB( ModObj.SignalSet, EsN0 );
+                JobState.PbUpperBound = PbUB( ModObj.SignalSet, EsN0 );
                 
                 % Create the uncoded-modulation object.
                 if( ~isfield(JobParam, 'DemodType') || isempty(JobParam.DemodType) )
