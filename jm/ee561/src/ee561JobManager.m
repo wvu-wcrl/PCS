@@ -191,7 +191,7 @@ classdef ee561JobManager < CodedModJobManager
             xlabel( 'E_s/N_0 (in dB)' );
             ylabel( 'Error Rate' );
             
-            TitleTxt = sprintf( 'Error Rate for Job %s', JobName(1:end-4) );
+            TitleTxt = sprintf( 'Error Rate for Job %s last updated on %s', upper(JobName(1:end-4)), datestr(clock, 'dd/mm/yyyy atHH:MM:SS PM') );
             title( TitleTxt );
             
             axis( [min(JobParam.SNR) max(JobParam.SNR) 1e-6 1] );
