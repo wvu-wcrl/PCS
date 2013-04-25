@@ -2,8 +2,8 @@
 
 % Name and fuLL path to user's project code directory.
 % All of the code required to run user's simulation resides under this directory.
-% CodeRoot = /home/pcs/projects/cml2
-CodeRoot = <user_home>/cml2
+CodeRoot = /home/pcs/projects/cml2
+% CodeRoot = <user_home>/cml2
 
 % Name and FULL path to user's job queue root directory.
 % JobIn, JobRunning, and JobOut directories are under this full path.
