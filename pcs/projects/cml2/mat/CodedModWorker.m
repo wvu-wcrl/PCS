@@ -87,7 +87,8 @@ if( ~isfield(CodedModParam, 'CodedModObj') || isempty(CodedModParam.CodedModObj)
             case 'Uncoded' % Uncoded system.
                 CodedModParam.MaxIteration = 1;
                 if( ~isfield(CodedModParam, 'BlockLength') || isempty(CodedModParam.BlockLength) ), CodedModParam.BlockLength = 1024; end
-                CodedModParam.ChannelCodeObject.DataLength = CodedModParam.BlockLength * log2(CodedModParam.ChannelObj.ModulationObj.Order);
+                % CodedModParam.ChannelCodeObject.DataLength = CodedModParam.BlockLength * log2(CodedModParam.ChannelObj.ModulationObj.Order);
+                CodedModParam.ChannelCodeObject.DataLength = log2(CodedModParam.ChannelObj.ModulationObj.Order);
                 CodedModParam.ChannelCodeObject.Rate = 1;
             case 00 % Recursive Systematic Convolutional (RSC) code.
                 % Default generator matrix for convolutional code is the constituent code of UMTS turbo code.
