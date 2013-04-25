@@ -1,0 +1,88 @@
+== Introduction to Cluster Controller ==
+ 
+ Purpose and Motivation
+   Consider running a MATLAB-based Monte-Carlo simulation on a single computer.
+   Certain simulations may take weeks or months to run depending on the parameters.
+   We would like a simple way to execute a Monte-Carlo simulation across a computing cluster.
+
+ Overview of Architecture
+   A conventional simulation running on a single computer uses a single MATLAB process.
+   ** Draw picture of single computer containing a single MATLAB process. **
+
+   Now consider a cluster containing N computers, each having M cores.
+   ** Draw picture of cluster **
+
+   One way to implement the parallelism is to execute a single MATLAB process
+   on every core of every cluster computer.
+   ** Draw MATLAB in every cluster node **
+
+   The cluster controller software is a set of MATLAB classes which run on the head node, and allow a user
+   to start and stop worker processes using method calls within MATLAB.
+
+
+
+== Cluster Controller Architecture ==
+
+The cluster controller is a set of MATLAB classes which allow the CML user to start
+ and stop MATLAB worker processes on the internal cluster nodes from
+a pure-MATLAB interface on the head node.
+
+The controller starts and stops MATLAB worker processes on internal
+nodes using remote command execution through SSH.  The SSH commands
+are implemented within BASH scripts, which are called by the cluster controller
+object methods.
+
+
+== Configuration File ==
+The nodes which the cluster controller utilizes are specified in a configuration file, having the following format
+
+*** Begin configuration file ***
+[Paths]
+InputPath  = P_I
+OutputPath = P_O
+
+[Hosts]
+host = nodeX_1 Y_1
+host = nodeX_2 Y_2
+...
+********************************
+
+where 
+P_I is the path which the workers access to locate work units.
+P_I is the path to which the workers write results.
+
+X_i is an element of {01, 02, ... 15}, and
+Y_i is an integer specifying the number of workers to utilize on node X_i.
+
+All configuration files are stored in the directory
+../CMLROOT/srv/cfg
+
+
+
+== Cluster Controller Operation ==
+
+= Usage overview =
+1. Create the cluster controller object on the head node.
+2. Call object methods to start and stop MATLAB workers on the internal nodes.
+3. Destroy the cluster controller object.
+
+
+The cluster controller object is created within MATLAB by invoking the controller class constructor, cwc(),
+
+After the object is created, workers are started using one of two method calls:
+wSta(nodeXX) - start a single worker on node 'nodeXX'
+cSta()       - start the maximum number of workers on all nodes specified in the configuration
+               file.
+
+Workers are stopped using the following method calls:
+wSto(wNum) - where wNum is a unique integer assigned to each active worker.
+cSto() - unconditionally stop the workers on every node.
+
+
+
+== Workers ==
+
+A MATLAB worker process is a .m script which executes a CML simulation,
+for example, an error-rate simulation of APSK.
+
+
