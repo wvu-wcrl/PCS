@@ -90,7 +90,7 @@ classdef ee561JobManager < CodedModJobManager
                 JobParam.SNRType = 'Es/N0 in dB';
                 
                 % Compute the union bound on bit- and symbol-error probability over an AWGN channel for the given signal set.
-                EsN0 = 10.^(EsN0dB/10);
+                EsN0 = 10.^(JobParam.SNR/10);
                 JobState.PsUpperBound = PsUB( SignalSet, EsN0 );
                 JobState.PbUpperBound = PbUB( SignalSet, EsN0 );
                 
