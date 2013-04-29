@@ -13,8 +13,15 @@
 %
 %     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
 %     For full copyright information see the bottom of this file.
+%
+%  POTENTIAL CAVEAT
+%   Added '&' to end of all system() commands in an attempt to
+%       prevent hanging.
+%  Keep an eye on this one, for example, spawing zombies or leaking memory.
+
 
 function main(obj, ss)
+
 
 nu = length(obj.users);           % number of users
 
@@ -216,37 +223,57 @@ if ~isempty(users_srt)
     cnt = 0;
     fprintf('7 ');
     while avw > 0 & nf > 0,   % add files to queue until the queue is full or no more files exist
+
         avw = avw - 1;
         nf = nf - 1;
         cnt = cnt + 1;
-        
+
+
         puif = strcat(users_srt.iq, '/', fl_srt{1}(cnt).name);  % path to input file
-        pgiq = obj.gq.iq;
-        purq = users_srt.rq;
-        
-        
+	purf = strcat(users_srt.rq, '/', fl_srt{1}(cnt).name);  % path to running file
+
+        pgiq = obj.gq.iq;    % path to global input queue
+        purq = users_srt.rq; % path to user running queue
+
+
         % append username to file
         fn = fl_srt{1}(cnt).name;
         afn = [users_srt.username '_' users_srt.user_location '_' fn];
-        
+
         
         % copy user input file into user running queue
-        cmd_str = ['sudo cp' ' ' puif{1} ' ' purq{1} '/' fn];
-        [st res] = system(cmd_str);
-fprintf('%s', res);
-        fprintf('cp ');
+%        cmd_str = ['sudo cp' ' ' puif{1} ' ' purq{1} '/' fn ' ' '&'];
+         cmd_str = ['sudo cp' ' ' puif{1} ' ' purf{1} ' ' '&'];
+         fprintf('%s\n', cmd_str);
+         [st res] = system(cmd_str);
+         fprintf('\n');
+
         
-        % change ownership to pcs user
-        cmd_str = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1}];
+        % change user running queue file ownership from root to user
+        cmd_str = ['sudo chown' ' ' users_srt.username ':' users_srt.username ' ' purf{1} ' ' '&'];
+        fprintf('%s\n', cmd_str);
+        [st res] = system(cmd_str);
+        fprintf('\n');
+
+
+        % change user input file ownership to pcs user
+        cmd_str = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1} ' ' '&'];
+        fprintf('%s\n', cmd_str);
         [st res] = system(cmd_str);   % change ownership back to user
-fprintf('%s', res);
-        fprintf('chown ');
+        fprintf('\n');
+
+
         
-        % move user file into input queue
-        cmd_str = ['sudo mv' ' ' puif{1} ' ' pgiq{1} '/' afn];
+        % move user file into input queue        
+        cmd_str = ['sudo mv -f' ' ' puif{1} ' ' pgiq{1} '/' afn ' ' '&'];
+      fprintf('%s\n', cmd_str);
         [st res] = system(cmd_str);
-fprintf('%s', res);
-        fprintf('mv ');
+     fprintf('\n');
+
+         
+      fprintf('avw %d\n', avw);
+      fprintf('nf %d\n', nf);
+
     end
     
     obj.aw = obj.aw + cnt;
@@ -287,10 +314,10 @@ if ~isempty(users_srt)
         
         af = strcat(fl_srt{1}(k).name);
         
-        cmd_str = ['sudo mv' ' ' puiq '/' af ' ' purq '/' af ];
+        cmd_str = ['sudo mv -f' ' ' puiq '/' af ' ' purq '/' af ' ' '&'];
         
         [st res] = system(cmd_str);
-fprintf('%s', res);
+fprintf('\n');
         
     end
     
@@ -462,15 +489,54 @@ fprintf('15 ');
 
 [ pgoq ] = get_path_global_output_queue( obj.gq.oq{1} );
 
-cmd_str = ['sudo chown' ' ' ownership_name ':' ownership_group ' ' pgoq '/' output_task_filename]; 
+cmd_str = ['sudo chown' ' ' ownership_name ':' ownership_group ' ' pgoq '/' output_task_filename ' ' '&']; 
+fprintf('%s\n', cmd_str);
 [st res] = system(cmd_str);   % change ownership back to user
-fprintf('%s', res);
+fprintf('\n');
+%        fprintf('%d\n', st);
+%        fprintf('%s\n', res);
 
-fprintf('chown 2 ');
-cmd_str = ['sudo mv' ' ' pgoq '/'  output_task_filename ' ' puoq '/' on];  
+
+cmd_str = ['sudo mv -f' ' ' pgoq '/'  output_task_filename ' ' puoq '/' on ' ' '&'];  
 fprintf('%s\n', cmd_str);
 [st res] = system(cmd_str); % move file to user output queue
-fprintf('%s load COMP_RC_Shad_50', res);
+fprintf('\n');
+
+[ purq ] = get_path_user_running_queue( obj.users{user_ind}.rq{1} );
+
+clear_from_user_running_queue( on, purq );
+fprintf('16 ');
+
+end
+
+
+
+
+function consume_output_file_new(obj, output_task_filename, user_ind)
+
+fprintf('15 ');
+
+[ownership_name ownership_group] = get_file_ownership( obj.users{user_ind}.username, obj.users{user_ind}.user_location );
+
+[on] = remove_username_loc_from_filename( output_task_filename );
+
+[ puoq ] = get_path_user_output_queue( obj.users{user_ind}.oq{1});
+
+[ pgoq ] = get_path_global_output_queue( obj.gq.oq{1} );
+
+
+% don't change ownership implementation
+cmd_str = ['sudo chown' ' ' ownership_name ':' ownership_group ' ' pgoq '/' output_task_filename ' ' '&']; 
+[st res] = system(cmd_str);   % change ownership back to user
+fprintf('\n');
+
+% change move implementation
+
+fprintf('chown 2 ');
+cmd_str = ['sudo mv -f' ' ' pgoq '/'  output_task_filename ' ' puoq '/' on ' ' '&'];  
+fprintf('%s\n', cmd_str);
+[st res] = system(cmd_str); % move file to user output queue
+fprintf('\n');
 
 fprintf('mv 2 ');
 [ purq ] = get_path_user_running_queue( obj.users{user_ind}.rq{1} );
@@ -481,13 +547,20 @@ fprintf('16 ');
 end
 
 
+
+
+
+
+
+
+
 function delete_output_file( obj, output_task_filename )
 
 [ pgoq ] = get_path_global_output_queue( obj.gq.oq{1} );
 
-cmd_str = ['sudo rm' ' ' pgoq '/'  output_task_filename ];  
+cmd_str = ['sudo rm' ' ' pgoq '/'  output_task_filename ' ' '&'];  
 [st res] = system(cmd_str); % delete file from output queue
-fprintf('%s', res);
+fprintf('\n');
 
 end
 
@@ -509,6 +582,7 @@ nu = length(users);
 end
 
 
+%%% this code is deprecated, only one location exists. web users directory is gone
 function [ownership_name ownership_group] = get_file_ownership( username, user_location )
 if( strcmp( user_location, 'web') )
     ownership_name = 'tomcat55';
@@ -549,9 +623,10 @@ if findstr( on, 'failed')
     suffix = '.mat';
     on = [prefix suffix];
 end
-cmd_str = ['sudo rm' ' ' purq '/'  on]; 
+cmd_str = ['sudo rm' ' ' purq '/'  on ' ' '&']; 
+fprintf('%s\n', cmd_str);
 [st res] = system(cmd_str); % remove file from user running queue
-fprintf('%s', res);
+fprintf('\n');
 
 end
 

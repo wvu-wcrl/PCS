@@ -26,10 +26,11 @@
 #
 # Available job managers
 #  cml
+#  ee561
 
 
 
-# CML job manager                                                                                                
+# CML job manager
 jm_cml(){
 QCfg=$1
 
@@ -37,4 +38,16 @@ PATH_JM=/home/pcs/jm/cml/src                    # path to CML JM startup script
 JM_CFG=/home/pcs/jm/cml/cfg/CmlJobManager_cfg   # path to configuration file
 
 screen -S cml_$Q -m -d matlab -r "cd $PATH_JM; cml_jm_startup('$JM_CFG','$QCfg')"
+}
+
+
+
+# ee561 job manager
+jm_ee561(){
+QCfg=$1
+
+PATH_JM=/home/pcs/jm/ee561/src                      # path to EE 561 JM startup script
+JM_CFG=/home/pcs/jm/ee561/cfg/ee561JobManager_cfg   # path to configuration file
+
+screen -S ee561_$Q -m -d matlab -r "cd $PATH_JM; ee561_jm_startup('$JM_CFG','$QCfg')"
 }
