@@ -50,7 +50,6 @@ cd util/; addpath(pwd);  % add file parser code to path
 cd(rootdir);
 cd ..; cd ..; cd cfg/; cfg_file = strcat(pwd,'/', cfg_file);     % current config file
 
-
        
 
 cd(rootdir);

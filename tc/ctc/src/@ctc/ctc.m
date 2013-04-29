@@ -91,6 +91,7 @@ classdef ctc < handle
             obj.cfp = cfp;
                         
             % initialize paths, worker states, and user structures
+
             
             init(obj);            
             msg = ['Cluster task controller initialized.'];

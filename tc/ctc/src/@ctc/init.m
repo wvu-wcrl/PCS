@@ -12,7 +12,8 @@
 function init(obj)
 
 % init global paths
-init_paths(obj);
+init_paths(obj)
+
 
 % init worker state structures
 init_ws(obj);
