@@ -97,19 +97,28 @@ while(1)
 
 
 
+        %%% Loading the contents of .mat files containing arbitrary objects
+        %%%  requires setting the path to the classes
+        %%% The current implementation is a quick fix applied to enable Mohammad's ee561 project
+        %%%  to work, as only one directory is required.
+        %%% The general implementation is to create a classpath variable in TaskParam
+        %%%  alongside FunctionPath
+        %%%  Terry 4/2013
 	clear TaskParam;
         TaskParam = read_input_file(rq, next_running); % read the input struct from the running queue
-        
 
+        FunctionPath = TaskParam.FunctionPath; % path to simulation code        
+        addpath(FunctionPath);   % add simulation code path to working paths
         
+        TaskParam = read_input_file(rq, next_running); % read the input struct from the running queue
+
         % break the input struct into local variables
         InputParam = TaskParam.InputParam;     % simulation parameters
-        FunctionPath = TaskParam.FunctionPath; % path to simulation code
         FunctionName = TaskParam.FunctionName; % entry routine into simulation code
-
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
 
-        addpath(FunctionPath);   % add simulation code path to working paths
+
         
 
         
