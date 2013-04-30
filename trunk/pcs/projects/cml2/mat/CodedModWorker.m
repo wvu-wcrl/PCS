@@ -58,7 +58,7 @@ if( ~isfield(CodedModParam, 'MaxBitErrors') || isempty(CodedModParam.MaxBitError
 if( ~isfield(CodedModParam, 'MaxFrameErrors') || isempty(CodedModParam.MaxFrameErrors) ), CodedModParam.MaxFrameErrors = 100*ones(size(CodedModParam.SNR)); end
 if( ~isfield(CodedModParam, 'minBER') || isempty(CodedModParam.minBER) ), CodedModParam.minBER = 1e-5; end
 if( ~isfield(CodedModParam, 'minFER') || isempty(CodedModParam.minFER) ), CodedModParam.minFER = 1e-5; end
-if( ~isfield(CodedModParam, 'MaxRunTime') || isempty(CodedModParam.MaxRunTime) ), CodedModParam.MaxRunTime = 300; end
+if( ~isfield(CodedModParam, 'MaxRunTime') || isempty(CodedModParam.MaxRunTime) ), CodedModParam.MaxRunTime = 30; end
 if( ~isfield(CodedModParam, 'RandSeed') || isempty(CodedModParam.RandSeed) ), CodedModParam.RandSeed = mod(sum(clock),2^32); end
 
 if( ~isfield(CodedModParam, 'ChannelObj') || isempty(CodedModParam.ChannelObj) )
@@ -66,11 +66,13 @@ if( ~isfield(CodedModParam, 'ChannelObj') || isempty(CodedModParam.ChannelObj) )
         if( ~isfield(CodedModParam, 'ModulationType') || isempty(CodedModParam.ModulationType) ), CodedModParam.ModulationType = 'BPSK'; end
         if( ~isfield(CodedModParam, 'ModulationParam') || isempty(CodedModParam.ModulationParam) ), CodedModParam.ModulationParam = '[]'; end
         if( strcmpi(CodedModParam.ModulationType,'custom') )
-            ModGenStr = ['CreateModulation' '(' CodedModParam.ModulationParam ')'];
+            % ModGenStr = ['CreateModulation' '(' CodedModParam.ModulationParam ')'];
+            CodedModParam.ModulationObj = CreateModulation(CodedModParam.ModulationParam);
         else
             ModGenStr = [upper(CodedModParam.ModulationType) '(' CodedModParam.ModulationParam ')'];
+            CodedModParam.ModulationObj = eval(ModGenStr);
         end
-        CodedModParam.ModulationObj = eval(ModGenStr);
+        % CodedModParam.ModulationObj = eval(ModGenStr);
     end
     SNRdB = 5;
     CodedModParam.ChannelObj = AWGN( CodedModParam.ModulationObj, 10^(SNRdB/10) );
@@ -90,6 +92,8 @@ if( ~isfield(CodedModParam, 'CodedModObj') || isempty(CodedModParam.CodedModObj)
                 % CodedModParam.ChannelCodeObject.DataLength = CodedModParam.BlockLength * log2(CodedModParam.ChannelObj.ModulationObj.Order);
                 CodedModParam.ChannelCodeObject.DataLength = log2(CodedModParam.ChannelObj.ModulationObj.Order);
                 CodedModParam.ChannelCodeObject.Rate = 1;
+                CodedModParam = rmfield(CodedModParam,'DecoderType');
+                CodedModParam.ChannelCodeObject = [];
             case 00 % Recursive Systematic Convolutional (RSC) code.
                 % Default generator matrix for convolutional code is the constituent code of UMTS turbo code.
                 if( ~isfield(CodedModParam, 'Generator') || isempty(CodedModParam.Generator) ), CodedModParam.Generator = [1 0 1 1 ; 1 1 0 1]; end
@@ -125,8 +129,16 @@ if( ~isfield(CodedModParam, 'CodedModObj') || isempty(CodedModParam.CodedModObj)
                     CodedModParam.MaxIteration, CodedModParam.DecoderType);
         end
     end
-    CodedModParam.CodedModObj = CodedModulation(CodedModParam.ChannelCodeObject, CodedModParam.ChannelObj.ModulationObj.ModOrder, ...
-        CodedModParam.DemodType, CodedModParam.ZeroRandFlag);
+    if( strcmpi(CodedModParam.CodeType, 'Uncoded') && isempty(CodedModParam.ChannelCodeObject) )
+        CodedModParam.CodedModObj = UncodedModulation(...
+            CodedModParam.ChannelObj.ModulationObj.Order,...
+            CodedModParam.DemodType, CodedModParam.ZeroRandFlag,...
+            CodedModParam.BlockLength, []); % The symbols are assumed to be equally likely.
+    else
+        CodedModParam.CodedModObj = CodedModulation(CodedModParam.ChannelCodeObject,...
+            CodedModParam.ChannelObj.ModulationObj.Order, ...
+            CodedModParam.DemodType, CodedModParam.ZeroRandFlag);
+    end
 end
 
 CheckPeriod = 1000;   % Checking time in number of Trials to see if the time is up.
