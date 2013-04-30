@@ -83,7 +83,10 @@ classdef ee561JobManager < CodedModJobManager
                 
                 % Create the channel object (at 0 dB (SNR=1)) using the above modulation object.
                 ChannelObj = AWGN( ModObj, 10^(0/10) );
-                JobParam.ChannelObj = ChannelObj; % Channel object (Modulation is a property of channel).
+                % JobParam.ChannelObj = ChannelObj; % Channel object (Modulation is a property of channel).
+                
+                JobParam.ModulationType = 'custom';
+                JobParam.ModulationParam = ModObj.SignalSet;
                 
                 % Deterine the SNR vector.
                 SNRdBIncrement = 0.5;
@@ -98,6 +101,9 @@ classdef ee561JobManager < CodedModJobManager
                 JobState.PbUpperBound = PbUB( ModObj.SignalSet, EsN0 );
                 
                 % Create the uncoded-modulation object.
+                if( ~isfield(JobParam, 'CodeType') || isempty(JobParam.CodeType) )
+                    JobParam.CodeType = 'Uncoded'; % The type of the channel code is 'Uncoded'.
+                end
                 if( ~isfield(JobParam, 'DemodType') || isempty(JobParam.DemodType) )
                     JobParam.DemodType = 0; % Linear approximation to log-MAP algorithm in the demodulator.
                 end
@@ -109,7 +115,7 @@ classdef ee561JobManager < CodedModJobManager
                 end
                 
                 UncodedModObj = UncodedModulation(M, JobParam.DemodType, JobParam.ZeroRandFlag, JobParam.BlockLength, SignalProb);
-                JobParam.CodedModObj = UncodedModObj; % Coded modulation object.
+                % JobParam.CodedModObj = UncodedModObj; % Coded modulation object.
                 
                 if( ~isfield(JobParam, 'MaxTrials') || isempty(JobParam.MaxTrials) )
                     JobParam.MaxTrials = 1e5 * ones(size(JobParam.SNR));
