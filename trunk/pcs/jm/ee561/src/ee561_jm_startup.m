@@ -22,7 +22,7 @@ end
 
 addpath( fullfile( filesep, 'home', 'pcs', 'util' ) );
 addpath( fullfile( filesep, 'home', 'pcs', 'util', 'log') );
-addpath( fullfile( filesep, 'home', 'pcs', 'projects', 'cml2', 'mex', computer) );
+addpath( fullfile( filesep, 'home', 'pcs', 'projects', 'cml2', 'mex', lower(computer)) );
 addpath( fullfile( filesep, 'home', 'pcs', 'projects', 'cml2', 'mat') );
 addpath( fullfile( filesep, 'home', 'pcs', 'projects', 'ee561', 'mat') )
 path( fullfile( filesep, 'home', 'pcs', 'jm', 'CodedMod', 'src' ), path );
