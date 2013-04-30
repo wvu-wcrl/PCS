@@ -115,6 +115,7 @@ classdef ee561JobManager < CodedModJobManager
                 end
                 
                 UncodedModObj = UncodedModulation(M, JobParam.DemodType, JobParam.ZeroRandFlag, JobParam.BlockLength, SignalProb);
+                JobParam.DataLength = UncodedModObj.ChannelCodeObject.DataLength;
                 % JobParam.CodedModObj = UncodedModObj; % Coded modulation object.
                 
                 if( ~isfield(JobParam, 'MaxTrials') || isempty(JobParam.MaxTrials) )
@@ -152,8 +153,7 @@ classdef ee561JobManager < CodedModJobManager
             JobState.FrameErrors = JobState.FrameErrors + TaskState.FrameErrors;
             
             Trials = repmat(JobState.Trials,[size(JobState.BitErrors,1) 1]);
-            JobState.BER = JobState.BitErrors   ./ ( Trials * TaskState.NumCodewords * ...
-                JobParam.CodedModObj.ChannelCodeObject.DataLength );
+            JobState.BER = JobState.BitErrors   ./ ( Trials * TaskState.NumCodewords * JobParam.DataLength );
             % TaskState.NumCodewords = JobParam.CodedModObj.NumCodewords;
             JobState.FER = JobState.FrameErrors ./ ( Trials * TaskState.NumCodewords );
         end
