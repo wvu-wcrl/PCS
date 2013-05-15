@@ -211,7 +211,7 @@ public class UserBottomPanel extends Composite implements ClickHandler
   	  
   	  if(usedRuntime > 0)
   	  {
-  		  usedRuntime = usedRuntime/60; 
+  		  usedRuntime = usedRuntime/60; // convert to hours
   		  runtimeVal = Double.valueOf(usedRuntime).toString();
   	  }
   	  //System.out.println("runtimeVal: " + runtimeVal + " ");
@@ -231,7 +231,7 @@ public class UserBottomPanel extends Composite implements ClickHandler
   	  String totalRuntimeVal = "0";
   	  if(totalRuntime > 0)
   	  {
-  		  totalRuntime = totalRuntime/60;
+  		  totalRuntime = totalRuntime/60; // convert to hours
   		  totalRuntimeVal = Double.valueOf(totalRuntime).toString();
   	  }
   	  //System.out.println("totalRuntimeVal: " + totalRuntimeVal + " ");

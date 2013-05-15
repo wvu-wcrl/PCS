@@ -449,7 +449,17 @@ public class UploadJob extends Composite implements ClickHandler, ChangeHandler
 	        			}
 	        			else
 	        			{
-	        				dataFileName = fileName;
+	        				if(fileName.contains("&") || fileName.contains("/") || fileName.contains(">") || fileName.contains("<") || fileName.contains("|") || fileName.contains(":"))
+	    	        		{
+	    	        			txtWarnings.setText("");
+	    	        			txtWarningDesc.setText("");
+	    	        			txtWarnings.setHTML("*'&, / , > , <, | , :' are not valid characters in the filename. Please upload a file with valid file name.");
+	    	        			event.cancel();
+	    	        		}
+	        				else
+	        				{
+	        					dataFileName = fileName;
+	        				}	        				
 	        			}
 	        		}
 	        		else
@@ -464,6 +474,13 @@ public class UploadJob extends Composite implements ClickHandler, ChangeHandler
 	        			txtWarnings.setText("");
 	        			txtWarningDesc.setText("");
 	        			txtWarnings.setHTML("*Please upload a job file.");
+	        			event.cancel();
+	        		}
+	        		if(fileName1.contains("&") || fileName1.contains("/") || fileName1.contains(">") || fileName1.contains("<") || fileName1.contains("|") || fileName1.contains(":"))
+	        		{
+	        			txtWarnings.setText("");
+	        			txtWarningDesc.setText("");
+	        			txtWarnings.setHTML("*'&, / , > , <, | , :' are not valid characters in the filename. Please upload a file with valid file name.");
 	        			event.cancel();
 	        		}
 	        		

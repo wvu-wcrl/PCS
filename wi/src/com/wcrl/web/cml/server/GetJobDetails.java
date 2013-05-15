@@ -240,7 +240,10 @@ public class GetJobDetails extends RemoteServiceServlet implements GetJobDetails
 		System.out.println("JobData filepath: " + filePath);
 		try
 		{
-			matfilereader = new MatFileReader(filePath);
+			System.out.println("matfilereader: " + matfilereader + " filePath: " + filePath);			
+			System.out.println(" filePath: " + filePath + " mlStructure1: " + new MatFileReader(filePath));
+			matfilereader = new MatFileReader(filePath);			
+			System.out.println("matfilereader: " + matfilereader + " filePath: " + filePath);
 			if(matfilereader.getMLArray("JobInfo") != null)
 			{
 				MLStructure mlStructure = (MLStructure) matfilereader.getMLArray("JobInfo");	
@@ -496,7 +499,7 @@ public class GetJobDetails extends RemoteServiceServlet implements GetJobDetails
 		}
 		catch (Exception e)
 		{
-			System.out.println("error reading file");
+			Log.info("Error reading file " + filePath);
 			e.printStackTrace();
 		}		
 		

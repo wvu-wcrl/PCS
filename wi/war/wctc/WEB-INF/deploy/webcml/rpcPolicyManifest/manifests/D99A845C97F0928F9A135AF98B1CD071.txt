@@ -1,0 +1,2 @@
+serviceClass: com.wcrl.web.cml.client.admin.projectService.DeleteProjectService
+path: BE79121B3AD60117BE78967F3306A6F9.gwt.rpc

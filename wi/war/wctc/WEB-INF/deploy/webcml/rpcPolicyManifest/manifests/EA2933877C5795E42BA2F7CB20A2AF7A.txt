@@ -1,0 +1,2 @@
+serviceClass: com.wcrl.web.cml.client.jobService.GetPreferredProjectService
+path: 2EDAA143D341E9BE7A0A55E7D82EEC40.gwt.rpc

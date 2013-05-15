@@ -78,7 +78,7 @@ public class ProjectList extends Composite implements ClickHandler
 	private HorizontalPanel buttonPanel;		
 	private Button btnDelete;
 	private ProjectItems projectItems;
-	private final int PAGE_COUNT = 2;
+	private final int PAGE_COUNT = 20;
 	private String projectName;
 	private String projectDescription;
 	private ProjectDetails projectDetail;

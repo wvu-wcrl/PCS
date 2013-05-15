@@ -1,0 +1,2 @@
+serviceClass: com.wcrl.web.cml.client.user.accountService.ResetPasswordAndSendEmailService
+path: AC5119EC1E4E45C1F43B792A47EB7052.gwt.rpc

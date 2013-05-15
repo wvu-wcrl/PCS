@@ -109,7 +109,7 @@ public class ForgotPasswordImpl extends RemoteServiceServlet implements ForgotPa
 	//Get the email message from EmailContent.properties file
 	private String getEmailContent(String username, String firstName, String lastName, String password) 
 	{
-		String str = constants.getString("msg0") + " " + firstName + " " + lastName + ",";
+		String str = constants.getString("msg0") + " " + username;
 		str = str + constants.getString("msg1");
 		str = str + "\\n\\nUsername: " + username + "\\n";
 		str = str + "Password: " + password + "\\n\\n";

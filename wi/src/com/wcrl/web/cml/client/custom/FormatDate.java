@@ -15,11 +15,10 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 
 public class FormatDate 
 {
-	@SuppressWarnings("deprecation")
 	public DateTimeFormat formatDate(Date date)
 	{	
 		  DateTimeFormat fmt = null;	      
-	      if(date.getYear() == new Date().getYear())
+	      /*if(date.getYear() == new Date().getYear())
 	      {
 	    	  if(date.getDate() == new Date().getDate())
 	    	  {
@@ -33,7 +32,8 @@ public class FormatDate
 	      else
 	      {
 	    	  fmt = DateTimeFormat.getFormat("MM/dd/yyyy");
-	      }
+	      }*/
+		  fmt = DateTimeFormat.getFormat("EEE., MMM dd, yyyy h:mm:ss a");
 	      return fmt;
 	 }
 }

@@ -240,7 +240,7 @@ public class UserList_Original_ver1 extends Composite implements ClickHandler
 				if(Window.confirm("Are you sure to delete the selected users?"))
 				{
 					DeleteUsersServiceAsync service = DeleteUsersService.Util.getInstance();
-					service.deleteUsers(deleteUsers, deleteUsersCallback);
+					//service.deleteUsers(deleteUsers, deleteUsersCallback);
 				}
 			}			
 		}		
@@ -285,7 +285,7 @@ public class UserList_Original_ver1 extends Composite implements ClickHandler
 					}
 					user.setAdminUser(currentUser);
 					System.out.println("UserList: going to user: " + user.getUserId() + " from tab: " + tab + "  and user is of type: " + user.getUsertype());
-					UserDetails editUser = new UserDetails(user, tab);
+					UserDetails editUser = new UserDetails(user, tab, 0);
 					RootPanel.get("content").clear();
 					RootPanel.get("content").add(editUser);
 					/*RPCClientContext.set(new ClientContext());

@@ -87,10 +87,12 @@ public class UserDetails extends Composite implements ClickHandler
 	private Label lblTotalQuota;
 	private Label lblUsedQuota;
 	private Label lblNewQuota;
+	private int userListStatus;
 	
-	public UserDetails(User receivedUser, int tab)
+	public UserDetails(User receivedUser, int tab, int userListStatus)
 	{
 		this.tab = tab;
+		this.userListStatus = userListStatus;
 		System.out.println("User details tab: " + tab);
 		vPanel = new VerticalPanel();
 		initWidget(vPanel);
@@ -669,7 +671,7 @@ public class UserDetails extends Composite implements ClickHandler
 		{			
 			RootPanel.get("content").clear();
 			System.out.println("User details before going back tab: " + this.tab);
-			AdminPage adminPage = new AdminPage(this.tab, "", "", "");
+			AdminPage adminPage = new AdminPage(this.tab, "", "", "", userListStatus);
 			RootPanel.get("content").add(adminPage);			
 		}
 		if(source == lblEmail)
