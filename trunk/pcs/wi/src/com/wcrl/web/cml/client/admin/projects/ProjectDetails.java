@@ -287,7 +287,7 @@ public class ProjectDetails extends Composite implements ClickHandler
 		{
 			RootPanel.get("content").clear();
 			//AdminPage adminPage = new AdminPage(5);
-			AdminPage adminPage = new AdminPage(tabNumber, "", "", "");
+			AdminPage adminPage = new AdminPage(tabNumber, "", "", "", 0);
 			RootPanel.get("content").add(adminPage);		
 		}
 		
@@ -484,7 +484,7 @@ public class ProjectDetails extends Composite implements ClickHandler
 				else
 				{
 					//AdminPage adminPage = new AdminPage(2);
-					AdminPage adminPage = new AdminPage(tabNumber, "", "", "");
+					AdminPage adminPage = new AdminPage(tabNumber, "", "", "", 0);
 					RootPanel.get("content").add(adminPage);
 				}				
 			}			

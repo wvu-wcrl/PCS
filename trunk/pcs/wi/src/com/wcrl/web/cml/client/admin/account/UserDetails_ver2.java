@@ -631,7 +631,7 @@ public class UserDetails_ver2 extends Composite implements ClickHandler
 		{			
 			RootPanel.get("content").clear();
 			System.out.println("User details before going back tab: " + this.tab);
-			AdminPage adminPage = new AdminPage(this.tab, "", "", "");
+			AdminPage adminPage = new AdminPage(this.tab, "", "", "", 0);
 			RootPanel.get("content").add(adminPage);			
 		}
 		if(source == lblEmail)

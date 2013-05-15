@@ -74,8 +74,13 @@ public class MonitorUsersUsageImpl extends HttpServlet
 				double totalUserUnits = user.getTotalRuntime();
 				ProjectItems userProjects = user.getProjectItems();
 								
+				//System.out.println("User " + userId + " totalunits: " + totalUserUnits + " used units: " + userProcessUsage); 
 				if(userProcessUsage >= totalUserUnits)
-				{
+				{					
+					UpdateUserImpl updateUser = new UpdateUserImpl();
+					//System.out.println("User current status in MonitorUsersUsageImpl: " + user.getStatus());
+					updateUser.updateUserStatus(user.getUserId(), 2, user.getStatus(), user.getUsername(), user.getPrimaryemail());
+					
 					for(int i = 0; i < userProjects.getProjectItemCount(); i++)
 					{
 						ProjectItem project = userProjects.getProjectItem(i);
@@ -141,7 +146,9 @@ public class MonitorUsersUsageImpl extends HttpServlet
 					user.setUserId(userId);
 					user.setUsertype(rs.getString("Usertype"));
 					user.setUsername(rs.getString("Username"));
+					user.setStatus(rs.getInt("Status"));
 					user.setTotalRuntime(rs.getDouble("TotalUnits"));
+					user.setPrimaryemail(rs.getString("PrimaryEmail"));
 					ProjectItems projectItems = new ProjectItems();
 					
 					CallableStatement projectsStmt = connection.getConnection().prepareCall("{ call GETUSERPROJECTS(?) }");
@@ -181,6 +188,7 @@ public class MonitorUsersUsageImpl extends HttpServlet
 	{	    	
 		String dir = pathConstants.getString(statusDirectory);
 		String path = rootPath + dir + File.separator;
+		//System.out.println("Path : " + path);
 		File filesRootPath = new File(path);
 		File[] files = filesRootPath.listFiles();
 		int fileCount = files.length;

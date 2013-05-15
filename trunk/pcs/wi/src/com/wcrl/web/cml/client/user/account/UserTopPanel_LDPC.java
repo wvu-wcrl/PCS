@@ -207,7 +207,7 @@ public class UserTopPanel_LDPC extends Composite implements ClickHandler
 									
 					adminCtx.setCurrentUser(currentUser);
 				}
-				AdminPage adminPage = new AdminPage(4, "", "", "");
+				AdminPage adminPage = new AdminPage(4, "", "", "", 0);
 				VerticalPanel contentPanel = new VerticalPanel();
 				DockPanel outer = new DockPanel();		        	
 				outer.add(adminPage, DockPanel.CENTER);

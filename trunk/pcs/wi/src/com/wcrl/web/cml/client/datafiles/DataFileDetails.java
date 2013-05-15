@@ -326,7 +326,7 @@ public class DataFileDetails extends Composite implements ClickHandler
 			if(tabNumber == 0)
 			{
 				tabNumber = 4;
-				AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory);
+				AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory, 0);
 				RootPanel.get("content").add(adminPage);
 			}
 			else if(tabNumber == 1)
@@ -338,7 +338,7 @@ public class DataFileDetails extends Composite implements ClickHandler
 			else if(tabNumber == 2)
 			{
 				tabNumber = 5;
-				AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory);
+				AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory, 0);
 				RootPanel.get("content").add(adminPage);
 			}
 		}
@@ -361,7 +361,7 @@ public class DataFileDetails extends Composite implements ClickHandler
 				if(tabNumber == 0)
 				{
 					tabNumber = 4;
-					AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory);
+					AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory, 0);
 					RootPanel.get("content").add(adminPage);
 				}
 				else if(tabNumber == 1)
@@ -373,7 +373,7 @@ public class DataFileDetails extends Composite implements ClickHandler
 				else if(tabNumber == 2)
 				{
 					tabNumber = 5;
-					AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory);
+					AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory, 0);
 					RootPanel.get("content").add(adminPage);
 				}
 			}			

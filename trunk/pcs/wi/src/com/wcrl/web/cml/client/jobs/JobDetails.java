@@ -25,6 +25,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -32,6 +33,7 @@ import com.seventhdawn.gwt.rpc.context.client.RPCClientContext;
 import com.wcrl.web.cml.client.account.ClientContext;
 import com.wcrl.web.cml.client.account.User;
 import com.wcrl.web.cml.client.admin.account.AdminPage;
+import com.wcrl.web.cml.client.custom.FormatDate;
 import com.wcrl.web.cml.client.jobService.ArchiveJobService;
 import com.wcrl.web.cml.client.jobService.ArchiveJobServiceAsync;
 import com.wcrl.web.cml.client.jobService.DeleteJobsService;
@@ -382,7 +384,12 @@ public class JobDetails extends Composite implements ClickHandler
 		setTableRowText(2, 1, jobItem.getProjectName());
 		Date lastModifiedDate = new Date(jobItem.getLastModified());
 		setTableRowText(3, 1, jobItem.getStartTime());
-		setTableRowText(4, 1, lastModifiedDate.toString());
+		FormatDate dt = new FormatDate();
+		DateTimeFormat fmt = dt.formatDate(lastModifiedDate);
+  	  	fmt.format(lastModifiedDate).toString();
+		//setTableRowText(4, 1, lastModifiedDate.toString());
+		System.out.println("########################### last modified: " +  fmt.format(lastModifiedDate).toString());
+		setTableRowText(4, 1, fmt.format(lastModifiedDate).toString());
 		setTableRowText(5, 1, jobItem.getStopTime());
 		String duration = "";
 		if(jobItem.getProcessDuration() != null)
@@ -418,7 +425,8 @@ public class JobDetails extends Composite implements ClickHandler
 		}*/
 		
 		//setButtonStatus(statusDirectory);
-		setButtonStatus(jobStatusDirectory);
+		//setButtonStatus(jobStatusDirectory);
+		setButtonStatus(jobItem.getStatus());
 		/*if(statusStr.equalsIgnoreCase("Done"))
 		{
 			btnSuspend.setEnabled(false);
@@ -635,7 +643,7 @@ public class JobDetails extends Composite implements ClickHandler
 				if(tabNumber == 0)
 				{
 					tabNumber = 0;
-					AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory);
+					AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory, 0);
 					RootPanel.get("content").add(adminPage);
 				}
 				else if(tabNumber == 1)
@@ -646,7 +654,7 @@ public class JobDetails extends Composite implements ClickHandler
 				}
 				else if(tabNumber == 2)
 				{
-					AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory);
+					AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory, 0);
 					RootPanel.get("content").add(adminPage);
 				}
 			}
@@ -681,7 +689,7 @@ public class JobDetails extends Composite implements ClickHandler
 			if(tabNumber == 0)
 			{
 				tabNumber = 0;
-				AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory);
+				AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory, 0);
 				RootPanel.get("content").add(adminPage);
 			}
 			else if(tabNumber == 1)
@@ -692,7 +700,7 @@ public class JobDetails extends Composite implements ClickHandler
 			}
 			else if(tabNumber == 2)
 			{
-				AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory);
+				AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory, 0);
 				RootPanel.get("content").add(adminPage);
 			}
 	    }
@@ -726,7 +734,7 @@ public class JobDetails extends Composite implements ClickHandler
 				if(tabNumber == 0)
 				{
 					tabNumber = 0;
-					AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory);
+					AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory, 0);
 					RootPanel.get("content").add(adminPage);
 				}
 				else if(tabNumber == 1)
@@ -737,7 +745,7 @@ public class JobDetails extends Composite implements ClickHandler
 				}
 				else if(tabNumber == 2)
 				{
-					AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory);
+					AdminPage adminPage = new AdminPage(tabNumber, selectUser, selectProject, statusDirectory, 0);
 					RootPanel.get("content").add(adminPage);
 				}
 				
@@ -861,7 +869,7 @@ public class JobDetails extends Composite implements ClickHandler
 	
 	private void setButtonStatus(String selectedStatus)
 	{
-		System.out.println("selectedStatus: " + selectedStatus);
+		System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~selectedStatus: " + selectedStatus);
 		if(selectedStatus.equalsIgnoreCase("Suspended"))
 		{
 			btnSuspend.setEnabled(false);
@@ -901,13 +909,13 @@ public class JobDetails extends Composite implements ClickHandler
 			btnResume.setEnabled(false);
 			btnArchive.setEnabled(false);
 		}
-		
-		/*if(!selectedStatus.equalsIgnoreCase("Queued") || !selectedStatus.equalsIgnoreCase("Running") || !selectedStatus.equalsIgnoreCase("Failed") || !selectedStatus.equalsIgnoreCase("Archive") || !selectedStatus.equalsIgnoreCase("Done") || !selectedStatus.equalsIgnoreCase("Suspended"))
+		System.out.println("selectedStatus: " + selectedStatus + " suspend: " + btnSuspend.isEnabled() + " resume: " + btnResume.isEnabled() + " archive: " + btnArchive.isEnabled());
+		if(!selectedStatus.equalsIgnoreCase("Queued") && !selectedStatus.equalsIgnoreCase("Running") && !selectedStatus.equalsIgnoreCase("Failed") && !selectedStatus.equalsIgnoreCase("Archive") && !selectedStatus.equalsIgnoreCase("Archived") && !selectedStatus.equalsIgnoreCase("Done") && !selectedStatus.equalsIgnoreCase("Suspended"))
 		{
 			btnSuspend.setEnabled(true);
 			btnResume.setEnabled(false);
 			btnArchive.setEnabled(false);
-		}*/
+		}
 		System.out.println("selectedStatus: " + selectedStatus + " suspend: " + btnSuspend.isEnabled() + " resume: " + btnResume.isEnabled() + " archive: " + btnArchive.isEnabled());
 	}
 }

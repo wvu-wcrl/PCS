@@ -1,6 +1,7 @@
 package com.wcrl.web.cml.client.admin.accountService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.RemoteService;
@@ -17,6 +18,6 @@ public interface DeleteUsersService extends RemoteService {
 		}
 	}
 	
-	public ArrayList<Integer> deleteUsers(ArrayList<Integer> userIds);
+	public ArrayList<Integer> deleteUsers(HashMap<Integer, String> users);
 
 }

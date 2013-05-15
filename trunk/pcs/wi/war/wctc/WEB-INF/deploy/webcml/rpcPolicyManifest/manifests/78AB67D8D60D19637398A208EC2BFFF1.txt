@@ -1,0 +1,2 @@
+serviceClass: com.wcrl.web.cml.client.admin.projectService.UpdateProjectService
+path: 6D06522A6E5331E29043B669AAB7D1E9.gwt.rpc

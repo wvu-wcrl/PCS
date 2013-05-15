@@ -45,7 +45,7 @@ CREATE TABLE `userreg` (
   `LastLogin` timestamp NULL DEFAULT '0000-00-00 00:00:00',
   `Newsletter` int(11) DEFAULT '1',
   PRIMARY KEY (`UserId`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=latin1 COMMENT='User preference table';
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1 COMMENT='User preference table';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -174,9 +174,11 @@ DELIMITER ;;
 BEGIN
   DECLARE CNT INT;
   DECLARE PROJECTID INT;
+  DECLARE FILEEXTENSIONID INT;
   SET CNT = 0;
   SET FLAG = -1;
   SET PROJECTID = 0;
+  SET FILEEXTENSIONID =0;
 
   SELECT COUNT(PROJECTS.PROJECTID) INTO CNT
   FROM PROJECTS
@@ -184,7 +186,16 @@ BEGIN
 
   IF (CNT = 0) THEN
     INSERT INTO PROJECTS(PROJECTNAME, DESCRIPTION, PATH, DATAFILE, CREATEDON, UPDATEDAT) VALUES(PROJECTNAME, DESCRIPTION, PATH, DATAFILE, NULL, NULL);
-
+    
+    SELECT PROJECTS.PROJECTID INTO PROJECTID
+    FROM PROJECTS
+    WHERE PROJECTS.PROJECTNAME = PROJECTNAME;
+    
+    SELECT FILEEXTENSION.FILEEXTENSIONID INTO FILEEXTENSIONID
+    FROM FILEEXTENSION
+    WHERE FILEEXTENSION.FILEEXTENSION = '.MAT';
+    
+    INSERT INTO PROJECTJOBFILEEXTENSION(PROJECTID, FILEEXTENSIONID) VALUES(PROJECTID, FILEEXTENSIONID);
     SET FLAG = 0;
   ELSE
     SET FLAG = 1;
@@ -296,6 +307,41 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `DELETEUSER`(IN USERID INT, OUT FLAG INT)
+BEGIN
+
+  DECLARE CNT INT;
+  SET CNT = 0;
+  SET FLAG = -1;
+
+  SELECT COUNT(USERREG.USERID) INTO CNT
+  FROM USERREG
+  WHERE USERREG.USERID = USERID;
+
+  IF (CNT > 0) THEN
+     /*UPDATE USERREG SET USERREG.STATUS = 2 WHERE USERREG.USERID = USERID;*/
+     DELETE FROM USERREG WHERE USERREG.USERID = USERID;
+     SET FLAG = 0;
+  ELSE
+     SET FLAG = 1;
+  END IF;
+
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `DISABLEUSER` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `DISABLEUSER`(IN USERID INT, OUT FLAG INT)
 BEGIN
 
   DECLARE CNT INT;
@@ -999,4 +1045,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-03-22 12:40:38
+-- Dump completed on 2013-05-13 21:26:07

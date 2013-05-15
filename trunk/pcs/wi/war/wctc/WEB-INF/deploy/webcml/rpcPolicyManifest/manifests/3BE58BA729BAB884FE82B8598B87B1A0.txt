@@ -1,0 +1,2 @@
+serviceClass: com.wcrl.web.cml.client.admin.accountService.DisableUsersService
+path: BB732A5969095AF82AF07ABE94C3947C.gwt.rpc

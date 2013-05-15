@@ -7,6 +7,7 @@ package com.wcrl.web.cml.client.admin.account;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -15,6 +16,8 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
@@ -36,6 +39,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -52,6 +56,8 @@ import com.wcrl.web.cml.client.account.ClientContext;
 import com.wcrl.web.cml.client.account.User;
 import com.wcrl.web.cml.client.admin.accountService.DeleteUsersService;
 import com.wcrl.web.cml.client.admin.accountService.DeleteUsersServiceAsync;
+import com.wcrl.web.cml.client.admin.accountService.DisableUsersService;
+import com.wcrl.web.cml.client.admin.accountService.DisableUsersServiceAsync;
 import com.wcrl.web.cml.client.admin.accountService.GetUsersService;
 import com.wcrl.web.cml.client.admin.accountService.GetUsersServiceAsync;
 import com.wcrl.web.cml.client.admin.accountService.SaveandDownloadUserListFileService;
@@ -61,7 +67,7 @@ import com.wcrl.web.cml.client.login.Login;
 import com.wcrl.web.cml.client.user.accountService.ResetPasswordAndSendEmailService;
 import com.wcrl.web.cml.client.user.accountService.ResetPasswordAndSendEmailServiceAsync;
 
-public class UserList extends Composite implements ClickHandler
+public class UserList extends Composite implements ClickHandler, ChangeHandler
 {
 	private static String DOWNLOAD_ACTION_URL = GWT.getModuleBaseURL() + "downloadUserListFile";
 	private ClientContext ctx;
@@ -80,17 +86,21 @@ public class UserList extends Composite implements ClickHandler
 	private HorizontalPanel buttonPanel;
 	private Button btnSendEmail;	
 	private Button btnDownloadUserList;
+	private Button btnDisable;
 	private Button btnDelete;
 	private UserItems userItems;
 	private final int PAGE_COUNT = 25;
 	private int tab;
 	private Button btnAddUsers;
+	private ListBox lstStatus;
+	private int userListStatus;
 	
 	//Get the current user context and send a request to the server for a list of registered users
 	//public UserList(int tab)
-	public UserList()
+	public UserList(int status)
 	{
 		this.tab = 1;
+		this.userListStatus = status;
 		vPanel = new VerticalPanel();
 		initWidget(vPanel);
 		String sessionID = Cookies.getCookie("sid");
@@ -119,7 +129,7 @@ public class UserList extends Composite implements ClickHandler
 	   	}
 	}
 	
-	//Callback to receive the list of registered users and set the users to the usersList
+	/*//Callback to receive the list of registered users and set the users to the usersList
 	AsyncCallback<ArrayList<User>> usersCallback = new AsyncCallback<ArrayList<User>>()
 	{		
 		public void onFailure(Throwable arg0) 
@@ -141,6 +151,58 @@ public class UserList extends Composite implements ClickHandler
 				}				
 			}			
 		}
+	};*/
+	
+	//Callback to receive the list of registered users and set the users to the usersList
+	AsyncCallback<ArrayList<User>> usersCallback = new AsyncCallback<ArrayList<User>>()
+	{		
+		public void onFailure(Throwable arg0) 
+		{
+			Log.info("UserList usersCallback error: " + arg0.toString());				
+		}		
+		public void onSuccess(ArrayList<User> users)
+		{
+			if(ctx != null)
+			{
+				User currentUser = ctx.getCurrentUser();
+				
+				if(users != null)
+				{
+					userItems = new UserItems();
+					if(userListStatus == 0)
+					{						
+						userItems.setUserItems(users);						
+					}
+					else if(userListStatus == 1)
+					{
+						ArrayList<User> filteredUsers = new ArrayList<User>();
+						for(User user : users)
+						{
+							if(user.getStatus() != 2)
+							{
+								filteredUsers.add(user);
+							}
+						}
+						userItems.setUserItems(filteredUsers);
+					}
+					else if(userListStatus == 2)
+					{
+						ArrayList<User> filteredUsers = new ArrayList<User>();
+						for(User user : users)
+						{
+							if(user.getStatus() == 2)
+							{
+								filteredUsers.add(user);
+							}
+						}
+						userItems.setUserItems(filteredUsers);
+					}
+					currentUser.setUserItems(userItems);		
+					ctx.setCurrentUser(currentUser);
+					createComponents();
+				}				
+			}			
+		}
 	};
 	
 	//Create components to display
@@ -150,6 +212,7 @@ public class UserList extends Composite implements ClickHandler
 	    vPanel.setVerticalAlignment(VerticalPanel.ALIGN_TOP);
 		
 		lblMsg = new Label();
+		lstStatus = new ListBox();
 		btnAddUsers = new Button("Add users");
 		btnAddUsers.addClickHandler(this);
 		linksPanel = new HorizontalPanel();		
@@ -157,6 +220,28 @@ public class UserList extends Composite implements ClickHandler
 		hlNone = new Anchor("None");
 		hlAll.addClickHandler(this);
 		hlNone.addClickHandler(this);
+		
+		lstStatus.addItem("All", "0");
+		lstStatus.addItem("Enabled", "1");
+		lstStatus.addItem("Disabled", "2");
+		if(userListStatus == 0)
+		{
+			lstStatus.setItemSelected(0, true);
+		}
+		else
+		{
+			if(userListStatus == 1)
+			{
+				lstStatus.setItemSelected(1, true);
+			}			
+			else
+			{
+				lstStatus.setItemSelected(2, true);
+			}
+		}
+			
+		
+		lstStatus.addChangeHandler(this);
 		
 		linksPanel.add(hlAll);
 		HTML seperator = new HTML(", &nbsp;");
@@ -166,15 +251,21 @@ public class UserList extends Composite implements ClickHandler
 		
 		buttonPanel = new HorizontalPanel();
 		btnSendEmail = new Button("Reset password and Email");
-		btnDelete = new Button("Disable");
+		btnDisable = new Button("Disable");
+		btnDelete = new Button("Delete");
 		btnDownloadUserList = new Button("Export users"); 
 		
 		buttonPanel.add(btnSendEmail);
+		buttonPanel.add(btnDisable);
 		buttonPanel.add(btnDelete);
 		buttonPanel.add(btnAddUsers);
 		buttonPanel.add(btnDownloadUserList);
+		
+		buttonPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
+		buttonPanel.add(lstStatus);
 				
 		btnSendEmail.addClickHandler(this);
+		btnDisable.addClickHandler(this);
 		btnDelete.addClickHandler(this);
 		btnDownloadUserList.addClickHandler(this);
 				
@@ -199,6 +290,71 @@ public class UserList extends Composite implements ClickHandler
 		vPanel.setCellVerticalAlignment(panel, HasVerticalAlignment.ALIGN_TOP);				
 	}
 	
+	public void onChange(ChangeEvent event) 
+	{
+		Widget sender = (Widget) event.getSource();
+		
+		if(sender == lstStatus)
+		{
+			userListStatus = lstStatus.getSelectedIndex();			
+			GetUsersServiceAsync service = GetUsersService.Util.getInstance();			
+			service.getUsers(updateUserListCallback);					
+		}
+	}
+	
+	AsyncCallback<ArrayList<User>> updateUserListCallback = new AsyncCallback<ArrayList<User>>()
+	{		
+		public void onFailure(Throwable arg0) 
+		{
+			Log.info("UserList updateUserListCallback error: " + arg0.toString());				
+		}		
+		public void onSuccess(ArrayList<User> users)
+		{
+			if(ctx != null)
+			{
+				User currentUser = ctx.getCurrentUser();
+				
+				if(users != null)
+				{
+					userItems = new UserItems();
+					if(userListStatus == 0)
+					{						
+						userItems.setUserItems(users);	
+						dataProvider.setList(users);
+					}
+					else if(userListStatus == 1)
+					{
+						ArrayList<User> filteredUsers = new ArrayList<User>();
+						for(User user : users)
+						{
+							if(user.getStatus() != 2)
+							{
+								filteredUsers.add(user);
+							}
+						}
+						userItems.setUserItems(filteredUsers);
+						dataProvider.setList(filteredUsers);
+					}
+					else if(userListStatus == 2)
+					{
+						ArrayList<User> filteredUsers = new ArrayList<User>();
+						for(User user : users)
+						{
+							if(user.getStatus() == 2)
+							{
+								filteredUsers.add(user);
+							}
+						}
+						userItems.setUserItems(filteredUsers);
+						dataProvider.setList(filteredUsers);
+					}
+					currentUser.setUserItems(userItems);		
+					ctx.setCurrentUser(currentUser);					
+				}				
+			}			
+		}
+	};
+			
 	//Handle the button clicks
 	public void onClick(ClickEvent event) 
 	{		
@@ -250,20 +406,35 @@ public class UserList extends Composite implements ClickHandler
 			}			
 		}
 		
+		//Send a request to the server to disable users
+		if(sender == btnDisable)
+		{
+			ArrayList<Integer> disableUsers = getUsers();
+			Log.info("Disable button - Item count: " + disableUsers.size());
+			if(disableUsers.size() > 0)
+			{
+				if(Window.confirm("Are you sure you want to disable the selected users?"))
+				{
+					DisableUsersServiceAsync service = DisableUsersService.Util.getInstance();
+					service.disableUsers(disableUsers, disableUsersCallback);
+				}
+			}			
+		}	
+		
 		//Send a request to the server to delete users
 		if(sender == btnDelete)
 		{
-			ArrayList<Integer> deleteUsers = getUsers();
+			HashMap<Integer, String> deleteUsers = getDeleteUserList();
 			Log.info("Delete button - Item count: " + deleteUsers.size());
 			if(deleteUsers.size() > 0)
 			{
-				if(Window.confirm("Are you sure to delete the selected users?"))
+				if(Window.confirm("Are you sure you want to delete the selected users?"))
 				{
 					DeleteUsersServiceAsync service = DeleteUsersService.Util.getInstance();
 					service.deleteUsers(deleteUsers, deleteUsersCallback);
 				}
 			}			
-		}		
+		}
 	}
 	
 	//Get a list of selected users
@@ -287,7 +458,7 @@ public class UserList extends Composite implements ClickHandler
 	//Get a list of selected users
 	 private ArrayList<Integer> getUsers() 
 	 {
-		 ArrayList<Integer> deleteUsers = new ArrayList<Integer>();
+		 ArrayList<Integer> disableUsers = new ArrayList<Integer>();
 		 List<User> lst = dataProvider.getList();
 		 for(int i = 0; i < lst.size(); i++)
 		 {
@@ -296,7 +467,25 @@ public class UserList extends Composite implements ClickHandler
 				//Log.info("User: " + item.getUserId() + " Checked: " + selected);
 				if (selected) 
 				{				
-					deleteUsers.add(item.getUserId());					
+					disableUsers.add(item.getUserId());					
+	            }
+		 }			
+		return disableUsers;
+	}
+	 
+	//Get a list of selected users
+	 private HashMap<Integer, String> getDeleteUserList() 
+	 {
+		 HashMap<Integer, String> deleteUsers = new HashMap<Integer, String>();
+		 List<User> lst = dataProvider.getList();
+		 for(int i = 0; i < lst.size(); i++)
+		 {
+				User item = lst.get(i);
+				boolean selected = selectionModel.isSelected(item);
+				//Log.info("User: " + item.getUserId() + " Checked: " + selected);
+				if (selected) 
+				{			
+					deleteUsers.put(item.getUserId(), item.getUsername());
 	            }
 		 }			
 		return deleteUsers;
@@ -323,7 +512,7 @@ public class UserList extends Composite implements ClickHandler
 					}
 					user.setAdminUser(currentUser);
 					System.out.println("UserList: going to user: " + user.getUserId() + " from tab: " + tab + "  and user is of type: " + user.getUsertype());
-					UserDetails editUser = new UserDetails(user, tab);
+					UserDetails editUser = new UserDetails(user, tab, userListStatus);
 					RootPanel.get("content").clear();
 					RootPanel.get("content").add(editUser);
 					/*RPCClientContext.set(new ClientContext());
@@ -525,12 +714,12 @@ public class UserList extends Composite implements ClickHandler
 		}
 	};
 	
-	//Call back of delete users request - Updates the list (Table display) with users deleted 
-	AsyncCallback<ArrayList<Integer>> deleteUsersCallback = new AsyncCallback<ArrayList<Integer>>()
+	//Call back of disable users - Updates the list (Table display) with users disabled 
+	AsyncCallback<ArrayList<Integer>> disableUsersCallback = new AsyncCallback<ArrayList<Integer>>()
 	{
 		public void onFailure(Throwable caught)
 		{
-			Log.info("UserList deleteUsersCallback error: " + caught.toString());
+			Log.info("UserList disableUsersCallback error: " + caught.toString());
 		}
 		public void onSuccess(ArrayList<Integer> userIds)
 		{
@@ -548,7 +737,7 @@ public class UserList extends Composite implements ClickHandler
 					for(int cnt  =  0; cnt < userIds.size(); cnt++)
 					{
 						int userId = userIds.get(cnt);
-						useritems.deleteUser(userId);
+						// useritems.deleteUser(userId);
 						
 						userList = dataProvider.getList();
 						itr = userList.iterator();
@@ -577,6 +766,59 @@ public class UserList extends Composite implements ClickHandler
 				}
 				else
 				{
+					lblMsg.setText("Error in disabling selected users. Please try again later.");
+				}				
+			}						
+		}
+	};
+	
+	//Call back of delete users - Updates the list (Table display) with users deleted 
+	AsyncCallback<ArrayList<Integer>> deleteUsersCallback = new AsyncCallback<ArrayList<Integer>>()
+	{
+		public void onFailure(Throwable caught)
+		{
+			Log.info("UserList deleteUsersCallback error: " + caught.toString());
+		}
+		public void onSuccess(ArrayList<Integer> userIds)
+		{
+			User currentUser = ctx.getCurrentUser();
+			UserItems useritems = currentUser.getUserItems();
+			
+			if(userIds != null)
+			{
+				if(userIds.size() > 0)
+				{
+					List<User> userList = dataProvider.getList();
+					Iterator<User> itr = userList.iterator();
+					int index = 0;
+					lblMsg.setText("All the selected users are deleted.");
+					for(int cnt  =  0; cnt < userIds.size(); cnt++)
+					{
+						int userId = userIds.get(cnt);
+						useritems.deleteUser(userId);
+						
+						userList = dataProvider.getList();
+						itr = userList.iterator();
+						index = 0;
+						
+						while(itr.hasNext())
+						{
+							User user = itr.next();
+							if(user.getUserId() == userId)
+							{								
+								dataProvider.getList().remove(index);
+								break;
+							}
+							index = index + 1;
+						}
+						//dataProvider.getList().remove(index);					
+					}
+					dataProvider.refresh();					
+					currentUser.setUserItems(useritems);
+					ctx.setCurrentUser(currentUser);
+				}
+				else
+				{
 					lblMsg.setText("Error in deleting selected users. Please try again later.");
 				}				
 			}						
@@ -587,7 +829,7 @@ public class UserList extends Composite implements ClickHandler
 	{
 		public void onFailure(Throwable caught)
 		{
-			Log.info("UserList deleteUsersCallback error: " + caught.toString());
+			Log.info("UserList downloadUsersCallback error: " + caught.toString());
 		}
 		public void onSuccess(Boolean value)
 		{

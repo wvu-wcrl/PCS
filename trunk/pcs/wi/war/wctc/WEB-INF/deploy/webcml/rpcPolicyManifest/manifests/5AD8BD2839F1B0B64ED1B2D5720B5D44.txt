@@ -1,0 +1,2 @@
+serviceClass: com.wcrl.web.cml.client.user.accountService.EditPasswordService
+path: 5DD9554DB3DC799B2CB8B72FFD4E6818.gwt.rpc

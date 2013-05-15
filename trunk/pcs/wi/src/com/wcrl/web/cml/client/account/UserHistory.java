@@ -137,7 +137,7 @@ public class UserHistory
 	        	{
 	        		if(ctx.getCurrentUser().getUsertype().equalsIgnoreCase("Admin"))
 	    	    	{
-	        			AdminPage adminPage = new AdminPage(0, "", "", "");
+	        			AdminPage adminPage = new AdminPage(0, "", "", "", 0);
 		        		VerticalPanel contentPanel = new VerticalPanel();
 						DockPanel outer = new DockPanel();		        	
 						outer.add(adminPage, DockPanel.CENTER);
@@ -152,7 +152,7 @@ public class UserHistory
 	        	{
 	        		if(ctx.getCurrentUser().getUsertype().equalsIgnoreCase("Admin"))
 	    	    	{
-	        			AdminPage adminPage = new AdminPage(5, "", "", "");
+	        			AdminPage adminPage = new AdminPage(5, "", "", "", 0);
 		        		VerticalPanel contentPanel = new VerticalPanel();
 						DockPanel outer = new DockPanel();		        	
 						outer.add(adminPage, DockPanel.CENTER);
@@ -183,7 +183,7 @@ public class UserHistory
 	        	{
 	        		if(ctx.getCurrentUser().getUsertype().equalsIgnoreCase("Admin"))
 	    	    	{
-		        		AdminPage adminPage = new AdminPage(1, "", "", "");
+		        		AdminPage adminPage = new AdminPage(1, "", "", "", 0);
 		        		VerticalPanel contentPanel = new VerticalPanel();
 						DockPanel outer = new DockPanel();		        	
 						outer.add(adminPage, DockPanel.CENTER);
@@ -198,7 +198,7 @@ public class UserHistory
 	        	{
 	        		if(ctx.getCurrentUser().getUsertype().equalsIgnoreCase("Admin"))
 	    	    	{
-		        		AdminPage adminPage = new AdminPage(2, "", "", "");
+		        		AdminPage adminPage = new AdminPage(2, "", "", "", 0);
 		        		VerticalPanel contentPanel = new VerticalPanel();
 						DockPanel outer = new DockPanel();		        	
 						outer.add(adminPage, DockPanel.CENTER);
@@ -213,7 +213,7 @@ public class UserHistory
 	        	{
 	        		if(ctx.getCurrentUser().getUsertype().equalsIgnoreCase("Admin"))
 	    	    	{
-	        			AdminPage adminPage = new AdminPage(4, "", "", "");
+	        			AdminPage adminPage = new AdminPage(4, "", "", "", 0);
 		        		VerticalPanel contentPanel = new VerticalPanel();
 						DockPanel outer = new DockPanel();		        	
 						outer.add(adminPage, DockPanel.CENTER);
@@ -228,7 +228,7 @@ public class UserHistory
 	        	{
 	        		if(ctx.getCurrentUser().getUsertype().equalsIgnoreCase("Admin"))
 	    	    	{
-		        		AdminPage adminPage = new AdminPage(3, "", "", "");
+		        		AdminPage adminPage = new AdminPage(3, "", "", "", 0);
 		        		VerticalPanel contentPanel = new VerticalPanel();
 						DockPanel outer = new DockPanel();		        	
 						outer.add(adminPage, DockPanel.CENTER);
@@ -276,7 +276,7 @@ public class UserHistory
 	        	{
 	        		if(ctx.getCurrentUser().getUsertype().equalsIgnoreCase("Admin"))
 	    	    	{
-	        			AdminPage adminPage = new AdminPage(6, "", "", "");
+	        			AdminPage adminPage = new AdminPage(6, "", "", "", 0);
 		        		VerticalPanel contentPanel = new VerticalPanel();
 						DockPanel outer = new DockPanel();		        	
 						outer.add(adminPage, DockPanel.CENTER);
