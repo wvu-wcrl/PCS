@@ -1,0 +1,2 @@
+serviceClass: com.wcrl.web.cml.client.admin.accountService.GetUserStatusService
+path: D9A03B19F76E9BF88020DC17BB5225C5.gwt.rpc

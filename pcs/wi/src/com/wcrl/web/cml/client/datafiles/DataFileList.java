@@ -74,7 +74,7 @@ public class DataFileList extends Composite implements ClickHandler, ChangeHandl
 	private CustomSimplePager pager;
 	private CustomSimplePager topPager;	
 	//Number of files to display in a page
-	private int VISIBLE_FILE_COUNT = 2;
+	private int VISIBLE_FILE_COUNT = 25;
 	private VerticalPanel vPanel;
 	private Label lblMsg;	
 	private ClientContext ctx;
@@ -192,7 +192,7 @@ public class DataFileList extends Composite implements ClickHandler, ChangeHandl
 								
 				Log.info("tabNumber: " + tab + " user: " + selectUser + " project: " + selectProject);
 				lstUsers.clear();
-				lstUsers.addItem("--Users--", "0");
+				lstUsers.addItem("All", "0");
 				if(tab == 2)
 				{							
 					lstUsers.setItemSelected(0, true);
@@ -205,7 +205,7 @@ public class DataFileList extends Composite implements ClickHandler, ChangeHandl
 					lstUsers.setVisible(false);
 				}
 				
-	    		lstProjects.addItem("--Projects--", "0");
+	    		lstProjects.addItem("All", "0");
 	    			    		
 	    		lstUsers.addChangeHandler(this);
 	    		lstProjects.addChangeHandler(this);
@@ -324,7 +324,7 @@ public class DataFileList extends Composite implements ClickHandler, ChangeHandl
 					String username = currentUser.getUsername();
 					
 					lstUsers.clear();
-					lstUsers.addItem("--Users--", "0");
+					lstUsers.addItem("All", "0");
 					lstUsers.addItem(username, Integer.valueOf(userId).toString());
 					lstUsers.setItemSelected(1, true);					
 				}

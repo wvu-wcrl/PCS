@@ -36,7 +36,7 @@ public class UpdateUserImpl extends RemoteServiceServlet implements UpdateUserSe
         {
         	e.printStackTrace();
         }
-    	
+    	//System.out.println("User current status in UpdateUserStatus: " + currentStatus);
     	if(currentStatus == 0)
     	{
     		ResetPasswordAndSendEmailImpl sendEmail = new ResetPasswordAndSendEmailImpl();
@@ -212,7 +212,7 @@ public class UpdateUserImpl extends RemoteServiceServlet implements UpdateUserSe
 			
 			connection.closeConnection();
 			
-			String content = getEmailContent(user.getFirstName(), user.getLastName(), newQuota, totalQuota, usedQuota);
+			String content = getEmailContent(user.getFirstName(), user.getLastName(), newQuota/60, totalQuota/60, usedQuota/60);
 			/*@SuppressWarnings("unused")
 			SendEmail sendEmail = new SendEmail(user.getPrimaryemail(), content, "addquotasubject");*/
 			SendEmail email = new SendEmail();
@@ -233,7 +233,7 @@ public class UpdateUserImpl extends RemoteServiceServlet implements UpdateUserSe
 		str = str + " " + newQuota + " units ";
 		str = str + constants.getString("msg2");
 		str = str + constants.getString("msg3");
-		str = str + " " + totalQuota + " units and your have " + (totalQuota - (usedQuota/60)) + " units remaining.\\n"; 
+		str = str + " " + totalQuota + " units and you have " + (totalQuota - usedQuota) + " units remaining.\\n"; 
 		str = str + constants.getString("msg4");
 		str = str + constants.getString("msg5");		
 		return str;

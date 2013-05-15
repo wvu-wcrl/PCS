@@ -188,12 +188,20 @@ public class EditUserProfile extends Composite implements ClickHandler
 		buttonPanel.add(new HTML("<br>"));
 		buttonPanel.add(btnRemove);
 		
+		/*buttonPanel.setCellHorizontalAlignment(btnAdd, HasHorizontalAlignment.ALIGN_CENTER);
+		buttonPanel.setCellVerticalAlignment(btnAdd, HasVerticalAlignment.ALIGN_MIDDLE);
+		buttonPanel.setCellHorizontalAlignment(btnRemove, HasHorizontalAlignment.ALIGN_CENTER);
+		buttonPanel.setCellVerticalAlignment(btnRemove, HasVerticalAlignment.ALIGN_MIDDLE);
+		buttonPanel.add(btnAdd);
+		buttonPanel.add(new HTML("<br>"));
+		buttonPanel.add(btnRemove);*/
+		
 		lstProjects = new ListBox(true);
-		lstProjects.setWidth("100px");
+		lstProjects.setWidth("120px");
 		lstProjects.setHeight("180px");
 		
 		lstSelectedProjects = new ListBox(true);
-		lstSelectedProjects.setWidth("100px");
+		lstSelectedProjects.setWidth("120px");
 		lstSelectedProjects.setHeight("180px");
 				
 		ProjectItems projectItems = receivedUser.getProjectItems();

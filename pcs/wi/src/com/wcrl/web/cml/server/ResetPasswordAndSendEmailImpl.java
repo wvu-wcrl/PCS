@@ -6,6 +6,8 @@ Purpose: Java class to get a random password from ResetPassword.java, update it 
 package com.wcrl.web.cml.server;
 
 import java.io.File;
+import java.sql.CallableStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
@@ -61,10 +63,10 @@ public class ResetPasswordAndSendEmailImpl extends RemoteServiceServlet implemen
 	
 	public boolean resetAndEmail(int userId, String username, String primaryEmail)
 	{
-		//String password = "*****";
+		String password = "*****";
     	boolean flag = false;
     	
-		/*DBConnection connection = new DBConnection();
+		DBConnection connection = new DBConnection();
     	CallableStatement cs = null;
     	
     	try 
@@ -86,8 +88,9 @@ public class ResetPasswordAndSendEmailImpl extends RemoteServiceServlet implemen
     	catch(SQLException e)
     	{
     		e.printStackTrace();
-    	}*/   
-    	String content = getEmailContent(username);
+    	}   
+    	
+    	String content = getEmailContent(username, password);
     	/*@SuppressWarnings("unused")
     	SendEmail email = new SendEmail(primaryEmail, content, "welcomesubject");*/
     	SendEmail email = new SendEmail();
@@ -125,13 +128,14 @@ public class ResetPasswordAndSendEmailImpl extends RemoteServiceServlet implemen
 		return exitValue;		
 	}
 
-	private String getEmailContent(String username) 
+	private String getEmailContent(String username, String password) 
 	{
 		String str = constants.getString("msg1") + "\\n\\n";
 		str = str + constants.getString("msg2") + "\\n";
 		str = str + constants.getString("msg3") + "\\n\\n";
 		str = str + constants.getString("msg4") + "\\n";
-		str = str + "Username: " + username + "\\n\\n";
+		str = str + "Username: " + username + "\\n";
+		str = str + "Password: " + password + "\\n\\n";
 		str = str + constants.getString("msg5") + "\\n\\n";
 		str = str + constants.getString("msg6") + "\\n\\n";
 		str = str + constants.getString("msg7");		

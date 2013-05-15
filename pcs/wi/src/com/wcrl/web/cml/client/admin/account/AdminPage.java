@@ -41,14 +41,16 @@ public class AdminPage extends Composite implements SelectionHandler<Integer>
 	private String selectUser;
 	private String selectProject;
 	private String selectStatus;
+	private int userListStatus;
 	private ClusterStatus clusterStatus;
 	
 			    			
-	public AdminPage(int selectedIndex, String selectUser, String selectProject, String selectStatus) 
+	public AdminPage(int selectedIndex, String selectUser, String selectProject, String selectStatus, int userListStatus) 
 	{		
 		this.selectUser = selectUser;
 		this.selectProject = selectProject;
 		this.selectStatus = selectStatus;
+		this.userListStatus = userListStatus;
 		
 		panel = new VerticalPanel();
 		panel.setSize("100%", "100%");
@@ -88,12 +90,26 @@ public class AdminPage extends Composite implements SelectionHandler<Integer>
    		   		
    		//Initialize the classes to be added as tabs in the page   		
    		userJobList = new JobList();
-   		userList = new UserList();
+   		userList = new UserList(userListStatus);
    		jobList = new JobList();
    		projectList = new ProjectList(selectedIndex);
    		userFileList = new DataFileList();
    		fileList = new DataFileList();
    		clusterStatus = new ClusterStatus();
+   		
+   		//Add the tabs to provide Administrative privileges to the user	    
+	    tPanel.add(userJobList, "My Jobs");	    
+	    tPanel.add(userList, "Users");
+	    tPanel.add(jobList, "Jobs");	    
+	    tPanel.add(projectList, "Projects");    
+	    tPanel.add(userFileList, "My Data files");
+	    tPanel.add(fileList, "Data files");
+	    tPanel.add(clusterStatus, "Cluster Status");
+	    
+	    panel.add(tPanel);
+	    
+	    idx = selectedIndex;
+	    tPanel.selectTab(selectedIndex);
    		
    		if(selectedIndex == 0)
    		{
@@ -109,7 +125,7 @@ public class AdminPage extends Composite implements SelectionHandler<Integer>
    		{
    			History.newItem("userList");
    			//userList = new UserList(2);
-   			userList = new UserList();
+   			userList = new UserList(userListStatus);
    		}
    		else if(selectedIndex == 2)
    		{
@@ -137,9 +153,9 @@ public class AdminPage extends Composite implements SelectionHandler<Integer>
    			clusterStatus.createComponents();
    		}
    		
-	    panel.add(tPanel);
+	    //panel.add(tPanel);
 	    
-	    //Add the tabs to provide Administrative privileges to the user	    
+	    /*//Add the tabs to provide Administrative privileges to the user	    
 	    tPanel.add(userJobList, "My Jobs");	    
 	    tPanel.add(userList, "Users");
 	    tPanel.add(jobList, "Jobs");	    
@@ -148,8 +164,10 @@ public class AdminPage extends Composite implements SelectionHandler<Integer>
 	    tPanel.add(fileList, "Data files");
 	    tPanel.add(clusterStatus, "Cluster Status");
 	    
+	    panel.add(tPanel);
+	    
 	    idx = selectedIndex;
-	    tPanel.selectTab(selectedIndex);
+	    tPanel.selectTab(selectedIndex);*/
 	}
 	
 	//Handle the selection of tabs
@@ -177,7 +195,7 @@ public class AdminPage extends Composite implements SelectionHandler<Integer>
 			if(!(idx == index))
 			{
 				History.newItem("userList");
-				userList = new UserList();
+				userList = new UserList(userListStatus);
 				tPanel.remove(index);
 				tPanel.insert(userList, "Users", index);
 				idx = index;

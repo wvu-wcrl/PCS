@@ -1,0 +1,2 @@
+serviceClass: com.wcrl.web.cml.client.admin.accountService.DeleteUsersService
+path: 671F8BBB69DA7CDAD22A7D7386324E3D.gwt.rpc

@@ -1,0 +1,2 @@
+serviceClass: com.wcrl.web.cml.client.admin.accountService.GetUsersService
+path: B2117152139A084BD2236023DCA3B518.gwt.rpc

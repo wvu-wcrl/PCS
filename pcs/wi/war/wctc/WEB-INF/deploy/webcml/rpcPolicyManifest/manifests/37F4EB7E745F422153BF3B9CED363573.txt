@@ -1,0 +1,2 @@
+serviceClass: com.wcrl.web.cml.client.jobService.DeleteJobsService
+path: B31040558C0F1C00605808895774C0A2.gwt.rpc

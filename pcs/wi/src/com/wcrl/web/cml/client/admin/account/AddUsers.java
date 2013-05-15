@@ -142,7 +142,7 @@ public class AddUsers extends Composite implements ClickHandler
 		buttonPanel.add(btnRemove);
 		
 		lstProjects = new ListBox(true);
-		lstProjects.setWidth("100px");
+		lstProjects.setWidth("120px");
 		lstProjects.setHeight("180px");
 				
 		ProjectItems projectItems = currentUser.getProjectItems();
@@ -154,7 +154,7 @@ public class AddUsers extends Composite implements ClickHandler
 		}
 		
 		lstSelectedProjects = new ListBox(true);
-		lstSelectedProjects.setWidth("100px");
+		lstSelectedProjects.setWidth("120px");
 		lstSelectedProjects.setHeight("180px");
 		
 		btnCreate.addClickHandler(this);
@@ -191,6 +191,14 @@ public class AddUsers extends Composite implements ClickHandler
 	    table.getCellFormatter().setVerticalAlignment(1, 5, HasVerticalAlignment.ALIGN_MIDDLE);
 	    table.getCellFormatter().setHorizontalAlignment(1, 6, HasHorizontalAlignment.ALIGN_RIGHT);
 	    table.getCellFormatter().setVerticalAlignment(1, 6, HasVerticalAlignment.ALIGN_MIDDLE);
+	    
+	    table.getCellFormatter().setHorizontalAlignment(0, 4, HasHorizontalAlignment.ALIGN_RIGHT);
+	    table.getCellFormatter().setVerticalAlignment(0, 4, HasVerticalAlignment.ALIGN_MIDDLE);
+	    table.getCellFormatter().setHorizontalAlignment(0, 6, HasHorizontalAlignment.ALIGN_RIGHT);
+	    table.getCellFormatter().setVerticalAlignment(0, 6, HasVerticalAlignment.ALIGN_MIDDLE);
+	    
+	    table.setWidget(0, 4, new Label("Unsubscribed projects:"));
+	    table.setWidget(0, 6, new Label("Subscribed projects:"));
 				
 		table.setWidget(1, 0, lblTextArea);
 		table.setWidget(1, 1, txtUsernames);
