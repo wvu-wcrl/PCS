@@ -1,7 +1,7 @@
 % process user data files and convert to appropriate format for CML workers
 % every keyword clause must set SuccessFlag and ErrMsg
 function [ JobParam SuccessFlag ErrMsg] =...
-    ProcessDataFiles( obj, JobParam, CurrentUser, JobName )
+   ProcessDataFiles( obj, JobParam, CurrentUser, JobName, CodeRoot )
 
 % specify keywords indicating simulation conditions requiring data files
 %   1. parity_check_matrix   - simulation requires an LDPC parity check matrix
@@ -25,10 +25,11 @@ for n_df = 1:N_df
                 hmat_type = GetHmatType( JobParam.parity_check_matrix );
                 
                 switch hmat_type,
-                    case { 'pchk', 'alist', 'mat', 'cml_dvbs2' }
+                 case { 'pchk', 'alist', 'mat', 'cml_dvbs2', 'cml_wimax' }
                         % convert parity check matrix to H_rows, H_cols
                         [ SuccessFlag, ErrMsg, H_rows, H_cols] =...
-                            obj.CreatePCM( CurrentUser, JobParam.parity_check_matrix );
+		  obj.CreatePCM( CurrentUser, JobParam.parity_check_matrix, ...
+				 JobParam, CodeRoot );
                         
                         % return if error
                         if SuccessFlag == 0,
