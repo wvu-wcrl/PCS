@@ -2,12 +2,14 @@
 % to the format expected by CML.
 %
 % The calling syntax is:
-%     [SuccessFlag, ErrMsg, H_rows, H_cols] = CreatePCM( obj, CurrentUser, pcm )
+%     [SuccessFlag, ErrMsg, H_rows, H_cols] = CreatePCM( obj, CurrentUser, pcm, JobParam, CodeRoot )
 %
 %     Inputs
 %       obj         CmlJobManager object.
 %       CurrentUser Current user selected by CmlJobManager.
 %       pcm         parity check matrix argument loaded from sim_param.parity_check_matrix.
+%       JobParam    Structure containing simulation input parameters
+%       CodeRoot    Path to user CML root directory
 %
 %     Outputs
 %       SuccessFlag      0 if no error, 1 if error.
@@ -20,7 +22,7 @@
 
 %%% TODO: check for existence of data file by extension, try-catch
 
-function [SuccessFlag ErrMsg H_rows H_cols] = CreatePCM( obj, CurrentUser, pcm )
+	  function [SuccessFlag ErrMsg H_rows H_cols] = CreatePCM( obj, CurrentUser, pcm, JobParam, CodeRoot )
 
 SuccessFlag = 1;  % Assume successful operation.
 
@@ -58,6 +60,7 @@ switch hmat_type
         
         %%% try catch
         try
+JobDataFileMat
         load(JobDataFileMat);
         catch
             ErrMsg =...
@@ -69,8 +72,24 @@ switch hmat_type
         ErrMsg = '';
         
     case 'cml_dvbs2'       
+
+	% added by terry 6/8/2013 to accomodate change in parity check matrix logic
+        [JobParam, CodeParam] = InitializeCodeParam( JobParam, CodeRoot ); % Initialize coding parameters.        
+	H_rows = CodeParam.H_rows;
+        H_cols = CodeParam.H_cols;
         
-        [ H_rows, H_cols, P_matrix ] = eval( pcm ); 
+%        [ H_rows, H_cols, P_matrix ] = eval( pcm ); 
+                
+        SuccessFlag = 1;
+        ErrMsg = '';   % nothing to be done. empty error message
+    case 'cml_wimax'       
+
+	% added by terry 6/8/2013 to accomodate change in parity check matrix logic
+        [JobParam, CodeParam] = InitializeCodeParam( JobParam, CodeRoot ); % Initialize coding parameters.        
+	H_rows = CodeParam.H_rows;
+        H_cols = CodeParam.H_cols;
+
+        %[ H_rows, H_cols, P_matrix ] = eval( pcm ); 
                 
         SuccessFlag = 1;
         ErrMsg = '';   % nothing to be done. empty error message
