@@ -27,7 +27,7 @@ for n_df = 1:N_df
                 switch hmat_type,
                  case { 'pchk', 'alist', 'mat', 'cml_dvbs2', 'cml_wimax' }
                         % convert parity check matrix to H_rows, H_cols
-                        [ SuccessFlag, ErrMsg, H_rows, H_cols] =...
+		  [ SuccessFlag, ErrMsg, H_rows, H_cols, H_rows_no_eira, H_cols_no_eira] =...
 		  obj.CreatePCM( CurrentUser, JobParam.parity_check_matrix, ...
 				 JobParam, CodeRoot );
                         
@@ -39,6 +39,8 @@ for n_df = 1:N_df
                         
                         code_param_long.H_rows = H_rows;
                         code_param_long.H_cols = H_cols;
+                        code_param_long.H_rows_no_eira = H_rows_no_eira;
+                        code_param_long.H_cols_no_eira = H_cols_no_eira;
                         
                         % save data file to user data directory
                         [ ErrMsg DataPathFile ] = ...

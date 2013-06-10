@@ -2,7 +2,8 @@
 % to the format expected by CML.
 %
 % The calling syntax is:
-%     [SuccessFlag, ErrMsg, H_rows, H_cols] = CreatePCM( obj, CurrentUser, pcm, JobParam, CodeRoot )
+%     [SuccessFlag, ErrMsg, H_rows, H_cols, H_rows_no_eira, H_cols_no_eira] =...
+%               CreatePCM( obj, CurrentUser, pcm, JobParam, CodeRoot )
 %
 %     Inputs
 %       obj         CmlJobManager object.
@@ -22,7 +23,8 @@
 
 %%% TODO: check for existence of data file by extension, try-catch
 
-	  function [SuccessFlag ErrMsg H_rows H_cols] = CreatePCM( obj, CurrentUser, pcm, JobParam, CodeRoot )
+	  function [SuccessFlag ErrMsg H_rows H_cols H_rows_no_eira H_cols_no_eira] =...
+           CreatePCM( obj, CurrentUser, pcm, JobParam, CodeRoot )
 
 SuccessFlag = 1;  % Assume successful operation.
 
@@ -77,6 +79,8 @@ JobDataFileMat
         [JobParam, CodeParam] = InitializeCodeParam( JobParam, CodeRoot ); % Initialize coding parameters.        
 	H_rows = CodeParam.H_rows;
         H_cols = CodeParam.H_cols;
+	H_rows_no_eira = CodeParam.H_rows_no_eira;
+        H_cols_no_eira = CodeParam.H_cols_no_eira;
         
 %        [ H_rows, H_cols, P_matrix ] = eval( pcm ); 
                 
@@ -88,6 +92,8 @@ JobDataFileMat
         [JobParam, CodeParam] = InitializeCodeParam( JobParam, CodeRoot ); % Initialize coding parameters.        
 	H_rows = CodeParam.H_rows;
         H_cols = CodeParam.H_cols;
+	H_rows_no_eira = CodeParam.H_rows_no_eira;
+        H_cols_no_eira = CodeParam.H_cols_no_eira;
 
         %[ H_rows, H_cols, P_matrix ] = eval( pcm ); 
                 
