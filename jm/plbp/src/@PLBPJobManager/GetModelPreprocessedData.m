@@ -1,7 +1,7 @@
 function [JobParam, PPSuccessFlag, PPErrorMsg] = GetModelPreprocessedData(obj, JobParam)
 
 %[JobParam.SubjectCount, JobParam.SubjectDirPath] = obj.GetSubjectCount(JobParam.InputDir);
-[JobParam.SubjectCount, JobParam.SubjectDirPath] = obj.GetSubjectCount(JobParam.DataPath);
+[JobParam.SubjectCount, JobParam.SubjectDirPath] = GetSubjectCount(JobParam.DataPath);
 
 if mod(JobParam.SubjectCount, JobParam.TaskSize) == 0
     JobParam.TaskCount = JobParam.SubjectCount/JobParam.TaskSize;
@@ -43,7 +43,7 @@ end
 end
 
 
-function [UserCount, SubjectDirPath] = GetSubjectCount(obj, InputDir)
+function [UserCount, SubjectDirPath] = GetSubjectCount(InputDir)
 % input_dir = 'C:\Material\Research\Current\image_data';
 UserCount = 0;
 Directories = dir(InputDir);
