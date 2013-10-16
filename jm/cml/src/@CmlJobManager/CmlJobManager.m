@@ -51,7 +51,7 @@ classdef CmlJobManager < JobManager
             OldPath = obj.SetCodePath(CodeRoot); % Set the path to CML.
             
             [JobParam PPSuccessFlag PPErrorMsg] =...
-	      obj.ProcessDataFiles( JobParamIn, CurrentUser, JobName, CodeRoot );
+                obj.ProcessDataFiles( JobParamIn, CurrentUser, JobName, CodeRoot );
             
             % return if failure in data file processing
             if PPSuccessFlag == 0,
@@ -59,11 +59,8 @@ classdef CmlJobManager < JobManager
                 return;
             end
             
-            
-            
             [JobParam, CodeParam] = InitializeCodeParam( JobParam, CodeRoot ); % Initialize coding parameters.
-
-
+            
             % Parity check matrix is stored as a data file for efficiency.
             % Clear it in CodeParam.
             CodeParam = obj.RmHmat(CodeParam);
@@ -152,7 +149,7 @@ classdef CmlJobManager < JobManager
         
         [StopFlag, JobInfo, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, FiguresDir)
         
-		      [JobParam PPSuccessFlag PPErrorMsg] = ProcessDataFiles( obj, JobParam, CurrentUser, JobName, CodeRoot )
+        [JobParam PPSuccessFlag PPErrorMsg] = ProcessDataFiles( obj, JobParam, CurrentUser, JobName, CodeRoot )
         
         PlotResults( obj, JobParam, JobState, FiguresDir, JobName, TempJMDir )
         
