@@ -61,7 +61,7 @@ classdef BECJobManager < CodedModJobManager
         function [StopFlag, JobInfo, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, FiguresDir)
             % Determine if the global stopping criteria have been reached/met. Moreover, determine and echo progress of running JobName.
             % Furthermore, update Results file.
-            % Calling syntax: [StopFlag, JobInfo [,JobParam]] = obj.DetermineStopFlag(JobParam, JobState, JobInfo [,JobName] [,Username] [,FiguresDir])
+            % Calling syntax: [StopFlag, JobInfo [,JobParam] [,JobState]] = obj.DetermineStopFlag(JobParam, JobState, JobInfo [,JobName] [,Username] [,FiguresDir])
             
             % First check to see if minimum number of trials or frame errors has been reached.
             % Determine the number of remaining trials reqiured for each Epsilon point.
