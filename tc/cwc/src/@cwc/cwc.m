@@ -63,6 +63,13 @@ classdef cwc < handle
         num_logs    % number of archives to save
         verbose_mode   % 1- verbose logging in generic worker, 0 - non verbose
     end
+
+   % worker performance parameters, updated 10/2013
+    properties
+        wsp   % worker sweep period
+    end
+
+   
     
     
     % logging parameters for worker controller, added 5/25/2012
