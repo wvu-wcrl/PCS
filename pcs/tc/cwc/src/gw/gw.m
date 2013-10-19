@@ -34,13 +34,16 @@
 %    VERBOSE_MODE  logging verbosity level
 
 
-function gw(wid, iq, rq, oq, lfup, lfip, LOG_PERIOD, NUM_LOGS, VERBOSE_MODE)
+   function gw(wid, iq, rq, oq, lfup, lfip, LOG_PERIOD, NUM_LOGS, VERBOSE_MODE, WSP)
 
 
 
 %lifp%% place logging variables into local workspace for easy access %%%
 LOG_PERIOD = str2double(LOG_PERIOD);
 NUM_LOGS = str2double(NUM_LOGS);
+
+% Worker sweep period
+WSP = str2double(WSP);
 
 IS_VERBOSE = 1;  % flag verbose log messages
 IS_NOT_VERBOSE = 0;
@@ -222,7 +225,7 @@ while(1)
 
     
     
-    pause(5); % wait 5 seconds before making another pass
+    pause(wsp); % wait 5 seconds before making another pass
 
 
     t = toc;

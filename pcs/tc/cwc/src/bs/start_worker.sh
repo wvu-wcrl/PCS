@@ -22,11 +22,12 @@ lf=$9
 log_period=${10}
 num_logs=${11}
 verbose_mode=${12}
+wsp=${13}
 
 
 
 # Connect to the node and start the worker as a daemon.
-ssh $hostname "export MATLABPATH=$worker_path; nohup matlab -singleCompThread -r $worker_exe\($worker_id,\'$iq\',\'$rq\',\'$oq\',\'$lfup\',\'$lf\',\'$log_period\',\'$num_logs\',\'$verbose_mode\'\) >> $lf 2>&1 &"
+ssh $hostname "export MATLABPATH=$worker_path; nohup matlab -singleCompThread -r $worker_exe\($worker_id,\'$iq\',\'$rq\',\'$oq\',\'$lfup\',\'$lf\',\'$log_period\',\'$num_logs\',\'$verbose_mode\',\'$wsp\'\) >> $lf 2>&1 &"
 
 
 
