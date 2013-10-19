@@ -28,6 +28,7 @@ case 'start'   % clear global queues and user running queues
 
 clear_global_queues( obj );
 
+
 move_u_rq_iq( obj.users )
 
 
@@ -50,7 +51,7 @@ end
 end
 
 
-
+		    
 
 % clear global queues
 function clear_global_queues( obj )
