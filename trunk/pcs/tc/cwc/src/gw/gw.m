@@ -225,7 +225,7 @@ while(1)
 
     
     
-    pause(wsp); % wait 5 seconds before making another pass
+    pause(WSP); % wait 5 seconds before making another pass
 
 
     t = toc;

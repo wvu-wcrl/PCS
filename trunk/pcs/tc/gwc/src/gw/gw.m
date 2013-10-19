@@ -17,7 +17,7 @@
 %     For full copyright information see the bottom of this file.
 
 
-function gw(wid, iq, rq, oq, lp, LOG_PERIOD, NUM_LOGS, VERBOSE_MODE)
+   function gw(wid, iq, rq, oq, lp, LOG_PERIOD, NUM_LOGS, VERBOSE_MODE, wsp)
 
 LOG_PERIOD = str2double(LOG_PERIOD);
 NUM_LOGS = str2double(NUM_LOGS);
@@ -118,8 +118,9 @@ while(1)
         end
     end
     
-    
-    pause(5); % wait 5 seconds before making another pass
+    pause(wsp);% wait 5 seconds before making another pass
+
+    %pause(5); % wait 5 seconds before making another pass
 
 
     t = toc;
@@ -294,7 +295,7 @@ end
 
 
 % append 'append_str' to old_str to form new_str
-new_str = str_append(old_str, append_str)
+function new_str = str_append(old_str, append_str)
 
   prefix = old_str(1:end-4);
   suffix = old_str(end-4:end);
