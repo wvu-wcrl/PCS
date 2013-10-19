@@ -65,6 +65,7 @@ obj.verbose_mode = out{1}{1};
 
 
 % read worker performance parameters
+heading = '[queue]';
 key = 'wsp';
 out = util.fp(obj.cf, heading, key);
 obj.wsp = out{1}{1};
