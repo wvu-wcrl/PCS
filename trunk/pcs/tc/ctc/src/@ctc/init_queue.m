@@ -17,6 +17,12 @@ function init_queue(obj)
   key = 'mfiq';
   out = util.fp(obj.cfp, heading, key);
   obj.mfiq = str2double(out{1}{1});
+
+  % sweep period
+  heading = '[queue]';
+  key = 'tsp';
+  out = util.fp(obj.cfp, heading, key);
+  obj.sp = str2double(out{1}{1});
   
   
 end
