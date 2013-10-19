@@ -22,7 +22,7 @@ function init_queue(obj)
   heading = '[queue]';
   key = 'tsp';
   out = util.fp(obj.cfp, heading, key);
-  obj.sp = str2double(out{1}{1});
+  obj.tsp = str2double(out{1}{1});
   
   
 end
