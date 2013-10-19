@@ -17,11 +17,11 @@ lf=$8
 log_period=$9
 num_logs=${10}
 verbose_mode=${11}
-
+wsp=${12}   # worker sweep period 10/2013
 
 
 # Connect to the node and start the worker as a daemon.
-ssh $hostname "export MATLABPATH=$worker_path; nohup matlab -r $worker_exe\($worker_id,\'$iq\',\'$rq\',\'$oq\',\'$lf\',\'$log_period\',\'$num_logs\',\'$verbose_mode\'\) >> $lf 2>&1 &"
+ssh $hostname "export MATLABPATH=$worker_path; nohup matlab -r $worker_exe\($worker_id,\'$iq\',\'$rq\',\'$oq\',\'$lf\',\'$log_period\',\'$num_logs\',\'$verbose_mode\',\'$wsp\'\) >> $lf 2>&1 &"
 
 
 

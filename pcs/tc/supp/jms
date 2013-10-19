@@ -51,3 +51,15 @@ JM_CFG=/home/pcs/jm/ee561/cfg/ee561JobManager_cfg   # path to configuration file
 
 screen -S ee561_$Q -m -d matlab -r "cd $PATH_JM; ee561_jm_startup('$JM_CFG','$QCfg')"
 }
+
+
+
+# PLBP job manager
+jm_plbp(){
+QCfg=$1
+
+PATH_JM=/home/pcs/jm/plbp/src                     # path to PLBP JM startup script
+JM_CFG=/home/pcs/jm/plbp/cfg/PlbpJobManager_cfg   # path to configuration file
+
+screen -S plbp_$Q -m -d matlab -r "cd $PATH_JM; plbp_jm_startup('$JM_CFG','$QCfg')"
+}
