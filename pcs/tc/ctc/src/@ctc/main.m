@@ -18,6 +18,12 @@
 %   Added '&' to end of all system() commands in an attempt to
 %       prevent hanging.
 %  Keep an eye on this one, for example, spawing zombies or leaking memory.
+%   Added pause at end of every system command for flow control.
+% next attempt - copy operation needs more delay than move
+% future impl
+%  only use moves
+%  group permissions
+
 
 
 function main(obj, ss)
@@ -49,8 +55,9 @@ while(1) %enter primary loop
     if IS_START || IS_RESUME || IS_SHUTDOWN
         consume_output(obj);                                 % scan global output queue and place completed work in user output directory
     end
-    
-    pause(5);                                            % pause for 5 seconds before making another pass
+
+    pause(obj.tsp);                                       % Pause for sp seconds before making anothe pass
+%    pause(5);                                            % pause for 5 seconds before making another pass
     
     %%% get files in output and running queue %%
     pgoq = obj.gq.oq{1};
@@ -247,6 +254,7 @@ if ~isempty(users_srt)
          fprintf('%s\n', cmd_str);
          [st res] = system(cmd_str);
          fprintf('\n');
+         pause(0.05);
 
         
         % change user running queue file ownership from root to user
@@ -254,14 +262,14 @@ if ~isempty(users_srt)
         fprintf('%s\n', cmd_str);
         [st res] = system(cmd_str);
         fprintf('\n');
-
+pause(0.05);
 
         % change user input file ownership to pcs user
         cmd_str = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1} ' ' '&'];
         fprintf('%s\n', cmd_str);
         [st res] = system(cmd_str);   % change ownership back to user
         fprintf('\n');
-
+pause(0.05);
 
         
         % move user file into input queue        
@@ -269,7 +277,7 @@ if ~isempty(users_srt)
       fprintf('%s\n', cmd_str);
         [st res] = system(cmd_str);
      fprintf('\n');
-
+pause(0.05);
          
       fprintf('avw %d\n', avw);
       fprintf('nf %d\n', nf);
@@ -318,7 +326,8 @@ if ~isempty(users_srt)
         
         [st res] = system(cmd_str);
 fprintf('\n');
-        
+pause(0.05);        
+
     end
     
 end
@@ -495,12 +504,14 @@ fprintf('%s\n', cmd_str);
 fprintf('\n');
 %        fprintf('%d\n', st);
 %        fprintf('%s\n', res);
+pause(0.05);
 
 
 cmd_str = ['sudo mv -f' ' ' pgoq '/'  output_task_filename ' ' puoq '/' on ' ' '&'];  
 fprintf('%s\n', cmd_str);
 [st res] = system(cmd_str); % move file to user output queue
 fprintf('\n');
+pause(0.05);
 
 [ purq ] = get_path_user_running_queue( obj.users{user_ind}.rq{1} );
 
@@ -529,6 +540,7 @@ fprintf('15 ');
 cmd_str = ['sudo chown' ' ' ownership_name ':' ownership_group ' ' pgoq '/' output_task_filename ' ' '&']; 
 [st res] = system(cmd_str);   % change ownership back to user
 fprintf('\n');
+pause(0.05);
 
 % change move implementation
 
@@ -537,6 +549,7 @@ cmd_str = ['sudo mv -f' ' ' pgoq '/'  output_task_filename ' ' puoq '/' on ' ' '
 fprintf('%s\n', cmd_str);
 [st res] = system(cmd_str); % move file to user output queue
 fprintf('\n');
+pause(0.05);
 
 fprintf('mv 2 ');
 [ purq ] = get_path_user_running_queue( obj.users{user_ind}.rq{1} );
@@ -561,6 +574,7 @@ function delete_output_file( obj, output_task_filename )
 cmd_str = ['sudo rm' ' ' pgoq '/'  output_task_filename ' ' '&'];  
 [st res] = system(cmd_str); % delete file from output queue
 fprintf('\n');
+pause(0.05);
 
 end
 
@@ -627,6 +641,7 @@ cmd_str = ['sudo rm' ' ' purq '/'  on ' ' '&'];
 fprintf('%s\n', cmd_str);
 [st res] = system(cmd_str); % remove file from user running queue
 fprintf('\n');
+pause(0.05);
 
 end
 

@@ -61,6 +61,8 @@ classdef ctc < handle
                % user_location - user location - web or local
 
 	bs     % bash script path        
+
+	tsp     % sweep period - time between queue passes
     end
     
     
