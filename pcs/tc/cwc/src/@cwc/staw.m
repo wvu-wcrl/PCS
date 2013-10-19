@@ -31,6 +31,7 @@ function [stat pid] = so(obj, wid)
   [bg oqr] = strtok(obj.gq.oq{1}, '/');
   [bg lp] = strtok(obj.lp{1}, '/');
   [bg lfup] = strtok(obj.lfup{1}, '/');
+  [bg lfup] = strtok(obj.wsp{1}, '/');
 
 iqr = ['/rhome' iqr];
 rqr = ['/rhome' rqr];
@@ -52,7 +53,8 @@ cs = [cs, ' ',...
         lp, ' ',...
         obj.log_period, ' ',...
         obj.num_logs,' ',...
-        obj.verbose_mode]
+        obj.verbose_mode,' ',...
+        obj.wsp]
 
 
 
