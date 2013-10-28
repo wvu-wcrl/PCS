@@ -7,7 +7,12 @@ switch JobParam.TaskType
         TaskInputParam.TrainModel = JobState.TrainModel;
         TaskInputParam.ClassID = JobState.TrainClassID;
         TaskInputParam.Filenames = JobState.TrainFilenames;
-        TaskInputParam.TestTemplate = JobState.TestTemplate;
+        if( isfield(JobState,'TestTemplate') && ~isempty(JobState.TestTemplate) )
+            TaskInputParam.TestTemplate = JobState.TestTemplate;
+        else
+            TaskInputParam.JobParam = JobParam;
+            TaskInputParam.JobState = JobState;
+        end
         % TaskInputParam.TestClassID = JobState.TestClassID;
     case {'Verification'}
         TaskInputParam.TrainModel = JobState.TrainModel;

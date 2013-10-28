@@ -47,19 +47,62 @@ classdef PLBPJobManager < JobManager
             switch JobParamIn.TaskType
                 
                 case{'Model'}
-                    [JobParam, PPSuccessFlag, PPErrorMsg] = obj.GetModelPreprocessedData(JobParamIn);
-                    % Return if failure in data file processing.
-                    if PPSuccessFlag == 0
-                        JobState = JobStateIn;
-                        return;
-                    else
-                        JobState = JobStateIn;
-                    end
+                    % Set the job StartTime. The StartTime of a Incremental Model-type job is when it starts preprocessing.
+                    JobInfo.StartTime = clock; 
+                    % [JobParam, PPSuccessFlag, PPErrorMsg] = obj.GetModelPreprocessedData(JobParamIn);
+                    [JobParam, PPSuccessFlag, PPErrorMsg] = GetModelPreprocessedData(JobParamIn);
+                   
+                   JobState = JobStateIn;
+                    
                     JobState.CompletedTasks = 0;
                     JobState.GeneratedTasks = 0;
                     
+                    if(isfield(JobParamIn,'ModelTask') && strcmp(JobParamIn.ModelTask, 'Identification') == 1)
+                        
+                        
+                        if ismac
+                            ModelFileContent = load('/Users/siri/Dropbox/Research/Current/LBP/CLBP/LBP/RandomProjection/home/pcs/Model/Model.mat');
+                        else
+                            ModelFileContent = load('/home/pcs/projects/plbp/Model/Model.mat');
+                        end
+                        JobParam.TaskCount = 1;
+                        JobState.GeneratedTasks = 1;
+                        
+                        JobState.Model = ModelFileContent.JobState.Model;
+                        JobState.ClassID = ModelFileContent.JobState.ClassID;
+                        JobState.Filenames = ModelFileContent.JobState.Filenames;
+                        
+                        % Set the task StartTime.
+                        TaskInfo.StartTime = clock;
+                        
+                        [LBP_Pattern, TrainClassID, Filenames] = GetSubjectTemplates(JobParam.DataPath, JobParam.Mapping, JobParam.RandomProjection, JobParam.B, JobParam.R, JobParam.P);   
+                        ind_cnt = size(LBP_Pattern,1);
+                        cnt = size(JobState.Model,1);
+                        
+                        JobState.Model((cnt+1) : (cnt+ind_cnt),:) = LBP_Pattern;
+                        JobState.ClassID((cnt+1) : (cnt+ind_cnt),:) = TrainClassID;
+                        JobState.Filenames((cnt+1) : (cnt+ind_cnt),:) = Filenames;
+                        
+                        % Set the task StopTime.
+                        TaskInfo.StopTime = clock;
+                        
+                        JobState.JobStatus = 'Done';
+                        JobState.TaskInfo.StartTime = TaskInfo.StartTime;
+                        JobState.TaskInfo.StopTime = TaskInfo.StopTime;
+                        JobState.JobInfo.StartTime = JobInfo.StartTime;
+                        
+                        PPSuccessFlag = 1;
+                        PPErrorMsg = 0;
+                        JobState.CompletedTasks = 1;
+                    end  
+                    
+                    % Return if failure in data file processing.
+                    if PPSuccessFlag == 0
+                        return;
+                    end       
+ 
                 case{'Identification'}
-                    JobParamIn.TaskSize = 50;
+                    JobParamIn.TaskSize = 1180;
                     
                     % Add Data model to the job file for further processing.
                     [JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, DataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
@@ -79,7 +122,23 @@ classdef PLBPJobManager < JobManager
                     JobStateIn.Filenames = ModelFileContent.JobState.Filenames;
                     JobParamIn.Mapping = ModelFileContent.JobParam.Mapping;
                     
-                    [JobParam PPSuccessFlag PPErrorMsg] = obj.GetPreprocessedData(JobParamIn);
+                    TemplateCount = size(JobParamIn.Model, 1);
+                    if mod(TemplateCount, JobParamIn.TaskSize) == 0
+                        JobParamIn.TaskCount = (TemplateCount/JobParamIn.TaskSize);
+                    else
+                        JobParamIn.TaskCount = floor(TemplateCount/JobParamIn.TaskSize) + 1;
+                    end
+                    
+                    if( isfield(JobParamIn,'NoJMDataPreProcess') && JobParamIn.NoJMDataPreProcess==1 )
+                    % if JobParamIn.TaskCount==1
+                        JobParam = JobParamIn;
+                        PPSuccessFlag = 1;
+                        PPErrorMsg = '';
+                    else
+                    %   [JobParam, PPSuccessFlag, PPErrorMsg] = obj.GetPreprocessedData(JobParamIn);
+                    [JobParam, PPSuccessFlag, PPErrorMsg] = GetPreprocessedData(JobParamIn);
+                    end
+                    
                     % Return if failure in data file processing.
                     if PPSuccessFlag == 0,
                         JobState = JobStateIn;
@@ -116,7 +175,8 @@ classdef PLBPJobManager < JobManager
                     JobStateIn.Filenames = ModelFileContent.JobState.Filenames;
                     JobParamIn.Mapping = ModelFileContent.JobParam.Mapping;
                     
-                    [JobParam PPSuccessFlag PPErrorMsg] = obj.GetPreprocessedData(JobParamIn);
+                    % [JobParam, PPSuccessFlag, PPErrorMsg] = obj.GetPreprocessedData(JobParamIn);
+                    [JobParam, PPSuccessFlag, PPErrorMsg] = GetPreprocessedData(JobParamIn);
                     
                     % Return if failure in data file processing.
                     if PPSuccessFlag == 0,
@@ -135,6 +195,7 @@ classdef PLBPJobManager < JobManager
                     ClaimedSubject = find(JobParam.ClassID==JobParam.TestClassID);
                     
 %                     JobState.TestTemplate = obj.GetTestTemplate(JobParam.DataImagePath, JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, CurrentUser.FunctionPath);
+%                     JobState.TestTemplate = GetTestTemplate(JobParam.DataImagePath, JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, CurrentUser.FunctionPath);
 %                     JobState.TrainModel = JobParam.Model(ClaimedSubject,:);
 %                     JobState.TrainClassID = repmat(JobParam.TestClassID, size(ClaimedSubject,1), 1);
 %                     JobState.TrainFilenames = JobParam.Filenames(ClaimedSubject,:);
@@ -148,7 +209,8 @@ classdef PLBPJobManager < JobManager
                     TaskInputParam.TrainModel = JobParam.Model(ClaimedSubject,:);
                     TaskInputParam.ClassID = repmat(JobParam.TestClassID, size(ClaimedSubject,1), 1);
                     TaskInputParam.Filenames = JobParam.Filenames(ClaimedSubject,:);
-                    TaskInputParam.TestTemplate = obj.GetTestTemplate(JobParam.DataImagePath, JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, CurrentUser.FunctionPath);
+                    % TaskInputParam.TestTemplate = obj.GetTestTemplate(JobParam.DataImagePath, JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, CurrentUser.FunctionPath);
+                    TaskInputParam.TestTemplate = GetTestTemplate(JobParam.DataImagePath, JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, CurrentUser.FunctionPath);
                     TaskInputParam.TestClassID = JobParam.TestClassID;
                     
                     % Set the task StartTime.
@@ -290,13 +352,19 @@ classdef PLBPJobManager < JobManager
                         case{'Identification'}
                             Counter = JobParam.TaskCount;
                             
-                            Msg = sprintf( 'Generating %d NEW TASK files corresponding to JOB %s of user %s and saving them to its TaskIn directory at %s.\n\n',...
-                                Counter, JobName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-                            PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
+                            % Msg = sprintf( 'Generating %d NEW TASK files corresponding to JOB %s of user %s and saving them to its TaskIn directory at %s.\n\n',...
+                            %     Counter, JobName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+                            % PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
                             
                             TemplateCount = size(JobParam.Model, 1);
-                            JobState.TestTemplate = obj.GetTestTemplate(JobParam.DataImagePath, ...
+                            
+                            if ~( isfield(JobParam,'NoJMDataPreProcess') && JobParam.NoJMDataPreProcess==1 )
+                            % if JobParam.TaskCount~=1
+                            %     JobState.TestTemplate = obj.GetTestTemplate(JobParam.DataImagePath, ...
+                            %         JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, UserParam.FunctionPath);
+                            JobState.TestTemplate = GetTestTemplate(JobParam.DataImagePath, ...
                                 JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, UserParam.FunctionPath);
+                            end
                             
                             TaskMaxRunTime = 10;
                             NumNewTasks = JobParam.TaskCount;
@@ -319,6 +387,7 @@ classdef PLBPJobManager < JobManager
                                 TaskInputParam = obj.CalcTaskInputParam(JobParam, JobState, NumNewTasks);
                                 if ~isempty(TaskInputParam)
                                     % Save new task file.
+                                    TaskInputParam.JobParam.FunctionPath = UserParam.FunctionPath;
                                     UserParam.TaskID = obj.SaveTaskInFiles(TaskInputParam, UserParam, JobName, TaskMaxRunTime);
                                     JobState.GeneratedTasks = JobState.GeneratedTasks + 1;
                                 end
@@ -338,6 +407,76 @@ classdef PLBPJobManager < JobManager
         end
         
         
+        function [JobDirectory, JobNameCell] = SelectInRunningJob(obj, JobInDir, JobRunningDir, MaxRunningJobs, SuccessMsgIn, SuccessMsgRunning, NoJobMsg)
+            % Pick a job from JobIn or JobRunning directory and return its directory and its name.
+            %
+            % Calling syntax: [JobDirectory, JobNameCell] = obj.SelectInRunningJob(JobInDir, JobRunningDir, MaxRunningJobs [,SuccessMsgIn] [,SuccessMsgRunning] [,NoJobMsg])
+            % MaxRunningJobs is a POSITIVE maximum number of simultaneously-running jobs.
+            DIn = dir( fullfile(JobInDir,'*.mat') );
+            DRunning = dir( fullfile(JobRunningDir,'*.mat') );
+            
+            if( length(DRunning) >= MaxRunningJobs )
+                % Pick a running job AT RANDOM.
+                % JobDirectory = JobRunningDir;
+                % JobFileIndex = randi( [1 length(DRunning)], [1 1] );
+                % Construct the filename.
+                % JobName = DRunning(JobFileIndex).name;
+                % if( nargin>=6 && ~isempty(SuccessMsgRunning) )
+                %     Msg = [SuccessMsgRunning sprintf('Selected JOB name: %s.\n', JobName(1:end-4))];
+                %     PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
+                % end
+                JobDirectory = [];
+                JobNameCell = {};
+                % if( nargin>=7 && ~isempty(NoJobMsg) )
+                %     PrintOut(NoJobMsg, 0, obj.JobManagerParam.LogFileName);
+                % end
+                % JobNameCell{1} = JobName;
+            else
+                if ~isempty(DIn)
+                    % Pick the OLDEST new job.
+                    JobDirectory = JobInDir;
+                    [Dummy, DateIndx] = sort( [DIn(:).datenum], 'ascend' );
+                    if length(DateIndx) < 50
+                        JobFileIndex = DateIndx;
+                    else
+                        JobFileIndex = DateIndx(1:50);
+                    end
+                    JobNameCell = cell(1,length(JobFileIndex));
+                    for JobNum=1:length(JobFileIndex)
+                        % Construct the filename.
+                        JobName = DIn(JobFileIndex(JobNum)).name;
+                        % if( nargin>=5 && ~isempty(SuccessMsgIn) )
+                        %     Msg = [SuccessMsgIn sprintf('Selected JOB name: %s.\n', JobName(1:end-4))];
+                        %     PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
+                        % end
+                        Msg = sprintf('\nSelected JOB name: %s.\n', JobName(1:end-4));
+                        PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
+                        JobNameCell{JobNum} = JobName;
+                    end
+                elseif ~isempty(DRunning)
+                    % Pick a running job AT RANDOM.
+                    % JobDirectory = JobRunningDir;
+                    % JobFileIndex = randi( [1 length(DRunning)], [1 1] );
+                    % Construct the filename.
+                    % JobName = DRunning(JobFileIndex).name;
+                    % if( nargin>=6 && ~isempty(SuccessMsgRunning) )
+                    %     Msg = [SuccessMsgRunning sprintf('Selected JOB name: %s.\n', JobName(1:end-4))];
+                    %     PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
+                    % end
+                    % JobNameCell{1} = JobName;
+                    JobDirectory = [];
+                    JobNameCell = {};
+                else
+                    JobDirectory = [];
+                    JobNameCell = {};
+                    if( nargin>=7 && ~isempty(NoJobMsg) )
+                        PrintOut(NoJobMsg, 0, obj.JobManagerParam.LogFileName);
+                    end
+                end
+            end
+        end
+        
+        
         TaskInputParam = CalcTaskInputParam(obj, JobParam, JobState, NumNewTasks)
         
         
@@ -347,16 +486,49 @@ classdef PLBPJobManager < JobManager
         [StopFlag, JobInfo, varargout] = DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, FiguresDir)
         
         
-        [JobParam, PPSuccessFlag, PPErrorMsg] = GetPreprocessedData(obj, JobParam)
-        
-        
-        [JobParam, PPSuccessFlag, PPErrorMsg] = GetModelPreprocessedData(obj, JobParam)
+        % [JobParam, PPSuccessFlag, PPErrorMsg] = GetModelPreprocessedData(obj, JobParam)
         
         
         FinalTaskID = SaveTaskInFiles(obj, TaskInputParam, UserParam, JobName, TaskMaxRunTime)
         
         
-        TestTemplate = GetTestTemplate(obj, Filename, RandomProjection, B, Mapping, R, P, UserCodeRoot)
+        function NumProcessUnit = FindNumProcessUnits(obj, TaskState)
+            NumProcessUnit = size(TaskState.InputParam.TrainModel, 1);
+        end
         
+        
+        function TaskOutFileIndex = FindFinishedTask2Read(obj, NumTaskOut)
+            % Pick finished task files at random.
+            if NumTaskOut<10
+                TaskOutFileIndex = 1:NumTaskOut;
+            else
+                % TaskOutFileIndex = randi( [1 NumTaskOut], [1 1] );
+                TaskOutFileIndex = 1:10;
+            end
+        end
+        
+    end
+    
+    
+    methods(Static)
+        % [JobParam, PPSuccessFlag, PPErrorMsg] = GetModelPreprocessedData(JobParam)
+        
+        
+        % [JobParam, PPSuccessFlag, PPErrorMsg] = GetPreprocessedData(JobParam)
+        
+        
+        % Q = OrthonormalMatrixUniform(n, Seed)
+        
+        
+        % Q = OrthonormalMatrix(n, seed)
+        
+        
+        % P = RandomPermutationMatrixUniform(n, Seed)
+        
+        
+        % P = RandomPermutationMatrix(n, seed)
+        
+        
+        % TestTemplate = GetTestTemplate(Filename, RandomProjection, B, Mapping, R, P, UserCodeRoot)
     end
 end

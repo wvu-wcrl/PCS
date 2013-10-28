@@ -52,7 +52,7 @@ end
 % Pause briefly for flow control.
 % pause( UserParam.PauseTime );
 
-PrintOut('\n', 0, obj.JobManagerParam.LogFileName);
+% PrintOut('\n', 0, obj.JobManagerParam.LogFileName);
 if OS_flag == 1
     % SuccessFlag = obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']), TaskInDir, SuccessMsg, ErrorMsg);
     obj.MoveFile(fullfile(obj.JobManagerParam.TempJMDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']), TaskInDir);

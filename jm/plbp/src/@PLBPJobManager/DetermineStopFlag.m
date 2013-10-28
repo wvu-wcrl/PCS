@@ -8,32 +8,64 @@ if JobState.CompletedTasks == JobParam.TaskCount
     switch JobParam.TaskType
         
         case{'Identification'}
-            TempFilename = JobState.MinDist_Filename{1};
-            cnt = size(TempFilename{1}, 2);
-            MinDistFilename = [ TempFilename{1}(1) TempFilename{1}(3:cnt) ];
-            
-            Results = struct( 'MinDist',num2str(JobState.MinDist),...
-                'MinDist_ClassID',num2str(JobState.MinDist_ClassID),...
-                'MinDist_Filename',fliplr( strtok( fliplr(char(JobState.MinDist_Filename{1})), filesep ) ) );
-            
+            Results = struct( 'MinDist',num2str(JobState.MinDist(1)),...
+                'MinDist_ClassID',JobState.MinDist_ClassID{1});
+                % 'MinDist_ClassID',num2str(JobState.MinDist_ClassID),...
+                % 'MinDist_Filename',fliplr( strtok( fliplr(char(JobState.MinDist_Filename{1})), filesep ) ) ); 
             JobInfo = obj.UpdateJobInfo( JobInfo, 'Results', Results );
             
             % JobInfo.Results.MinDist = num2str(JobState.MinDist);
             % JobInfo.Results.MinDist_ClassID = num2str(JobState.MinDist_ClassID);
             % JobInfo.Results.MinDist_Filename = JobState.MinDist_Filename{1};
             % JobInfo.Results.MinDist_Filename = fliplr( strtok( fliplr(char(JobState.MinDist_Filename{1})), filesep ) );
-            
-            FigureFilename = fliplr( strtok( fliplr(char(JobState.MinDist_Filename{1})),filesep ) );
-            FigureFilePath = fullfile(FiguresDir, FigureFilename);
-            NewFigureFilename = [JobName(1:end-4) '_Figure.' fliplr( strtok( fliplr(FigureFilename), '.' ) )];
-            NewFigureFilePath = fullfile(FiguresDir, NewFigureFilename);
-            
-            if ismac
-                obj.CopyFile(char(JobState.MinDist_Filename{1}), FiguresDir);
-            else
-                obj.CopyFile(MinDistFilename, FiguresDir);
+           
+            cnt = size(JobState.MinDist_Filename, 1);
+            for i = 1 : cnt
+                FigureFilename = fliplr( strtok( fliplr(char(JobState.MinDist_Filename{i})),filesep ) );
+                FigureFilePath = fullfile(FiguresDir, FigureFilename);
+                
+                FullFileName = fliplr(strtok(fliplr(JobName),filesep ));
+                FileName = strtok(FullFileName,'.');
+                FileExt = fliplr(strtok(fliplr(FullFileName),'.' ));
+                
+                NewFigureFilename = [FileName '_Figure' num2str(i) '.jpg'];
+                NewFigureFilePath = fullfile(FiguresDir, NewFigureFilename);
+                
+                if ismac
+                    MinDistFilename = JobState.MinDist_Filename{i};
+                else
+                    TempFilename = JobState.MinDist_Filename{i};
+                    cnt = size(TempFilename, 2);
+                    if TempFilename(2) == 'r'
+    			MinDistFilename = [ TempFilename(1) TempFilename(3:cnt) ]
+	            else
+	                MinDistFilename = TempFilename
+                    end 
+                end
+                
+                
+                if (strcmp(FileExt, 'jgp') == 0 || strcmp(FileExt, 'jpeg') == 0)
+                    A = imread(MinDistFilename);
+                    imwrite(A, NewFigureFilePath);
+                else
+                    if ismac
+                        obj.CopyFile(char(JobState.MinDist_Filename{i}), FiguresDir);
+                    else
+                       
+                        obj.CopyFile(MinDistFilename, FiguresDir);
+                    end
+                    obj.MoveFile(FigureFilePath, NewFigureFilePath);
+                end
+                
+                
+%                 if ismac
+%                     obj.CopyFile(char(JobState.MinDist_Filename{1}), FiguresDir);
+%                 else
+%                     obj.CopyFile(MinDistFilename, FiguresDir);
+%                 end
+%                 obj.MoveFile(FigureFilePath, NewFigureFilePath);
             end
-            obj.MoveFile(FigureFilePath, NewFigureFilePath);
+              
             
         case{'Verification'}
             Results = struct( 'MinDist',num2str(JobState.MinDist), 'MinDist_ClassID',num2str(JobState.MinDist_ClassID),...
