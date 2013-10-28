@@ -1,0 +1,45 @@
+#!/bin/bash
+# get_random_projection
+#
+# Include RandomProjection with in a job file in order to bypass saving
+# (user/master) hash key in a job file for generating cancelable templates
+#
+#
+# Called by mobile web interface to include RandomProjection in a job file
+# 
+#
+# Inputs
+#  1. Temporary job path (with filename)
+#  2. Path to RandomProjection Matlab script
+#  3. RandomProjection script file name
+#  4. Hashkey
+#  5. Path (with filename) to save job file in user's JobIn directory
+#  
+# Calling example - include random projection in FR_Job.mat
+#
+# > get_random_projection /home/user1/Projects/plbp/Temp/FR_Job.mat /home/pcs/projects/plbp/mat GetRandomProjection secrethashkey /home/user1/Projects/plbp/JobIn/FR_Job.mat
+#
+#
+# 
+#     Copyright (C) 2013, Aruna Sri Bommagani and Matthew C. Valenti
+#     For full copyright information see the bottom of this file.
+
+
+sudo matlab -nodesktop -nosplash -nodisplay -r "load $1; whos; JobParam; cd $2; JobParam=$3(JobParam, '$4') ; JobParam; save $1 JobParam JobState; exit"
+sudo chown pcs:pcs $1
+sudo mv $1 $5 
+
+#     This library is free software;                                           
+#     you can redistribute it and/or modify it under the terms of               
+#     the GNU Lesser General Public License as published by the                 
+#     Free Software Foundation; either version 2.1 of the License,              
+#     or (at your option) any later version.                                    
+#                                                                               
+#     This library is distributed in the hope that it will be useful,           
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of            
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU    
+#     Lesser General Public License for more details.                           
+#                                                                               
+#     You should have received a copy of the GNU Lesser General Public          
+#     License along with this library; if not, write to the Free Software       
+#     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 US 

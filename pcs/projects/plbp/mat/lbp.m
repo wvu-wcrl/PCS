@@ -34,7 +34,7 @@
 %       is equal to histogram of I2.
 %
 %  Version 0.3.2
-%  Authors: Marko Heikkilä and Timo Ahonen
+%  Authors: Marko Heikkilï¿½ and Timo Ahonen
 %
 %  Changelog
 %       Version 0.3.2: A bug fix to enable using mappings together with a predefined spoints array.
@@ -78,7 +78,7 @@ if (nargin > 2) && (length(varargin{2}) == 1)
     if(nargin >= 4)
         mapping=varargin{4};
         if(isstruct(mapping) && mapping.samples ~= neighbors)
-            error('Incompatible mapping!');
+            error('Incompatible mapping! Mapping.Samples: %d and Neighbors (3rd Argument): %d.',mapping.samples,neighbors);
         end
     else
         mapping=0;
