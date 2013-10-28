@@ -25,9 +25,13 @@ switch JobParam.TaskType
         end
         
         if JobState.CompletedTasks >= JobParam.TaskCount
-            [JobState.MinDist, ind] = min(JobState.Distance);
-            JobState.MinDist_ClassID = JobState.MatchClassID(ind);
-            JobState.MinDist_Filename = JobState.MatchFilename(ind);
+            % [JobState.MinDist, ind] = min(JobState.Distance);
+            % JobState.MinDist_ClassID = JobState.MatchClassID(ind);
+            % JobState.MinDist_Filename = JobState.MatchFilename(ind);
+            % Get 3 closest templates 
+            [JobState.MinDist, ClosestNDistanceIndices] = GetNCloserDistance(JobState.G2TDist, 3);
+            JobState.MinDist_ClassID = JobState.G2TClassID(ClosestNDistanceIndices);  
+            JobState.MinDist_Filename = JobState.G2TFilenames(ClosestNDistanceIndices); 
         end
         
     case{'Verification'}
@@ -79,6 +83,11 @@ switch JobParam.TaskType
 end
 end
 
+function [ClosestNDistance, ClosestNDistanceIndices] = GetNCloserDistance(Distance, N)
+     [SortedDistance, DistanceIndex] = sort(Distance);
+     ClosestNDistance = SortedDistance(1:N);
+     ClosestNDistanceIndices = DistanceIndex(1:N);
+end
 
 function [Match, ClassificationAccuracyValue] = ClassificationAccuracy(TrainClassIDs, TestClassIDs)
 CorrectClassificationCount = 0;
