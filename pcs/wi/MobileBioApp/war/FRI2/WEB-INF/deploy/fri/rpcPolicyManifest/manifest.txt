@@ -1,0 +1,10 @@
+# Module fri
+# RPC service class, partial path of RPC policy file
+com.allen_sauer.gwt.log.client.RemoteLoggerService, 0E2AE422F0EED097737052A53F3D79E2.gwt.rpc
+com.googlecode.mgwt.examples.showcase.client.activities.elements.service.UserValidationService, 5C74F9DEC7E987EBCE30AC03B3C27D2B.gwt.rpc
+com.googlecode.mgwt.examples.showcase.client.custom.jobs.service.GetJobDetailsService, EFB6AC584CC993E06BF4C1A90BAC4E4D.gwt.rpc
+com.googlecode.mgwt.examples.showcase.client.custom.service.MasterKeyService, 6E4D27E3CAB31FF7274F4CFB607EA06D.gwt.rpc
+com.googlecode.mgwt.examples.showcase.client.custom.jobs.service.GetPageService, 708E3287A2EB80B65794DFEE618E05FF.gwt.rpc
+com.googlecode.mgwt.examples.showcase.client.custom.jobs.service.ServerMessageGeneratorService, C0C56CC5DCF4C9632DCA80E42981E75C.gwt.rpc
+de.novanic.eventservice.client.event.service.EventService, 09286ECF9F75EEF3E73E5F4A6A838DEA.gwt.rpc
+com.googlecode.mgwt.examples.showcase.client.settings.service.ChangePasswordService, 1E4B1865781A266104076472C1189201.gwt.rpc

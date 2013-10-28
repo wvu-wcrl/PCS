@@ -1,0 +1,2 @@
+serviceClass: com.googlecode.mgwt.examples.showcase.client.custom.service.MasterKeyService
+path: 6E4D27E3CAB31FF7274F4CFB607EA06D.gwt.rpc
