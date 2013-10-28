@@ -1,0 +1,2 @@
+serviceClass: com.googlecode.mgwt.examples.showcase.client.settings.service.ChangePasswordService
+path: 1E4B1865781A266104076472C1189201.gwt.rpc
