@@ -1,0 +1,2 @@
+serviceClass: com.googlecode.mgwt.examples.showcase.client.custom.jobs.service.ServerMessageGeneratorService
+path: C0C56CC5DCF4C9632DCA80E42981E75C.gwt.rpc
