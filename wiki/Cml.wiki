@@ -23,7 +23,8 @@ A detailed list of features can be found [CmlFeatures here].
 
 = Download, Installation and Getting Started =
 
-CML Download: [http://wcrl.csee.wvu.edu/cml/cml112.zip CML 1.12 ] Uncompress to any desired directory to install.
+CML Download: [http://wcrl.csee.wvu.edu/cml/cml112.zip CML 1.12 ] 
+ * Uncompress to any desired directory to install.
 
 Quickstart demonstrating simulation of BPSK in AWGN: [CmlQuickStart Quickstart]
 
