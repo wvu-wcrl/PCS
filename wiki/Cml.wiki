@@ -23,7 +23,7 @@ A detailed list of features can be found [CmlFeatures here].
 
 = Download, Installation and Getting Started =
 
-CML Download: [https://iscml.googlecode.com/files/cml112.zip CML 1.12 ]
+CML Download: [http://wcrl.csee.wvu.edu/cml112.zip CML 1.12 ]
 
 Uncompress to any desired directory to install.
 
