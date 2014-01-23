@@ -29,6 +29,6 @@ Uncompress to any desired directory to install.
 
 Quickstart demonstrating simulation of BPSK in AWGN: [CmlQuickStart Quickstart]
 
-Tutorial for submitting CML jobs to WCRL Cloud Computing Infrastructure: [http://wcrl.csee.wvu.edu/cml/wctc.pdf ]
+Tutorial for submitting CML jobs to WCRL Communication Theory Cloud: [http://wcrl.csee.wvu.edu/cml/wctc.pdf WCTC ]
 
 Complete overview of CML usage: [https://iscml.googlecode.com/files/CMLoverview.pdf Overview]
