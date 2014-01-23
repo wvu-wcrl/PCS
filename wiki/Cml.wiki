@@ -23,10 +23,12 @@ A detailed list of features can be found [CmlFeatures here].
 
 = Download, Installation and Getting Started =
 
-CML Download: [http://wcrl.csee.wvu.edu/cml112.zip CML 1.12 ]
+CML Download: [http://wcrl.csee.wvu.edu/cml/cml112.zip CML 1.12 ]
 
 Uncompress to any desired directory to install.
 
 Quickstart demonstrating simulation of BPSK in AWGN: [CmlQuickStart Quickstart]
+
+Tutorial for submitting CML jobs to WCRL Cloud Computing Infrastructure: [http://wcrl.csee.wvu.edu/cml/wctc.pdf ]
 
 Complete overview of CML usage: [https://iscml.googlecode.com/files/CMLoverview.pdf Overview]
