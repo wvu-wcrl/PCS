@@ -1,4 +1,4 @@
-function [r_rec erasures_count] = DecBEC( r_rec, HStruct, max_iter )
+function [r_rec, erasures_count] = DecBEC( r_rec, HStruct, max_iter )
 % Performs erasures decoding of a linear code.
 %
 % Inputs
@@ -32,11 +32,11 @@ for iter=1:max_iter
         % identify which variable nodes are connected to this check node.
         variable_nodes = HStruct( row ).loc_ones;
 
-        % which variable nodes connected to this check nodeare erased?
+        % which variable nodes connected to this check node are erased?
         erased_edges = find( r_rec( variable_nodes) < 0 );
 
         % if exactly one variable node is erased, then correct it.
-        if (length( erased_edges ) == 1)
+        if length( erased_edges ) == 1
             % determine which variable node was erased.
             erased_variable_node = HStruct(row).loc_ones(erased_edges);
 
@@ -60,7 +60,7 @@ for iter=1:max_iter
     % check for halting condition.
     if ~num_corrections
         % echo message (feel free to comment this out).
-        % fprintf( 'No erasures could be corrected in this iteration. Halting\n' );
+        % fprintf( 'No erasures could be corrected in this iteration. Halting!\n' );
 
         erasures_count(iter:max_iter) = erasures_count( iter );
 

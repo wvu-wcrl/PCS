@@ -21,8 +21,8 @@ for i = 1:Count
         Filename = fullfile(SubjectDirPath, Filenames(k).name);
         img = imread(Filename);
         img = ViolaJonesCropping(img);
-        GrayImage = im2double(img); 
-	% GrayImage = imread(Filename);
+        GrayImage = im2double(img);
+        % GrayImage = imread(Filename);
         % GrayImage = im2double(GrayImage);
         GrayImage = (GrayImage - mean(GrayImage(:)))/std(GrayImage(:))* 20 + 128; % image normalization, to remove global intensity.
         LbpPattern = lbp(GrayImage, R, P, Mapping, 'h');
@@ -30,7 +30,7 @@ for i = 1:Count
         % Index = strfind(Filename,filesep);
         % l = numel(Index);
         % ClassID(cnt,:) = str2num(Filename(Index(l-1)+1 : Index(l)-1));
-        ClassID(cnt,:) = {ID}; 
+        ClassID(cnt,:) = {ID};
         File(cnt,:) = {Filename};
     end
 end
