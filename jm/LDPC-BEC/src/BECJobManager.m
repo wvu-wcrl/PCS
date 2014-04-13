@@ -1,7 +1,7 @@
 classdef BECJobManager < CodedModJobManager
     
     
-    methods( Static, Access = private )
+    methods( Static )
         function OldPath = SetCodePath(CodeRoot)
             % Determine the home directory.
             OldPath = path;
