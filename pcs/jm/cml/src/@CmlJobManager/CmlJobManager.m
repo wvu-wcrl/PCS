@@ -32,9 +32,9 @@ classdef CmlJobManager < JobManager
             % Default: cfgRoot = [filesep,'home','pcs','jm',ProjectName,'cfg',CFG_Filename]
             % ProjectName = 'cml';
             % CFG_Filename = 'CmlJobManager_cfg';
-            
+            %
             % (Optional) input argument 'queueCfg' stores the full path to the queue configuration file.
-            
+            %
             % Both input arguments must be defined.
             % If no specific job manager configuration file is desired, the argument must be specified as '[]'.
             

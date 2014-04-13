@@ -21,8 +21,21 @@ function [EpsilonStarDE, CodeRate, FullRank] = GenerateJob(HStruct, JobFileName,
 
 HStructInfo = FindHInfo(HStruct);
 
+EpsilonStarDE = HStructInfo.EpsilonStarDE;
+CodeRate = HStructInfo.CodeRate;
+fprintf('\nThe maximum channel erasure probability for your given parity-check matrix is EpsilonStar = %.8f.\n\n',EpsilonStarDE);
+fprintf('The rate of your given LDPC code is CodeRate = %.4f.\n\n',CodeRate);
+if HStructInfo.FullRankFlag == 1
+    fprintf('Your given parity-check matrix IS FULL-RANK! The simulation can be continued.\n\n');
+    FullRank = 'Yes';
+else
+    fprintf('Your given parity-check matrix IS NOT FULL-RANK! The simulation should be terminated.\nYou have to specify another FULL-RANK H matrix.\n');
+    FullRank = 'NO';
+    return;
+end
+
 if( nargin<2 || isempty(JobFileName) )
-    JobFileName = ['LDPC_BEC_Ver' num2str(round(100*rand)) '_' datestr(clock,'mmmdd_HHMM') '.mat'];
+    JobFileName = ['LDPC_BEC_Ver' num2str(round(1000*rand)) '_' datestr(clock,'mmmdd_HHMM') '.mat'];
 end
 
 if( nargin<3 || isempty(Epsilon_JobParam) )
@@ -41,14 +54,15 @@ elseif( isstruct(Epsilon_JobParam) )% JobParam is specified in Epsilon_JobParam 
     if( ~isfield(JobParam, 'MaxIteration') || isempty(JobParam.MaxIteration) ), JobParam.MaxIteration = 100; end
     if( ~isfield(JobParam, 'MaxRunTime') || isempty(JobParam.MaxRunTime) ), JobParam.MaxRunTime = 300; end
     if( ~isfield(JobParam, 'MaxBitErrors') || isempty(JobParam.MaxBitErrors) ), JobParam.MaxBitErrors = 0; end
-    if( ~isfield(JobParam, 'CheckPeriod') || isempty(JobParam.CheckPeriod) ), JobParam.CheckPeriod = 100; end
+    if( ~isfield(JobParam, 'CheckPeriod') || isempty(JobParam.CheckPeriod) ), JobParam.CheckPeriod = 200; end
     JobParamFlag = 0; % We do NOT need to generate the JobParam structure.
 
 elseif( isvector(Epsilon_JobParam) )% Epsilon is specified in Epsilon_JobParam as a VECTOR.
     Epsilon = Epsilon_JobParam;
     JobParamFlag = 1; % We need to generate the JobParam structure.
 else
-    error('GenerateJob:InvalidInput','The OPTIONAL THIRD input to the function could either be a VECTOR containing EPSILON points or a STRUCTURE containing JobParam.');
+    error(['GenerateJob:InvalidInput','The OPTIONAL THIRD input to the function could either be ',...
+        'a VECTOR containing EPSILON points or a STRUCTURE containing JobParam.']);
 end
 
 if JobParamFlag == 1
@@ -62,7 +76,7 @@ if JobParamFlag == 1
         'HStructInfo', HStructInfo, ...
         'MaxRunTime', 300, ...      % Maximum simulation time in Seconds.
         'MaxBitErrors', 0, ...
-        'CheckPeriod', 100 );       % Checking time in number of Trials.
+        'CheckPeriod', 200 );       % Checking time in number of Trials.
 end
 
 ZR = zeros(JobParam.MaxIteration,length(JobParam.Epsilon));
@@ -74,18 +88,6 @@ JobState = struct(...
     'FER', ZR );
 
 save(JobFileName,'JobParam','JobState');
-
-EpsilonStarDE = JobParam.HStructInfo.EpsilonStarDE;
-CodeRate = JobParam.HStructInfo.CodeRate;
-fprintf('\nThe maximum channel erasure probability for your given parity-check matrix is EpsilonStar = %.8f.\n\n',EpsilonStarDE);
-fprintf('The rate of your given LDPC code is CodeRate = %.4f.\n\n',CodeRate);
-if JobParam.HStructInfo.FullRankFlag == 1
-    fprintf('Your given parity-check matrix IS FULL-RANK! The simulation can be continued.\n\n');
-    FullRank = 'Yes';
-else
-    fprintf('Your given parity-check matrix IS NOT FULL-RANK! The simulation should be terminated.\nYou have to specify another FULL-RANK H matrix.\n');
-    FullRank = 'NO';
-end
 
 end
 
