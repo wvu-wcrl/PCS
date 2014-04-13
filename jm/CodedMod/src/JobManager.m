@@ -945,13 +945,17 @@ classdef JobManager < handle
                 end
                 
                 % Read root directory in which the job manager looks for users of the system.
-                out = util.fp(cfgFullFile, heading1, 'HomeRoot'); out = out{1}{1};
+                out = util.fp(cfgFullFile, heading1, 'HomeRoot');
                 if isempty(out)
-                    if ispc, out = input('\nWhat is the FULL path to the HOME ROOT in which the Job Manager should look for system USERS?\n\n','s');
-                    else out = [filesep 'home'];
+                    if ispc, outChar = input('\nWhat is the FULL path to the HOME ROOT in which the Job Manager should look for system USERS?\n\n','s');
+                    else outChar = [filesep 'home'];
+                    end
+                else
+                    for DirNum = 1:length(out)
+                        outChar{DirNum} = out{DirNum}{1};
                     end
                 end
-                JobManagerParam.HomeRoot = out;
+                JobManagerParam.HomeRoot = outChar;
                 
                 % Read temporary directory in which the job manager saves intermediate files before moving them to their ultimate destination.
                 % This folder solves the problem of write permissions in directories of users.

@@ -16,7 +16,7 @@
 
 
 function LdpcBecJMObj = LDPCBEC_jm_startup(cfgFile, queueCfg)
-
+% Usage: LdpcBecJMObj = LDPCBEC_jm_startup('/home/pcs/jm/LDPC-BEC/cfg/LDPC-BECJobManager_cfg','/home/pcs/tc/cfg/pcs_short_384.cfg');
 if( nargin<1 || isempty(cfgFile) )
     cfgFile = fullfile(filesep, 'home', 'pcs', 'jm', 'LDPC-BEC', 'cfg', 'LDPC-BECJobManager_cfg');
 end
