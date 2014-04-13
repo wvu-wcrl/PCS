@@ -10,15 +10,15 @@ if JobState.CompletedTasks == JobParam.TaskCount
         case{'Identification'}
             Results = struct( 'MinDist',num2str(JobState.MinDist(1)),...
                 'MinDist_ClassID',JobState.MinDist_ClassID{1});
-                % 'MinDist_ClassID',num2str(JobState.MinDist_ClassID),...
-                % 'MinDist_Filename',fliplr( strtok( fliplr(char(JobState.MinDist_Filename{1})), filesep ) ) ); 
+            % 'MinDist_ClassID',num2str(JobState.MinDist_ClassID),...
+            % 'MinDist_Filename',fliplr( strtok( fliplr(char(JobState.MinDist_Filename{1})), filesep ) ) );
             JobInfo = obj.UpdateJobInfo( JobInfo, 'Results', Results );
             
             % JobInfo.Results.MinDist = num2str(JobState.MinDist);
             % JobInfo.Results.MinDist_ClassID = num2str(JobState.MinDist_ClassID);
             % JobInfo.Results.MinDist_Filename = JobState.MinDist_Filename{1};
             % JobInfo.Results.MinDist_Filename = fliplr( strtok( fliplr(char(JobState.MinDist_Filename{1})), filesep ) );
-           
+            
             cnt = size(JobState.MinDist_Filename, 1);
             for i = 1 : cnt
                 FigureFilename = fliplr( strtok( fliplr(char(JobState.MinDist_Filename{i})),filesep ) );
@@ -37,10 +37,10 @@ if JobState.CompletedTasks == JobParam.TaskCount
                     TempFilename = JobState.MinDist_Filename{i};
                     cnt = size(TempFilename, 2);
                     if TempFilename(2) == 'r'
-    			MinDistFilename = [ TempFilename(1) TempFilename(3:cnt) ]
-	            else
-	                MinDistFilename = TempFilename
-                    end 
+                        MinDistFilename = [ TempFilename(1) TempFilename(3:cnt) ]
+                    else
+                        MinDistFilename = TempFilename
+                    end
                 end
                 
                 
@@ -51,21 +51,21 @@ if JobState.CompletedTasks == JobParam.TaskCount
                     if ismac
                         obj.CopyFile(char(JobState.MinDist_Filename{i}), FiguresDir);
                     else
-                       
+                        
                         obj.CopyFile(MinDistFilename, FiguresDir);
                     end
                     obj.MoveFile(FigureFilePath, NewFigureFilePath);
                 end
                 
                 
-%                 if ismac
-%                     obj.CopyFile(char(JobState.MinDist_Filename{1}), FiguresDir);
-%                 else
-%                     obj.CopyFile(MinDistFilename, FiguresDir);
-%                 end
-%                 obj.MoveFile(FigureFilePath, NewFigureFilePath);
+                %                 if ismac
+                %                     obj.CopyFile(char(JobState.MinDist_Filename{1}), FiguresDir);
+                %                 else
+                %                     obj.CopyFile(MinDistFilename, FiguresDir);
+                %                 end
+                %                 obj.MoveFile(FigureFilePath, NewFigureFilePath);
             end
-              
+            
             
         case{'Verification'}
             Results = struct( 'MinDist',num2str(JobState.MinDist), 'MinDist_ClassID',num2str(JobState.MinDist_ClassID),...

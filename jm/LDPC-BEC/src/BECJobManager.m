@@ -24,23 +24,30 @@ classdef BECJobManager < CodedModJobManager
     
     
     methods
-        function obj = BECJobManager(cfgRoot)
+        function obj = BECJobManager( cfgRoot, queueCfg )
             % Binary Erasure Channel Simulation Job Manager.
-            % Calling syntax: obj = BECJobManager([cfgRoot])
+            % Calling syntax: obj = BECJobManager([cfgRoot, queueCfg])
             % Optional input cfgRoot is the FULL path to the configuration file of the job manager.
             % Default: cfgRoot = [filesep,'home','pcs','jm',ProjectName,'cfg',CFG_Filename]
             % ProjectName = 'LDPC-BEC';
             % CFG_Filename = 'LDPC-BECJobManager_cfg';
+            %
+            % (Optional) input argument 'queueCfg' stores the full path to the queue configuration file.
+            %
+            % Both input arguments must be defined.
+            % If no specific job manager configuration file is desired, the argument must be specified as '[]'.
+            
             if( nargin<1 || isempty(cfgRoot) ), cfgRoot = []; end
-            addpath(fullfile(filesep,'home','pcs','jm','CodedMod','src'));
-            obj@CodedModJobManager(cfgRoot);
+            % if( nargin<2 || isempty(queueCfg) ), queueCfg = []; end
+            obj@CodedModJobManager(cfgRoot, queueCfg, 'LDPC-BEC');
         end
         
         
         function [JobParam, JobState, SuccessFlag, ErrorMsg] = PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, JobName)
             
-            % First, set the path.
             CodeRoot = CurrentUser.CodeRoot;
+            
+            % First, set the path.
             OldPath = obj.SetCodePath(CodeRoot);
             
             JobParam = JobParamIn;
@@ -74,7 +81,7 @@ classdef BECJobManager < CodedModJobManager
             % Determine the position of active Epsilon points based on the number of remaining trials and frame errors.
             ActiveEpsilonPoints  = ( (RemainingTrials>0) & (RemainingFrameErrors>0) );
             
-            % JobParam.MaxTrials(ActiveEpsilonPoints==0) = JobState.Trials(end,ActiveEpsilonPoints==0);
+            JobParam.MaxTrials(ActiveEpsilonPoints==0) = JobState.Trials(end,ActiveEpsilonPoints==0);
             
             % Set the stopping flag.
             StopFlag = ( sum(ActiveEpsilonPoints) == 0 );
@@ -140,9 +147,14 @@ classdef BECJobManager < CodedModJobManager
             
             JobInfo = obj.UpdateJobInfo( JobInfo, 'Results', Results );
             
+            obj.PlotResults( JobParam, JobState, FiguresDir, JobName, obj.JobManagerParam.TempJMDir );
+            
             varargout{1} = JobParam;
             varargout{2} = JobState;
-            
+        end
+        
+        
+        function PlotResults( obj, JobParam, JobState, FiguresDir, JobName, TempJMDir )
             % Plot the results.
             FigH = figure;
             semilogy(JobParam.Epsilon,JobState.BER(end,:),'-sb', 'LineWidth',1.5, 'MarkerSize',3)
@@ -150,7 +162,7 @@ classdef BECJobManager < CodedModJobManager
             % set(gca,'FontSize',12, 'FontName','Times', 'FontWeight','normal')
             xlim([min(JobParam.Epsilon) max(JobParam.Epsilon)])
             xlabel('Channel Erasure Probability (\epsilon_0)')
-            ylabel('Channel Erasure Probability After 100 Iterations (\epsilon_{100})')
+            ylabel('Bit Error Rate (BER)')
             try
                 saveas( FigH, fullfile(FiguresDir, [JobName(1:end-4) '_Fig.pdf']) );
             catch

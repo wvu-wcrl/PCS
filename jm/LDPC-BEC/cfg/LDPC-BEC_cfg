@@ -10,7 +10,7 @@ CodeRoot = <user_home>/cml
 JobQueueRoot = <user_home>/Projects/LDPC-BEC
 
 % Name and full path of project-specific worker function.
-FunctionName = BECTaskInit
+FunctionName = BECWorker
 % FunctionPath = [filesep 'rhome' filesep 'pcs' filesep 'projects' filesep 'EE567' filesep]
 FunctionPath = ['<user_home>' filesep 'EE567' filesep]
 

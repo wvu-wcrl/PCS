@@ -44,235 +44,235 @@ classdef PLBPJobManager < JobManager
             Username = obj.FindUsername(CurrentUser.UserPath);
             
             if( isfield(JobParamIn,'TaskType') && ~isempty(JobParamIn.TaskType) )
-            switch JobParamIn.TaskType
-                
-                case{'Model'}
-                    % Set the job StartTime. The StartTime of a Incremental Model-type job is when it starts preprocessing.
-                    JobInfo.StartTime = clock; 
-                    % [JobParam, PPSuccessFlag, PPErrorMsg] = obj.GetModelPreprocessedData(JobParamIn);
-                    [JobParam, PPSuccessFlag, PPErrorMsg] = GetModelPreprocessedData(JobParamIn);
-                   
-                   JobState = JobStateIn;
+                switch JobParamIn.TaskType
                     
-                    JobState.CompletedTasks = 0;
-                    JobState.GeneratedTasks = 0;
-                    
-                    if(isfield(JobParamIn,'ModelTask') && strcmp(JobParamIn.ModelTask, 'Identification') == 1)
+                    case{'Model'}
+                        % Set the job StartTime. The StartTime of a Incremental Model-type job is when it starts preprocessing.
+                        JobInfo.StartTime = clock;
+                        % [JobParam, PPSuccessFlag, PPErrorMsg] = obj.GetModelPreprocessedData(JobParamIn);
+                        [JobParam, PPSuccessFlag, PPErrorMsg] = GetModelPreprocessedData(JobParamIn);
                         
+                        JobState = JobStateIn;
                         
+                        JobState.CompletedTasks = 0;
+                        JobState.GeneratedTasks = 0;
+                        
+                        if(isfield(JobParamIn,'ModelTask') && strcmp(JobParamIn.ModelTask, 'Identification') == 1)
+                            
+                            
+                            if ismac
+                                ModelFileContent = load('/Users/siri/Dropbox/Research/Current/LBP/CLBP/LBP/RandomProjection/home/pcs/Model/Model.mat');
+                            else
+                                ModelFileContent = load('/home/pcs/projects/plbp/Model/Model.mat');
+                            end
+                            JobParam.TaskCount = 1;
+                            JobState.GeneratedTasks = 1;
+                            
+                            JobState.Model = ModelFileContent.JobState.Model;
+                            JobState.ClassID = ModelFileContent.JobState.ClassID;
+                            JobState.Filenames = ModelFileContent.JobState.Filenames;
+                            
+                            % Set the task StartTime.
+                            TaskInfo.StartTime = clock;
+                            
+                            [LBP_Pattern, TrainClassID, Filenames] = GetSubjectTemplates(JobParam.DataPath, JobParam.Mapping, JobParam.RandomProjection, JobParam.B, JobParam.R, JobParam.P);
+                            ind_cnt = size(LBP_Pattern,1);
+                            cnt = size(JobState.Model,1);
+                            
+                            JobState.Model((cnt+1) : (cnt+ind_cnt),:) = LBP_Pattern;
+                            JobState.ClassID((cnt+1) : (cnt+ind_cnt),:) = TrainClassID;
+                            JobState.Filenames((cnt+1) : (cnt+ind_cnt),:) = Filenames;
+                            
+                            % Set the task StopTime.
+                            TaskInfo.StopTime = clock;
+                            
+                            JobState.JobStatus = 'Done';
+                            JobState.TaskInfo.StartTime = TaskInfo.StartTime;
+                            JobState.TaskInfo.StopTime = TaskInfo.StopTime;
+                            JobState.JobInfo.StartTime = JobInfo.StartTime;
+                            
+                            PPSuccessFlag = 1;
+                            PPErrorMsg = 0;
+                            JobState.CompletedTasks = 1;
+                        end
+                        
+                        % Return if failure in data file processing.
+                        if PPSuccessFlag == 0
+                            return;
+                        end
+                        
+                    case{'Identification'}
+                        JobParamIn.TaskSize = 1180;
+                        
+                        % Add Data model to the job file for further processing.
+                        [JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, DataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
                         if ismac
                             ModelFileContent = load('/Users/siri/Dropbox/Research/Current/LBP/CLBP/LBP/RandomProjection/home/pcs/Model/Model.mat');
                         else
                             ModelFileContent = load('/home/pcs/projects/plbp/Model/Model.mat');
                         end
-                        JobParam.TaskCount = 1;
-                        JobState.GeneratedTasks = 1;
                         
-                        JobState.Model = ModelFileContent.JobState.Model;
-                        JobState.ClassID = ModelFileContent.JobState.ClassID;
-                        JobState.Filenames = ModelFileContent.JobState.Filenames;
+                        JobParamIn.Model = ModelFileContent.JobState.Model;
+                        JobParamIn.ClassID = ModelFileContent.JobState.ClassID;
+                        JobParamIn.Filenames = ModelFileContent.JobState.Filenames;
+                        JobParamIn.DataImagePath = fullfile(DataDir, JobParamIn.DataFile);
+                        
+                        JobStateIn.Model = ModelFileContent.JobState.Model;
+                        JobStateIn.ClassID = ModelFileContent.JobState.ClassID;
+                        JobStateIn.Filenames = ModelFileContent.JobState.Filenames;
+                        JobParamIn.Mapping = ModelFileContent.JobParam.Mapping;
+                        
+                        TemplateCount = size(JobParamIn.Model, 1);
+                        if mod(TemplateCount, JobParamIn.TaskSize) == 0
+                            JobParamIn.TaskCount = (TemplateCount/JobParamIn.TaskSize);
+                        else
+                            JobParamIn.TaskCount = floor(TemplateCount/JobParamIn.TaskSize) + 1;
+                        end
+                        
+                        if( isfield(JobParamIn,'NoJMDataPreProcess') && JobParamIn.NoJMDataPreProcess==1 )
+                            % if JobParamIn.TaskCount==1
+                            JobParam = JobParamIn;
+                            PPSuccessFlag = 1;
+                            PPErrorMsg = '';
+                        else
+                            %   [JobParam, PPSuccessFlag, PPErrorMsg] = obj.GetPreprocessedData(JobParamIn);
+                            [JobParam, PPSuccessFlag, PPErrorMsg] = GetPreprocessedData(JobParamIn);
+                        end
+                        
+                        % Return if failure in data file processing.
+                        if PPSuccessFlag == 0,
+                            JobState = JobStateIn;
+                            return;
+                        else
+                            JobState = JobStateIn;
+                        end
+                        JobState.CompletedTasks = 0;
+                        JobState.GeneratedTasks = 0;
+                        
+                    case{'Verification'}
+                        % Set the job StartTime. The StartTime of a Verification-type job is when it starts preprocessing.
+                        JobInfo.StartTime = clock;
+                        
+                        JobParamIn.TaskSize = 50;
+                        
+                        % Add Data model to the job file for further processing.
+                        [JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, DataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
+                        if ismac
+                            ModelFileContent = load('/Users/siri/Dropbox/Research/Current/LBP/CLBP/LBP/RandomProjection/home/pcs/Model/Model.mat');
+                        else
+                            ModelFileContent = load('/home/pcs/projects/plbp/Model/Model.mat');
+                        end
+                        
+                        JobParamIn.Model = ModelFileContent.JobState.Model;
+                        JobParamIn.ClassID = ModelFileContent.JobState.ClassID;
+                        JobParamIn.Filenames = ModelFileContent.JobState.Filenames;
+                        JobParamIn.DataImagePath = fullfile(DataDir, JobParamIn.DataFile);
+                        
+                        JobParamIn.TestClassID = str2num(JobParamIn.TestClassID);
+                        
+                        JobStateIn.Model = ModelFileContent.JobState.Model;
+                        JobStateIn.ClassID = ModelFileContent.JobState.ClassID;
+                        JobStateIn.Filenames = ModelFileContent.JobState.Filenames;
+                        JobParamIn.Mapping = ModelFileContent.JobParam.Mapping;
+                        
+                        % [JobParam, PPSuccessFlag, PPErrorMsg] = obj.GetPreprocessedData(JobParamIn);
+                        [JobParam, PPSuccessFlag, PPErrorMsg] = GetPreprocessedData(JobParamIn);
+                        
+                        % Return if failure in data file processing.
+                        if PPSuccessFlag == 0,
+                            JobState = JobStateIn;
+                            return;
+                        else
+                            JobState = JobStateIn;
+                        end
+                        JobState.CompletedTasks = 0;
+                        JobState.GeneratedTasks = 0;
+                        
+                        Counter = 1;
+                        Msg = sprintf( 'Generating %d NEW TASK files corresponding to JOB %s of user %s and RUNNING them locally by the JOB MANAGER at %s.\n\n',...
+                            Counter, JobName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
+                        PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
+                        ClaimedSubject = find(JobParam.ClassID==JobParam.TestClassID);
+                        
+                        %                     JobState.TestTemplate = obj.GetTestTemplate(JobParam.DataImagePath, JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, CurrentUser.FunctionPath);
+                        %                     JobState.TestTemplate = GetTestTemplate(JobParam.DataImagePath, JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, CurrentUser.FunctionPath);
+                        %                     JobState.TrainModel = JobParam.Model(ClaimedSubject,:);
+                        %                     JobState.TrainClassID = repmat(JobParam.TestClassID, size(ClaimedSubject,1), 1);
+                        %                     JobState.TrainFilenames = JobParam.Filenames(ClaimedSubject,:);
+                        %                     JobState.TestClassID = JobParam.TestClassID;
+                        
+                        TaskMaxRunTime = 10;
+                        NumNewTasks = JobParam.TaskCount;
+                        CurrentUser.MaxRunTime = 10;
+                        CurrentUser.FunctionName = 'EuclideanDistance';
+                        
+                        TaskInputParam.TrainModel = JobParam.Model(ClaimedSubject,:);
+                        TaskInputParam.ClassID = repmat(JobParam.TestClassID, size(ClaimedSubject,1), 1);
+                        TaskInputParam.Filenames = JobParam.Filenames(ClaimedSubject,:);
+                        % TaskInputParam.TestTemplate = obj.GetTestTemplate(JobParam.DataImagePath, JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, CurrentUser.FunctionPath);
+                        TaskInputParam.TestTemplate = GetTestTemplate(JobParam.DataImagePath, JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, CurrentUser.FunctionPath);
+                        TaskInputParam.TestClassID = JobParam.TestClassID;
                         
                         % Set the task StartTime.
                         TaskInfo.StartTime = clock;
-                        
-                        [LBP_Pattern, TrainClassID, Filenames] = GetSubjectTemplates(JobParam.DataPath, JobParam.Mapping, JobParam.RandomProjection, JobParam.B, JobParam.R, JobParam.P);   
-                        ind_cnt = size(LBP_Pattern,1);
-                        cnt = size(JobState.Model,1);
-                        
-                        JobState.Model((cnt+1) : (cnt+ind_cnt),:) = LBP_Pattern;
-                        JobState.ClassID((cnt+1) : (cnt+ind_cnt),:) = TrainClassID;
-                        JobState.Filenames((cnt+1) : (cnt+ind_cnt),:) = Filenames;
-                        
+                        CurDir = pwd;
+                        if ismac
+                            cd(CurrentUser.FunctionPath);
+                        else
+                            temp_len = size(CurrentUser.FunctionPath, 2);
+                            TempFuncPath = ['/' CurrentUser.FunctionPath(3:temp_len)];
+                            cd(TempFuncPath);
+                        end
+                        TaskState = EuclideanDistance(TaskInputParam);
+                        cd(CurDir);
                         % Set the task StopTime.
                         TaskInfo.StopTime = clock;
+                        
+                        Count = JobState.CompletedTasks + 1;
+                        JobState.CompletedTasks = Count;
+                        if JobState.CompletedTasks >= 1
+                            cnt = size(TaskState.Distance, 1);
+                            if ~isfield(JobState, 'G2TDist')
+                                p_cnt = 0;
+                            else
+                                p_cnt = size(JobState.G2TDist, 1);
+                            end
+                            
+                            JobState.G2TDist((p_cnt+1):(p_cnt+cnt),:) = TaskState.Distance;
+                            JobState.G2TClassID((p_cnt+1):(p_cnt+cnt),:) = TaskInputParam.ClassID;
+                            JobState.G2TFilenames((p_cnt+1):(p_cnt+cnt),:) = TaskInputParam.Filenames(1:cnt,:);
+                            
+                            [JobState.Distance(Count,:), index] = min(TaskState.Distance);   % Find Nearest Neighbor.
+                            JobState.MatchClassID(Count,:) = TaskInputParam.ClassID(index);
+                            JobState.MatchFilename(Count,:) = TaskInputParam.Filenames(index);
+                        end
+                        
+                        if JobState.CompletedTasks >= JobParam.TaskCount
+                            [JobState.MinDist, ind] = min(JobState.Distance);
+                            JobState.MinDist_ClassID = JobState.MatchClassID(ind);
+                            JobState.MinDist_Filename = JobState.MatchFilename(ind);
+                            
+                            if JobParam.TestClassID == JobState.MinDist_ClassID
+                                % if strcmp(JobParam.TestClassID, num2str(JobState.MinDist_ClassID))
+                                JobState.Match = 'Yes';
+                            else
+                                JobState.Match = 'No';
+                            end
+                        end
                         
                         JobState.JobStatus = 'Done';
                         JobState.TaskInfo.StartTime = TaskInfo.StartTime;
                         JobState.TaskInfo.StopTime = TaskInfo.StopTime;
                         JobState.JobInfo.StartTime = JobInfo.StartTime;
                         
-                        PPSuccessFlag = 1;
-                        PPErrorMsg = 0;
-                        JobState.CompletedTasks = 1;
-                    end  
-                    
-                    % Return if failure in data file processing.
-                    if PPSuccessFlag == 0
-                        return;
-                    end       
- 
-                case{'Identification'}
-                    JobParamIn.TaskSize = 1180;
-                    
-                    % Add Data model to the job file for further processing.
-                    [JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, DataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
-                    if ismac
-                        ModelFileContent = load('/Users/siri/Dropbox/Research/Current/LBP/CLBP/LBP/RandomProjection/home/pcs/Model/Model.mat');
-                    else
-                        ModelFileContent = load('/home/pcs/projects/plbp/Model/Model.mat');
-                    end
-                    
-                    JobParamIn.Model = ModelFileContent.JobState.Model;
-                    JobParamIn.ClassID = ModelFileContent.JobState.ClassID;
-                    JobParamIn.Filenames = ModelFileContent.JobState.Filenames;
-                    JobParamIn.DataImagePath = fullfile(DataDir, JobParamIn.DataFile);
-                    
-                    JobStateIn.Model = ModelFileContent.JobState.Model;
-                    JobStateIn.ClassID = ModelFileContent.JobState.ClassID;
-                    JobStateIn.Filenames = ModelFileContent.JobState.Filenames;
-                    JobParamIn.Mapping = ModelFileContent.JobParam.Mapping;
-                    
-                    TemplateCount = size(JobParamIn.Model, 1);
-                    if mod(TemplateCount, JobParamIn.TaskSize) == 0
-                        JobParamIn.TaskCount = (TemplateCount/JobParamIn.TaskSize);
-                    else
-                        JobParamIn.TaskCount = floor(TemplateCount/JobParamIn.TaskSize) + 1;
-                    end
-                    
-                    if( isfield(JobParamIn,'NoJMDataPreProcess') && JobParamIn.NoJMDataPreProcess==1 )
-                    % if JobParamIn.TaskCount==1
-                        JobParam = JobParamIn;
-                        PPSuccessFlag = 1;
-                        PPErrorMsg = '';
-                    else
-                    %   [JobParam, PPSuccessFlag, PPErrorMsg] = obj.GetPreprocessedData(JobParamIn);
-                    [JobParam, PPSuccessFlag, PPErrorMsg] = GetPreprocessedData(JobParamIn);
-                    end
-                    
-                    % Return if failure in data file processing.
-                    if PPSuccessFlag == 0,
-                        JobState = JobStateIn;
-                        return;
-                    else
-                        JobState = JobStateIn;
-                    end
-                    JobState.CompletedTasks = 0;
-                    JobState.GeneratedTasks = 0;
-                    
-                case{'Verification'}
-                    % Set the job StartTime. The StartTime of a Verification-type job is when it starts preprocessing.
-                    JobInfo.StartTime = clock;
-                    
-                    JobParamIn.TaskSize = 50;
-                    
-                    % Add Data model to the job file for further processing.
-                    [JobInDir, JobRunningDir, JobOutDir, JobFailedDir, SuspendedDir, TempDir, DataDir, FiguresDir] = obj.SetPaths(CurrentUser.JobQueueRoot);
-                    if ismac
-                        ModelFileContent = load('/Users/siri/Dropbox/Research/Current/LBP/CLBP/LBP/RandomProjection/home/pcs/Model/Model.mat');
-                    else
-                        ModelFileContent = load('/home/pcs/projects/plbp/Model/Model.mat');
-                    end
-                    
-                    JobParamIn.Model = ModelFileContent.JobState.Model;
-                    JobParamIn.ClassID = ModelFileContent.JobState.ClassID;
-                    JobParamIn.Filenames = ModelFileContent.JobState.Filenames;
-                    JobParamIn.DataImagePath = fullfile(DataDir, JobParamIn.DataFile);
-                    
-                    JobParamIn.TestClassID = str2num(JobParamIn.TestClassID);
-                    
-                    JobStateIn.Model = ModelFileContent.JobState.Model;
-                    JobStateIn.ClassID = ModelFileContent.JobState.ClassID;
-                    JobStateIn.Filenames = ModelFileContent.JobState.Filenames;
-                    JobParamIn.Mapping = ModelFileContent.JobParam.Mapping;
-                    
-                    % [JobParam, PPSuccessFlag, PPErrorMsg] = obj.GetPreprocessedData(JobParamIn);
-                    [JobParam, PPSuccessFlag, PPErrorMsg] = GetPreprocessedData(JobParamIn);
-                    
-                    % Return if failure in data file processing.
-                    if PPSuccessFlag == 0,
-                        JobState = JobStateIn;
-                        return;
-                    else
-                        JobState = JobStateIn;
-                    end
-                    JobState.CompletedTasks = 0;
-                    JobState.GeneratedTasks = 0;
-                    
-                    Counter = 1;
-                    Msg = sprintf( 'Generating %d NEW TASK files corresponding to JOB %s of user %s and RUNNING them locally by the JOB MANAGER at %s.\n\n',...
-                        Counter, JobName(1:end-4), Username, datestr(clock, 'dddd, dd-mmm-yyyy HH:MM:SS PM') );
-                    PrintOut(Msg, 0, obj.JobManagerParam.LogFileName);
-                    ClaimedSubject = find(JobParam.ClassID==JobParam.TestClassID);
-                    
-%                     JobState.TestTemplate = obj.GetTestTemplate(JobParam.DataImagePath, JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, CurrentUser.FunctionPath);
-%                     JobState.TestTemplate = GetTestTemplate(JobParam.DataImagePath, JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, CurrentUser.FunctionPath);
-%                     JobState.TrainModel = JobParam.Model(ClaimedSubject,:);
-%                     JobState.TrainClassID = repmat(JobParam.TestClassID, size(ClaimedSubject,1), 1);
-%                     JobState.TrainFilenames = JobParam.Filenames(ClaimedSubject,:);
-%                     JobState.TestClassID = JobParam.TestClassID;
-    
-                    TaskMaxRunTime = 10;
-                    NumNewTasks = JobParam.TaskCount;
-                    CurrentUser.MaxRunTime = 10;
-                    CurrentUser.FunctionName = 'EuclideanDistance';
-                    
-                    TaskInputParam.TrainModel = JobParam.Model(ClaimedSubject,:);
-                    TaskInputParam.ClassID = repmat(JobParam.TestClassID, size(ClaimedSubject,1), 1);
-                    TaskInputParam.Filenames = JobParam.Filenames(ClaimedSubject,:);
-                    % TaskInputParam.TestTemplate = obj.GetTestTemplate(JobParam.DataImagePath, JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, CurrentUser.FunctionPath);
-                    TaskInputParam.TestTemplate = GetTestTemplate(JobParam.DataImagePath, JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, CurrentUser.FunctionPath);
-                    TaskInputParam.TestClassID = JobParam.TestClassID;
-                    
-                    % Set the task StartTime.
-                    TaskInfo.StartTime = clock;
-                    CurDir = pwd;
-                    if ismac
-                        cd(CurrentUser.FunctionPath);
-                    else
-                        temp_len = size(CurrentUser.FunctionPath, 2);
-                        TempFuncPath = ['/' CurrentUser.FunctionPath(3:temp_len)];
-                        cd(TempFuncPath);
-                    end
-                    TaskState = EuclideanDistance(TaskInputParam);
-                    cd(CurDir);
-                    % Set the task StopTime.
-                    TaskInfo.StopTime = clock;
-                    
-                    Count = JobState.CompletedTasks + 1;
-                    JobState.CompletedTasks = Count;
-                    if JobState.CompletedTasks >= 1
-                        cnt = size(TaskState.Distance, 1);
-                        if ~isfield(JobState, 'G2TDist')
-                            p_cnt = 0;
-                        else
-                            p_cnt = size(JobState.G2TDist, 1);
-                        end
-                        
-                        JobState.G2TDist((p_cnt+1):(p_cnt+cnt),:) = TaskState.Distance;
-                        JobState.G2TClassID((p_cnt+1):(p_cnt+cnt),:) = TaskInputParam.ClassID;
-                        JobState.G2TFilenames((p_cnt+1):(p_cnt+cnt),:) = TaskInputParam.Filenames(1:cnt,:);
-                        
-                        [JobState.Distance(Count,:), index] = min(TaskState.Distance);   % Find Nearest Neighbor.
-                        JobState.MatchClassID(Count,:) = TaskInputParam.ClassID(index);
-                        JobState.MatchFilename(Count,:) = TaskInputParam.Filenames(index);
-                    end
-                    
-                    if JobState.CompletedTasks >= JobParam.TaskCount
-                        [JobState.MinDist, ind] = min(JobState.Distance);
-                        JobState.MinDist_ClassID = JobState.MatchClassID(ind);
-                        JobState.MinDist_Filename = JobState.MatchFilename(ind);
-                        
-                        if JobParam.TestClassID == JobState.MinDist_ClassID
-                        % if strcmp(JobParam.TestClassID, num2str(JobState.MinDist_ClassID))
-                            JobState.Match = 'Yes';
-                        else
-                            JobState.Match = 'No';
-                        end
-                    end
-                    
-                    JobState.JobStatus = 'Done';
-                    JobState.TaskInfo.StartTime = TaskInfo.StartTime;
-                    JobState.TaskInfo.StopTime = TaskInfo.StopTime;
-                    JobState.JobInfo.StartTime = JobInfo.StartTime;
-                    
-%                     TaskInputParam = obj.CalcTaskInputParam(JobParam, JobState, NumNewTasks);
-%                     if ~isempty(TaskInputParam)
-%                         % save new task file.
-%                         CurrentUser.TaskID = obj.SaveTaskInFiles(TaskInputParam, CurrentUser, JobName, TaskMaxRunTime);
-%                         JobState.GeneratedTasks = JobState.GeneratedTasks + 1;
-%                     end
-            end
-            
+                        %                     TaskInputParam = obj.CalcTaskInputParam(JobParam, JobState, NumNewTasks);
+                        %                     if ~isempty(TaskInputParam)
+                        %                         % save new task file.
+                        %                         CurrentUser.TaskID = obj.SaveTaskInFiles(TaskInputParam, CurrentUser, JobName, TaskMaxRunTime);
+                        %                         JobState.GeneratedTasks = JobState.GeneratedTasks + 1;
+                        %                     end
+                end
+                
             else
                 JobParam = JobParamIn;
                 JobState = JobStateIn;
@@ -359,11 +359,11 @@ classdef PLBPJobManager < JobManager
                             TemplateCount = size(JobParam.Model, 1);
                             
                             if ~( isfield(JobParam,'NoJMDataPreProcess') && JobParam.NoJMDataPreProcess==1 )
-                            % if JobParam.TaskCount~=1
-                            %     JobState.TestTemplate = obj.GetTestTemplate(JobParam.DataImagePath, ...
-                            %         JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, UserParam.FunctionPath);
-                            JobState.TestTemplate = GetTestTemplate(JobParam.DataImagePath, ...
-                                JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, UserParam.FunctionPath);
+                                % if JobParam.TaskCount~=1
+                                %     JobState.TestTemplate = obj.GetTestTemplate(JobParam.DataImagePath, ...
+                                %         JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, UserParam.FunctionPath);
+                                JobState.TestTemplate = GetTestTemplate(JobParam.DataImagePath, ...
+                                    JobParam.RandomProjection, JobParam.B, JobParam.Mapping, JobParam.R, JobParam.P, UserParam.FunctionPath);
                             end
                             
                             TaskMaxRunTime = 10;

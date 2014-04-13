@@ -34,7 +34,7 @@
 %       is equal to histogram of I2.
 %
 %  Version 0.3.2
-%  Authors: Marko Heikkilï¿½ and Timo Ahonen
+%  Authors: Marko Heikkilïa and Timo Ahonen
 %
 %  Changelog
 %       Version 0.3.2: A bug fix to enable using mappings together with a predefined spoints array.
