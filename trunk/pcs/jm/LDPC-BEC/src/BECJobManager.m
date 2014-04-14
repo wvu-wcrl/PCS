@@ -161,13 +161,25 @@ classdef BECJobManager < CodedModJobManager
             hold on, grid on, box on, set(gca,'FontSize',12)
             % set(gca,'FontSize',12, 'FontName','Times', 'FontWeight','normal')
             xlim([min(JobParam.Epsilon) max(JobParam.Epsilon)])
+            ylim([min(JobState.BER(end,:)) max(JobState.BER(end,:))])
             xlabel('Channel Erasure Probability (\epsilon_0)')
             ylabel('Bit Error Rate (BER)')
-            try
-                saveas( FigH, fullfile(FiguresDir, [JobName(1:end-4) '_Fig.pdf']) );
-            catch
-                saveas( FigH, fullfile(obj.JobManagerParam.TempJMDir, [JobName(1:end-4) '_Fig.pdf']) );
-                obj.MoveFile( fullfile(obj.JobManagerParam.TempJMDir, [JobName(1:end-4) '_Fig.pdf']), FiguresDir);
+            
+            FigH = [FigH figure];
+            semilogy(JobParam.Epsilon,JobState.FER(end,:),'-sb', 'LineWidth',1.5, 'MarkerSize',3)
+            hold on, grid on, box on, set(gca,'FontSize',12)
+            % set(gca,'FontSize',12, 'FontName','Times', 'FontWeight','normal')
+            xlim([min(JobParam.Epsilon) max(JobParam.Epsilon)])
+            ylim([min(JobState.FER(end,:)) max(JobState.FER(end,:))])
+            xlabel('Channel Erasure Probability (\epsilon_0)')
+            ylabel('Frame Error Rate (FER)')
+            for FH=1:length(FigH)
+                try
+                    saveas( FigH(FH), fullfile(FiguresDir, [JobName(1:end-4) '_Fig' num2str(FH) '.pdf']) );
+                catch
+                    saveas( FigH(FH), fullfile(obj.JobManagerParam.TempJMDir, [JobName(1:end-4) '_Fig' num2str(FH) '.pdf']) );
+                    obj.MoveFile( fullfile(obj.JobManagerParam.TempJMDir, [JobName(1:end-4) '_Fig' num2str(FH) '.pdf']), FiguresDir);
+                end
             end
         end
     end
