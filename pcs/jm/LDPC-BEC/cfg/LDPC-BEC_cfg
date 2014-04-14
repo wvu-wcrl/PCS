@@ -12,8 +12,8 @@ JobQueueRoot = <user_home>/Projects/LDPC-BEC
 
 % Name and full path of project-specific worker function.
 FunctionName = BECWorker
-% FunctionPath = [filesep 'rhome' filesep 'pcs' filesep 'projects' filesep 'EE567' filesep]
-FunctionPath = ['<user_home>' filesep 'EE567' filesep]
+FunctionPath = /rhome/pcs/projects/EE567/
+% FunctionPath = ['<user_home>' filesep 'EE567' filesep]
 
 
 
