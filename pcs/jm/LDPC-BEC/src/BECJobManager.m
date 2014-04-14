@@ -53,6 +53,27 @@ classdef BECJobManager < CodedModJobManager
             JobParam = JobParamIn;
             JobState = JobStateIn;
             
+            % Make sure that the number of MaxTrials and number of Epsilon points are the same.
+            if isfield( JobParam, 'MaxTrials' )
+                if isscalar( JobParam.MaxTrials )
+                    JobParam.MaxTrials = JobParam.MaxTrials * ones(size(JobParam.Epsilon));
+                elseif ( length( JobParam.MaxTrials ) ~= length( JobParam.Epsilon ) )
+                    SuccessFlag = 0;
+                    ErrorMsg = 'BECSimulation:MaxTrialsLength -- The number of MaxTrials must match the number of Epsilon points or it should be a scalar.';
+                    return;
+                end
+            end
+            % Make sure that the number of MaxFrameErrors and number of Epsilon points are the same.
+            if isfield( JobParam, 'MaxFrameErrors' )
+                if isscalar( JobParam.MaxFrameErrors )
+                    JobParam.MaxFrameErrors = JobParam.MaxFrameErrors * ones(size(JobParam.Epsilon));
+                elseif ( length( JobParam.MaxFrameErrors ) ~= length( JobParam.Epsilon ) )
+                    SuccessFlag = 0;
+                    ErrorMsg = 'BECSimulation:MaxFrameErrorsLength -- The number of MaxFrameErrors must match the number of Epsilon points or it should be a scalar.';
+                    return;
+                end
+            end
+            
             if( ~isfield(JobParam, 'HStructInfo') || isempty(JobParam.HStructInfo) )
                 JobParam.HStructInfo = obj.FindHInfo(JobParam.HStruct);
             end

@@ -571,7 +571,7 @@ classdef JobManager < handle
                                     % This is a method of KILLING a job.
                                     successJR = 0;
                                     if(TaskSuccess == 1)
-                                        ErrorMsg = sprintf( ['Type-TWO Error (Invalid/Nonexistent Running or Output Job Error):',...
+                                        ErrorMsg = sprintf( ['Type-TWO Error (Invalid/Nonexistent Running or Output Job Error): ',...
                                             'The corresponding job file %s of user %s could not be loaded/does not exist from/in JobRunning or JobOut directory.\n',...
                                             'All corresponding task files will be deleted from TaskIn and TaskOut directories.\n',...
                                             'Job files in JobRunning and JobOut directories should be .mat files containing two MATLAB structures named JobParam and JobState.'],...
@@ -644,8 +644,12 @@ classdef JobManager < handle
                                             JobInfo = obj.UpdateJobInfo(JobInfo, 'ErrorType', 2, 'ErrorMsg', Msg);
                                             
                                             % Destroy/Delete any other input and output task files associated with this job from TaskIn and TaskOut directories.
-                                            obj.DeleteFile( fullfile(TaskInDir, [obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) );
-                                            obj.DeleteFile( fullfile(TaskOutDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) );
+                                            if ~isempty( dir( fullfile(TaskInDir, [obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) ) )
+                                                obj.DeleteFile( fullfile(TaskInDir, [obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) );
+                                            end
+                                            if ~isempty( dir( fullfile(TaskOutDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) ) )
+                                                obj.DeleteFile( fullfile(TaskOutDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) );
+                                            end
                                         end
                                     end
                                     
@@ -808,7 +812,9 @@ classdef JobManager < handle
                                                 CurrentUserUsageInfo.UserUsage(3,UserAllJobIDs == JobInfo.JobID) = StopTime;
                                                 
                                                 % More Cleanup Needed: Any tasks associated with this job should be deleted from TaskIn directory.
-                                                obj.DeleteFile( fullfile(TaskInDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) );
+                                                if ~isempty( dir( fullfile(TaskInDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) ) )
+                                                    obj.DeleteFile( fullfile(TaskInDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) );
+                                                end
                                                 
                                                 try
                                                     save( fullfile(JobOutDir,JobName), 'JobParam', 'JobState', 'JobInfo' );
@@ -842,7 +848,9 @@ classdef JobManager < handle
                                             
                                         elseif( ~isempty(JobDirectory) && strcmpi(JobDirectory,JobOutDir) ) % The job is loaded from JobOut directory.
                                             % Cleanup: Any tasks associated with this job should be deleted from TaskIn directory.
-                                            obj.DeleteFile( fullfile(TaskInDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) );
+                                            if ~isempty( dir(fullfile(TaskInDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat'])) )
+                                                obj.DeleteFile( fullfile(TaskInDir,[obj.JobManagerParam.ProjectName '_' JobName(1:end-4) '_Task_*.mat']) );
+                                            end
                                             
                                             % Save the updated final result for the job in JobOut directory.
                                             try
