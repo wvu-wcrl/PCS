@@ -181,8 +181,12 @@ classdef BECJobManager < CodedModJobManager
             semilogy(JobParam.Epsilon,JobState.BER(end,:),'-sb', 'LineWidth',1.5, 'MarkerSize',3)
             hold on, grid on, box on, set(gca,'FontSize',12)
             % set(gca,'FontSize',12, 'FontName','Times', 'FontWeight','normal')
-            xlim([min(JobParam.Epsilon) max(JobParam.Epsilon)])
-            ylim([min(JobState.BER(end,:)) max(JobState.BER(end,:))])
+            if max(JobParam.Epsilon) > min(JobParam.Epsilon)
+                xlim([min(JobParam.Epsilon) max(JobParam.Epsilon)])
+            end
+            if max(JobState.BER(end,:)) > min(JobState.BER(end,:))
+                ylim([min(JobState.BER(end,:)) max(JobState.BER(end,:))])
+            end
             xlabel('Channel Erasure Probability (\epsilon_0)')
             ylabel('Bit Error Rate (BER)')
             
@@ -190,8 +194,12 @@ classdef BECJobManager < CodedModJobManager
             semilogy(JobParam.Epsilon,JobState.FER(end,:),'-sb', 'LineWidth',1.5, 'MarkerSize',3)
             hold on, grid on, box on, set(gca,'FontSize',12)
             % set(gca,'FontSize',12, 'FontName','Times', 'FontWeight','normal')
-            xlim([min(JobParam.Epsilon) max(JobParam.Epsilon)])
-            ylim([min(JobState.FER(end,:)) max(JobState.FER(end,:))])
+            if max(JobParam.Epsilon) > min(JobParam.Epsilon)
+                xlim([min(JobParam.Epsilon) max(JobParam.Epsilon)])
+            end
+            if max(JobState.FER(end,:)) > min(JobState.FER(end,:))
+                ylim([min(JobState.FER(end,:)) max(JobState.FER(end,:))])
+            end
             xlabel('Channel Erasure Probability (\epsilon_0)')
             ylabel('Frame Error Rate (FER)')
             for FH=1:length(FigH)
