@@ -5,7 +5,7 @@ ProjectName = LDPC-BEC
 
 % Root directory in which the job manager looks for users of the system.
 % HomeRoot = pwd
-% HomeRoot = /home
+HomeRoot = /home
 HomeRoot = /home/web_users
 
 % Temporary directory in which the job manager saves intermediate files before moving them to their ultimate destination.

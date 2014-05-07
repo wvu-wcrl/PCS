@@ -7,7 +7,7 @@ CodeRoot = /rhome/pcs/projects/EE567
 
 % Name and FULL path to user's job queue root directory.
 % JobIn, JobRunning, and JobOut directories are under this full path.
-JobQueueRoot = <user_home>/Projects/LDPC-BEC
+JobQueueRoot = <user_lhome>/Projects/LDPC-BEC
 % JobQueueRoot = /home/mfanaei/Projects/LDPC-BEC
 
 % Name and full path of project-specific worker function.
