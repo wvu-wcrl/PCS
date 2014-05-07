@@ -1,0 +1,12 @@
+Specification of user directories under
+  [path]
+configuration section.
+
+
+
+Each key 'user' specifies the root of a directory containing user directories.
+Multiple 'user' keys may be specified.
+
+=Example=
+user = /home
+user = /home/web_users
