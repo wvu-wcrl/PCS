@@ -5,7 +5,7 @@
 % CodeRoot = C:\Material\Dropbox\Research\Current\LBP\CLBP\LBP\RandomProjection\code
 
 % Name and FULL path to user's job queue root directory.
-  JobQueueRoot = <user_home>/Projects/plbp
+  JobQueueRoot = <user_lhome>/Projects/plbp
 
 % Name and full path of project-specific worker function.
 % Default is to use plbp stored on cluster under pcs user account.

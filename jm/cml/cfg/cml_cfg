@@ -1,15 +1,15 @@
 [GeneralSpec]
 
 % Name and fuLL path to user's project code directory.
-CodeRoot = <user_home>/cml
+CodeRoot = <user_lhome>/cml
 % CodeRoot = /home/pcs/projects/cml
 
 % Name and FULL path to user's job queue root directory.
-JobQueueRoot = <user_home>/Projects/cml
+JobQueueRoot = <user_lhome>/Projects/cml
 
 % Name and full path of project-specific worker function.
 % Default is to use CML stored on cluster under pcs user account.
-% FunctionPath = ['<user_home>' filesep 'cml' filesep 'mat' filesep]
+% FunctionPath = ['<user_rhome>' filesep 'cml' filesep 'mat' filesep]
 FunctionName = CmlWorker
 FunctionPath = /rhome/pcs/projects/cml/mat
 
