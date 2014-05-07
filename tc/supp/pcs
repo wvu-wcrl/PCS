@@ -5,7 +5,7 @@
 # 
 #
 # Command syntax
-# > pcs {short|long|testing} {start|stop|restart}
+# > pcs {short|long|testing} {start|stop|restart} {job manager}
 #
 # where 
 #   Argument 1     Queue Type
@@ -268,7 +268,7 @@ done
 start_workers(){
 WC=$1
 CFG=$2
-screen -S $WC -m -d matlab -r "cd $PATH_WC; cwcobj = startup_wc('$CFG'); cwcobj.cSta"
+screen -S $WC -m -d matlab -nosplash -nodesktop -r "cd $PATH_WC; cwcobj = startup_wc('$CFG'); cwcobj.cSta"
 }
 
 
@@ -309,7 +309,7 @@ TC=$1
 CFG=$2
 ss=$3
 
-screen -S $TC -m -d matlab -r "cd $PATH_TC;tc_startup('$CFG','$ss')"
+screen -S $TC -m -d matlab -nosplash -nodesktop -r "cd $PATH_TC;tc_startup('$CFG','$ss')"
 }
 
 
