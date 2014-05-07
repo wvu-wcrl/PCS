@@ -13,40 +13,46 @@
 
 
 # process command line arguments
-HD=$1  # home directory
-UN=$2  # username
+DONTCARE=$1  # DEPRECATED
+
+UN=$2           # username
+LHD=/home/$UN   # local home directory
+RHD=/rhome/$UN  # remote home directory
+
 PN=$3  # project name
 
 
 # create project directory structure                                                                          
-sudo rm -rf $HD/Projects
-sudo mkdir -p $HD/Projects
-sudo mkdir -p $HD/Projects/$PN/Figures
-sudo mkdir $HD/Projects/$PN/JobIn
-sudo mkdir $HD/Projects/$PN/JobRunning                                                                        
-sudo mkdir $HD/Projects/$PN/JobOut                                                                            
-sudo mkdir $HD/Projects/$PN/Data
-sudo mkdir $HD/Projects/$PN/Data/Jm
-sudo mkdir $HD/Projects/$PN/Archive
-sudo mkdir $HD/Projects/$PN/Suspended                                                                                                  
+sudo mkdir -p $LHD/Projects
+sudo mkdir -p $LHD/Projects/$PN/Figures
+sudo mkdir $LHD/Projects/$PN/JobIn
+sudo mkdir $LHD/Projects/$PN/JobRunning                                                                        
+sudo mkdir $LHD/Projects/$PN/JobOut
+sudo mkdir $LHD/Projects/$PN/JobFailed                                                                            
+sudo mkdir $LHD/Projects/$PN/Data
+sudo mkdir $LHD/Projects/$PN/Data/Jm
+sudo mkdir $LHD/Projects/$PN/Archive
+sudo mkdir $LHD/Projects/$PN/Suspended                                                                                                  
 
 # change ownership and permissions of project directory structure
-sudo chown -R $UN:pcs $HD/Projects
-sudo chmod -R g+rwx $HD/Projects
+sudo chown -R $UN:pcs $LHD/Projects
+sudo chmod -R g+rwx $LHD/Projects
                                                                                                                                                   
 # set paths to configuration files 
 CFN=$PN\_cfg                       # config filename
 DCP=/home/pcs/jm/$PN/cfg/$CFN      # default configuration file path
-UCP=$HD/$CFN                       # user configuration file path
-
+UCLP=$LHD/$CFN                     # user configuration local file path
+UCRP=$RHD/$CFN                     # user configuration remote file path
 
 # copy default configuration file to user home directory
-sudo cp $DCP $UCP
+sudo cp $DCP $UCLP
 
 
 # populate configuration file fields with default values                                                      
-sudo sed -i "s#<user\_home>#$HD#" $UCP
-sudo chown -R $UN:$UN $UCP
+sudo sed -i "s#<user\_lhome>#$LHD#" $UCLP     # user home directory local path
+sudo sed -i "s#<user\_rhome>#$RHD#" $UCLP     # user home directory remote path
+
+sudo chown -R $UN:$UN $UCLP
 
 
 #     This library is free software;                                                                          
