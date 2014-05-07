@@ -136,10 +136,10 @@ do
     
 # count number of workers up for this node and queue
     w_up=`ssh ${node[k]} "ps aux" |grep -i matlab |grep -i $queue |wc |awk '{print $1}'`
-    
+
 # number of workers down is difference between total and up
     w_diff[k]=$((${nwrk[k]}-$w_up))
-    
+
 #w_diff - array of integers indicating how many workers are down on each
 #          node in $node
 done
