@@ -8,7 +8,7 @@
 #  jm_<name>
 # where <name> is the job manager name.
 # This name is passed to the pcs startup script to specify
-#  job manager startup.
+# job manager startup.
 #
 #  Example
 #  Start the job manager having name "cml" in the short queue
@@ -27,6 +27,8 @@
 # Available job managers
 #  cml
 #  ee561
+#  PLBP
+#  BEC (simulation of binary erasure channel for EE567 Coding Theory course project)
 
 
 
@@ -36,6 +38,16 @@ QCfg=$1
 
 PATH_JM=/home/pcs/jm/cml/src                    # path to CML JM startup script
 JM_CFG=/home/pcs/jm/cml/cfg/CmlJobManager_cfg   # path to configuration file
+
+screen -S cml_$Q -m -d matlab -r "cd $PATH_JM; cml_jm_startup('$JM_CFG','$QCfg')"
+}
+
+# CML job manager - configured for testing
+jm_cml_test(){
+QCfg=$1
+
+PATH_JM=/home/pcs/jm/cml/src                    # path to CML JM startup script
+JM_CFG=/home/pcs/jm/cml/cfg/CmlJobManager_test_cfg   # path to configuration file
 
 screen -S cml_$Q -m -d matlab -r "cd $PATH_JM; cml_jm_startup('$JM_CFG','$QCfg')"
 }
@@ -62,4 +74,16 @@ PATH_JM=/home/pcs/jm/plbp/src                     # path to PLBP JM startup scri
 JM_CFG=/home/pcs/jm/plbp/cfg/PlbpJobManager_cfg   # path to configuration file
 
 screen -S plbp_$Q -m -d matlab -r "cd $PATH_JM; plbp_jm_startup('$JM_CFG','$QCfg')"
+}
+
+
+
+# BEC job manager
+jm_BEC(){
+QCfg=$1
+
+PATH_JM=/home/pcs/jm/LDPC-BEC/src               	  # path to BEC JM startup script
+JM_CFG=/home/pcs/jm/LDPC-BEC/cfg/LDPC-BECJobManager_cfg   # path to configuration file
+
+screen -S BEC_$Q -m -d matlab -r "cd $PATH_JM; LDPCBEC_jm_startup('$JM_CFG','$QCfg')"
 }
