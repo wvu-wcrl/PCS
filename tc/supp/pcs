@@ -65,49 +65,49 @@ source jms
 ### functions for testing inputs ######
 # echo input error and return
 eie_ret(){
-echo "Improper input arguments."
-echo "Usage:"
-echo "pcs {short|long|testing} {stop|start|restart} {job manager(s)}"
-echo 
-echo "Example: Start short queue and CML Job Manager"
-echo " > pcs short start cml "
+    echo "Improper input arguments."
+    echo "Usage:"
+    echo "pcs {short|long|testing} {stop|start|restart} {job manager(s)}"
+    echo 
+    echo "Example: Start short queue and CML Job Manager"
+    echo " > pcs short start cml "
 }
 
 # check input action
 cia(){
-case $1 in
-start)
-echo "start"
-;;
-stop)
-echo "stop"
-;;
-restart)
-echo "restart"
-;;
-*)
-echo "error"
-;;
-esac
+    case $1 in
+	start)
+	    echo "start"
+	    ;;
+	stop)
+	    echo "stop"
+	    ;;
+	restart)
+	    echo "restart"
+	    ;;
+	*)
+	    echo "error"
+	    ;;
+    esac
 }
 
 
 # check queue parameter
 cq(){
-case $1 in
-short)
-echo "short"
-;;
-long)
-echo "long"
-;;
-testing)
-echo "testing"
-;;
-*)
-echo "error"
-;;
-esac
+    case $1 in
+	short)
+	    echo "short"
+	    ;;
+	long)
+	    echo "long"
+	    ;;
+	testing)
+	    echo "testing"
+	    ;;
+	*)
+	    echo "error"
+	    ;;
+    esac
 }
 #####################################
 
@@ -121,8 +121,8 @@ esac
 
 if [ $# -lt 2 ]
 then
-eie_ret
-exit 1
+    eie_ret
+    exit 1
 fi
 
 
@@ -139,8 +139,8 @@ IA=$(cia $2)  # read input argument
 n_jms=0
 for i in ${@:3}
 do
-JMS[$n_jms]=$i
-n_jms=$n_jms+1
+    JMS[$n_jms]=$i
+    n_jms=$n_jms+1
 done
 # now have n_jms and JMS
 ##########################
@@ -175,7 +175,7 @@ done
 
 ### paths to daemons can be hard coded
 ## paths
-                   
+
 # task and worker controllers
 PATH_TC=/home/pcs/tc/ctc/src
 PATH_WC=/home/pcs/tc/cwc/src
@@ -192,48 +192,48 @@ CFGP=/home/pcs/tc/cfg
 
 
 # configuration files                                                                                                                             
-scfg='pcs_short_384.cfg'   # short queue
-lcfg='pcs_long_384.cfg'    # long queue
-tcfg='pcs_test.cfg'        # testing queue
+scfg='short.cfg'   # short queue
+lcfg='long.cfg'    # long queue
+tcfg='short_test.cfg'        # testing queue
 #####################                                                                                                                             
 
 
 # based on queue assign names
 case $Q in
-short)
-TC=stc
-WC=swc
+    short)
+	TC=stc
+	WC=swc
 #JM=CmlJm
-cfg=$scfg
+	cfg=$scfg
 #jmcfg='/home/pcs/jm/cml/cfg/CmlJobManager_cfg'
-LOCKFILE=/home/pcs/tc/supp/lock/spcs_lock
-;;
-long)
-TC=ltc
-WC=lwc
+	LOCKFILE=/home/pcs/tc/supp/lock/spcs_lock
+	;;
+    long)
+	TC=ltc
+	WC=lwc
 #JM=
-cfg=$lcfg
+	cfg=$lcfg
 #jmcfg=
-LOCKFILE=/home/pcs/tc/supp/lock/lpcs_lock
-;;
-testing)
-TC=ttc
-WC=twc
+	LOCKFILE=/home/pcs/tc/supp/lock/lpcs_lock
+	;;
+    testing)
+	TC=ttc
+	WC=twc
 #JM=TCmlJm
-cfg=$tcfg
+	cfg=$tcfg
 #jmcfg='/home/pcs/jm/cml/cfg/TCmlJobManager_cfg'
-LOCKFILE=/home/pcs/tc/supp/lock/tpcs_lock
-;;
+	LOCKFILE=/home/pcs/tc/supp/lock/tpcs_lock
+	;;
 esac
 
 
 # read config files
 ### read queues from config files
 get_cfg_val(){
-file=$1
-key=$2
-lst=`awk -vk="$key" -F"=" '$1~k{ print $2}' $file`
-echo $lst
+    file=$1
+    key=$2
+    lst=`awk -vk="$key" -F"=" '$1~k{ print $2}' $file`
+    echo $lst
 }
 
 
@@ -254,62 +254,62 @@ LOCKFILE_DOESNOTEXIST_ERR="PCS $Q is not running.  Execute 'pcs $Q {start|restar
 
 #### functions                                                                                                
 start_job_managers(){
-JMS=$1
-n_jms=$2
-Q=$3
+    JMS=$1
+    n_jms=$2
+    Q=$3
 
-for((k=0;k<n_jms;k++))
-do
-jm_${JMS[$k]} $file $Q
-done
+    for((k=0;k<n_jms;k++))
+    do
+	jm_${JMS[$k]} $file $Q
+    done
 }
 
-     
+
 start_workers(){
-WC=$1
-CFG=$2
-screen -S $WC -m -d matlab -nosplash -nodesktop -r "cd $PATH_WC; cwcobj = startup_wc('$CFG'); cwcobj.cSta"
+    WC=$1
+    CFG=$2
+    screen -S $WC -m -d matlab -nosplash -nodesktop -r "cd $PATH_WC; cwcobj = startup_wc('$CFG'); cwcobj.cSta"
 }
 
 
 stop_screen_session(){
-screen -ls |grep $1 | awk -F . '{print $1}' |xargs kill >/dev/null
+    screen -ls |grep $1 | awk -F . '{print $1}' |xargs kill >/dev/null
 }
 
 
 stop_workers(){
-WC=$1
-Q=$2
+    WC=$1
+    Q=$2
 
 # get active nodes and worker instances from configuration file
-nodes_nums=$(get_cfg_val $file worker)
+    nodes_nums=$(get_cfg_val $file worker)
 
 # postprocess to remove instance numbers
-nodes=`echo $nodes_nums | awk -F" " '{ for (i = 1; i <= NF; i+=2) print $i; }'`
+    nodes=`echo $nodes_nums | awk -F" " '{ for (i = 1; i <= NF; i+=2) print $i; }'`
 
 # number of nodes
-NF=`echo $nodes| awk '{print NF}'`
+    NF=`echo $nodes| awk '{print NF}'`
 
 # slay matlab instances on nodes
-for((k=1;k<=NF;k++))
-do
-node=`echo $nodes |awk -vk="$k" '{print $k}'`
-slay_worker.sh $node $Q > /dev/null 
-echo $node
+    for((k=1;k<=NF;k++))
+    do
+	node=`echo $nodes |awk -vk="$k" '{print $k}'`
+	slay_worker.sh $node $Q > /dev/null 
+	echo $node
 #2>&1
-done
+    done
 
 # stop worker controller screen session
-stop_screen_session $WC
+    stop_screen_session $WC
 }
 
 
 manage_controllers(){
-TC=$1
-CFG=$2
-ss=$3
+    TC=$1
+    CFG=$2
+    ss=$3
 
-screen -S $TC -m -d matlab -nosplash -nodesktop -r "cd $PATH_TC;tc_startup('$CFG','$ss')"
+    screen -S $TC -m -d matlab -nosplash -nodesktop -r "cd $PATH_TC;tc_startup('$CFG','$ss')"
 }
 
 
@@ -328,48 +328,48 @@ lockfile_exists=$(does_lockfile_exist $LOCKFILE)
 case $IA in
     start)
 
-	if [ $lockfile_exists -eq 0 ]; then
-            manage_controllers $TC $cfg start 
+    if [ $lockfile_exists -eq 0 ]; then
+        manage_controllers $TC $cfg start 
 
             # give task controller time to manipulate queues
             #  before workers begin manipulating tasks
-	    sleep 10
+	sleep 10
             #####
 
-	    start_workers $WC $cfg  
+	start_workers $WC $cfg  
 
             # loop and start jms
-	    start_job_managers $JMS $n_jms $Q
-	    touch $LOCKFILE
-	else
-	    echo $LOCKFILE_EXISTS_ERR
-	fi
-	;; 
+	start_job_managers $JMS $n_jms $Q
+	touch $LOCKFILE
+    else
+	echo $LOCKFILE_EXISTS_ERR
+    fi
+    ;; 
 
     restart)
-        $0 $Q stop && sleep 5 && $0 $Q start
-	;;
+    $0 $Q stop && sleep 5 && $0 $Q start
+    ;;
 
     stop)
-	if [ $lockfile_exists -eq 1 ]; then
+    if [ $lockfile_exists -eq 1 ]; then
 
-	    stop_screen_session $WC
-	    stop_screen_session $TC
-	    stop_screen_session \_$Q   # stop all JM's associated with this queue     
- 
-	    stop_workers $WC $Q
+	stop_screen_session $WC
+	stop_screen_session $TC
+	stop_screen_session \_$Q   # stop all JM's associated with this queue     
+	
+	stop_workers $WC $Q
             # give workers time to die before manipulating
             #  queues
-	    sleep 2
+	sleep 2
             #####	    
-	    manage_controllers $TC $cfg stop
+	manage_controllers $TC $cfg stop
 
-	    rm $LOCKFILE
-	else
-	    echo $LOCKFILE_DOESNOTEXIST_ERR
-	fi
-	;;
+	rm $LOCKFILE
+    else
+	echo $LOCKFILE_DOESNOTEXIST_ERR
+    fi
+    ;;
     *)
-        eie_ret
-	;;
+    eie_ret
+    ;;
 esac
