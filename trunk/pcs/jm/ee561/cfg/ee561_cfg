@@ -7,7 +7,7 @@ CodeRoot = /home/pcs/projects/cml2
 
 % Name and FULL path to user's job queue root directory.
 % JobIn, JobRunning, and JobOut directories are under this full path.
-JobQueueRoot = <user_home>/Projects/ee561
+JobQueueRoot = <user_lhome>/Projects/ee561
 
 % Name and full path of project-specific worker function.
 FunctionName = CodedModWorker
