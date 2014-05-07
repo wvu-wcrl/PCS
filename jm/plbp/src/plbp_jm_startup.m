@@ -17,7 +17,7 @@
 
 function PlbpJMObj = plbp_jm_startup(cfgFile, queueCfg)
 % Calling Syntax: PlbpJMObj = plbp_jm_startup('/home/pcs/jm/plbp/cfg/PlbpJobManager_cfg',...
-%                     '/home/pcs/tc/cfg/pcs_short_384.cfg');
+%                     '/home/pcs/tc/cfg/short.cfg');
 if( nargin<1 || isempty(cfgFile) )
     cfgFile = fullfile(filesep, 'home', 'pcs', 'jm', 'plbp', 'cfg', 'PlbpJobManager_cfg');
 end

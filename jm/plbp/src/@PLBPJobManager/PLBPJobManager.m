@@ -22,7 +22,7 @@ classdef PLBPJobManager < JobManager
             % ProjectName = 'plbp';
             % CFG_Filename = 'PlbpJobManager_cfg';
             % cfgRoot = '/home/pcs/jm/plbp/cfg/PlbpJobManager_cfg';
-            % queueCfg = '/home/pcs/tc/cfg/pcs_short_384.cfg';
+            % queueCfg = '/home/pcs/tc/cfg/short.cfg';
             
             % (Optional) input argument 'queueCfg' stores the full path to the queue configuration file.
             

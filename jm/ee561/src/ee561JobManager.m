@@ -11,7 +11,7 @@ classdef ee561JobManager < CodedModJobManager
             % ProjectName = 'ee561';
             % CFG_Filename = 'ee561JobManager_cfg';
             % cfgRoot = '/home/pcs/jm/ee561/cfg/ee561JobManager_cfg';
-            % queueCfg = '/home/pcs/tc/cfg/pcs_short_384.cfg';
+            % queueCfg = '/home/pcs/tc/cfg/short.cfg';
             
             % (Optional) input argument 'queueCfg' stores the full path to the queue configuration file.
             
