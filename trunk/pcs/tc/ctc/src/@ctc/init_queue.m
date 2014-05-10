@@ -2,15 +2,15 @@
 %
 % read queue parameters from queue configuration file
 %
-% Version 1
-% 3/23/2013
+% Version 2
+% 5/2014
 % Terry Ferrett
 %
-%     Copyright (C) 2013, Terry Ferrett and Matthew C. Valenti
+%     Copyright (C) 2014, Terry Ferrett and Matthew C. Valenti
 %     For full copyright information see the bottom of this file.
 
+
 function init_queue(obj)
- 
 
   % maximum files in input queue at any time
   heading = '[queue]';
@@ -18,16 +18,13 @@ function init_queue(obj)
   out = util.fp(obj.cfp, heading, key);
   obj.mfiq = str2double(out{1}{1});
 
-  % sweep period
+  %  user input sweep period
   heading = '[queue]';
   key = 'tsp';
   out = util.fp(obj.cfp, heading, key);
   obj.tsp = str2double(out{1}{1});
   
-  
 end
-
-
 
 
 %     This library is free software;
@@ -44,9 +41,3 @@ end
 %     You should have received a copy of the GNU Lesser General Public
 %     License along with this library; if not, write to the Free Software
 %     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-
-
-
-
-

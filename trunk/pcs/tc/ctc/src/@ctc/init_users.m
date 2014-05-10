@@ -2,106 +2,118 @@
 %
 % initialize user state
 %
-% Version 2
-% 2/20/2013
+% Version 3
+% 5/2014
 % Terry Ferrett
 %
-%     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
+%     Copyright (C) 2014, Terry Ferrett and Matthew C. Valenti
 %     For full copyright information see the bottom of this file.
+
 
 function init_users(obj)
 
-
-% read the user directories from the configuration file
+% root directory of user home directories
 heading = '[paths]';
 key = 'users';
 user_dirs = util.fp(obj.cfp, heading, key);
 
-% read the user configuration filename from the ctc config file
+% user configuration filename
 heading = '[cfg]';
 key = 'user';
 out = util.fp(obj.cfp, heading, key);
 obj.ucfg = out{1}{1};
 
-CFG_FILENAME = obj.ucfg;
-
+% Initialize user state
 obj.users = [];
+
+% Iterate over root directories determining
+%  which users are configured to use the
+%  task controller
 for k = 1:length(user_dirs)
-  obj = scan_user_dirs(obj, CFG_FILENAME, user_dirs{k}{1});
+    
+    obj = scan_user_dirs(obj, obj.ucfg, user_dirs{k}{1});
+    
 end
 
 end
 
 
-
+% Scan all home directories in a given root directory
+%  for users configured to use the task controller
 function obj = scan_user_dirs(obj, CFG_FILENAME, USR_ROOT)
 
-usrdirs = dir(USR_ROOT);   % perform a directory listing in home to list users
+usrdirs = dir(USR_ROOT);   % perform a directory listing to list all users
+
 n = length(usrdirs);       % number of directories found
 
+new_usr_cnt = 1;           % count of new active users
 
-cur_usr_cnt = 1;
-usr_cnt = length(obj.users);
+cur_usr_cnt = length(obj.users);  % count of existing users
 
+
+% iterate over all home directories in this root
 for k = 1:n,
     
-	  cur_path = strcat(USR_ROOT, '/', usrdirs(k).name);  % find .ctc file
-	  cur_file = strcat(cur_path, '/', CFG_FILENAME);
-          file_exists = length( dir(cur_file) );
+    cur_usr_path = strcat(USR_ROOT, '/', usrdirs(k).name);  % find .ctc file
     
-    if file_exists ~= 0, % if .ctc exists, read it
+    cur_file = strcat(cur_usr_path, '/', CFG_FILENAME);
+    
+    file_exists = length( dir(cur_file) );
+    
+    
+    % if .ctc exists, read it
+    if file_exists ~= 0,
         
         % add this user to active users
-      users{cur_usr_cnt} = usrdirs( k ).name;
-
+        users{new_usr_cnt} = usrdirs( k ).name;
+        
         % read input directory
         heading = '[paths]';
         key = 'input';
         out = util.fp(cur_file, heading, key);
-        iq{cur_usr_cnt} = out{1};
+        iq{new_usr_cnt} = out{1};
         
         % read running directory
         key = 'active';
         out = util.fp(cur_file, heading, key);
-        rq{cur_usr_cnt} = out{1};
+        rq{new_usr_cnt} = out{1};
         
         % read output directory
         key = 'output';
         out = util.fp(cur_file, heading, key);
-        oq{cur_usr_cnt} = out{1};
-
-
-% always local user
-user_location = 'local';
-
-% specify whether this is a web or cluster user
-%if( strcmp(USR_ROOT, '/home/web_users') )
-%  user_location = 'web';
-% elseif ( strcmp(USR_ROOT, '/home') )
-%  user_location = 'local';
-%end
-
-        tmp.username = users{cur_usr_cnt};
-        tmp.iq = iq{cur_usr_cnt};
-        tmp.rq = rq{cur_usr_cnt};
-        tmp.oq = oq{cur_usr_cnt};
+        oq{new_usr_cnt} = out{1};
+        
+        % always local user
+        user_location = 'local';
+        
+        % construct new user structure
+        tmp.username = users{new_usr_cnt};
+        tmp.iq = iq{new_usr_cnt};
+        tmp.rq = rq{new_usr_cnt};
+        tmp.oq = oq{new_usr_cnt};
         tmp.user_location = user_location;
-        tmp.aw = 0;
+        tmp.aw = 0;   % possibly remove
+        
+        % add user to list
+        obj.users{cur_usr_cnt + new_usr_cnt} = tmp;
+        
+        % increment new user count
+        new_usr_cnt = new_usr_cnt + 1;
        
-obj.users{usr_cnt + cur_usr_cnt} = tmp;
-
-
-        cur_usr_cnt = cur_usr_cnt + 1;
-
-
     end
+    
+    % sort the user structure alphabetically according to username
+    [DC I]    = sort(obj.users.username);
+      % where 
+      %   DC is the sorted list of usernames which are not needed
+      %   I is the permutation vector used to sort
+    
+      % Apply permutation vector to user structure.
+      obj.users = obj.users(I);
     
 end
 
-
-
 end
-
 
 
 %     This library is free software;
@@ -118,7 +130,3 @@ end
 %     You should have received a copy of the GNU Lesser General Public
 %     License along with this library; if not, write to the Free Software
 %     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-
-
-

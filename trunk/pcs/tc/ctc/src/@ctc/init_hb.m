@@ -2,33 +2,29 @@
 %
 % read heartbeat parameters from queue configuration file
 %
-% Version 1
-% 4/8/2013
+% Version 2
+% 5/2014
 % Terry Ferrett
 %
-%     Copyright (C) 2013, Terry Ferrett and Matthew C. Valenti
+%     Copyright (C) 2014, Terry Ferrett and Matthew C. Valenti
 %     For full copyright information see the bottom of this file.
 
+
 function init_hb(obj)
- 
-  % heartbeat path
-  heading = '[heartbeat]';
-  key = 'hb_path';
-  out = util.fp(obj.cfp, heading, key);
-  obj.hb_path = out{1}{1};
 
+% heartbeat path
+heading = '[heartbeat]';
+key = 'hb_path';
+out = util.fp(obj.cfp, heading, key);
+obj.hb_path = out{1}{1};
 
-  % heartbeat period in seconds
-  heading = '[heartbeat]';
-  key = 'hb_period';
-  out = util.fp(obj.cfp, heading, key);
-  obj.hb_period = str2double(out{1}{1});
+% heartbeat period in seconds
+heading = '[heartbeat]';
+key = 'hb_period';
+out = util.fp(obj.cfp, heading, key);
+obj.hb_period = str2double(out{1}{1});
 
- 
-  
 end
-
-
 
 
 %     This library is free software;
@@ -45,9 +41,3 @@ end
 %     You should have received a copy of the GNU Lesser General Public
 %     License along with this library; if not, write to the Free Software
 %     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-
-
-
-
-
