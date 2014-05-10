@@ -2,23 +2,23 @@
 %
 % initialization routine for ctc
 %
-% Version 1
-% 12/7/2011
+% Version 2
+% 5/2014
 % Terry Ferrett
 %
-%     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
+%     Copyright (C) 2014, Terry Ferrett and Matthew C. Valenti
 %     For full copyright information see the bottom of this file.
+
 
 function init(obj)
 
-% init global paths
+% init global queue paths
 init_paths(obj)
 
-
-% init worker state structures
+% init worker state
 init_ws(obj);
 
-% init users structure
+% init user state
 init_users(obj) 
 
 % init queue parameters
@@ -28,7 +28,6 @@ init_queue(obj)
 init_hb(obj)
 
 end
-
 
 
 %     This library is free software;
@@ -45,10 +44,3 @@ end
 %     You should have received a copy of the GNU Lesser General Public
 %     License along with this library; if not, write to the Free Software
 %     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-
-
-
-
-
-
