@@ -2,8 +2,8 @@
 %
 % main task controller loop
 %
-% Version 2
-% 12/16/2011
+% Version 4
+% 5/2014
 % Terry Ferrett
 %
 % outline
@@ -11,7 +11,7 @@
 % 2. decide which user to service
 % 3. launch tasks for the user with the least active tasks
 %
-%     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
+%     Copyright (C) 2014, Terry Ferrett and Matthew C. Valenti
 %     For full copyright information see the bottom of this file.
 %
 %  POTENTIAL CAVEAT
@@ -23,613 +23,450 @@
 % future impl
 %  only use moves
 %  group permissions
-
+%
+%  Notes
+%   removed logic to check for user existence in function
+%   consume_output
+%   if needed, bring back from main_bak.m
 
 
 function main(obj, ss)
 
+%%% main-specific initialization
 
-nu = length(obj.users);           % number of users
-
+% task controller running states
 IS_START = strcmp(ss, 'start');
 IS_RESUME = strcmp(ss, 'resume');
 IS_SHUTDOWN = strcmp(ss, 'shutdown');
 
-timer_users = tic;  % start timer to update user list
-timer_heartbeat = tic; % start timer to update heartbeat file
-heartbeat_oneshot=1; % tc just started. touch the heartbeat file
+% timers
+timer_users = tic;       % user list update timer
+timer_heartbeat = tic;   % heartbeat timer
+heartbeat_oneshot=1;     % touch the heartbeat file
 
 
-while(1) %enter primary loop
+% initialize previously executing user file so that the task controller
+%  begins execution from the user who was executing tasks prior to
+%  the last task controller shutdown
+%
+%  outline of functionality
+%    at top of main
+%       move ceu file to peu file
+%    in scheduler function
+%       restore peu file and delete
+%       save currently executing user in every user loop iteration
+init_peu( obj );
+
+
+% primary execution loop
+while(1)
     
+    % perform these actions while task controller is running
+    %  or resuming
     if IS_START || IS_RESUME
-        [au fl] = scan_user_inputs(obj);                     % scan user input directories for new .mat inputs
         
-        [users_srt fl_srt] = schedule(obj, au, fl);          % decide which user to service
+        % iterate over all users scheduling tasks in a round-robin fashion
+        schedule_tasks_rr(obj);
         
-        place_user_input_in_queue(obj, users_srt, fl_srt);   % move input files to cluster input queue
-        
-        calculate_active_workers(obj);                       % scan the global running queue and count the active workers for each user
     end
     
+    % scan global output queue and place completed tasks in user output
+    %  directory
     if IS_START || IS_RESUME || IS_SHUTDOWN
-        consume_output(obj);                                 % scan global output queue and place completed work in user output directory
+        
+        consume_output(obj);
+        
     end
-
-    pause(obj.tsp);                                       % Pause for sp seconds before making anothe pass
-%    pause(5);                                            % pause for 5 seconds before making another pass
     
-    %%% get files in output and running queue %%
-    pgoq = obj.gq.oq{1};
-    srch = strcat(pgoq, '/*.mat');      % form full dir string
-    fl = dir( srch );    % get list of .mat files in output queue
-    nfoq = length(fl);
+    % Pause for tsp seconds before making another pass
+    pause(obj.tsp);
     
-    pgrq = obj.gq.rq{1};
-    srch = strcat(pgrq, '/*.mat');      % form full dir string
-    fl = dir( srch );    % get list of .mat files in output queue
-    nfrq = length(fl);
+    % get .mat files in global running and output queues
+    mat_ext = '/*.mat';
+    [fl nfoq] = get_files_in_dir(obj.gq.oq{1}, mat_ext);
+    [fl nfrq] = get_files_in_dir(obj.gq.rq{1}, mat_ext);
     
+    % if no files are left in the output queue and the tc is in shutdown mode,
+    %  break out of main control loop
     Q_EMPTY = (nfoq == 0)&&(nfrq == 0);
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    if IS_SHUTDOWN && Q_EMPTY,  break;   end
     
-    % if no files are left in the output queue and the tc is in shutdown mode, break out of the loop
-    if IS_SHUTDOWN && Q_EMPTY
-        break;
-    end
-    
-       
-    %% timed events
-    if toc(timer_users) > 120,  % check for new users after 2 minutes
+    % check for new users every 2 minutes
+    if toc(timer_users) > 120,
         obj.init_users();
         timer_users = tic;
     end
-
-
-    % heartbeat conditions
+    
+    % touch heartbeat file to indicate that TC has not crashed
     c1 = heartbeat_oneshot;
-    c2 = toc(timer_heartbeat) > obj.hb_period; 
+    c2 = toc(timer_heartbeat) > obj.hb_period;
     if c1 | c2,
         heartbeat(obj);
         timer_heartbeat = tic;
         heartbeat_oneshot = 0;
     end
-    %%%
-   
+    
 end
 
 end
 
 
-% touch heartbeat file to signal task controller status
+% initialize previously executing user file so that the task controller
+%  begins execution from the user executing while the task controller
+%  was shut down
+function init_peu( obj, k )
+    
+    % move currently executing user file to previously executing user file
+    op = ['sudo mv' ' ' obj.ceu ' ' obj.peu '&'];
+
+    perform_fs_op(op);   
+
+end
+
+
+% perform round-robin task scheduling
+function schedule_tasks_rr(obj)
+
+nu = length(obj.users);           % number of users in system
+
+% if this is the first scheduling iteration after starting the task
+%  controller, determine the index of the last user to execute during
+%  the task controller's previous run
+fu = get_prev_exec_user( obj );
+
+% iterate over all users launching tasks as appropriate
+for k = fu:nu,
+        
+    % determine if user has tasks to launch
+    mat_ext = '/*.mat';
+    [tl nt] = get_files_in_dir(obj.users{k}.iq, mat_ext);
+    
+    % if the user has no task files to launch, continue to next user
+    if nt == 0, continue; end
+    
+    % save the name of the currently executing user so that the
+    % task controller can return to the user in the event of a crash
+    save_cur_exec_user( obj, k );
+       
+    % determine the number of workers available to execute user tasks
+    wa = get_workers_available(obj);
+    
+    %  tasks per user
+    tu = obj.tu;
+    
+    % iterate over tasks and launch as workers become available
+    for m = 1:tu,
+        
+        % if user has no tasks remaining, continue to next user
+        if nt == 0, break; end
+
+        % if no workers available, pause and wait until workers become free
+        while (wa == 0)
+            wa = get_workers_available(obj);
+            fprintf('Waiting for workers to become free\n');
+            fprintf('to launch tasks for user \n %s.', obj.users{k}.username);
+            pause(10);
+            
+        end
+        
+        % for the k-th user in
+        %   obj.users,
+        % launch the m-th available task in task list
+        %   tl
+        launch_user_tasks(obj, k, tl, m);
+        
+        % decrement number of user tasks available
+        nt = nt - 1;
+        
+        % decrement workers available
+        wa = wa - 1;
+        
+    end
+    
+end
+
+end
+
+
+% get index of user executing tasks during previous task controller run
+function fu = get_prev_exec_user( obj )
+
+% check for previous user execution file existence
+if exist(obj.peu, 'file')
+
+    % if file exists, open and read the username contained in the file
+    user_fid=fopen(obj.peu);
+    username = fgetl(user_fid);
+    fclose(user_fid);
+    
+    % get user structure index corresponding to this username
+    fu = get_user_index(obj, username);
+    
+    % delete previous user execution file
+    op = ['sudo rm' ' ' obj.peu ' ' '&'];
+    perform_fs_op(op)
+    
+else
+    % If the previously executing user file does not exist, start from
+    % first user
+    fu = 1;
+end
+end
+
+
+% save to file the username of user currently executing tasks
+function save_cur_exec_user( obj, k )
+
+user_fid=fopen(obj.ceu, 'w+');
+
+fprintf(user_fid, '%s', obj.users{k}.username);
+
+fclose(user_fid);
+
+end
+    
+
+% for the k-th user in
+%   obj.users,
+% launch the m-th available task in task list
+%   tl
+function launch_user_tasks(obj, k, tl, m)
+
+% define PCS system user
+PCSUSER = 'pcs';
+
+% path to user input task file
+puif = strcat(obj.users{k}.iq, '/', tl(m).name);
+
+% path to user running task file
+purf = strcat(obj.users{k}.rq, '/', tl(m).name);
+
+% path to global input queue
+pgiq = obj.gq.iq;
+
+% append username to task file
+fn = tl(m).name;
+afn = [obj.users{k}.username '_' obj.users{k}.user_location '_' fn];
+
+% copy user input file into user running queue
+op = ['sudo cp' ' ' puif{1} ' ' purf{1} ' ' '&'];
+perform_fs_op(op);
+
+% change user running queue file ownership from root to user
+op = ['sudo chown' ' ' obj.users{k}.username ':' ...
+    obj.users{k}.username ' ' purf{1} ' ' '&'];
+perform_fs_op(op);
+
+% change user input file ownership to pcs user
+op = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1} ' ' '&'];
+perform_fs_op(op);
+
+% move user file into input queue
+op = ['sudo mv -f' ' ' puif{1} ' ' pgiq{1} '/' afn ' ' '&'];
+perform_fs_op(op);
+
+end
+
+
+% execute shell command to manipulate filesystem
+function perform_fs_op(op)
+
+% log operation being executed
+fprintf('%s\n', op);
+
+[st res] = system(op);
+
+fprintf('\n');
+
+pause(0.05);
+
+end
+
+
+% calculate the number of workers available
+%  to execute tasks
+function ca = get_workers_available(obj);
+
+% perform directory listing in global running and input queues,
+% and count the number of files in each
+ext_in = '/*.mat';
+[fl nfrq] = get_files_in_dir(obj.gq.rq{1}, ext_in)
+[fl nfiq] = get_files_in_dir(obj.gq.iq{1}, ext_in)
+
+% total number of workers available
+nw = obj.nw;
+
+% to determine workers available, subtract number of files in global
+%  running and input queues from total workers available
+%  from total cores available
+ca = nw - ( nfrq + nfiq );
+
+end
+
+
+% touch heartbeat file indicate that TC has not crashed
 function heartbeat(obj)
+
+% path to heartbeat file
 hb_file = [ obj.hb_path filesep 'tc_' obj.gq_name ];
+
 % touch implemented as file opening and closing
 fid = fopen(hb_file, 'w+'); fclose(fid);
-end
-
-
-
-function [au fl] = scan_user_inputs(obj)
-
-nu = length(obj.users);           % number of users
-
-na = 0;                           % users having input files
-
-au ={};
-
-fl = {};
-
-fprintf('1 ');
-for k = 1:nu,
-    
-    srch = strcat(obj.users{k}.iq, '/*.mat');      % form full dir string
-    
-    sfl{k} = dir( srch{1} );                       % get list of .mat files in input queue directory
-    
-    if length( sfl{k} ) > 0,
-        
-        na = na + 1;
-        
-        au{na} = obj.users{k};
-        
-        nf(na) = length(sfl{k});                   % how many input files does this user have?
-        
-        fl{na} = sfl{k};
-        
-    end
-    
-    
-end
-fprintf('2 ');
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-% sort the users by number of active workers possessed by each
-%  user
-function [users_srt fl_srt] = schedule(obj, au, fl)
-
-ntu = length(obj.users);    % total number of users
-
-nau = length(au);           % number of users having input files (active users)
-
-nw = [];                    % number of workers occupied by active users
-
-users_srt = {};             % users sorted by number of active users
-
-fl_srt = {};                % sorted list
-
-fprintf('3 ');
-for k =1:nau,
-    
-    for l = 1:ntu,
-        
-        USER_MATCH = strcmp(au{k}.username, obj.users{l}.username);
-        LOCATION_MATCH = strcmp(au{k}.user_location, obj.users{l}.user_location);
-        
-        if USER_MATCH & LOCATION_MATCH,
-            nw(k) = obj.users{k}.aw;      % number of workers for this user
-        end
-        
-    end
-    
-end
-fprintf('4 ');
-
-if ~isempty(nw)
-    
-    [l P] = sort(nw);
-    
-    users_srt = au{P};
-    
-    fl_srt = fl(P);
-end
-fprintf('5 ');
 
 end
 
 
-
-
-
-
-
-
-
-
-
-
-
-function place_user_input_in_queue(obj, users_srt, fl_srt)
-
-PCSUSER = 'pcs';
-fprintf('6 ');
-if ~isempty(users_srt)
-    %%% 3/23/2013
-    %%% maximum number of available workers from obj.nw to an adjustable
-    %%%  parameter stored in the global configuration file
-    
-    % mfiq - Max Files Input Queue - maximum number of files available
-    %        in input queue.
-    avw = obj.mfiq - obj.aw;
-    %avw = obj.nw - obj.aw;   % available number of workers
-    nf = length( fl_srt{1} );
-    cnt = 0;
-    fprintf('7 ');
-    while avw > 0 & nf > 0,   % add files to queue until the queue is full or no more files exist
-
-        avw = avw - 1;
-        nf = nf - 1;
-        cnt = cnt + 1;
-
-
-        puif = strcat(users_srt.iq, '/', fl_srt{1}(cnt).name);  % path to input file
-	purf = strcat(users_srt.rq, '/', fl_srt{1}(cnt).name);  % path to running file
-
-        pgiq = obj.gq.iq;    % path to global input queue
-        purq = users_srt.rq; % path to user running queue
-
-
-        % append username to file
-        fn = fl_srt{1}(cnt).name;
-        afn = [users_srt.username '_' users_srt.user_location '_' fn];
-
-        
-        % copy user input file into user running queue
-%        cmd_str = ['sudo cp' ' ' puif{1} ' ' purq{1} '/' fn ' ' '&'];
-         cmd_str = ['sudo cp' ' ' puif{1} ' ' purf{1} ' ' '&'];
-         fprintf('%s\n', cmd_str);
-         [st res] = system(cmd_str);
-         fprintf('\n');
-         pause(0.05);
-
-        
-        % change user running queue file ownership from root to user
-        cmd_str = ['sudo chown' ' ' users_srt.username ':' users_srt.username ' ' purf{1} ' ' '&'];
-        fprintf('%s\n', cmd_str);
-        [st res] = system(cmd_str);
-        fprintf('\n');
-pause(0.05);
-
-        % change user input file ownership to pcs user
-        cmd_str = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1} ' ' '&'];
-        fprintf('%s\n', cmd_str);
-        [st res] = system(cmd_str);   % change ownership back to user
-        fprintf('\n');
-pause(0.05);
-
-        
-        % move user file into input queue        
-        cmd_str = ['sudo mv -f' ' ' puif{1} ' ' pgiq{1} '/' afn ' ' '&'];
-      fprintf('%s\n', cmd_str);
-        [st res] = system(cmd_str);
-     fprintf('\n');
-pause(0.05);
-         
-      fprintf('avw %d\n', avw);
-      fprintf('nf %d\n', nf);
-
-    end
-    
-    obj.aw = obj.aw + cnt;
-    
-end
-
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function update_user_active_status(obj, users_srt, fl_srt) % move input file to user's active directory
-
-
-if ~isempty(users_srt)
-    
-    puiq = users_srt.iq{1};
-    
-    purq =  users_srt.rq{1};
-    
-    nf = length( fl_srt{1} );
-    
-    for k = 1:nf,
-        
-        af = strcat(fl_srt{1}(k).name);
-        
-        cmd_str = ['sudo mv -f' ' ' puiq '/' af ' ' purq '/' af ' ' '&'];
-        
-        [st res] = system(cmd_str);
-fprintf('\n');
-pause(0.05);        
-
-    end
-    
-end
-
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function calculate_active_workers(obj) % scan the global running queue and count the active workers for each user
-
-%%% 3/13/2013 - changing implementation to only count files in input queue
-%%% variable names should eventually be changed to be more meaningful,
-%%% for example, "obj.aw" denoting number of active workers should be
-%%%% changed to something like "obj.nfiq" denoting number of files in iq
-
-%%%%%%%% get list of files in running and input queues %%%
-%%% read the files in the global running queue%%%
-%srch = strcat(obj.gq.rq{1}, '/*.mat');
-%rqf = dir( srch );
-
-%%% read the files in the global input queue
-srch = strcat(obj.gq.iq{1}, '/*.mat');
-iqf = dir( srch );
-
-%%% concatenate the two file lists
-%bqf = struct_cat(rqf,iqf);  % file list concatenated from both queues
-bqf = iqf;
-
-%%% calculate the resulting length
-nf = length(bqf);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-
-
-%%% read files in global running queue %%%
-%srch = strcat(obj.gq.rq{1}, '/*.mat');
-%nf = length(fl);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-fprintf('8 ');
-nu = length(obj.users);                % loop over all users
-
-for k = 1:nu,
-    
-    nw = 0;                            % set the number of workers to 0
-    
-    %name = obj.users{k}.username;      % shorter notation for this user
-    name = [obj.users{k}.username '_' obj.users{k}.user_location];      % shorter notation for this user, include location
-    
-    
-    
-    for m = 1:nf,                      % loop over all files and determine the user
-        
-        isuser = findstr(bqf(m).name, name);  % find the username embedded in the filename and compare
-        
-        if isempty(isuser),
-        elseif isuser == 1,            % pattern matches. add user.
-            nw = nw + 1;
-        end
-        
-    end
-    
-    obj.users{k}.aw = nw;  % update active user count
-    
-end
-fprintf('9 ');
-
-
-nw = 0;         % add up all active workers for all users
-for k = 1:nu,
-    nw = nw + obj.users{k}.aw;
-end
-
-
-obj.aw = nw;    %  update the global count of active users
-                % this is the number of files in the input queue
-end
-
-
-
-
-
-
-
-
+% Move completed tasks from the global output queue to the owning user's
+%  output queue
 function consume_output(obj)
 
-[fl nf] = get_files_in_output_queue(obj);
+% get files in global output queue
+ext_in = '/*.mat';
+[fl nf] = get_files_in_dir(obj.gq.oq{1}, ext_in)
 
-fprintf('10 ');
-for k = 1:nf,       % loop over all files in output queue
+% iterate over all files in output queue, moving to owning user output
+% queue
+for k = 1:nf,
     
+    % username of the owning user is part of the task filename - read it
     [username location] = get_username_location_from_file( fl(k).name );
-    fprintf('11 ');
-    [does_user_exist user_ind] = compare_to_active_users( obj, username, location, obj.users );
-    fprintf('12 ');
-    switch does_user_exist,
-        case 'yes',
-            consume_output_file(obj, fl(k).name, user_ind);
-            fprintf('13 ');
-        case 'no'
-            delete_output_file( obj, fl(k).name );
-            fprintf('14 ');
-    end
+    
+    % get user structure index corresponding to this username
+    user_ind = get_user_index(obj, username);
+    
+    % perform move operation
+    consume_output_file(obj, fl(k).name, user_ind);
     
 end
 
 end
 
 
+% Get username and location from task filename.
 function [username location] = get_username_location_from_file( name );
+
+% username is first field
 [username suffix] = strtok(name, '_');
+
+% location is second field
 [location suffix] = strtok(suffix, '_');
+
 end
 
 
-function [does_user_exist user_ind] = compare_to_active_users( obj, username, location, users )
+% All users existing in the system are stored in cell array
+%   obj.users
+% Get the array index of the user having the same name as the input name
+%   username
+function user_ind = get_user_index(obj, username)
+
+% total number of users
 nu = get_number_users( obj.users );
 
-does_user_exist = 'no';
+% default index if no user found - should cause error
 user_ind = -1;
 
+% iterate over all users and find a structure name that matches
+%  the given name
 for k = 1:nu,
-    cur_user = users{k}.username;
-    cur_location = users{k}.user_location;
     
-    user_match = strcmp( cur_user, username );
-    loc_match = strcmp( cur_location, location );
+    user_match = strcmp( obj.users{k}.username, username );
     
-    if user_match&loc_match,
-        does_user_exist = 'yes';
-        user_ind = k;
-    end
+    if user_match,  user_ind = k; break;  end
     
 end
+
+% crash if no user found
+if user_ind == -1, fprintf('No user with that username found. Crashing.'); end
 
 end
 
 
+
+% move completed task file from global to user output queue
 function consume_output_file(obj, output_task_filename, user_ind)
 
-fprintf('15 ');
-[ownership_name ownership_group] = get_file_ownership( obj.users{user_ind}.username, obj.users{user_ind}.user_location );
+[ownership_name ownership_group] = ...
+    get_file_ownership( obj.users{user_ind}.username,...
+    obj.users{user_ind}.user_location );
 
+% username and location are no longer needed as part of filename -
+%  moving back to user's own output queue
 [on] = remove_username_loc_from_filename( output_task_filename );
 
+% get paths to output queues
 [ puoq ] = get_path_user_output_queue( obj.users{user_ind}.oq{1});
-
 [ pgoq ] = get_path_global_output_queue( obj.gq.oq{1} );
 
-cmd_str = ['sudo chown' ' ' ownership_name ':' ownership_group ' ' pgoq '/' output_task_filename ' ' '&']; 
-fprintf('%s\n', cmd_str);
-[st res] = system(cmd_str);   % change ownership back to user
-fprintf('\n');
-%        fprintf('%d\n', st);
-%        fprintf('%s\n', res);
-pause(0.05);
+% return ownership of task file to user
+op = ['sudo chown' ' ' ownership_name ':' ownership_group ...
+    ' ' pgoq '/' output_task_filename ' ' '&'];
+perform_fs_op(op);
 
+% move task file from global output queue to user output queue
+op = ['sudo mv -f' ' ' pgoq '/'  output_task_filename ' ' puoq '/' on ' ' '&'];
+perform_fs_op(op);
 
-cmd_str = ['sudo mv -f' ' ' pgoq '/'  output_task_filename ' ' puoq '/' on ' ' '&'];  
-fprintf('%s\n', cmd_str);
-[st res] = system(cmd_str); % move file to user output queue
-fprintf('\n');
-pause(0.05);
-
+% remove task file from user's running queue - execution complete
 [ purq ] = get_path_user_running_queue( obj.users{user_ind}.rq{1} );
-
 clear_from_user_running_queue( on, purq );
-fprintf('16 ');
 
 end
 
 
+% this code is deprecated, only one location exists. web users directory is gone
+function [ownership_name ownership_group] = get_file_ownership( username, ...
+    user_location )
+ownership_name = username;           % shorten the name
+ownership_group = username;
 
-
-function consume_output_file_new(obj, output_task_filename, user_ind)
-
-fprintf('15 ');
-
-[ownership_name ownership_group] = get_file_ownership( obj.users{user_ind}.username, obj.users{user_ind}.user_location );
-
-[on] = remove_username_loc_from_filename( output_task_filename );
-
-[ puoq ] = get_path_user_output_queue( obj.users{user_ind}.oq{1});
-
-[ pgoq ] = get_path_global_output_queue( obj.gq.oq{1} );
-
-
-% don't change ownership implementation
-cmd_str = ['sudo chown' ' ' ownership_name ':' ownership_group ' ' pgoq '/' output_task_filename ' ' '&']; 
-[st res] = system(cmd_str);   % change ownership back to user
-fprintf('\n');
-pause(0.05);
-
-% change move implementation
-
-fprintf('chown 2 ');
-cmd_str = ['sudo mv -f' ' ' pgoq '/'  output_task_filename ' ' puoq '/' on ' ' '&'];  
-fprintf('%s\n', cmd_str);
-[st res] = system(cmd_str); % move file to user output queue
-fprintf('\n');
-pause(0.05);
-
-fprintf('mv 2 ');
-[ purq ] = get_path_user_running_queue( obj.users{user_ind}.rq{1} );
-
-clear_from_user_running_queue( on, purq );
-fprintf('16 ');
-
+%if( strcmp( user_location, 'web') )
+%    ownership_name = 'tomcat55';
+%    ownership_group = 'tomcatusers';
+%elseif( strcmp( user_location, 'local') )
+%    ownership_name = username;           % shorten the name
+%    ownership_group = username;
+%end
 end
 
 
-
-
-
-
-
-
-
-function delete_output_file( obj, output_task_filename )
-
-[ pgoq ] = get_path_global_output_queue( obj.gq.oq{1} );
-
-cmd_str = ['sudo rm' ' ' pgoq '/'  output_task_filename ' ' '&'];  
-[st res] = system(cmd_str); % delete file from output queue
-fprintf('\n');
-pause(0.05);
-
-end
-
-
-
-
-function [fl nf] = get_files_in_output_queue(obj)
-%%% get files in output queue %%%
-pgoq = obj.gq.oq{1};
-srch = strcat(pgoq, '/*.mat');      % form full dir string
-fl = dir( srch );    % get list of .mat files in output queue
-nf = length(fl);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-end
-
-
-function nu = get_number_users( users )
-nu = length(users);
-end
-
-
-%%% this code is deprecated, only one location exists. web users directory is gone
-function [ownership_name ownership_group] = get_file_ownership( username, user_location )
-if( strcmp( user_location, 'web') )
-    ownership_name = 'tomcat55';
-    ownership_group = 'tomcatusers';
-elseif( strcmp( user_location, 'local') )
-    ownership_name = username;           % shorten the name
-    ownership_group = username;
-end
-end
-
-
+% remove username and location from task filename
 function [on] = remove_username_loc_from_filename( name )
+
 [username suffix] = strtok(name, '_');
+
 [location suffix] = strtok(suffix, '_');
 
 on = suffix(2:end);
+
 end
 
 
+% get path to user output queue
 function puoq = get_path_user_output_queue( oq )
+
 puoq = oq;
+
 end
 
 
+% get path to user running queue
 function purq = get_path_user_running_queue( oq )
+
 purq = oq;
+
 end
 
-function [ pgoq ] = get_path_global_output_queue( oq )
+
+% get path to global output queue
+function pgoq = get_path_global_output_queue( oq )
+
 pgoq = oq;
+
 end
 
 
+% clear task file from user running queue
 function clear_from_user_running_queue( on, purq )
 
 if findstr( on, 'failed')
@@ -637,15 +474,31 @@ if findstr( on, 'failed')
     suffix = '.mat';
     on = [prefix suffix];
 end
-cmd_str = ['sudo rm' ' ' purq '/'  on ' ' '&']; 
-fprintf('%s\n', cmd_str);
-[st res] = system(cmd_str); % remove file from user running queue
-fprintf('\n');
-pause(0.05);
+
+op = ['sudo rm' ' ' purq '/'  on ' ' '&'];
+perform_fs_op(op);
 
 end
 
 
+
+% Get a list of files in the given path having the given extension
+%  dir_in: Linux filesystem path of form
+%      /n1/n2/...
+%    where n1, n2 ... are directory names
+%  note that dir_in must not be terminated with '/'
+function [fl nf] = get_files_in_dir(dir_in, ext_in)
+
+% form full search string
+srch = strcat(dir_in, ext_in);
+
+% perform file search
+fl = dir( srch );
+
+% number of files found
+nf = length(fl);
+
+end
 
 
 
@@ -663,12 +516,19 @@ for k = 1:l2,
     bqf(l1+k) = iqf(k);
 end
 
-
-
 end
 
 
-
+%function delete_output_file( obj, output_task_filename )
+%
+%[ pgoq ] = get_path_global_output_queue( obj.gq.oq{1} );
+%
+%cmd_str = ['sudo rm' ' ' pgoq '/'  output_task_filename ' ' '&'];
+%[st res] = system(cmd_str); % delete file from output queue
+%fprintf('\n');
+%pause(0.05);
+%
+%end
 
 
 %     This library is free software;
@@ -684,4 +544,5 @@ end
 %
 %     You should have received a copy of the GNU Lesser General Public
 %     License along with this library; if not, write to the Free Software
-%     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+%     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+%     USA
