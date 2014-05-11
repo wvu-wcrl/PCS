@@ -78,6 +78,8 @@ nlog = 0; % intialize log count
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+% Seed the random number generator
+rng('shuffle');
 
 
 
