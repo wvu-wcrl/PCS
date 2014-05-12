@@ -1,8 +1,8 @@
-% init.m
+% init_misc.m
 %
-% initialization routine for ctc
+% initialize miscellaneous parameters
 %
-% Version 2
+% Version 1
 % 5/2014
 % Terry Ferrett
 %
@@ -10,25 +10,16 @@
 %     For full copyright information see the bottom of this file.
 
 
-function init(obj)
+function init_misc(obj)
 
-% init global queue paths
-init_paths(obj)
+% blank username by default
+obj.bu.username = '';
 
-% init worker state
-init_ws(obj);
+% first task index is 1
+obj.bu.ft = 1;
 
-% init user state
-init_users(obj) 
-
-% init queue parameters
-init_queue(obj)
-
-% init heartbeat parameters
-init_hb(obj)
-
-% initialize miscellaneous parameters
-init_misc(obj)
+% no user is blocked by default
+obj.bu.isbl = 0;
 
 end
 

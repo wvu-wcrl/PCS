@@ -77,7 +77,14 @@ classdef ctc < handle
                     % oq - output path
                     % aw - active workers for this user
                     % user_location - user location - web or local
-               
+
+         bu       % store information about user who is blocked waiting
+                  %  for free workers
+                    % username   Blocked user username
+                    % ft         First task to execute on resume
+                    % isbl       user blocked state
+                    %              0   not blocked
+                    %              1   blocked
     end
     
     
