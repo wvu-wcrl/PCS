@@ -132,7 +132,13 @@ nu = length(obj.users);           % number of users in system
 % if this is the first scheduling iteration after starting the task
 %  controller, determine the index of the last user to execute during
 %  the task controller's previous run
-fu = get_prev_exec_user( obj );
+
+% the purpose of this function is to set the first user and task to execute
+% in the event that
+%   1. the task controller was interrupted 
+%   2. a user was blocked from executing tasks from lack of workers
+[fu ft] = get_user_state( obj );
+
 
 % iterate over all users launching tasks as appropriate
 for k = fu:nu,
@@ -153,20 +159,30 @@ for k = fu:nu,
     
     %  tasks per user
     tu = obj.tu;
-    
+        
     % iterate over tasks and launch as workers become available
-    for m = 1:tu,
+    for m = ft:tu,
         
         % if user has no tasks remaining, continue to next user
         if nt == 0, break; end
 
         % if no workers available, pause and wait until workers become free
-        while (wa == 0)
-            wa = get_workers_available(obj);
-            fprintf('Waiting for workers to become free\n');
-            fprintf('to launch tasks for user \n %s.', obj.users{k}.username);
-            pause(10);
+        if (wa <= 0)
+            % save the index of the user's currently executing task
+            %  and return to this task when a worker becomes available
+            obj.bu.ft = m;
             
+            % save username of blocked user
+            obj.bu.username = obj.users{k}.username;
+            
+            % set blocked state to 1
+            obj.bu.isbl = 1;                        
+            
+            fprintf('Waiting for workers to become free\n');
+            fprintf('to launch tasks for user \n %s.', obj.users{k}.username);            
+            
+            % return to main loop
+            return;
         end
         
         % for the k-th user in
@@ -183,13 +199,22 @@ for k = fu:nu,
         
     end
     
+    % for all subsequent users after the first, we are guaranteed to
+    %  want to start from the first task
+    ft = 1;
+    
 end
 
 end
 
 
 % get index of user executing tasks during previous task controller run
-function fu = get_prev_exec_user( obj )
+function [fu ft] = get_user_state( obj )
+
+% restore user execution state in the event that
+%  user was interrupted by task controller stoppage - peu
+%  user was blocked because no cores were available - bu
+
 
 % check for previous user execution file existence
 if exist(obj.peu, 'file')
@@ -206,11 +231,33 @@ if exist(obj.peu, 'file')
     op = ['sudo rm' ' ' obj.peu ' ' '&'];
     perform_fs_op(op)
     
+    % start executing task index from beginning
+    ft = 1;
+    
+    % check for existence of blocked user
+elseif obj.bu.isbl == 1,
+    
+    % get user structure index corresponding to blocked user's username
+    fu = get_user_index(obj, obj.bu.username);
+    
+    % start executing tasks from the index of the last task to execute
+    %  before blocking
+    ft = obj.bu.ft;        
+    
+    % user is no longer blocked
+    obj.bu.isbl = 0;
+    
 else
+    
     % If the previously executing user file does not exist, start from
     % first user
     fu = 1;
+    
+    % start executing task index from beginning
+    ft = 1;
+
 end
+
 end
 
 
