@@ -42,7 +42,7 @@ end
 %  for users configured to use the task controller
 function obj = scan_user_dirs(obj, CFG_FILENAME, USR_ROOT)
 
-usrdirs = dir(USR_ROOT);   % perform a directory listing to list all users
+  usrdirs = dir(USR_ROOT);   % perform a directory listing to list all users
 
 n = length(usrdirs);       % number of directories found
 
@@ -58,14 +58,14 @@ for k = 1:n,
     
     cur_file = strcat(cur_usr_path, '/', CFG_FILENAME);
     
-    file_exists = length( dir(cur_file) );
+file_exists = length( dir(cur_file) );
     
     
     % if .ctc exists, read it
     if file_exists ~= 0,
         
         % add this user to active users
-        users{new_usr_cnt} = usrdirs( k ).name;
+      users{new_usr_cnt} = usrdirs( k ).name;
         
         % read input directory
         heading = '[paths]';
@@ -102,16 +102,22 @@ for k = 1:n,
        
     end
     
+    
+end
+
     % sort the user structure alphabetically according to username
-    [DC I]    = sort(obj.users.username);
+    for k = 1:length(obj.users),
+	      tmpcell{k} = obj.users{k}.username;
+    end
+    [DC I]    = sort(tmpcell);
+
       % where 
       %   DC is the sorted list of usernames which are not needed
       %   I is the permutation vector used to sort
     
       % Apply permutation vector to user structure.
       obj.users = obj.users(I);
-    
-end
+
 
 end
 

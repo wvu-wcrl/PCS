@@ -15,8 +15,8 @@ function init_misc(obj)
 % blank username by default
 obj.bu.username = '';
 
-% first task index is 1
-obj.bu.ft = 1;
+% execute one task on resume from blocking
+obj.bu.tu = 1;
 
 % no user is blocked by default
 obj.bu.isbl = 0;
