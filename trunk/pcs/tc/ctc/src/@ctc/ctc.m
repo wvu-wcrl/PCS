@@ -81,7 +81,8 @@ classdef ctc < handle
          bu       % store information about user who is blocked waiting
                   %  for free workers
                     % username   Blocked user username
-                    % ft         First task to execute on resume
+                    % tu         Number of tasks to execute when the blocked user
+                    %            user resumes
                     % isbl       user blocked state
                     %              0   not blocked
                     %              1   blocked

@@ -117,7 +117,7 @@ end
 function init_peu( obj, k )
     
     % move currently executing user file to previously executing user file
-    op = ['sudo mv' ' ' obj.ceu ' ' obj.peu '&'];
+    op = ['sudo mv' ' ' obj.ceu{1} ' ' obj.peu{1} '&'];
 
     perform_fs_op(op);   
 
@@ -137,15 +137,14 @@ nu = length(obj.users);           % number of users in system
 % in the event that
 %   1. the task controller was interrupted 
 %   2. a user was blocked from executing tasks from lack of workers
-[fu ft] = get_user_state( obj );
-
+[fu tu] = get_user_state( obj );
 
 % iterate over all users launching tasks as appropriate
 for k = fu:nu,
         
     % determine if user has tasks to launch
     mat_ext = '/*.mat';
-    [tl nt] = get_files_in_dir(obj.users{k}.iq, mat_ext);
+    [tl nt] = get_files_in_dir(obj.users{k}.iq{1}, mat_ext);
     
     % if the user has no task files to launch, continue to next user
     if nt == 0, continue; end
@@ -156,12 +155,9 @@ for k = fu:nu,
        
     % determine the number of workers available to execute user tasks
     wa = get_workers_available(obj);
-    
-    %  tasks per user
-    tu = obj.tu;
         
     % iterate over tasks and launch as workers become available
-    for m = ft:tu,
+    for m = 1:tu,
         
         % if user has no tasks remaining, continue to next user
         if nt == 0, break; end
@@ -170,7 +166,7 @@ for k = fu:nu,
         if (wa <= 0)
             % save the index of the user's currently executing task
             %  and return to this task when a worker becomes available
-            obj.bu.ft = m;
+            obj.bu.tu = tu - m + 1;
             
             % save username of blocked user
             obj.bu.username = obj.users{k}.username;
@@ -209,7 +205,7 @@ end
 
 
 % get index of user executing tasks during previous task controller run
-function [fu ft] = get_user_state( obj )
+function [fu tu] = get_user_state( obj )
 
 % restore user execution state in the event that
 %  user was interrupted by task controller stoppage - peu
@@ -217,10 +213,10 @@ function [fu ft] = get_user_state( obj )
 
 
 % check for previous user execution file existence
-if exist(obj.peu, 'file')
+if exist(obj.peu{1}, 'file')
 
     % if file exists, open and read the username contained in the file
-    user_fid=fopen(obj.peu);
+    user_fid=fopen(obj.peu{1});
     username = fgetl(user_fid);
     fclose(user_fid);
     
@@ -228,11 +224,11 @@ if exist(obj.peu, 'file')
     fu = get_user_index(obj, username);
     
     % delete previous user execution file
-    op = ['sudo rm' ' ' obj.peu ' ' '&'];
-    perform_fs_op(op)
+    op = ['sudo rm' ' ' obj.peu{1} ' ' '&'];
+    perform_fs_op(op);
     
     % start executing task index from beginning
-    ft = 1;
+    tu = obj.tu;
     
     % check for existence of blocked user
 elseif obj.bu.isbl == 1,
@@ -242,8 +238,10 @@ elseif obj.bu.isbl == 1,
     
     % start executing tasks from the index of the last task to execute
     %  before blocking
-    ft = obj.bu.ft;        
-    
+    tu = obj.tu;
+
+
+
     % user is no longer blocked
     obj.bu.isbl = 0;
     
@@ -254,7 +252,7 @@ else
     fu = 1;
     
     % start executing task index from beginning
-    ft = 1;
+    tu = obj.tu;
 
 end
 
@@ -264,7 +262,7 @@ end
 % save to file the username of user currently executing tasks
 function save_cur_exec_user( obj, k )
 
-user_fid=fopen(obj.ceu, 'w+');
+user_fid=fopen(obj.ceu{1}, 'w+');
 
 fprintf(user_fid, '%s', obj.users{k}.username);
 
@@ -319,11 +317,11 @@ end
 function perform_fs_op(op)
 
 % log operation being executed
-fprintf('%s\n', op);
+%fprintf('%s\n', op);
 
 [st res] = system(op);
 
-fprintf('\n');
+%fprintf('\n');
 
 pause(0.05);
 
@@ -332,13 +330,13 @@ end
 
 % calculate the number of workers available
 %  to execute tasks
-function ca = get_workers_available(obj);
+function wa = get_workers_available(obj);
 
 % perform directory listing in global running and input queues,
 % and count the number of files in each
 ext_in = '/*.mat';
-[fl nfrq] = get_files_in_dir(obj.gq.rq{1}, ext_in)
-[fl nfiq] = get_files_in_dir(obj.gq.iq{1}, ext_in)
+[fl nfrq] = get_files_in_dir(obj.gq.rq{1}, ext_in);
+[fl nfiq] = get_files_in_dir(obj.gq.iq{1}, ext_in);
 
 % total number of workers available
 nw = obj.nw;
@@ -346,7 +344,7 @@ nw = obj.nw;
 % to determine workers available, subtract number of files in global
 %  running and input queues from total workers available
 %  from total cores available
-ca = nw - ( nfrq + nfiq );
+wa = nw - ( nfrq + nfiq );
 
 end
 
@@ -369,7 +367,7 @@ function consume_output(obj)
 
 % get files in global output queue
 ext_in = '/*.mat';
-[fl nf] = get_files_in_dir(obj.gq.oq{1}, ext_in)
+[fl nf] = get_files_in_dir(obj.gq.oq{1}, ext_in);
 
 % iterate over all files in output queue, moving to owning user output
 % queue
@@ -408,7 +406,7 @@ end
 function user_ind = get_user_index(obj, username)
 
 % total number of users
-nu = get_number_users( obj.users );
+nu = length( obj.users );
 
 % default index if no user found - should cause error
 user_ind = -1;
@@ -467,13 +465,6 @@ function [ownership_name ownership_group] = get_file_ownership( username, ...
 ownership_name = username;           % shorten the name
 ownership_group = username;
 
-%if( strcmp( user_location, 'web') )
-%    ownership_name = 'tomcat55';
-%    ownership_group = 'tomcatusers';
-%elseif( strcmp( user_location, 'local') )
-%    ownership_name = username;           % shorten the name
-%    ownership_group = username;
-%end
 end
 
 

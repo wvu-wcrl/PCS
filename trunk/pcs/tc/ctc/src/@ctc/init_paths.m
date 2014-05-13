@@ -73,7 +73,7 @@ obj.peu = out{1};
 heading = '[paths]';
 key = 'ceu';
 out = util.fp(obj.cfp, heading, key);
-obj.peu = out{1};
+obj.ceu = out{1};
 
 
 end

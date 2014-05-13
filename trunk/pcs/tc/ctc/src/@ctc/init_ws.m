@@ -44,7 +44,7 @@ for k = 1:n,
         
         tmp.status = ''; % maybe remove
         
-        obj.ws{nw} = tmp; % add current worker struct to worker state
+        obj.ws{nw + 1} = tmp; % add current worker struct to worker state
         
         nw = nw + 1;      % iterate total number of workers
     
@@ -52,7 +52,8 @@ for k = 1:n,
     
 end
 
-obj.aw = 0;         % all workers are idle   % maybe remove
+% store total number of workers
+	obj.nw = nw;
 
 end
 
