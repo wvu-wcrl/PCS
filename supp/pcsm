@@ -50,10 +50,10 @@ fi
 #  set configuration file
 case $1 in
     short)
-	CfgFi=/home/pcs/tc/cfg/pcs_short_384.cfg
+	CfgFi=/home/pcs/tc/cfg/short.cfg
 	;;
     long)
-	CfgFi=/home/pcs/tc/cfg/pcs_long_384.cfg
+	CfgFi=/home/pcs/tc/cfg/long.cfg
 	;;
     testing)
 	CfgFi=/home/pcs/tc/cfg/pcs_test.cfg
@@ -135,16 +135,19 @@ for((k=0;k<${#node[@]};k++))
 do
     
 # count number of workers up for this node and queue
-    w_up=`ssh ${node[k]} "ps aux" |grep -i matlab |grep -i $queue |wc |awk '{print $1}'`
+    cur_node="${node[k]}"
 
-# number of workers down is difference between total and up
+    w_up=`sudo su pcs -c "ssh $cur_node ps aux" |grep -i matlab |grep -i $queue |wc |awk '{print $1}'`
+
+    # old implementation
+    #    w_up=`sudo su pcs -c ssh ${node[k]} "ps aux" |grep -i matlab |grep -i $queue |wc |awk '{print $1}'`
+
+    # number of workers down is difference between total and up
     w_diff[k]=$((${nwrk[k]}-$w_up))
 
 #w_diff - array of integers indicating how many workers are down on each
 #          node in $node
 done
-
-
 
 
 # form array of worker status
