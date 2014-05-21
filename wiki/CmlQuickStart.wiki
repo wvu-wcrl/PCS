@@ -91,7 +91,8 @@ https://iscml.googlecode.com/svn/trunk/pcs/projects/cml/doc/web/cml_simulate.jpg
     # Symbol-error rate (SER) vs SNR
   * which are identical under binary modulation.
 
-http://wcrl.csee.wvu.edu/cml_plot.jpg
+https://iscml.googlecode.com/svn/trunk/pcs/projects/cml/doc/web/cml_plot.jpg
+
 
 
 == Summary of Steps ==
