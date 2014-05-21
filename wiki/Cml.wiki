@@ -1,7 +1,7 @@
 = Introduction =
 
 The Coded Modulation Library (CML) is a library of communication
-system simulations developed at WVU.
+system simulations developed at West Virginia University.
 
   * Implemented using MATLAB and C-mex
   * Free software licensed under the lesser GPL
