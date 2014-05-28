@@ -1,0 +1,81 @@
+5/2014
+
+
+ goal: implement prioritized task scheduling for WCRL-PCS
+
+== req ==
+
+* users utilize proportion of queue based on priority
+
+* priority defined as numbers of tasks launched by tc in
+   a single execution round
+
+* priorit is an integer
+  0-10
+
+* default priority 5
+
+
+
+== design ==
+
+- extend each user data structure to include priority as a scalar
+
+- implement reading of priority file
+   in main and in user initialization
+   function 
+
+
+set default priority in queue configuration file
+set priority path in queue configuration file
+
+- test
+
+
+
+== tests ==
+
+ launch tc with no crash
+   passed  
+
+ submit single task from single user
+  passed
+
+ submit many tasks from single user
+  passed
+
+ submit many tasks from three users
+   same priority
+   passed
+
+ submit many tasks from three users
+   priorities 1 1 10
+   passed
+
+ submit many tasks from many users
+   equal prio
+   passed
+
+ submit many tasks from many users
+   diff prior
+   passed
+
+test restoration from blocking
+
+   
+   
+files to edit for prio setting
+   init_users
+     read prios from file and assign
+
+   main
+    set tasks per user
+
+  order of tasks
+    modify main
+    implement user priority reading
+
+  tu becomes an array
+     restored in get_user_state
+     referenced in main
+
