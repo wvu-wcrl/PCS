@@ -62,10 +62,14 @@ classdef ctc < handle
         
         aw       % active workers
         
-        tu = 8   % tasks to launch per user. Default value allocates
+        %tu = 8   % tasks to launch per user. Default value allocates
                  %  enough workers to provide roughly the equivalent performance
                  %  of a single 2014 era desktop machine
         
+        upfp     % user priority file path.  read from ctc configuration file.
+        
+        d_pr     % default priority. read from ctc configuration file.
+                 
         mfiq     % maximum files allowed in input queue
         
         tsp      % sweep period - time between queue passes
@@ -77,7 +81,9 @@ classdef ctc < handle
                     % oq - output path
                     % aw - active workers for this user
                     % user_location - user location - web or local
-
+                    % pr  - priority: 0-10
+                    %         determines proportion of queue user utilizes            
+                    
          bu       % store information about user who is blocked waiting
                   %  for free workers
                     % username   Blocked user username

@@ -65,6 +65,9 @@ while(1)
     %  or resuming
     if IS_START || IS_RESUME
         
+        % get user priorities        
+        obj = get_user_priorities(obj);
+        
         % iterate over all users scheduling tasks in a round-robin fashion
         schedule_tasks_rr(obj);
         
@@ -115,13 +118,73 @@ end
 %  begins execution from the user executing while the task controller
 %  was shut down
 function init_peu( obj, k )
-    
-    % move currently executing user file to previously executing user file
-    op = ['sudo mv' ' ' obj.ceu{1} ' ' obj.peu{1} '&'];
 
-    perform_fs_op(op);   
+% move currently executing user file to previously executing user file
+op = ['sudo mv' ' ' obj.ceu{1} ' ' obj.peu{1} '&'];
+
+perform_fs_op(op);
 
 end
+
+
+% get user priorities from file
+function obj = get_user_priorities(obj)
+
+% open file containing user priorities
+pf_fid = fopen(obj.upfp{1});
+
+% if no priority file found, return from function.
+if pf_fid == -1,
+    fprintf('ERROR: Priority file\n');
+    fprintf('  %s', obj.upfp{1});
+    fprintf('not found. Using default priorities.');
+    return;
+end
+
+% loop over priority file reading usernames and assigning priorities
+%  to user structures
+EOF = -1;  % the function fgets() represents the end of a file as -1
+
+% read first line from user priority file
+[cur_line] = fgets(pf_fid);
+
+while cur_line ~= EOF,
+    % tokenize line read from file
+    %  username
+    %  priority
+    [un pr_string] = strtok(cur_line);
+    
+    % find user having this username
+    ui = get_user_index(obj, un);
+    
+    % if user not found,
+    %  skip priority assignment
+    %  output error message
+    %  read next line
+    if ui == -1,
+        fprintf('Priority file contains user which does not');
+        fprintf(' exist in PCS.');
+        fprintf('Username in question: %s', un);
+    else        
+        % if user found, assign priority to data structure
+        
+        % convert string-form priority to integer-form
+        pr_dbl = str2double(pr_string);
+        
+        % assign priority
+        obj.users{ui}.pr = pr_dbl;
+    end
+    
+    %  read next line from priority file
+    [cur_line] = fgets(pf_fid);
+    
+end
+
+% close priority file
+fclose(obj.upfp{1});
+
+end
+
 
 
 % perform round-robin task scheduling
@@ -135,13 +198,13 @@ nu = length(obj.users);           % number of users in system
 
 % the purpose of this function is to set the first user and task to execute
 % in the event that
-%   1. the task controller was interrupted 
+%   1. the task controller was interrupted
 %   2. a user was blocked from executing tasks from lack of workers
 [fu tu] = get_user_state( obj );
 
 % iterate over all users launching tasks as appropriate
 for k = fu:nu,
-        
+    
     % determine if user has tasks to launch
     mat_ext = '/*.mat';
     [tl nt] = get_files_in_dir(obj.users{k}.iq{1}, mat_ext);
@@ -152,30 +215,30 @@ for k = fu:nu,
     % save the name of the currently executing user so that the
     % task controller can return to the user in the event of a crash
     save_cur_exec_user( obj, k );
-       
+    
     % determine the number of workers available to execute user tasks
     wa = get_workers_available(obj);
-        
+    
     % iterate over tasks and launch as workers become available
-    for m = 1:tu,
+    for m = 1:tu(k),
         
         % if user has no tasks remaining, continue to next user
         if nt == 0, break; end
-
+        
         % if no workers available, pause and wait until workers become free
         if (wa <= 0)
             % save the index of the user's currently executing task
             %  and return to this task when a worker becomes available
-            obj.bu.tu = tu - m + 1;
+            obj.bu.tu = tu(k) - m + 1;
             
             % save username of blocked user
             obj.bu.username = obj.users{k}.username;
             
             % set blocked state to 1
-            obj.bu.isbl = 1;                        
+            obj.bu.isbl = 1;
             
-            fprintf('Waiting for workers to become free\n');
-            fprintf('to launch tasks for user \n %s.', obj.users{k}.username);            
+            fprintf('Waiting for workers t become free\n');
+            fprintf('to launch tasks for user \n %s.', obj.users{k}.username);
             
             % return to main loop
             return;
@@ -214,7 +277,7 @@ function [fu tu] = get_user_state( obj )
 
 % check for previous user execution file existence
 if exist(obj.peu{1}, 'file')
-
+    
     % if file exists, open and read the username contained in the file
     user_fid=fopen(obj.peu{1});
     username = fgetl(user_fid);
@@ -228,7 +291,7 @@ if exist(obj.peu{1}, 'file')
     perform_fs_op(op);
     
     % start executing task index from beginning
-    tu = obj.tu;
+    tu = get_tasks_per_user(obj);
     
     % check for existence of blocked user
 elseif obj.bu.isbl == 1,
@@ -238,10 +301,9 @@ elseif obj.bu.isbl == 1,
     
     % start executing tasks from the index of the last task to execute
     %  before blocking
-    tu = obj.tu;
-
-
-
+    tu = get_tasks_per_user(obj);
+    tu(fu) = obj.bu.tu;
+    
     % user is no longer blocked
     obj.bu.isbl = 0;
     
@@ -251,13 +313,23 @@ else
     % first user
     fu = 1;
     
-    % start executing task index from beginning
-    tu = obj.tu;
-
+    tu = get_tasks_per_user(obj);
+    
 end
 
 end
 
+
+% get the number of tasks to launch per user during each execution
+% round
+function tu = get_tasks_per_user(obj)
+% set tasks to launch per user based on priority
+nu = length(obj.users);    % iterate over all users
+for k = 1:nu
+    % number of tasks to launch is equal to user priorty
+    tu(k) = obj.users.pr;
+end
+end
 
 % save to file the username of user currently executing tasks
 function save_cur_exec_user( obj, k )
@@ -269,7 +341,7 @@ fprintf(user_fid, '%s', obj.users{k}.username);
 fclose(user_fid);
 
 end
-    
+
 
 % for the k-th user in
 %   obj.users,

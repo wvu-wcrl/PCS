@@ -23,6 +23,14 @@ key = 'user';
 out = util.fp(obj.cfp, heading, key);
 obj.ucfg = out{1}{1};
 
+
+% default user priority
+heading = '[user]';
+key = 'default_priority';
+out = util.fp(obj.cfp, heading, key);
+obj.d_pr = str2double(out{1}{1});
+
+
 % Initialize user state
 obj.users = [];
 
@@ -32,8 +40,12 @@ obj.users = [];
 for k = 1:length(user_dirs)
     
     obj = scan_user_dirs(obj, obj.ucfg, user_dirs{k}{1});
-    
+
 end
+
+% Assign default priority to all users
+nu = length(obj.users);  % number of users
+for k = 1:nu,  obj.users{k}.pr = obj.d_pr;  end
 
 end
 
