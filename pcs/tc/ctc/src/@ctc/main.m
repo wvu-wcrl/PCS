@@ -181,7 +181,7 @@ while cur_line ~= EOF,
 end
 
 % close priority file
-fclose(obj.upfp{1});
+fclose(pf_fid);
 
 end
 
@@ -327,7 +327,7 @@ function tu = get_tasks_per_user(obj)
 nu = length(obj.users);    % iterate over all users
 for k = 1:nu
     % number of tasks to launch is equal to user priorty
-    tu(k) = obj.users.pr;
+    tu(k) = obj.users{k}.pr;
 end
 end
 
