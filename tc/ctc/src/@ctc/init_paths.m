@@ -57,6 +57,12 @@ key = 'ctc_logfile';
 out = util.fp(obj.cfp, heading, key);
 obj.ctc_logfile = out{1};
 
+% user priority file path
+heading = '[paths]';
+key = 'user_priorities';
+out = util.fp(obj.cfp, heading, key);
+obj.upfp = out{1};
+
 % bash script path
 heading = '[paths]';
 key = 'bash_scripts';
