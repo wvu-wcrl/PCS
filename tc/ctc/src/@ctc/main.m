@@ -65,7 +65,7 @@ while(1)
     %  or resuming
     if IS_START || IS_RESUME
         
-        % get user priorities        
+        % get user priorities
         obj = get_user_priorities(obj);
         
         % iterate over all users scheduling tasks in a round-robin fashion
@@ -165,7 +165,7 @@ while cur_line ~= EOF,
         fprintf('Priority file contains user which does not');
         fprintf(' exist in PCS.');
         fprintf('Username in question: %s', un);
-    else        
+    else
         % if user found, assign priority to data structure
         
         % convert string-form priority to integer-form
@@ -211,6 +211,24 @@ for k = fu:nu,
     
     % if the user has no task files to launch, continue to next user
     if nt == 0, continue; end
+    
+    % if the user has launched as many or more tasks than
+    %  allowed by the task threshold, continue to next user
+    [ ite ] = is_thresh_exceeded( obj, k );
+    if ite, continue; end    
+    % The task threshold is defined as the maximum number of tasks
+    %  which this user can execute.
+    %  The maximum number is determined by the user's priority,
+    %   all other user priorities in the system, and the number
+    %   of workers
+    %  Tu = ceil( Nw * Pu/sum_m=1^Na Pm )
+    %   where
+    %  Tu - threshold
+    %  Nw - total number of workers in the system
+    %  Pu - Priority value for this user
+    %  Na - number of active users
+    %  Pm - Priority value for the m-th user
+    
     
     % save the name of the currently executing user so that the
     % task controller can return to the user in the event of a crash
@@ -263,6 +281,77 @@ for k = fu:nu,
     ft = 1;
     
 end
+
+end
+
+
+% determine if the current user has exceeded the
+%  maximum number of tasks permitted for execution
+%  simultaneously
+function ite = is_thresh_exceeded( obj, k )
+
+%%% outline
+% 1. compute number of tasks user has in iq and rq
+% 2. compute list of unique users in iq and rq
+% 3. get list of priorities for all unique users
+% 4. get priority for current user
+% 5. compute user maximum tasks - proportion of workers user is allotted
+% 6. determine if user has exceeded maximum tasks
+
+%%% 1. compute number of tasks user has in iq and rq
+cur_user = obj.users{k}.username;
+
+% iq
+pgiq = obj.gq.iq;
+cmd = [ 'ls' ' ' pgiq '|' 'grep -i' ' ' cur_user '|' 'wc' ];
+[DC iqt_str] = system(cmd);
+iqt_dbl = str2double(strtok(iqt_str));
+
+% rq
+pgrq = obj.gq.rq;
+cmd = [ 'ls' ' ' pgrq '|' 'grep -i' ' ' cur_user '|' 'wc' ];
+[DC rqt_str] = system(cmd);
+rqt_dbl = str2double(strtok(rqt_str));
+
+% total number of active tasks in input and running queues
+uat = iqt_double + rqt_double;
+
+
+%%% 2. compute list of unique users in iq and rq
+cmd = [ 'ls' ' ' pgiq ' ' pgrq ...
+    '|sort |fgrep -i .mat |' 'cut -d ''_'' -f1 |uniq' ];
+[ DC users_str ] = system(cmd);
+
+% form a cell array of strings where each string is a username
+users_cell = textscan(users_str, '%s');
+
+% get number of unique users
+Nau = size(users_cell{1});
+
+
+%%% 3. get a list of priorities for all unique users
+pr_au = zeros(1,Nau);
+for m = 1:Nau,
+    % get index for current user
+    uind = get_user_index( obj, users_cell{1}{m} );
+    
+    % get user priority
+    pr_au(m) = obj.users{uind}.pr
+end
+
+
+%%% 4. get priority for current user
+cind = get_user_index( obj, cur_user );
+pr_cu = obj.users{cind}.pr;
+
+
+%%% 5. compute user maximum tasks -
+%%%    proportion of workers user is allotted
+umt = ceil( obj.aw * pr_cu / sum( pr_au ) );
+
+
+%%% 6. determine if user has exceeded maximum tasks
+ite = uat > umt;
 
 end
 
