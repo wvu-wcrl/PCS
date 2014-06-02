@@ -314,7 +314,7 @@ cmd = [ 'ls' ' ' pgrq '|' 'grep -i' ' ' cur_user '|' 'wc' ];
 rqt_dbl = str2double(strtok(rqt_str));
 
 % total number of active tasks in input and running queues
-uat = iqt_double + rqt_double;
+uat = iqt_dbl + rqt_dbl;
 
 
 %%% 2. compute list of unique users in iq and rq
