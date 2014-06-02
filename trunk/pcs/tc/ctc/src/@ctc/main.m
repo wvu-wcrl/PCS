@@ -302,13 +302,13 @@ function ite = is_thresh_exceeded( obj, k )
 cur_user = obj.users{k}.username;
 
 % iq
-pgiq = obj.gq.iq;
+pgiq = obj.gq.iq{1};
 cmd = [ 'ls' ' ' pgiq '|' 'grep -i' ' ' cur_user '|' 'wc' ];
 [DC iqt_str] = system(cmd);
 iqt_dbl = str2double(strtok(iqt_str));
 
 % rq
-pgrq = obj.gq.rq;
+pgrq = obj.gq.rq{1};
 cmd = [ 'ls' ' ' pgrq '|' 'grep -i' ' ' cur_user '|' 'wc' ];
 [DC rqt_str] = system(cmd);
 rqt_dbl = str2double(strtok(rqt_str));
@@ -316,17 +316,25 @@ rqt_dbl = str2double(strtok(rqt_str));
 % total number of active tasks in input and running queues
 uat = iqt_dbl + rqt_dbl;
 
+% if the user has no tasks in either queue, clearly
+%  they are under the threshold. break.
+if uat == 0; ite = 0; return; end
+
 
 %%% 2. compute list of unique users in iq and rq
 cmd = [ 'ls' ' ' pgiq ' ' pgrq ...
     '|sort |fgrep -i .mat |' 'cut -d ''_'' -f1 |uniq' ];
 [ DC users_str ] = system(cmd);
 
+% break out of the function if the queue is empty,
+%  indicating that user has not exceeded the threshold
+if isempty(users_str); ite = 0; return; end
+
 % form a cell array of strings where each string is a username
 users_cell = textscan(users_str, '%s');
 
 % get number of unique users
-Nau = size(users_cell{1});
+Nau = length(users_cell{1});
 
 
 %%% 3. get a list of priorities for all unique users
@@ -334,9 +342,9 @@ pr_au = zeros(1,Nau);
 for m = 1:Nau,
     % get index for current user
     uind = get_user_index( obj, users_cell{1}{m} );
-    
+
     % get user priority
-    pr_au(m) = obj.users{uind}.pr
+    pr_au(m) = obj.users{uind}.pr;
 end
 
 
@@ -347,8 +355,7 @@ pr_cu = obj.users{cind}.pr;
 
 %%% 5. compute user maximum tasks -
 %%%    proportion of workers user is allotted
-umt = ceil( obj.aw * pr_cu / sum( pr_au ) );
-
+umt = ceil( obj.nw * pr_cu / sum( pr_au ) );
 
 %%% 6. determine if user has exceeded maximum tasks
 ite = uat > umt;
