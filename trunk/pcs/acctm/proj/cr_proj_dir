@@ -9,7 +9,7 @@
 #  3. Project name
 #
 # Calling Example
-#  > ./create_proj_dir /home/testuser testuser cml
+#  > ./cr_proj_dir /home/testuser testuser cml
 
 
 # process command line arguments
