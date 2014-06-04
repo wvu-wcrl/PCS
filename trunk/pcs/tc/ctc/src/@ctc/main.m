@@ -234,17 +234,18 @@ for k = fu:nu,
     % task controller can return to the user in the event of a crash
     save_cur_exec_user( obj, k );
     
-    % determine the number of workers available to execute user tasks
-    wa = get_workers_available(obj);
-    
+    %% determine the number of queue slots available to execute user tasks
+    %wa = get_workers_available(obj);
+    qslots = get_queue_slots_available(obj)
+
     % iterate over tasks and launch as workers become available
     for m = 1:tu(k),
         
         % if user has no tasks remaining, continue to next user
         if nt == 0, break; end
         
-        % if no workers available, pause and wait until workers become free
-        if (wa <= 0)
+        % if no queue slots available, pause and wait until workers become free
+        if (qslots <= 0)
             % save the index of the user's currently executing task
             %  and return to this task when a worker becomes available
             obj.bu.tu = tu(k) - m + 1;
@@ -272,7 +273,7 @@ for k = fu:nu,
         nt = nt - 1;
         
         % decrement workers available
-        wa = wa - 1;
+        qslots = qslots - 1;
         
     end
     
@@ -496,9 +497,9 @@ pause(0.05);
 end
 
 
-% calculate the number of workers available
+% calculate the number of queue slots available
 %  to execute tasks
-function wa = get_workers_available(obj);
+function qslots = get_queue_slots_available(obj)
 
 % perform directory listing in global running and input queues,
 % and count the number of files in each
@@ -509,12 +510,39 @@ ext_in = '/*.mat';
 % total number of workers available
 nw = obj.nw;
 
-% to determine workers available, subtract number of files in global
-%  running and input queues from total workers available
-%  from total cores available
-wa = nw - ( nfrq + nfiq );
+% Queue buffer. specifies number of tasks which may be placed
+%  in the input queue beyond the number of workers.
+% The purpose of this buffer is to maintain sufficient tasks
+%  in the input queue such that the workers always have tasks
+%  available to execute.
+qbuf = obj.qbuf;
+
+% to determine the number of queue slots available,
+%  add the number of workers to the queue buffer and
+%  subtract the number of tasks in the global running
+%  and input queues
+qslots = ( nw + qbuf ) - ( nfrq + nfiq );
 
 end
+
+
+%function wa = get_workers_available(obj)
+%
+%% perform directory listing in global running and input queues,
+%% and count the number of files in each
+%ext_in = '/*.mat';
+%[fl nfrq] = get_files_in_dir(obj.gq.rq{1}, ext_in);
+%[fl nfiq] = get_files_in_dir(obj.gq.iq{1}, ext_in);
+%
+%% total number of workers available
+%nw = obj.nw;
+%
+%% to determine workers available, subtract number of files in global
+%%  running and input queues from total workers available
+%%  from total cores available
+%wa = nw - ( nfrq + nfiq );
+%
+%end
 
 
 % touch heartbeat file indicate that TC has not crashed
