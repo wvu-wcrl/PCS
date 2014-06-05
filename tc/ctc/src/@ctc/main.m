@@ -235,7 +235,7 @@ for k = fu:nu,
     
     %% determine the number of queue slots available to execute user tasks
     %wa = get_workers_available(obj);
-    qslots = get_queue_slots_available(obj)
+    qslots = get_queue_slots_available(obj);
 
     % iterate over tasks and launch as workers become available
     for m = 1:tu(k),
