@@ -162,9 +162,8 @@ while cur_line ~= EOF,
     %  output error message
     %  read next line
     if ui == -1,
-        fprintf('Priority file contains user which does not');
-        fprintf(' exist in PCS.');
-        fprintf('Username in question: %s', un);
+        fprintf('Priority file contains username which does not');
+        fprintf(' exist in user structure: %s.\n', un);
     else
         % if user found, assign priority to data structure
         
@@ -617,8 +616,6 @@ for k = 1:nu,
     
 end
 
-% crash if no user found
-if user_ind == -1, fprintf('No user with that username found. Crashing.'); end
 
 end
 
