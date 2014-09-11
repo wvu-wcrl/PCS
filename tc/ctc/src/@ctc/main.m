@@ -207,7 +207,7 @@ for k = fu:nu,
     % determine if user has tasks to launch
     mat_ext = '/*.mat';
     [tl nt] = get_files_in_dir(obj.users{k}.iq{1}, mat_ext);
-    
+
     % if the user has no task files to launch, continue to next user
     if nt == 0, continue; end
     
@@ -461,21 +461,33 @@ pgiq = obj.gq.iq;
 fn = tl(m).name;
 afn = [obj.users{k}.username '_' obj.users{k}.user_location '_' fn];
 
+%REMOVED AMPERSAND
 % copy user input file into user running queue
-op = ['sudo cp' ' ' puif{1} ' ' purf{1} ' ' '&'];
+%op = ['sudo cp' ' ' puif{1} ' ' purf{1} ' ' '&'];
+op = ['sudo cp' ' ' puif{1} ' ' purf{1}];
 perform_fs_op(op);
 
+
+%REMOVED AMPERSAND
 % change user running queue file ownership from root to user
+%op = ['sudo chown' ' ' obj.users{k}.username ':' ...
+%    obj.users{k}.username ' ' purf{1} ' ' '&'];
 op = ['sudo chown' ' ' obj.users{k}.username ':' ...
-    obj.users{k}.username ' ' purf{1} ' ' '&'];
+    obj.users{k}.username ' ' purf{1}];
 perform_fs_op(op);
 
+
+%REMOVED AMPERSAND
 % change user input file ownership to pcs user
-op = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1} ' ' '&'];
+% op = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1} ' ' '&'];
+op = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1}];
 perform_fs_op(op);
 
+
+%REMOVED AMPERSAND
 % move user file into input queue
-op = ['sudo mv -f' ' ' puif{1} ' ' pgiq{1} '/' afn ' ' '&'];
+%op = ['sudo mv -f' ' ' puif{1} ' ' pgiq{1} '/' afn ' ' '&'];
+op = ['sudo mv -f' ' ' puif{1} ' ' pgiq{1} '/' afn];
 perform_fs_op(op);
 
 end

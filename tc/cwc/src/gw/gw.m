@@ -275,7 +275,7 @@ next_running = [beg '_' int2str(wid) en];
 
 
 
-cs = ['mv' ' ' iq '/' next_input ' ' rq '/' next_running ];
+cs = ['mv -f' ' ' iq '/' next_input ' ' rq '/' next_running ];
 
 [dont care] = system(cs);
 
@@ -298,7 +298,7 @@ end
 
 function consume_running_queue(next_running, rq)
 
-cs = ['rm' ' ' rq '/' next_running];
+cs = ['rm -f' ' ' rq '/' next_running];
 system(cs);
 
 end
