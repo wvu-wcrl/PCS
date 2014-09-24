@@ -52,7 +52,9 @@ When prompted for a username and password, enter your WCRL cluster credentials.
 Specify the local folder which you would like to synchronize with ownCloud.
 
 
-*Installation of ownCloud is complete. All files placed in your local ownCloud directory will synchronize with the cluster in your directory
+*Installation of ownCloud is complete.*
+
+*All files placed in your local ownCloud directory will automatically synchronize with your cluster directory
 *
 {{{
 ~/oc
