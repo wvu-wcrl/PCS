@@ -1,4 +1,4 @@
-[http://owncloud.org] ownCloud is a cloud storage service deployed on the WCRL cluster enabling automatic synchronization of files between user home directories and personal devices.
+[http://owncloud.org ownCloud] is a service deployed on the WCRL cluster enabling automatic synchronization of files between home directories and personal devices.
 
 
 
