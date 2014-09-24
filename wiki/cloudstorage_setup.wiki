@@ -4,7 +4,7 @@
 
 This functionality can be convenient when using WebCML on the cluster.
 
-Using ownCloud on the WCRL cluster requires an account.  Contact the system administrator to obtain one if necessary.
+ownCloud usage requires a cluster account.  Contact the system administrator to obtain one if necessary.
 
 
 == Procedure for Enabling Cluster ownCloud Access ==
