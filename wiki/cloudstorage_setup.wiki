@@ -1,5 +1,9 @@
 [http://owncloud.org ownCloud] is a service deployed on the WCRL cluster enabling automatic synchronization of files between home directories and personal devices.
 
+This functionality can be convenient when using WebCML on the cluster.
+
+
+
 
 
 
