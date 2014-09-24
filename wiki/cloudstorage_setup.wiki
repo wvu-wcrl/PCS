@@ -1,21 +1,24 @@
-[http://owncloud.org ownCloud] is a service deployed on the WCRL cluster enabling automatic synchronization of files between home directories and personal devices.
+== Introduction ==
+
+[http://owncloud.org ownCloud] is a service deployed on the WCRL cluster enabling _automatic synchronization_ of files between _cluster home directories_ and _personal devices_.
 
 This functionality can be convenient when using WebCML on the cluster.
 
-
+Using ownCloud on the WCRL cluster requires an account.  Contact the system administrator to obtain one if necessary.
 
 
 == Procedure for Enabling Cluster ownCloud Access ==
 
 *1. Access Request*
-    Contact the WCRL system administrator and request access to ownCloud.
+    Contact the system administrator and request access to ownCloud.
     Once a reply has been received, proceed to the next step.  
 
 
 *2. Configuration on Cluster*
 
-   To enable your ownCloud share directory on the cluster,
-   log in via SSH and execute
+   In this step we create a directory on the cluster under your home directory to synchronize with the WCRL ownCloud server.
+
+  Log in via SSH and execute
 
    {{{
        > sudo wcrl-owncloud-setup
