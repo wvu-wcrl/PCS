@@ -39,3 +39,7 @@ This functionality can be convenient when using WebCML on the cluster.
 *4. Client configuration*
 
 http://wcrl.csee.wvu.edu/owncloud_client_1.png
+
+http://wcrl.csee.wvu.edu/owncloud_client_2.png
+
+http://wcrl.csee.wvu.edu/owncloud_client_3.png
