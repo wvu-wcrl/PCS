@@ -36,6 +36,7 @@ ownCloud usage requires a cluster account.  Contact the system administrator to 
 *3. Client installation*
 
    On the machine to be synchronized with your cluster ownCloud directory, download and install the _ownCloud Desktop client_ for your platform located at
+
 https://owncloud.org/install/
 
 
