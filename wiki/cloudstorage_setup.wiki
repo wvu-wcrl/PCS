@@ -30,9 +30,9 @@ This functionality can be convenient when using WebCML on the cluster.
     which contains all files synchronized to your ownCloud account.
 
 
-*2. Client installation*
+*3. Client installation*
 
-   On the machine to be synchronized with your cluster ownCloud directory, download and install the client for your platform located at
+   On the machine to be synchronized with your cluster ownCloud directory, download and install the _ownCloud Desktop client_ for your platform located at
 [ https://owncloud.org/install/ ]
 
 
