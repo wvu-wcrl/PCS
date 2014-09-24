@@ -7,12 +7,12 @@ This functionality can be convenient when using WebCML on the cluster.
 
 == Procedure for Enabling Cluster ownCloud Access ==
 
-1. *Access Request*
+*1. Access Request*
     Contact the WCRL system administrator and request access to ownCloud.
     Once a reply has been received, proceed to the next step.  
 
 
-2. *Configuration on Cluster*
+*2. Configuration on Cluster*
 
    To enable your ownCloud share directory on the cluster,
    log in via SSH and execute
@@ -30,42 +30,10 @@ This functionality can be convenient when using WebCML on the cluster.
     which contains all files synchronized to your ownCloud account.
 
 
-2. *Client installation*
+*2. Client installation*
 
    On the machine to be synchronized with your cluster ownCloud directory, download and install the client for your platform located at
 [ https://owncloud.org/install/ ]
 
-3. configuring
 
-
-
-requesting access
-
-installing client
-
-configuring
-
-
-
-
-
-Download client for platform at
- 
-
-
-aaa
-
-
-#summary One-sentence summary of this page.
-
-= Introduction =
-
-Add your content here.
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+*3. Client configuration*
