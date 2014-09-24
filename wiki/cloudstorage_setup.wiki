@@ -36,4 +36,6 @@ This functionality can be convenient when using WebCML on the cluster.
 [ https://owncloud.org/install/ ]
 
 
-*3. Client configuration*
+*4. Client configuration*
+
+http://wcrl.csee.wvu.edu/owncloud_client_1.png
