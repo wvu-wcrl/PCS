@@ -46,7 +46,7 @@ Launch the desktop client.  When prompted for a server address, enter
 {{{ 
 https://wcrl.csee.wvu.edu/owncloud 
 }}}
-as shown in the figure
+as
 
 http://wcrl.csee.wvu.edu/owncloud_client_1.png
 
