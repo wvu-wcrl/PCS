@@ -44,14 +44,15 @@ classdef CmlJobManager < JobManager
         end
         
         
-        function [JobParam, JobState, PPSuccessFlag, PPErrorMsg] =...
-                PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, JobName)
+        function [JobParam, JobState, JobInfo, PPSuccessFlag, PPErrorMsg] =...
+                PreProcessJob(obj, JobParamIn, JobStateIn, JobInfoIn, CurrentUser, JobName)
             
             CodeRoot = CurrentUser.CodeRoot;
             OldPath = obj.SetCodePath(CodeRoot); % Set the path to CML.
             
             [JobParam PPSuccessFlag PPErrorMsg] =...
                 obj.ProcessDataFiles( JobParamIn, CurrentUser, JobName, CodeRoot );
+            JobInfo = JobInfoIn;
             
             % return if failure in data file processing
             if PPSuccessFlag == 0,

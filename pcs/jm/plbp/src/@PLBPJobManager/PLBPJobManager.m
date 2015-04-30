@@ -36,7 +36,7 @@ classdef PLBPJobManager < JobManager
         end
         
         
-        function [JobParam, JobState, PPSuccessFlag, PPErrorMsg] = PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, JobName)
+        function [JobParam, JobState, JobInfo, PPSuccessFlag, PPErrorMsg] = PreProcessJob(obj, JobParamIn, JobStateIn, JobInfo, CurrentUser, JobName)
             
             CodeRoot = CurrentUser.CodeRoot;
             JobParamIn.TaskSize = 10;
