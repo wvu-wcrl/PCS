@@ -264,8 +264,8 @@ classdef JobManager < handle
                                         if strcmpi( JobDirectory, JobInDir )
                                             % Increment the counter of JobID since a new job is being served.
                                             obj.JobManagerInfo.JobID = obj.JobManagerInfo.JobID + 1;
-                                            % Load the input job file.
                                             
+                                            % Load the input job file.
                                             JLSuccessFlag = 0;
                                             ErrorMsg = '';
                                             try
@@ -274,7 +274,6 @@ classdef JobManager < handle
                                                     JLSuccessFlag = 1;
                                                     % Set success/error messages.
                                                 else
-                                                    
                                                     % Print error message regarding job loading.
                                                     Msg1 = sprintf('Input job file %s of user %s ', JobName(1:end-4), Username );
                                                     Msg2 = 'does not contain JobParam and JobState.';
@@ -289,12 +288,17 @@ classdef JobManager < handle
                                                 ErrorMsg = [Msg1 Msg2 Msg3 Msg4];
                                             end
                                             
+                                            % Initialize the JobInfo structure.
+                                            JobInfo = obj.InitJobInfo();
+                                            % Set the JobID.
+                                            JobInfo = obj.UpdateJobInfo(JobInfo, 'JobID', obj.JobManagerInfo.JobID);
+                                            
                                             % Preprocess job if job loading is successful.
                                             PPSuccessFlag = 0;
                                             if JLSuccessFlag == 1,
                                                 JobParam = JobContent.JobParam;
                                                 JobState = JobContent.JobState;
-                                                [JobParam, JobState, PPSuccessFlag, PPErrorMsg] = obj.PreProcessJob(JobParam, JobState, CurrentUser, JobName);
+                                                [JobParam, JobState, JobInfo, PPSuccessFlag, PPErrorMsg] = obj.PreProcessJob(JobParam, JobState, JobInfo, CurrentUser, JobName);
                                                 % Set success/error message.
                                                 if ~isempty(PPErrorMsg)
                                                     ErrorMsg = [ErrorMsg sprintf('\n\n') PPErrorMsg];
@@ -320,13 +324,11 @@ classdef JobManager < handle
                                         if SuccessFlag == 1
                                             if strcmpi( JobDirectory, JobInDir )
                                                 % Pre-process the job read from the JobIn directory.
-                                                %[JobParam, JobState, PPSuccessFlag, PPErrorMsg] = obj.PreProcessJob(JobParam, JobState, CurrentUser, JobName);
+                                                %[JobParam, JobState, JobInfo, PPSuccessFlag, PPErrorMsg] = obj.PreProcessJob(JobParam, JobState, JobInfo, CurrentUser, JobName);
                                                 
-                                                % Initialize the JobInfo structure.
-                                                JobInfo = obj.InitJobInfo();
                                                 StartTime = datenum(clock);
-                                                % Set the JobID and job StartTime.
-                                                JobInfo = obj.UpdateJobInfo(JobInfo, 'JobID', obj.JobManagerInfo.JobID, 'StartTime', StartTime);
+                                                % Set the job StartTime in the JobInfo structure.
+                                                JobInfo = obj.UpdateJobInfo(JobInfo, 'StartTime', StartTime);
                                                 
                                                 % Set the JobID and StartTime in the global UserUsageInfo structure.
                                                 CurrentUserUsageInfo.UserUsage(1,end) = obj.JobManagerInfo.JobID;
@@ -1687,6 +1689,7 @@ classdef JobManager < handle
                 % Save the new task in TaskIn queue/directory.
                 MsgQuiet = '+';
                 try
+		save('/home/tferrett/HI.mat', 'a');
                     save( fullfile(TaskInDir,TaskName), 'TaskParam' );
                     MsgVerbose = sprintf( 'Task file %s for user %s is saved to its TaskIn directory.\n', TaskName(1:end-4), Username );
                     PrintOut({MsgVerbose ; MsgQuiet}, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
