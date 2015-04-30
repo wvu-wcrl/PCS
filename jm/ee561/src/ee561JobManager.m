@@ -25,7 +25,7 @@ classdef ee561JobManager < CodedModJobManager
         end
         
         
-        function [JobParam, JobState, SuccessFlag, ErrorMsg] = PreProcessJob(obj, JobParam, JobState, CurrentUser, JobName)
+        function [JobParam, JobState, JobInfo, SuccessFlag, ErrorMsg] = PreProcessJob(obj, JobParam, JobState, JobInfo, CurrentUser, JobName)
             SuccessFlag = 1;
             ErrorMsg = [];
             if( ~isfield(JobParam, 'JobFileSetFlag') || isempty(JobParam.JobFileSetFlag) || JobParam.JobFileSetFlag~=1 )
@@ -141,6 +141,11 @@ classdef ee561JobManager < CodedModJobManager
                 if( ~isfield(JobState, 'SER') ), JobState.SER = []; end
                 if( ~isfield(JobState, 'BER') ), JobState.BER = []; end
                 if( ~isfield(JobState, 'FER') ), JobState.FER = []; end
+                
+                Results = struct( 'K', size(JobParam.NormalizedSignalSet,1), 'M', size(JobParam.NormalizedSignalSet,2), ...
+                    'PAPR',JobState.PAPR, 'GammaPs',JobState.GammaPs, 'GammaPb',JobState.GammaPb,...
+                    'CompletedTrials', 0, 'RemainingTrials', sum(JobParam.MaxTrials) );
+                JobInfo = obj.UpdateJobInfo( JobInfo, 'Results', Results );
             end
         end
         
@@ -148,14 +153,17 @@ classdef ee561JobManager < CodedModJobManager
         function JobState = UpdateJobState(obj, JobStateIn, TaskState, JobParam)
             % Update the Global JobState.
             JobState = JobStateIn;
-            JobState.Trials      = JobState.Trials      + TaskState.Trials;
-            JobState.BitErrors   = JobState.BitErrors   + TaskState.BitErrors;
-            JobState.FrameErrors = JobState.FrameErrors + TaskState.FrameErrors;
-            
-            Trials = repmat(JobState.Trials,[size(JobState.BitErrors,1) 1]);
-            JobState.BER = JobState.BitErrors   ./ ( Trials * TaskState.NumCodewords * JobParam.DataLength );
-            % TaskState.NumCodewords = JobParam.CodedModObj.NumCodewords;
-            JobState.FER = JobState.FrameErrors ./ ( Trials * TaskState.NumCodewords );
+            if( isfield(TaskState,'Trials') && ~isempty(TaskState.Trials) && (sum(sum(TaskState.Trials)) ~=0) )
+                JobState.Trials      = JobState.Trials      + TaskState.Trials;
+                JobState.BitErrors   = JobState.BitErrors   + TaskState.BitErrors;
+                JobState.FrameErrors = JobState.FrameErrors + TaskState.FrameErrors;
+                
+                Trials = repmat(JobState.Trials,[size(JobState.BitErrors,1) 1]);
+                JobState.BER = JobState.BitErrors   ./ ( Trials * TaskState.NumCodewords * JobParam.DataLength );
+                % TaskState.NumCodewords = JobParam.CodedModObj.NumCodewords;
+                JobState.FER = JobState.FrameErrors ./ ( Trials * TaskState.NumCodewords );
+                JobState.SER = JobState.FER;
+            end
         end
         
         
@@ -171,15 +179,9 @@ classdef ee561JobManager < CodedModJobManager
             RemainingTJob = sum( (ActiveSNRPoints==1) .* RemainingTrials );
             CompletedTJob = sum( JobState.Trials(end,:) );
             
-            Results = struct( 'K', size(JobParam.NormalizedSignalSet,1), 'M', size(JobParam.NormalizedSignalSet,2), 'PAPR',JobState.PAPR, 'GammaPs',JobState.GammaPs, 'GammaPb',JobState.GammaPb,...
+            Results = struct( 'K', size(JobParam.NormalizedSignalSet,1), 'M', size(JobParam.NormalizedSignalSet,2),...
+                'PAPR',JobState.PAPR, 'GammaPs',JobState.GammaPs, 'GammaPb',JobState.GammaPb,...
                 'CompletedTrials', CompletedTJob, 'RemainingTrials', RemainingTJob );
-            % Results = struct( 'SNR', num2str(JobParam.SNR), ...
-            %     'Trials', num2str(JobState.Trials), ...
-            %     'BER', num2str(JobState.BER), ...
-            %     'FER', num2str(JobState.FER), ...
-            %     'CompletedTrials', CompletedTJob, ...
-            %     'RemainingTrials', RemainingTJob );
-            
             JobInfo = obj.UpdateJobInfo( JobInfo, 'Results', Results );
         end
         
@@ -191,7 +193,7 @@ classdef ee561JobManager < CodedModJobManager
             PrintOut(FigurePlotMsg, obj.JobManagerParam.vqFlag, obj.JobManagerParam.LogFileName);
             
             semilogy( JobParam.SNR, JobState.PsUpperBound, '--b',...
-                JobParam.SNR, JobState.FER, '.b-', ...
+                JobParam.SNR, JobState.SER, '.b-', ...
                 JobParam.SNR, JobState.PbUpperBound, '--r', ...
                 JobParam.SNR, JobState.BER, '.r-' );
             
@@ -200,8 +202,8 @@ classdef ee561JobManager < CodedModJobManager
             xlabel( 'E_s/N_0 (in dB)' );
             ylabel( 'Error Rate' );
             
-            TitleTxt = sprintf( 'Error Rate for Job %s last updated on %s', upper(JobName(1:end-4)), datestr(clock, 'dd/mm/yyyy atHH:MM:SS PM') );
-            title( TitleTxt );
+            TitleTxt = sprintf( 'Error Rate for Job %s last updated on %s', upper(JobName(1:end-4)), datestr(clock, 'dd/mm/yyyy @HH:MM:SS PM') );
+            title( TitleTxt, 'interpreter','none' );
             
             axis( [min(JobParam.SNR) max(JobParam.SNR) 1e-6 1] );
             

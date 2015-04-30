@@ -19,7 +19,7 @@ classdef CodedModJobManager < JobManager
         end
         
         
-        function [JobParam, JobState, SuccessFlag, ErrorMsg] = PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, JobName)
+        function [JobParam, JobState, JobInfo, SuccessFlag, ErrorMsg] = PreProcessJob(obj, JobParamIn, JobStateIn, JobInfoIn, CurrentUser, JobName)
             
             CodeRoot = CurrentUser.CodeRoot;
             
@@ -28,6 +28,7 @@ classdef CodedModJobManager < JobManager
             
             JobParam = JobParamIn;
             JobState = JobStateIn;
+            JobInfo = JobInfoIn;
             
             % Create channel object (Modulation is a property of channel).
             if( ~isfield(JobParam, 'ChannelObj') || isempty(JobParam.ChannelObj) )

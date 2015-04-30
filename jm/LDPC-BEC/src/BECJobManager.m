@@ -43,7 +43,7 @@ classdef BECJobManager < CodedModJobManager
         end
         
         
-        function [JobParam, JobState, SuccessFlag, ErrorMsg] = PreProcessJob(obj, JobParamIn, JobStateIn, CurrentUser, JobName)
+        function [JobParam, JobState, JobInfo, SuccessFlag, ErrorMsg] = PreProcessJob(obj, JobParamIn, JobStateIn, JobInfoIn, CurrentUser, JobName)
             
             CodeRoot = CurrentUser.CodeRoot;
             
@@ -52,6 +52,7 @@ classdef BECJobManager < CodedModJobManager
             
             JobParam = JobParamIn;
             JobState = JobStateIn;
+            JobInfo = JobInfoIn;
             
             % Make sure that the number of MaxTrials and number of Epsilon points are the same.
             if isfield( JobParam, 'MaxTrials' )
@@ -81,6 +82,20 @@ classdef BECJobManager < CodedModJobManager
             % Set success flag and error message.
             SuccessFlag = 1;
             ErrorMsg = '';
+            
+            if JobParam.HStructInfo.FullRankFlag == 1
+                FullRank = 'Yes';
+            else
+                FullRank = 'NO';
+            end
+            Results = struct( 'DataLength', num2str(JobParam.HStructInfo.DataLength), ...
+                'CodewordLength', num2str(JobParam.HStructInfo.CodewordLength), ...
+                'CodeRate', sprintf('%.4f', JobParam.HStructInfo.CodeRate), ...
+                'FullRank', FullRank, ...
+                'EpsilonStarDE', sprintf('%.8f', JobParam.HStructInfo.EpsilonStarDE), ...
+                'EpsilonStarSimulation', 'Simulation has not started yet!' );
+            
+            JobInfo = obj.UpdateJobInfo( JobInfo, 'Results', Results );
             
             path(OldPath);
         end
