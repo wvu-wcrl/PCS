@@ -102,4 +102,4 @@ II Web application
 
 	>> sudo chown -R tomcat6:tomcat-dev /var/lib/tomcat6/webapps/wctc1/home
 
-9. Open a web browser and point to "http://wcrl.csee.wvu.edu/wctc/". You should be able to view web interface login page.
+8. Open a web browser and point to "http://wcrl.csee.wvu.edu/wctc/". You should be able to view web interface login page.
