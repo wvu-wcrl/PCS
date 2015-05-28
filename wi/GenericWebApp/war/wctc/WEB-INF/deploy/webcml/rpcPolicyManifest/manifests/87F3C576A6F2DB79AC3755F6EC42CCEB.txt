@@ -1,0 +1,2 @@
+serviceClass: com.wcrl.web.cml.client.data.filesService.GetDataFilesPageService
+path: 8B269432F85F24CB2BE11108F2DF5FCC.gwt.rpc

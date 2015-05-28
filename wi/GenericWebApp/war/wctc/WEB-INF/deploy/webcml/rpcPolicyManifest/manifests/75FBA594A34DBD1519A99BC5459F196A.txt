@@ -1,0 +1,2 @@
+serviceClass: com.wcrl.web.cml.client.jobService.ArchiveJobService
+path: 52DC0177BB007FD8AD63886A2F604229.gwt.rpc
