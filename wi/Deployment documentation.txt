@@ -83,28 +83,23 @@ C. Creating a data dump
 
 II Web application
 
-1. Copy the directory "wctc" (available in svn repository pcs/wi/war) to your home directory on the cluster.
-2. Database connection values in the file "DBConnectionConstants.properties" (available in svn repository pcs/wi/war/wctc/WEB-INF/classes) are removed for security reasons.
+1. Copy the directory "wctc" (available in svn repository pcs/wi/GenericWebApp/war) to your home directory on the cluster.
+2. Database connection values in the file "DBConnectionConstants.properties" (available in svn repository pcs/wi/GenericWebApp/war/wctc/WEB-INF/classes) are removed for security reasons.
 3. Log in to the cluster using SSH.
-4. Replace "DBConnectionConstants.properties" (available in /wctc/WEB-INF/classes) file with the file of the same name available in my home directory /home/abommaga/webapp_wctc/database/
-5. Copy file "deployTomcatApp_v2.sh" (available in my home directory /home/abommaga) to your home directory.
-5. While in your home directory, run the following command to deploy web application files (i.e., directory "wctc") to Tomcat "webapps":
+4. Replace "DBConnectionConstants.properties" (available in pcs/wi/GenericWebApp/war/wctc/WEB-INF/classes) file with the file of the same name available in my home directory at /home/abommaga/webapp_wctc/database/
+5. While in your home directory, run the following command to deploy web application files (i.e., directory "wctc") to Tomcat "webapps" (make sure you have execution rights for ‘wcrl-tc-deployapp’ script):
 
-	>> ./deployTomcatApp_v2.sh wctc
+	>> wcrl-tc-deployapp wctc
    (You'll be prompted for your password.)
-   This will copy "wctc" directory to /usr/share/tomcat5.5/webapps and then restart the Tomcat server, deploying the application.
+   This will copy "wctc" directory to Tomcat ‘webapps’ directory and then restart the Tomcat server, deploying the application.
 
 6. To be able to access users' job files by the web application, run the following command:
 
-	>> sudo ln -s /home/ /usr/share/tomcat5.5/webapps/wctc/
+	>> sudo ln -s /home/ /var/lib/tomcat6/webapps/wctc/
    This will create a soft link to "/home/" directory.
 
-7. Run the following command to change directory to the deployed web application:
+7. Run the following command to change the ownership and group of the directory created using sym link to be owned by user "tomcat6" and group "tomcat-dev":
 
-	>> cd /usr/share/tomcat5.5/webapps/wctc/
-
-8. Run the following command to change the ownership and group of the directory created using sym link to be owned by user "tomcat55" and group "tomcatusers":
-
-	>> sudo chown -R tomcat55:tomcatusers home
+	>> sudo chown -R tomcat6:tomcat-dev /var/lib/tomcat6/webapps/wctc1/home
 
 9. Open a web browser and point to "http://wcrl.csee.wvu.edu/wctc/". You should be able to view web interface login page.
