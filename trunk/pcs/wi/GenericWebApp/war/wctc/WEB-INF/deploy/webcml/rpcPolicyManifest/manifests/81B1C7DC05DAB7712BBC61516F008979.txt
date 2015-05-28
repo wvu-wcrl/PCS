@@ -1,0 +1,2 @@
+serviceClass: com.wcrl.web.cml.client.jobService.GetJobDetailsService
+path: DBDD80F6D07E62BB37DFDF5BA36E4DA9.gwt.rpc

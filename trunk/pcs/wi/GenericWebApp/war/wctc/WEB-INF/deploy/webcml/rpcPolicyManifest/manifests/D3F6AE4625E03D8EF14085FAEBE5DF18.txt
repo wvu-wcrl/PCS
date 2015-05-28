@@ -1,0 +1,2 @@
+serviceClass: com.wcrl.web.cml.client.admin.accountService.SaveandDownloadUserListFileService
+path: 0AD424F4297FF95807A4E2CC6F62811A.gwt.rpc
