@@ -1,2 +1,0 @@
-serviceClass: com.wcrl.web.cml.client.admin.accountService.ClusterStatusService
-path: 005FA786BC2619EF3E795580BBF62C43.gwt.rpc

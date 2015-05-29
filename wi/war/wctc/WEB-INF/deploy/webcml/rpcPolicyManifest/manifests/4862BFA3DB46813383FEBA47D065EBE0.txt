@@ -1,2 +1,0 @@
-serviceClass: com.wcrl.web.cml.client.data.filesService.GetSubscribedDataProjectListService
-path: A1E826F6A3B262FAB886C92D20566212.gwt.rpc

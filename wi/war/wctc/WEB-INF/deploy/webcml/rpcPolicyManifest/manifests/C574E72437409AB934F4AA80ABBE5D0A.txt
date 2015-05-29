@@ -1,2 +1,0 @@
-serviceClass: com.wcrl.web.cml.client.jobService.ResumeJobService
-path: EE802265F903CE0E452999EB85C8960F.gwt.rpc

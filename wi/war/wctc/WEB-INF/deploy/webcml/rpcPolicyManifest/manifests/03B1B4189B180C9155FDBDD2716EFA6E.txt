@@ -1,2 +1,0 @@
-serviceClass: com.wcrl.web.cml.client.loginService.UserAvailabilityService
-path: C32A8A4C9866FCB876785234568DBFC3.gwt.rpc
