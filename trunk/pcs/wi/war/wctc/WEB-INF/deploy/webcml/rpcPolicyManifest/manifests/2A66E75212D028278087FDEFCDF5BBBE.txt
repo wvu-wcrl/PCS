@@ -1,2 +1,0 @@
-serviceClass: com.wcrl.web.cml.client.projectService.ProjectListService
-path: F34EDB508137BF60CAEE0A5FC6BF68A8.gwt.rpc

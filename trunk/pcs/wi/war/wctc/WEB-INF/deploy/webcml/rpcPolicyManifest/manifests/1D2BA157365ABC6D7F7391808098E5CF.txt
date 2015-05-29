@@ -1,2 +1,0 @@
-serviceClass: com.allen_sauer.gwt.log.client.RemoteLoggerService
-path: D92FC1065CE66A1B566E78F48DBC955F.gwt.rpc

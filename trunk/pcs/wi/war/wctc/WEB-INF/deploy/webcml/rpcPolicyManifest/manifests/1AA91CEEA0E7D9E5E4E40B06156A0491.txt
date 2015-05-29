@@ -1,2 +1,0 @@
-serviceClass: com.wcrl.web.cml.client.jobService.SuspendJobService
-path: B6941892B008BF09AF9520E29FE3466C.gwt.rpc
