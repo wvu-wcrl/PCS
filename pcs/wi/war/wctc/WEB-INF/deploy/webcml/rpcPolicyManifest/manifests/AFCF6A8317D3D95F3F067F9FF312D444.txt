@@ -1,2 +1,0 @@
-serviceClass: com.wcrl.web.cml.client.jobService.ServerMessageGeneratorService
-path: BEBDAE89291F01E08B1CB757380E72B9.gwt.rpc

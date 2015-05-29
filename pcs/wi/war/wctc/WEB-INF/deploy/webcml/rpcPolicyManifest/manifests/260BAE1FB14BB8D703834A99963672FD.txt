@@ -1,2 +1,0 @@
-serviceClass: com.wcrl.web.cml.client.admin.accountService.SaveSubscribedProjectService
-path: 91DCC923B2A211195C0438C8A7C50B9F.gwt.rpc
