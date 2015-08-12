@@ -1,0 +1,6 @@
+== Directory Description ==
+cml        CML job manager
+CodedMod   CodedMod job manager
+LDPC-BEC   LDPC-BEC job manager
+hb         stores heartbeat files for job managers
+plbp       PLBP job manager
