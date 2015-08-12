@@ -1,6 +1,6 @@
 == WebCML Account Management Subsystem ==
 
-The purpose of the scripts contained in this hierarchy are to manage user
+The purpose of these scripts are to manage user
 accounts for WebCML.  The scripts implement the following functionality
 
 1. Add WebCML users to the head node Linux account system
