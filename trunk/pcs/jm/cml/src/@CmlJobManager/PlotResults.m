@@ -32,7 +32,7 @@ switch JobParam.sim_type
         keyboard;
 end
 
-FigTitleText = ['The time of the last update of this figure is ' datestr(clock, 'dd/mm/yyyy @ HH:MM:SS PM') '.'];
+FigTitleText = ['The time of the last update of this figure is ' datestr(clock, 'dd/mm/yyyy @HH:MM:SS PM') '.'];
 
 for Fig = 1:FigNumber
     % figure(FigHandle(Fig));
