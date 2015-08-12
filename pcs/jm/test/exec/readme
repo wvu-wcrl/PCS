@@ -1,0 +1,25 @@
+The files in this directory implement a test job manager and PCS task function for
+testing task controller functionality.
+
+Usage
+
+- start matlab
+
+- generate test tasks for a particular user
+  >> test_job_manager(n, user)
+
+   where n is the number of tasks to generate and user is the username.
+   n has data type double
+   username has data type string
+
+
+Experiments
+
+  fifteen_users   - for 15 specific users, launch 40 tasks
+                    to clean up, removing all tasks for all users,
+                     execute bash script
+                       cleanup_fifteen_users.sh
+
+  three_users ...
+
+  one_user  ...
