@@ -7,7 +7,7 @@ standing for
 stores task controller execution state so that it may be
 restored in the event of a crash.
 
-Generally, every queue, short, long or test, will requires it own state files.
+Generally, every queue, short, long or test, will requires its own state files.
 
 == State Files ==
 
