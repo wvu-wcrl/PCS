@@ -1,13 +1,14 @@
-The files in this directory implement a test job manager and PCS task function for
-testing task controller functionality.
 
-Usage
 
-- start matlab
 
-- generate test tasks for a particular user
-  >> test_job_manager(n, user)
 
-   where n is the number of tasks to generate and user is the username.
-   n has data type double
-   username has data type string
+   This directory contains functionality which tests job manager operation.
+
+   Each subdirectory contains a distinct test
+
+
+   Directory   Description
+
+    exec        Fundamental job manager operation - generate job file, observe output tasks
+
+    thresh      Test task controller thresholding functionality
