@@ -1,0 +1,20 @@
+The files in this directory implement a test job manager and PCS task function for
+testing task controller functionality.
+
+The specific purpose of these tests is to verify the functionality of task
+ thresholding - preventing a user with long-running tasks from overwhelming the queue.
+
+Usage
+
+- start matlab
+
+- generate test tasks for a particular user
+  >> test_job_manager(n, user,task_type)
+   where task_type is one of
+     short - task executes for 5 seconds
+     long - task executes for 500 seconds
+
+   where n is the number of tasks to generate and user is the username.
+   n has data type double
+   username has data type string
+
