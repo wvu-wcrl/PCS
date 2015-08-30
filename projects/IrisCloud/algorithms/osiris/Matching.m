@@ -38,7 +38,7 @@ A2=fullfile(AlgorithmPath,'osiris');
  %fprintf(file5,formatSpecImage,A2);
 
 % A3=fullfile(ParentFolder,configfile);
-A3=Configurationfile;
+A3=ConfigurationFile;
  %fprintf(file5,formatSpecImage,A3);
 
 %A3='/home/vtalreja/Iris_Osiris_v4.1/scripts/TestingSegment/configurationtry.ini';
@@ -53,8 +53,6 @@ A3=Configurationfile;
 
 % Create the string for usage in the system command
 str2 = sprintf(formatSpec,A1,A2,A3);
- %fprintf(file5,formatSpecImage,str2);
-
 
 
 try
@@ -63,41 +61,31 @@ try
 % Writing into the check file for debugging puposes
  msg = sprintf( 'PreProcessing Images- Segmentation, Normalization, and Encoding \n' );
             fprintf( msg );
-    %  fprintf(file5,formatSpecImage,msg);
 
   % calling the system command
+  fprintf(str2);
+
+CurD=pwd;
+cd /rhome/pcs/projects/IrisCloud/algorithms/osiris1
 [status cmdout]=system(str2)
-fprintf(cmdout);
-
-% [status cmdout]=system(str3)
-
-% fprintf(file5,formatSpecImage,cmdout);
-% fclose(file5)
-
-% msg = sprintf( 'Matching the Images \n' );
-%             fprintf( msg );
-
-% [status cmdout]=system(str3)
+cd(CurD)
 
 
 Score = 0;
 
-%cd(oldfolder);
-
 if (status==0)
-    %file6=fopen(Check,'w');
-    %fprintf(file6,formatSpecImage,'status');
- success = 1;
+  success = 1;
 else
- success=0;
+  success=0;
 end
 
 
 
 catch
 
-Score = 1;
-success = 0;
+   fprintf('we re caught in Matching.m for some reason');
+Score = 1
+success = 0
 
 end
 end
