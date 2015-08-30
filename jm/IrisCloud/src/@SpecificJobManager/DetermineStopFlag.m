@@ -18,15 +18,17 @@ varargout{2}=JobState;
 end
 % Veeru will write
 function UpdateStats(JobParam)
-n=1;
+n=2;
 g=load('AlgorithmTable.mat');
 
 while n~=0
 t=strcmp(g.Table{n,3},JobParam.InputParam.AlgorithmParams.AlgorithmName);
 if (t==1)
-Counter=(str2double(g.Table{n,5}))+1;
+%Counter=(str2double(g.Table{n,5}))+1;
+%g.Table{n,5}=int2str(Counter);
 
-g.Table{n,5}=int2str(Counter);
+g.Table{n,5} = g.Table{n,5} + 1;
+
 Table=g.Table;
 n=0;
 else

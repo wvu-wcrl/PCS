@@ -8,9 +8,6 @@ switch JobParam.UserType
         TaskInputParam.JobState = JobState;
     case {'Developer'}
         
-        
-        
-        
     otherwise
 end
 end
