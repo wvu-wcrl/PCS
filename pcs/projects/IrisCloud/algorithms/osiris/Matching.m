@@ -26,8 +26,8 @@ formatSpec = '%s %s %s';
 % oldfolder=cd(pathstr);
 
 %Create and open the checkfile
-Check=fullfile(pathstr,'check.txt');
-file5=fopen(Check,'w');
+%Check=fullfile(pathstr,'check.txt');
+%file5=fopen(Check,'w');
 %  fprintf(file5,formatSpecImage,pathstr);
 
 A1= 'LD_LIBRARY_PATH= && ';
@@ -63,15 +63,16 @@ try
 % Writing into the check file for debugging puposes
  msg = sprintf( 'PreProcessing Images- Segmentation, Normalization, and Encoding \n' );
             fprintf( msg );
-  fprintf(file5,formatSpecImage,msg);
+    %  fprintf(file5,formatSpecImage,msg);
 
   % calling the system command
 [status cmdout]=system(str2)
+fprintf(cmdout);
 
 % [status cmdout]=system(str3)
 
- fprintf(file5,formatSpecImage,cmdout);
- fclose(file5)
+% fprintf(file5,formatSpecImage,cmdout);
+% fclose(file5)
 
 % msg = sprintf( 'Matching the Images \n' );
 %             fprintf( msg );
@@ -84,8 +85,8 @@ Score = 0;
 %cd(oldfolder);
 
 if (status==0)
-file6=fopen(Check,'w');
-fprintf(file6,formatSpecImage,'status');
+    %file6=fopen(Check,'w');
+    %fprintf(file6,formatSpecImage,'status');
  success = 1;
 else
  success=0;
