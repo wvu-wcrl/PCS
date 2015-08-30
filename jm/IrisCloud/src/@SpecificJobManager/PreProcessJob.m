@@ -29,8 +29,9 @@ if( isfield(JobParamIn,'UserType') && ~isempty(JobParamIn.UserType) )
             % Check for the fields which have the Image Paths
             if (isfield(JobParamIn,'ImageOnePath')&& ~isempty(JobParamIn.ImageOnePath))
                 if (isfield(JobParamIn,'ImageTwoPath')&& ~isempty(JobParamIn.ImageTwoPath))
-                     % Terry will write
-                    AlgorithmIndex=obj.QA(JobParamIn.ImageOnePath,JobParamIn.ImageTwoPath);
+
+                    %  Decide where to store Dr. Adjeroh's QA code.
+                    AlgorithmIndex=QA(JobParamIn.ImageOnePath,JobParamIn.ImageTwoPath);
                     
                     % Look for the Algorithm Name corresponding to
                     % the algorithm index in the table 
@@ -44,66 +45,69 @@ if( isfield(JobParamIn,'UserType') && ~isempty(JobParamIn.UserType) )
                     JobParam.InputParam.ImageTwoPath=JobParamIn.ImageTwoPath;
                     JobParam.InputParam.AlgorithmParams= AlgorithmParams;
                     JobParam.InputParam.UserType=JobParamIn.UserType;
-                    %JobParam.AlgorithmParams= AlgorithmParams;
-                    
+                  
                     
                     JobState=JobStateIn;
                     JobInfo=JobInfoIn;
                     
                     
                     
-                    
-                    
-                    
-                    
-                    
-                  
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    SuccessFlag = 1;
-                    ErrorMsg = '';
+                    PPSuccessFlag = 1;
+                    PPErrorMsg = '';
                     
                     path(OldPath);
-                    
-                    
-                    
+
                     
                 else
                     
-                    ErrorMsg = sprintf( 'Sorry. Image 2 not found\n' );
+                    PPErrorMsg = sprintf( 'Sorry. Image 2 not found\n' );
                     fprintf( ErrorMsg );
-                    SuccessFlag = 0;
+                    PPSuccessFlag = 0;
                     path(OldPath);
                     return;
                 end
             else
-                ErrorMsg = sprintf( 'Sorry. Image 1 not found\n' );
+                PPErrorMsg = sprintf( 'Sorry. Image 1 not found\n' );
                 fprintf( ErrorMsg );
-                SuccessFlag = 0;
+                PPSuccessFlag = 0;
                 path(OldPath);
                 return;
             end
         case {'Developer'}
             % Yet to decide on it
         otherwise
-            ErrorMsg = sprintf( 'Sorry. UserType is not valid. Only valid options are NormalUser or Developer.\n' );
+            PPErrorMsg = sprintf( 'Sorry. UserType is not valid. Only valid options are EndUser or Developer.\n' );
             fprintf( ErrorMsg );
-            SuccessFlag = 0;
+            PPSuccessFlag = 0;
             path(OldPath);
     end
 end
 
-% Indicate success of failure.
-%PPSuccessFlag = 1;
 
-% If an error occurs, provide a message.
-%PPErrorMsg='';
 end
+
+
+
+
+function AlgorithmIndex=QA(ImageOnePath, ImageTwoPath)
+
+AlgorithmIndex = 1;
+
+end
+
+
+
+
+
+
+% Given an index, read algorithm parameters from table and return.
+function [AlgorithmParams]=LookUpAlgorithm(AlgorithmIndex)
+
+
+
+end
+
+
 
 
 
