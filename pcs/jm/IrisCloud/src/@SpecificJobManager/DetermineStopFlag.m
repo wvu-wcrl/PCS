@@ -19,7 +19,8 @@ end
 % Veeru will write
 function UpdateStats(JobParam)
 n=2;
-g=load('AlgorithmTable.mat');
+TblPath = '/home/pcs/projects/IrisCloud/Usage/AlgorithmTable.mat';
+g=load(TblPath);
 
 while n~=0
 t=strcmp(g.Table{n,3},JobParam.InputParam.AlgorithmParams.AlgorithmName);
@@ -35,7 +36,7 @@ else
 n=n+1;
 end
 end
-save('AlgorithmTable.mat','Table');
+save(TblPath,'Table');
 
 
 end

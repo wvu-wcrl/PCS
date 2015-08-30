@@ -1,15 +1,16 @@
-Name and fuLL path to user's project code directory.
+[GeneralSpec]
+
+% Name and fuLL path to user's project code directory.
   CodeRoot = /home/pcs/projects/IrisCloud
-% CodeRoot = C:\Material\Dropbox\Research\Current\LBP\CLBP\LBP\RandomProjection\code
 
 % Name and FULL path to user's job queue root directory.
   JobQueueRoot = <user_lhome>/Projects/IrisCloud
 
 % Name and full path of project-specific worker function.
-% Default is to use plbp stored on cluster under pcs user account.
-  FunctionName = IrisCLoud
-  FunctionPath = /rhome/pcs/projects/IrisCloud/mat
-% FunctionPath = C:\Material\Dropbox\Research\Current\LBP\CLBP\LBP\RandomProjection\code
+% Default is to use IrisCloud stored on cluster under pcs user account.
+  FunctionName = IrisCloud
+  FunctionPath = /rhome/pcs/projects/IrisCloud/algorithms/osiris
+
 
 
 

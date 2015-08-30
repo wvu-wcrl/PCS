@@ -5,26 +5,20 @@
 
 % Root directory in which the job manager looks for users of the system.  
   HomeRoot = /home
-% HomeRoot = /home/web_users
-% HomeRoot = C:\Material\Dropbox\Research\Current\LBP\CLBP\LBP\RandomProjection\home
 
 % Temporary directory in which the job manager saves intermediate files before moving them to their ultimate destination.
 % This folder solves the problem of write permissions in directories of users.
   TempJMDir = /home/pcs/jm/IrisCloud/Temp
-% TempJMDir = /home/abommaga/FR/plbp/Temp
-% TempJMDir = C:\Material\Dropbox\Research\Current\LBP\CLBP\LBP\RandomProjection\JM\plbp\Temp 
 
 % FULL path (including name) of .mat file containing job manager Info and Usage (including timing and credit usage info of users).
   JMInfoFullPath = /home/pcs/jm/IrisCloud/Usage/IrisCloud_jmUsageInfo.mat
-% JMInfoFullPath = /home/abommaga/FR/plbp/Usage/plbp_jmUsageInfo.mat
-% JMInfoFullPath = C:\Material\Dropbox\Research\Current\LBP\CLBP\LBP\RandomProjection\JM\plbp\Usage\plbp_jmUsageInfo.mat
 
 % Period by which the job manager parameters and information containing the user list and user usage information is saved.
-  JMInfoUpdatePeriod = 500
+  JMInfoUpdatePeriod = 100
 
 % Period by which the job manager looks for newly-added users to the system.
 % After Check4NewUserPeriod times sweeping ALL JobIn, JobRunning, and TaskOut directories of ALL of the current ACTIVE users, the job managers looks to see if there are any newly-added users to the system.
-  Check4NewUserPeriod = 500
+  Check4NewUserPeriod = 100
 
 % Job manager's pause time to wait before looking for new users when there is no active user in the system.
   JMPause = 60
@@ -37,14 +31,12 @@
 [LogSpec]
 
 % Job manager log filename.
-% LogFileName = [filesep 'home' filesep 'pcs' filesep 'jm' filesep 'plbp' filesep 'log' filesep 'plbp-JMLog.log']
-% LogFileName = /home/pcs/jm/plbp/log/plbp-JMLog.log
-  LogFileName = 0
+  LogFileName = /home/pcs/jm/IrisCloud/log/IrisCloud-jm.log
 
 % Verbose/quiet mode of intermediate message logging.
 % If vqFlag=0 (verbose mode), all detailed intermediate messages are printed out.
 % If vqFlag=1 (quiet mode), just important intermediate  messages are printed out.
-  vqFlag = 1
+  vqFlag = 0
 
 
 
