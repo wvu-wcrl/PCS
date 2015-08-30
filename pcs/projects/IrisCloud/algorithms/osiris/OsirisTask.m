@@ -19,6 +19,7 @@ DEBUG='true';
   [Path ImageOneName ext]=fileparts(ImageOnePath);
   [Path ImageTwoName ext]=fileparts(ImageTwoPath);
   temp='IrisCodes';
+  Path = [Path '/'];
   
   % Creating the Algorithm Path by using the Algorithm Name and The
   % IrisCloud Code Root
@@ -59,7 +60,10 @@ DEBUG='true';
             ConfigurationFile=fullfile(TempDir,'configuration.ini');
             file=fopen(MatchingResult,'w');
             fclose(file);
-            
+
+           ImageOneName=[ImageOneName '.tiff'];
+           ImageTwoName=[ImageTwoName '.tiff'];
+                        
             % Saving the ImageNames in the ImageList
             file1=fopen(ImageList,'w');
             fprintf(file1,formatSpecImage,ImageOneName,ImageTwoName);
@@ -72,13 +76,16 @@ DEBUG='true';
             % Writing data into configuration file
             file2=fopen(ConfigurationFile,'w');
              fprintf(file2,formatSpecConfig,'Process segmentation',A2,'Process normalization',A2,'Process encoding',A2,'Process matching',A2,'Use the mask provided by osiris',A2);
-            fprintf(file2,formatSpecConfig,'List of images',ImageList,'Load original images',ImageOnePath);
+            fprintf(file2,formatSpecConfig,'List of images',ImageList,'Load original images',Path);
             fprintf(file2,formatSpecConfig,'Save segmented images',IrisCodes,'Save contours parameters',IrisCodes,'Save masks of iris',IrisCodes,'Save normalized images',IrisCodes,'Save normalized masks',IrisCodes,'Save iris codes',IrisCodes);
            fprintf(file2,formatSpecConfig,'Save matching scores',MatchingResult);
             fclose(file2);
             
             % Calling the Matching function to run Osiris
             [success]=Matching(ConfigurationFile,AlgorithmPath);
+
+fprintf('Printing matching result %f', success)
+
              if (success)
                 try
                     
@@ -119,7 +126,11 @@ DEBUG='true';
                     msg = sprintf( 'Error: Output Param could not be created\n' );
                     fprintf( msg );
                 end
-            end
+
+
+            else
+            fprintf('Matching not successful.\n');
+           
    end
 end
 

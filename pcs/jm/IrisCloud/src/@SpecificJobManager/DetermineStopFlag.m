@@ -19,7 +19,7 @@ end
 % Veeru will write
 function UpdateStats(JobParam)
 n=2;
-TblPath = '/home/pcs/projects/IrisCloud/Usage/AlgorithmTable.mat';
+TblPath = '/home/pcs/jm/IrisCloud/Usage/AlgorithmTable.mat';
 g=load(TblPath);
 
 while n~=0

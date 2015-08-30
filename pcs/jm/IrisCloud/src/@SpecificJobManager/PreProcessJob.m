@@ -105,7 +105,7 @@ function [AlgorithmParams]=LookUpAlgorithm(AlgorithmIndex)
 
 % Load algorithm table from disk.  Later, get this path
 %  from configuration file.
-load('/home/pcs/projects/IrisCloud/Usage/AlgorithmTable.mat')
+load('/home/pcs/jm/IrisCloud/Usage/AlgorithmTable.mat')
 
 % Using index, extract algorithm params from table
 %row index, columns 3 and 4

@@ -1,0 +1,4 @@
+This file serves a single purpose: its existence allows git
+to add the containing directory to the repository.
+
+Git will not allow an empty directory to be added to the repo.
