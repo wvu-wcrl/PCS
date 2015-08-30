@@ -32,6 +32,19 @@
 
 
 
+
+# IrisCloud job manager
+jm_IrisCloud(){
+QCfg=$1
+
+PATH_JM=/home/pcs/jm/IrisCloud/src                    # path to IrisCloud startup script
+JM_CFG=/home/pcs/jm/IrisCloud/cfg/IrisCloud_JM_cfg    # path to configuration file
+
+screen -S IrisCloud_$Q -m -d matlab -r "cd $PATH_JM; StartJM('$JM_CFG','$QCfg')"
+}
+
+
+
 # CML job manager
 jm_cml(){
 QCfg=$1

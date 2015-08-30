@@ -91,7 +91,7 @@ end
 
 function AlgorithmIndex=QA(ImageOnePath, ImageTwoPath)
 
-AlgorithmIndex = 1;
+AlgorithmIndex = 2;
 
 end
 
@@ -103,7 +103,18 @@ end
 % Given an index, read algorithm parameters from table and return.
 function [AlgorithmParams]=LookUpAlgorithm(AlgorithmIndex)
 
+% Load algorithm table from disk.  Later, get this path
+%  from configuration file.
+load('/home/pcs/projects/IrisCloud/Usage/AlgorithmTable.mat')
 
+% Using index, extract algorithm params from table
+%row index, columns 3 and 4
+AlgorithmName=Table{AlgorithmIndex,3};
+AlgorithmType=Table{AlgorithmIndex,4};
+
+% Form structure AlgorithmParams
+AlgorithmParams.AlgorithmName = AlgorithmName;
+AlgorithmParams.AlgorithmType = AlgorithmType;
 
 end
 
