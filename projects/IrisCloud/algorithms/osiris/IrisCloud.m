@@ -1,9 +1,9 @@
-function OutputParam = IrisCloud(InputParam,TaskParam)
+function OutputParam = IrisCloud(InputParam)
 % function to assign the task of calling the Osiris or custom Algorithm.InputParam is a structure array 
 % This function takes the input as the Input images path along with the
 % Algorithm Parameters and the USer Type and gives out the
 % matching score for that particular algorithm.
-IrisCloudCodeRoot='/rhome/pcs/jm/IrisCloud/CodeRoot';
+IrisCloudCodeRoot='/rhome/pcs/projects/IrisCloud';
 OutputParam=[];
 % Check for the User Type  1. EndUser 2. Developer
 if isfield(InputParam,'UserType')
@@ -60,7 +60,7 @@ if isfield(InputParam,'UserType')
            % Switching on the Algorithm Type : 1. osiris 2. HOG.....
            switch(InputParam.AlgorithmParams.AlgorithmType)
                case('osiris')
-                   OutputParam=OsirisTask(InputParam,TaskParam,IrisCloudCodeRoot);
+                   OutputParam=OsirisTask(InputParam,IrisCloudCodeRoot);
                case('HOG')
                    OutputParam=HOGTask(InputParam);
                otherwise

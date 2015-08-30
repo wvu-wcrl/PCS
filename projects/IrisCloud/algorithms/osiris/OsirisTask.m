@@ -1,4 +1,13 @@
-function OutputParam =OsirisTask(InputParam,TaskParam,IrisCloudCodeRoot)
+function OutputParam =OsirisTask(InputParam,IrisCloudCodeRoot)
+
+
+% Set desired debugging mode
+%   DEBUG='true'   debugging on, temporary directories left in
+%   place
+%
+%   DEBUG='false'   no debugging, temporary directories deleted
+DEBUG='true';
+
 
    OutPutParam=[];
    % Assigning the Image Paths to a local variable
@@ -14,12 +23,27 @@ function OutputParam =OsirisTask(InputParam,TaskParam,IrisCloudCodeRoot)
   % Creating the Algorithm Path by using the Algorithm Name and The
   % IrisCloud Code Root
   AlgorithmName=InputParam.AlgorithmParams.AlgorithmName;
-  AlgorithmPath=fullfile(IrisCloudCodeRoot,'Algorithms',AlgorithmName);
-  
+  AlgorithmPath=fullfile(IrisCloudCodeRoot,'algorithms',AlgorithmName);
+
+
+  % create pcs temporary directory - move this somewhere else later
+  mkdir('/tmp', 'pcs');
+  % temporary directory --tmpdir hard coded for now, later generalize
+  [status TempDir]=system('mktemp -d --tmpdir=/tmp/pcs');
+  % Remove trailing carriage return from Linux command return
+  % string.
+  TempDir = TempDir(1 : end-1);
+
+
+
   % Creating the Temperory Directory
-  TaskFileName=TaskParam.TaskFileName;
-  TempDir= fullfile('/tmp/',TaskFileName);
+  %  TaskFileName=TaskParam.TaskFileName;
+  %TempDir= fullfile('/tmp/',TaskFileName);
   status=mkdir(TempDir,temp);
+
+
+
+
  
   % Check if the temporary directory got created
    if (~status)
@@ -72,9 +96,16 @@ function OutputParam =OsirisTask(InputParam,TaskParam,IrisCloudCodeRoot)
                    
                   
 
-                    % Deleting the temporary directory
-                     rmdir(temp,'s');
-                    
+                    % If we are debugging, leave the temporary
+                    % directory in place, otherwise delete it.
+                    if( strcmp(DEBUG,'true') )
+                        % Don't delete temporary directory
+                    elseif( strcmp(DEBUG,'false') )
+                        % Deletect temporary directory
+                       [status stdout] = rmdir(TempDir,'s');
+                       fprintf(stdout);
+                    end
+
                    % cd (oldfolder);
                     msg = sprintf( 'Create Output Param\n' );
                     fprintf( msg );
