@@ -15,10 +15,7 @@
 
 
 
-function JMObj = example_jm_startup(cfgFile, queueCfg)
-
-
-%%% Add desired paths here
+function JMObj = StartJM(cfgFile, queueCfg)
 
 
 %  Factor out generic job manager

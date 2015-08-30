@@ -1,45 +1,117 @@
-% SpecificJobManager.m
-%  Define constructor method for specific job manager.
-%
-%     Last updated on 8/14/2015
-%
-%     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti.
-%     For full copyright information see the bottom of this file.
-
-
-
 classdef SpecificJobManager < JobManager
-   
-    methods
-        
-        % Constructor
-        function obj = SpecificJobManager( cfgRoot, queueCfg )
-
-           % Instantiate specific job manager by passing
-           %  job manager and queue configuration files to
-           %  job management library.
-           obj@JobManager(cfgRoot, queueCfg, 'SpecificJobManager');
-            
-        end
-       
-    end
     
+    
+    methods(Static)
+
+
+function OldPath = SetCodePath(CodeRoot)
+    % Determine the home directory.
+    OldPath = path;
+            
+    addpath( fullfile(CodeRoot, 'algorithms/osiris') );
+    % This is the location of the mex directory for this architecture.
+    % addpath( fullfile( CodeRoot, 'mex', lower(computer) ) );
 end
 
+ end
+    
+    
+    methods
+        function obj = SpecificJobManager( cfgRoot, queueCfg )
+            
+            % (Optional) input argument 'queueCfg' stores the full path to the queue configuration file.
+            
+            % Both input arguments must be defined.
+            % If no specific job manager configuration file is desired, the argument must be specified as '[]'.
+            
+            if( nargin<1 || isempty(cfgRoot) ), cfgRoot = []; end
+            if( nargin<2 || isempty(queueCfg) ), queueCfg = []; end
+            
+            obj@JobManager(cfgRoot, queueCfg, 'IrisCloud');
+        end
 
-
-
-%     This library is free software;
-%     you can redistribute it and/or modify it under the terms of
-%     the GNU Lesser General Public License as published by the
-%     Free Software Foundation; either version 2.1 of the License,
-%     or (at your option) any later version.
-%
-%     This library is distributed in the hope that it will be useful,
-%     but WITHOUT ANY WARRANTY; without even the implied warranty of
-%     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-%     Lesser General Public License for more details.
-%
-%     You should have received a copy of the GNU Lesser General Public
-%     License along with this library; if not, write to the Free Software
-%     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+%  function [JobParam, JobState, JobInfo, SuccessFlag, ErrorMsg] = PreProcessJob(obj, JobParamIn, JobStateIn, JobInfoIn, CurrentUser, JobName)
+%             
+%             CodeRoot = CurrentUser.CodeRoot;
+%             
+%             % First, set the path.
+%             OldPath = obj.SetCodePath(CodeRoot);
+%             Username = obj.FindUsername(CurrentUser.UserPath);
+%             
+%              if( isfield(JobParamIn,'UserType') && ~isempty(JobParamIn.UserType) )
+%                 switch JobParamIn.UserType
+%                     
+%                     case{'EndUser'}
+%             
+% %             JobParam = JobParamIn;
+% %             JobState = JobStateIn;
+% %             JobInfo = JobInfoIn;
+%             
+%             if (isfield(JobParamIn,'ImageOnePath')&& ~isempty(JobParamIn.ImageOnePath))
+%                 if (isfield(JobParamIn,'ImageTwoPath')&& ~isempty(JobParamIn.ImageTwoPath))
+%                     
+%                      AlgorithmIndex=obj.Algorithm(JobParamIn.ImageOnePath,JobParamIn.ImageTwoPath);
+%                      % Look for the Algorithm and Developer Name in the table corresponding to
+%                      % the algorithm index
+%                      
+%                      [Algorithm]=Match(AlgorithmIndex);
+%                      
+%                     
+%                       
+%                        JobState.ImageOnePath=JobParamIn.ImageOnePath;
+%                        JobState.ImageTwoPath=JobParamIn.ImageTwoPath;
+%                        JobState.UserType=JobParamIn.UserType;
+%                        JobState.AlgorithmName= Algorithm.AlgorithmName;
+%                        JobState.DeveloperName= Algorithm.DeveloperName;
+%                        
+%                        
+%                        
+%                        
+%                        
+%                        
+%                      
+%             SuccessFlag = 1;
+%             ErrorMsg = '';
+%             
+%             path(OldPath);
+%                        
+%                      
+%                      
+%                      
+%                 else
+%                     
+%                 ErrorMsg = sprintf( 'Sorry. Image 2 not found\n' );
+%                 fprintf( ErrorMsg );
+%                 SuccessFlag = 0;
+%                 path(OldPath);
+%                 return;
+%                 end
+%             else
+%                 ErrorMsg = sprintf( 'Sorry. Image 1 not found\n' );
+%                 fprintf( ErrorMsg );
+%                 SuccessFlag = 0;
+%                 path(OldPath);
+%                 return;
+%             end
+%                     case {'Developer'}
+%                     otherwise
+%                  ErrorMsg = sprintf( 'Sorry. UserType is not valid. Only valid options are NormalUser or Developer.\n' );
+%                 fprintf( ErrorMsg );
+%                 SuccessFlag = 0;
+%                 path(OldPath); 
+%                 end
+%              end
+%  end
+%  
+             
+            
+                     
+                     
+                     
+                     
+                     
+                     
+                    
+               
+    
+end
