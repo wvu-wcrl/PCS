@@ -1,5 +1,5 @@
 function [StopFlag, JobInfo, varargout] = ...
-  DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, FiguresDir)
+    DetermineStopFlag(obj, JobParam, JobState, JobInfo, JobName, Username, FiguresDir)
 % Determine when the process should end by checking if the Matching Score
 % initialized is still same. If matching score is changed then process
 % should stop
@@ -23,18 +23,18 @@ TblPath = '/home/pcs/projects/IrisCloud/Usage/AlgorithmTable.mat';
 g=load(TblPath);
 
 while n~=0
-t=strcmp(g.Table{n,3},JobParam.InputParam.AlgorithmParams.AlgorithmName);
-if (t==1)
-%Counter=(str2double(g.Table{n,5}))+1;
-%g.Table{n,5}=int2str(Counter);
-
-g.Table{n,5} = g.Table{n,5} + 1;
-
-Table=g.Table;
-n=0;
-else
-n=n+1;
-end
+    t=strcmp(g.Table{n,3},JobParam.InputParam.AlgorithmParams.AlgorithmName);
+    if (t==1)
+        %Counter=(str2double(g.Table{n,5}))+1;
+        %g.Table{n,5}=int2str(Counter);
+        
+        g.Table{n,5} = g.Table{n,5} + 1;
+        
+        Table=g.Table;
+        n=0;
+    else
+        n=n+1;
+    end
 end
 save(TblPath,'Table');
 

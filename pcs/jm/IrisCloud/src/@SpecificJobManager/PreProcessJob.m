@@ -19,22 +19,22 @@ CodeRoot = CurrentUser.CodeRoot;
 OldPath = obj.SetCodePath(CodeRoot);
 Username = obj.FindUsername(CurrentUser.UserPath);
 
-% Check for the UserType field in JobParamIn 
+% Check for the UserType field in JobParamIn
 if( isfield(JobParamIn,'UserType') && ~isempty(JobParamIn.UserType) )
     switch JobParamIn.UserType
         
         case{'EndUser'}
             
-          
+            
             % Check for the fields which have the Image Paths
             if (isfield(JobParamIn,'ImageOnePath')&& ~isempty(JobParamIn.ImageOnePath))
                 if (isfield(JobParamIn,'ImageTwoPath')&& ~isempty(JobParamIn.ImageTwoPath))
-
+                    
                     %  Decide where to store Dr. Adjeroh's QA code.
                     AlgorithmIndex=QA(JobParamIn.ImageOnePath,JobParamIn.ImageTwoPath);
                     
                     % Look for the Algorithm Name corresponding to
-                    % the algorithm index in the table 
+                    % the algorithm index in the table
                     
                     % Terry will write
                     [AlgorithmParams]=LookUpAlgorithm(AlgorithmIndex);
@@ -45,7 +45,7 @@ if( isfield(JobParamIn,'UserType') && ~isempty(JobParamIn.UserType) )
                     JobParam.InputParam.ImageTwoPath=JobParamIn.ImageTwoPath;
                     JobParam.InputParam.AlgorithmParams= AlgorithmParams;
                     JobParam.InputParam.UserType=JobParamIn.UserType;
-                  
+                    
                     
                     JobState=JobStateIn;
                     JobInfo=JobInfoIn;
@@ -56,7 +56,7 @@ if( isfield(JobParamIn,'UserType') && ~isempty(JobParamIn.UserType) )
                     PPErrorMsg = '';
                     
                     path(OldPath);
-
+                    
                     
                 else
                     
