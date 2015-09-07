@@ -1,8 +1,9 @@
 % StartJM.m
-% Startup script for job manager.
+% Startup script for the specific job manager.
 %
 % Inputs
-%  cfgFile          Full path to task controller configuration file.
+%  cfgFile       Full path to job manager configuration file.
+%  queueCfg      Full path to queue configuration file.
 %
 % Outputs
 %  JMObj         Job manager object.
@@ -18,7 +19,9 @@
 function JMObj = StartJM(cfgFile, queueCfg)
 
 
-%  Factor out generic job manager
+% Place here paths for specific job manager.
+
+
 %%% Paths required for all job managers.
 addpath( fullfile( filesep, 'home', 'pcs', 'util' ) );
 addpath( fullfile( filesep, 'home', 'pcs', 'jm', 'CodedMod', 'src' ) );
