@@ -1,9 +1,24 @@
 % PreProcessJob.m
-%  Optional. Transform job parameters and state prior to job execution.
+%  Transform job parameters and state prior to job execution.
 %
-%     Last updated on 8/14/2015
+% Inputs
+%  obj            Specific job manager object.
+%  JobParamIn     JobParam structure read from user's input file.
+%  JobStateIn     JobState structure read from user's input file.
+%  JobInfoIn      Structure containing job execution information.
+%  CurrentUser     WCRL cluster username of executing user.
+%  JobName      Job name.
 %
-%     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti.
+% Outputs
+%  JobParam       Updated job parameters.
+%  JobState       Updated job state.
+%  JobInfo        Updated job execution information.
+%  PPSuccessFlag  Pre-processing success flag (1=success, 0=failure)
+%  PPErrorMsg     Pre-processing error message (if any).
+%
+%     Last updated on 9/7/2015
+%
+%     Copyright (C) 2015, Terry Ferrett, Veeru Talreja and Matthew C. Valenti.
 %     For full copyright information see the bottom of this file.
 
 
@@ -11,76 +26,79 @@ function [JobParam, JobState, JobInfo, PPSuccessFlag, PPErrorMsg] =...
     PreProcessJob(obj, JobParamIn, JobStateIn, JobInfoIn, CurrentUser, JobName)
 
 
-%  Assign input data structures to output.
-%  Modify if necessary.
+% Get path to algorithms.
 CodeRoot = CurrentUser.CodeRoot;
 
-% First, set the path to Algorithms and QA.
+% Add algorithm path to job path.
 OldPath = obj.SetCodePath(CodeRoot);
+
+% Get user's username from the path to their home directory.
 Username = obj.FindUsername(CurrentUser.UserPath);
 
-% Check for the UserType field in JobParamIn
-if( isfield(JobParamIn,'UserType') && ~isempty(JobParamIn.UserType) )
-    switch JobParamIn.UserType
+
+% Pre-process job based on user type.
+%  End user jobs utilize the algorithm selection algorithm to
+%   select a matching algorithm.
+%
+%  Developer jobs are currently unspecified.
+switch JobParamIn.UserType
+    
+    case{'EndUser'}
         
-        case{'EndUser'}
-            
-            
-            % Check for the fields which have the Image Paths
-            if (isfield(JobParamIn,'ImageOnePath')&& ~isempty(JobParamIn.ImageOnePath))
-                if (isfield(JobParamIn,'ImageTwoPath')&& ~isempty(JobParamIn.ImageTwoPath))
-                    
-                    %  Decide where to store Dr. Adjeroh's QA code.
-                    AlgorithmIndex=QA(JobParamIn.ImageOnePath,JobParamIn.ImageTwoPath);
-                    
-                    % Look for the Algorithm Name corresponding to
-                    % the algorithm index in the table
-                    
-                    % Terry will write
-                    [AlgorithmParams]=LookUpAlgorithm(AlgorithmIndex);
-                    
-                    
-                    % Creating the structure of JobParam
-                    JobParam.InputParam.ImageOnePath=JobParamIn.ImageOnePath;
-                    JobParam.InputParam.ImageTwoPath=JobParamIn.ImageTwoPath;
-                    JobParam.InputParam.AlgorithmParams= AlgorithmParams;
-                    JobParam.InputParam.UserType=JobParamIn.UserType;
-                    
-                    
-                    JobState=JobStateIn;
-                    JobInfo=JobInfoIn;
-                    
-                    
-                    
-                    PPSuccessFlag = 1;
-                    PPErrorMsg = '';
-                    
-                    path(OldPath);
-                    
-                    
-                else
-                    
-                    PPErrorMsg = sprintf( 'Sorry. Image 2 not found\n' );
-                    fprintf( ErrorMsg );
-                    PPSuccessFlag = 0;
-                    path(OldPath);
-                    return;
-                end
-            else
-                PPErrorMsg = sprintf( 'Sorry. Image 1 not found\n' );
-                fprintf( ErrorMsg );
-                PPSuccessFlag = 0;
-                path(OldPath);
-                return;
-            end
-        case {'Developer'}
-            % Yet to decide on it
-        otherwise
-            PPErrorMsg = sprintf( 'Sorry. UserType is not valid. Only valid options are EndUser or Developer.\n' );
+        % Confirm that specified input images exist on the filesystem.
+        Im1Exist = exist(JobParamIn.ImageOnePath, 'file');
+        if (Im1Exist ~= 2 )
+            PPErrorMsg = sprintf( 'Image 1 not found on filesystem.\n' );
             fprintf( ErrorMsg );
             PPSuccessFlag = 0;
             path(OldPath);
-    end
+            return;
+        end
+        
+        Im2Exist = exist(JobParamIn.ImageTwoPath, 'file');
+        if (Im2Exist ~= 2 )
+            PPErrorMsg = sprintf( 'Image 2 not found on filesystem.\n' );
+            fprintf( ErrorMsg );
+            PPSuccessFlag = 0;
+            path(OldPath);
+            return;
+        end
+        
+        
+        %  Decide where to store Dr. Adjeroh's QA code.
+        AlgorithmIndex=QA(JobParamIn.ImageOnePath,JobParamIn.ImageTwoPath);
+        
+        % Look for the algorithm name corresponding to the algorithm index.
+        %  Return the algorithm parameters.
+        [AlgorithmParams]=LookUpAlgorithm(AlgorithmIndex);
+                
+        % Create the JobParam structure.
+        JobParam.InputParam.UserType=JobParamIn.UserType;
+        JobParam.InputParam.ImageOnePath=JobParamIn.ImageOnePath;
+        JobParam.InputParam.ImageTwoPath=JobParamIn.ImageTwoPath;
+        JobParam.InputParam.AlgorithmParams= AlgorithmParams;
+                
+        % Create the JobState structure.        
+        JobState=JobStateIn;
+        JobInfo=JobInfoIn;
+        
+        % Set success flag to indicate success.
+        PPSuccessFlag = 1;
+        PPErrorMsg = '';
+        
+        % Reset MATLAB path to previous.
+        path(OldPath);        
+        
+    case {'Developer'}
+        % Under development.
+    otherwise
+        % Specified user type not valid. Print error messages and exit.
+        ErrorMsgP1 = 'UserType is not valid. ';
+        ErrorMsgP2 = 'Valid options are { EndUser, Developer }.';
+        PPErrorMsg = [ ErrorMsgP1 ErrorMsgP2 ];        
+        fprintf( PPErrorMsg );
+        PPSuccessFlag = 0;
+        path(OldPath);
 end
 
 
