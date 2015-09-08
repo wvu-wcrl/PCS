@@ -58,7 +58,7 @@ TblPath = '/home/pcs/jm/IrisCloud/Usage/AlgorithmTable.mat';
 g=load(TblPath);
 
 % Locate selected algorithm in table and increment its execution count.
-AlgorithmName = JobParam.InputParam.AlgorithmParams.AlgorithmName;
+AlgorithmName = JobParam.AlgorithmParams.AlgorithmName;
 Table = g.Table;
 Table = iaec( Table, AlgorithmName );
   % iaec - increment algorithm execution count
