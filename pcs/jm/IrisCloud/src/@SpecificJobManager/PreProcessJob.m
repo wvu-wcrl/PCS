@@ -71,14 +71,20 @@ switch JobParamIn.UserType
         % Look for the algorithm name corresponding to the algorithm index.
         %  Return the algorithm parameters.
         [AlgorithmParams]=LookUpAlgorithm(AlgorithmIndex);
-                
+        
         % Create the JobParam structure.
-        JobParam.InputParam.UserType=JobParamIn.UserType;
-        JobParam.InputParam.ImageOnePath=JobParamIn.ImageOnePath;
-        JobParam.InputParam.ImageTwoPath=JobParamIn.ImageTwoPath;
-        JobParam.InputParam.AlgorithmParams= AlgorithmParams;
-                
-        % Create the JobState structure.        
+        %JobParam.InputParam.UserType=JobParamIn.UserType;
+        %JobParam.InputParam.ImageOnePath=JobParamIn.ImageOnePath;
+        %JobParam.InputParam.ImageTwoPath=JobParamIn.ImageTwoPath;
+        %JobParam.InputParam.AlgorithmParams= AlgorithmParams;
+        
+        % Assign parameters to JobParam.
+        JobParam.UserType=JobParamIn.UserType;
+        JobParam.ImageOnePath=JobParamIn.ImageOnePath;
+        JobParam.ImageTwoPath=JobParamIn.ImageTwoPath;
+        JobParam.AlgorithmParams=AlgorithmParams;
+        
+        % Create the JobState structure.
         JobState=JobStateIn;
         JobInfo=JobInfoIn;
         
@@ -87,7 +93,7 @@ switch JobParamIn.UserType
         PPErrorMsg = '';
         
         % Reset MATLAB path to previous.
-        path(OldPath);        
+        path(OldPath);
         
     case {'Developer'}
         % Under development.
@@ -95,7 +101,7 @@ switch JobParamIn.UserType
         % Specified user type not valid. Print error messages and exit.
         ErrorMsgP1 = 'UserType is not valid. ';
         ErrorMsgP2 = 'Valid options are { EndUser, Developer }.';
-        PPErrorMsg = [ ErrorMsgP1 ErrorMsgP2 ];        
+        PPErrorMsg = [ ErrorMsgP1 ErrorMsgP2 ];
         fprintf( PPErrorMsg );
         PPSuccessFlag = 0;
         path(OldPath);

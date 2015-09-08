@@ -2,7 +2,7 @@
 % Construct task input structure
 %     InputParam
 % using job parameters and state read from user job file.
-% 
+%
 %
 % Inputs
 %  obj          Specific job manager object.
@@ -22,13 +22,13 @@
 function TaskInputParam = ...
     CalcTaskInputParam(obj, JobParam, JobState, NumNewTasks)
 
-% Compute 
+% Compute
 switch JobParam.InputParam.UserType
     case{'EndUser'}
-        TaskInputParam.ImageOnePath=JobParam.InputParam.ImageOnePath;
-        TaskInputParam.ImageTwoPath=JobParam.InputParam.ImageTwoPath;
-        TaskInputParam.AlgorithmParams=JobParam.InputParam.AlgorithmParams;
-        TaskInputParam.UserType = JobParam.InputParam.UserType;
+        TaskInputParam.ImageOnePath = JobParam.ImageOnePath;
+        TaskInputParam.ImageTwoPath = JobParam.ImageTwoPath;
+        TaskInputParam.AlgorithmParams = JobParam.AlgorithmParams;
+        TaskInputParam.UserType = JobParam.UserType;
         TaskInputParam.JobState = JobState;
     case {'Developer'}
         
