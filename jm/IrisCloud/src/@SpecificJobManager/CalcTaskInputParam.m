@@ -23,7 +23,7 @@ function TaskInputParam = ...
     CalcTaskInputParam(obj, JobParam, JobState, NumNewTasks)
 
 % Compute
-switch JobParam.InputParam.UserType
+switch JobParam.UserType
     case{'EndUser'}
         TaskInputParam.ImageOnePath = JobParam.ImageOnePath;
         TaskInputParam.ImageTwoPath = JobParam.ImageTwoPath;
