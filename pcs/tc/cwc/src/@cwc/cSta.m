@@ -14,9 +14,15 @@
 function cSta(obj, varargin)
 
 
+% clean PCS temporary directory on all nodes
+msg = ['Cleaning PCS temporary directory (/tmp/pcs) contents on all nodes.'];
+PrintOut(msg, 0, obj.cwc_logfile{1}, 1);
+cptd(obj, obj.nodes);
+
+
+
 % log message about starting workers across the entire cluster
 msg = ['Workers launching across entire cluster.'];
-PrintOut(msg, 0, obj.cwc_logfile{1}, 1);
 
 
 n = length(obj.workers);
@@ -36,6 +42,25 @@ if nargin == 1,   % start all workers unconditionally
         error('Too many arguments to function cSto()');
 
 end
+
+end
+
+
+
+function cptd(obj, nodes)
+
+    % Loop over all nodes and clean temporary directory.
+    n = length(nodes);
+    for k = 1:n,
+    % log message about cleaning
+    msg = ['Cleaning temporary directory /tmp/pcs on ' ' ' nodes{k}];
+    PrintOut(msg, 0, obj.cwc_logfile{1}, 1);
+
+
+    cs = [obj.bs{1}  '/clean_pcs_tmp.sh'];
+    cs = [cs, ' ', nodes{k}, ' &' ]
+    [stat pid] = system(cs);
+    end
 
 end
 

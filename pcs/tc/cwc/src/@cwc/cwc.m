@@ -103,6 +103,8 @@ classdef cwc < handle
     
     methods
         
+        % Clean PCS temporary directories on all specified nodes.
+        cptd(obj, nodes);
         
         % Start single worker.
         staw(obj, worker)
