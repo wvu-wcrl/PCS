@@ -21,17 +21,32 @@ import org.springframework.security.config.annotation.web.servlet.configuration.
 	    .formLogin();
     }
 
+
+
+
     @Configuration
 	protected static class AuthenticationConfiguration extends
 							       GlobalAuthenticationConfigurerAdapter {
 
 	@Override
 	    public void init(AuthenticationManagerBuilder auth) throws Exception {
+
+	    // WCRL specific LDAP patterns
+	    auth
+		.ldapAuthentication()
+		.userDnPatterns("uid={0},ou=People,dc=wcrl,dc=csee,dc=wvu,dc=edu")
+		.groupSearchBase("ou=Group,dc=wcrl,dc=csee,dc=wvu,dc=edu")
+		.groupSearchFilter("member={0})")
+		.contextSource()
+		.url("ldap://localhost:389");
+
+	    /*
 	    auth
 		.ldapAuthentication()
 		.userDnPatterns("uid={0},ou=people")
 		.groupSearchBase("ou=groups")
 		.contextSource().ldif("classpath:test-server.ldif");
+	    */
 	}
     }
 }

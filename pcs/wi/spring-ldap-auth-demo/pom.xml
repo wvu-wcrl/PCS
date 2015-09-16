@@ -7,6 +7,7 @@
     <artifactId>gs-authenticating-ldap</artifactId>
     <version>0.1.0</version>
 
+<!-- probably don't need -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -14,6 +15,7 @@
     </parent>
 
 
+<!-- probably don't need -->
     <build>
         <plugins>
             <plugin>
@@ -23,6 +25,8 @@
         </plugins>
     </build>
 
+
+<!-- probably only need spring-security-ldap -->
     <dependencies>
 
       <dependency>
