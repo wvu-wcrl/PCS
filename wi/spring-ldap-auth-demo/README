@@ -1,0 +1,8 @@
+
+
+   This web application demonstrates LDAP authentication using Spring.
+
+   The web application was created by following
+     http://spring.io/guides/gs/authenticating-ldap/
+
+   -Terry 9/2015
