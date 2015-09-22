@@ -1,0 +1,231 @@
+
+
+
+    9/22/2015
+
+
+
+   Changing direction
+
+ 
+     goal: implement form based authentication using Tomcat 6 REALM interface
+
+       
+       concepts
+
+           realms are a concept defined in the context of servlet containers
+             which defines authentication mechanism and parameters
+
+           a particular realm can be configured for all web apps hosted on a tomcat server
+	     or a subset
+             In our case, we define a realm that all web applications can use for authentication
+
+
+           
+           example deployment steps
+
+               configure realm in server.xml - no change
+
+               configure application's web.xml to secure page
+
+               specify the following in web.xml
+	         login page
+		 LDAP group containing users having access to web app
+
+               implement client in eclipse
+
+               deploy
+
+
+
+
+
+
+            Implementation
+  
+                Configure realm in server.xml - no change necessary from default WCRL configuration.
+                  The WCRL configuration defines a realm within 
+		    /etc/tomcat6/server.xml
+		  in the <engine> tag, applying the realm configuration to all Tomcat web apps on the head node [1].
+
+
+
+
+
+                Create example application in Eclipse to demonstrate authentication
+
+                   File > New > Dynamic web project
+   
+                   Target runtime - none
+           
+                   Next > Next  generate web.xml
+
+
+
+
+                   Configure required server libraries
+		     right click on project > properties > java build path 
+		     	  > add library > server runtime > google app engine
+
+
+
+
+
+                   Right click on project name > New > JSP file.
+         
+                     Name the new file 
+ 		       logon.jsp
+                     
+                   In the new file, paste the following within the <body>...</body> tags   [2]
+
+
+                    <form method="POST" action='<%= response.encodeURL("j_security_check") %>' >
+	        <table cellpadding="2" border="0" cellspacing="0">
+                <tr>
+		      <td align="right">Username:</td>
+		            <td align="left"><input type="text" name="j_username" size="9"></td>
+			        </tr>
+			    <tr>
+		          <td align="right">Password:</td>
+	        <td align="left"><input type="password" name="j_password" size="9"></td>
+					    </tr>
+						        <tr>
+      <td align="right"><input type="submit" value="Log In"></td>
+     <td align="left"><input type="reset"></td>
+      </tr>
+     </table>
+     </form>
+
+
+
+
+                   Right click on project name > New > JSP file.
+         
+                     Name the new file 
+ 		       error.jsp
+                     
+                   In the new file, paste the following within the <body>...</body> tags   [2]
+
+                   <p>
+		      Username and/or password not recognized.  Please try again.
+		   </p>
+
+                    <form method="POST" action='<%= response.encodeURL("j_security_check") %>' >
+	        <table cellpadding="2" border="0" cellspacing="0">
+                <tr>
+		      <td align="right">Username:</td>
+		            <td align="left"><input type="text" name="j_username" size="9"></td>
+			        </tr>
+			    <tr>
+		          <td align="right">Password:</td>
+	        <td align="left"><input type="password" name="j_password" size="9"></td>
+					    </tr>
+						        <tr>
+      <td align="right"><input type="submit" value="Log In"></td>
+     <td align="left"><input type="reset"></td>
+      </tr>
+     </table>
+     </form>
+
+
+
+
+
+                   Right click on project name > New > JSP file.
+         
+                     Name the new file 
+ 		       error.jsp
+                     
+                   In the new file, paste the following within the <body>...</body> tags   [2]
+
+                   <p>
+		      Username and/or password not recognized.  Please try again.
+		   </p>
+
+                    <form method="POST" action='<%= response.encodeURL("j_security_check") %>' >
+	        <table cellpadding="2" border="0" cellspacing="0">
+                <tr>
+		      <td align="right">Username:</td>
+		            <td align="left"><input type="text" name="j_username" size="9"></td>
+			        </tr>
+			    <tr>
+		          <td align="right">Password:</td>
+	        <td align="left"><input type="password" name="j_password" size="9"></td>
+					    </tr>
+						        <tr>
+      <td align="right"><input type="submit" value="Log In"></td>
+     <td align="left"><input type="reset"></td>
+      </tr>
+     </table>
+     </form>
+
+
+
+
+
+              Right click on project name > New > JSP file.
+
+                     Name the new file
+                       index.jsp
+
+                   In the new file, paste the following within the <body>...</body> tags
+
+                   <p>
+                      Nice logon!
+                   </p>
+
+ 
+
+          Add the following to web.xml within the tags <web-app>...</web-app>
+
+ 
+  <security-constraint>
+   <display-name>Security Constraint</display-name>
+   <web-resource-collection>
+      <web-resource-name>Protected Area</web-resource-name>
+      <!-- Define the context-relative URL(s) to be protected -->
+      <url-pattern>/*</url-pattern>
+      <!-- If you list http methods, only those methods are protected -->
+   </web-resource-collection>
+   <auth-constraint>
+      <!-- Anyone with one of the listed roles may access this area -->
+      <role-name>tomcat-dev</role-name>
+   </auth-constraint>
+</security-constraint>
+
+<!-- Default login configuration uses form-based authentication -->
+<login-config>
+   <auth-method>FORM</auth-method>
+   <realm-name>Form-Based Authentication Area</realm-name>
+   <form-login-config>
+     <form-login-page>/logon.jsp</form-login-page>
+     <form-error-page>/error.jsp</form-error-page>
+   </form-login-config>
+</login-config>
+
+<!-- Security roles referenced by this web application -->
+<security-role>
+   <role-name>tomcat-dev</role-name>
+</security-role>
+
+
+
+
+
+Export as WAR and deploy
+
+
+
+
+
+
+
+
+
+           References
+           [1]  http://tomcat.apache.org/tomcat-6.0-doc/realm-howto.html#JNDIRealm
+
+           [2] http://blog.mc-thias.org/?title=tomcat_ldap_authentication&more=1&c=1&tb=1&pb=1
+
+
+             https://docs.oracle.com/cd/E19316-01/819-3669/bncby/index.html
