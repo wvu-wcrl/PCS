@@ -134,7 +134,7 @@ public class ElementsViewImpl extends DetailViewGwtImpl implements ElementsView 
 	        	//String regex = "^[A-Za-z@._][A-Za-z0-9._@]+";
 	        	String username = mTextBox.getValue().trim();
 	        	String password = mPasswordTextBox.getValue().trim();
-	        	Log.info("Username: " + username + " Password: " + password);
+	        	//Log.info("Username: " + username + " Password: " + password);
 	        	System.out.println("Username: " + username + " Password: " + password);
 	        	System.out.println((username.matches(usernameRegex))  + " " +  (password.matches(passwordRegex)));
 	        	if((username.matches(usernameRegex)) && (password.matches(passwordRegex)))
