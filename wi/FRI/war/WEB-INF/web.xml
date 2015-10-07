@@ -18,6 +18,10 @@
     <param-value>200</param-value>
   </context-param>
   
+ 
+  
+  
+  
   <servlet>
   	<servlet-name>gwt-log-remote-logger-servlet</servlet-name>
   	<servlet-class>com.allen_sauer.gwt.log.server.RemoteLoggerServiceImpl</servlet-class>
@@ -42,6 +46,12 @@
   	<url-pattern>/fri/gwt-log</url-pattern>
   </servlet-mapping>
 
+
+
+
+
+
+
   <servlet>
     <servlet-name>Log4JInitServlet</servlet-name>
     <servlet-class>com.googlecode.mgwt.examples.showcase.server.Log4JInitServlet</servlet-class>
@@ -51,6 +61,12 @@
      </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
+
+
+
+
+
+
   
   <servlet>
 		<servlet-name>ChangePasswordService</servlet-name>
@@ -60,6 +76,10 @@
 		<servlet-name>ChangePasswordService</servlet-name>
 		<url-pattern>/fri/changePasswordService</url-pattern>
   </servlet-mapping>
+
+
+
+
   
   <servlet>
     <servlet-name>enrollServlet</servlet-name>
@@ -70,6 +90,10 @@
     <!-- <url-pattern>*.gupld</url-pattern> -->
     <url-pattern>/fri/eupld</url-pattern>
   </servlet-mapping>  
+
+
+
+
   
   <servlet>
         <servlet-name>EventService</servlet-name>
@@ -79,6 +103,10 @@
         <servlet-name>EventService</servlet-name>
         <url-pattern>/fri/gwteventservice</url-pattern>
    </servlet-mapping>
+
+
+
+
   
   <servlet>
     <servlet-name>generateJobServlet</servlet-name>
@@ -89,6 +117,10 @@
     <!-- <url-pattern>*.gupld</url-pattern> -->
     <url-pattern>/fri/gupld</url-pattern>
   </servlet-mapping>
+
+
+
+
   
   <servlet>
 		<servlet-name>GetJobDetailsService</servlet-name>
@@ -98,6 +130,9 @@
 		<servlet-name>GetJobDetailsService</servlet-name>
 		<url-pattern>/fri/getJobDetails</url-pattern>
   </servlet-mapping>
+
+
+
   
   <servlet>
 		<servlet-name>GetPageService</servlet-name>
@@ -107,6 +142,10 @@
 		<servlet-name>GetPageService</servlet-name>
 		<url-pattern>/fri/getPage</url-pattern>
  </servlet-mapping>
+
+
+
+
   
   <servlet>
 		<servlet-name>MasterKeyService</servlet-name>
@@ -117,6 +156,10 @@
 		<url-pattern>/fri/masterkeyservice</url-pattern>
   </servlet-mapping>
   
+
+
+
+
   <servlet>
         <servlet-name>ServerMessageGeneratorService</servlet-name>
         <servlet-class>com.googlecode.mgwt.examples.showcase.server.jobs.ServerMessageGeneratorImpl</servlet-class>
@@ -125,6 +168,12 @@
         <servlet-name>ServerMessageGeneratorService</servlet-name>
         <url-pattern>/fri/ServerMessageGeneratorService</url-pattern>
    </servlet-mapping>
+
+
+
+
+
+
   
   <servlet>
 		<servlet-name>UserValidationService</servlet-name>
@@ -135,6 +184,9 @@
 		<url-pattern>/fri/uservalidationservice</url-pattern>
   </servlet-mapping>
   
+  
+  
+ 
 
   
   <!-- Default page to serve -->
