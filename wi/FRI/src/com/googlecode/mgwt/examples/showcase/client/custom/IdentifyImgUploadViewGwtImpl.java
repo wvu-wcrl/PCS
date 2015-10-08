@@ -93,6 +93,11 @@ public class IdentifyImgUploadViewGwtImpl extends DetailViewGwtImpl implements I
       final FileUpload imgUpload = new FileUpload();
       imgUpload.setName("fileselect[]");
       
+      final FileUpload imgUpload1 = new FileUpload();
+      imgUpload1.setName("fileselect1[]");
+      
+      
+      
       final FormPanel fPanel = new FormPanel();
       fPanel.reset();
   	  fPanel.setAction(GENERATEJOB_ACTION_URL);	
@@ -122,6 +127,10 @@ public class IdentifyImgUploadViewGwtImpl extends DetailViewGwtImpl implements I
   	  txtFilename.setVisible(false);
   	  txtFilename.setName("dataFile");
   	  formContainerPanel.add(txtFilename);
+  	  
+  	
+  	  
+  	  
   	
   	  final TextBox txtOverwrite = new TextBox();
   	  txtOverwrite.setVisible(false);
@@ -129,6 +138,13 @@ public class IdentifyImgUploadViewGwtImpl extends DetailViewGwtImpl implements I
   	  formContainerPanel.add(txtOverwrite);
   	
   	  formContainerPanel.add(imgUpload);
+  	  
+  	final TextBox txtFilename1 = new TextBox();
+	  txtFilename1.setVisible(false);
+	  txtFilename1.setName("dataFile1");
+	  formContainerPanel.add(txtFilename1);
+	  
+  	formContainerPanel.add(imgUpload1);
   	 
   	  Button submitButton = new Button("Submit");
 	  submitButton.addTapHandler(new TapHandler(){
@@ -144,17 +160,25 @@ public class IdentifyImgUploadViewGwtImpl extends DetailViewGwtImpl implements I
 	  fPanel.addSubmitHandler(new FormPanel.SubmitHandler() 
       {      	
 		public void onSubmit(SubmitEvent event) {
-			txtProject.setValue("plbp");
+			//txtProject.setValue("plbp");
+			txtProject.setValue("IrisCloud");
+			
 			/* Change to make it dynamic */  
 			String username = currentUser.getUsername();
 			txtUsername.setValue(username);
 			//txtUsername.setValue("abommaga");
-			txtTask.setValue("Identification");
+			//txtTask.setValue("Identification");
+			txtTask.setValue("Matching");
 			txtOverwrite.setValue("1");
+			
+			
+		//	if(imgUpload.getFilename().length() > 0)
     	
-			if(imgUpload.getFilename().length() > 0)
+			if(imgUpload.getFilename().length() > 0 && imgUpload1.getFilename().length() > 0)
 			{
 				txtFilename.setValue(imgUpload.getFilename());
+				txtFilename1.setValue(imgUpload1.getFilename());
+				
 				System.out.println("Submitting identification job");
 			} 
 			else

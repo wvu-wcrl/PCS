@@ -23,6 +23,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
@@ -33,6 +34,7 @@ import com.googlecode.mgwt.examples.showcase.server.db.DBConnection;
 import com.jmatio.io.MatFileWriter;
 import com.jmatio.types.MLArray;
 import com.jmatio.types.MLChar;
+import com.jmatio.types.MLDouble;
 import com.jmatio.types.MLStructure;
 
 
@@ -42,7 +44,9 @@ import com.jmatio.types.MLStructure;
 	 private Map<String, String> jobDetailsMap; 
 	 private ResourceBundle constants = ResourceBundle.getBundle("Paths");
 	 private String rootPath = constants.getString("path");
+	 private String rhomePath=constants.getString("path2");
 	 private String dataFileName;
+	 private String dataFileName1;
 	 private String jobFileName = "";
 	 private String jobMsg;
 	 private String dataMsg;
@@ -55,261 +59,234 @@ import com.jmatio.types.MLStructure;
    
      @SuppressWarnings("unchecked")
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
-    {   		 
-    	 dataMsg = "";
-    	 jobMsg = "";
+    {
+    
+    	 // Receive data file
+    	 
+    	 
     	 jobDetailsMap = new HashMap<String, String>();
+
     	 HttpSession session = request.getSession();
+    	 
     	 if (session.getAttribute("Username") != null)
     	 {
-             // process only multipart requests
-        	 
-        	 response.setContentType("text/html");
-        	 //String path = constants.getString("path");       	
-     		
-             if (ServletFileUpload.isMultipartContent(request)) 
-             {            
-                 FileItemFactory factory = new DiskFileItemFactory();
-                 ServletFileUpload upload = new ServletFileUpload(factory);
-                 
-                 boolean dataFileFlag = false;
-                 
-                 try 
+    		 response.setContentType("text/html");
+    		 PreprocessingData(request,response);
+    	 }
+
+    	 
+    	 
+    	 // Put image data in place
+    	 
+    	 // Generate job file
+    	 
+    	 
+    }
+    	 
+     
+     
+     
+     
+     
+     
+     private void PreprocessingData(HttpServletRequest request, HttpServletResponse response) {
+    	 if (ServletFileUpload.isMultipartContent(request)) 
+         {   
+    		 HashMap<String, FileItem> fileMap = new HashMap<String, FileItem>();
+             FileItemFactory factory = new DiskFileItemFactory();
+             ServletFileUpload upload = new ServletFileUpload(factory);
+             List<FileItem> items;
+			try {
+				items = upload.parseRequest(request);
+				String fileName = "";
+			//	HashMap<String, FileItem> fileMap = new HashMap<String, FileItem>();
+	        	 jobDetailsMap = new HashMap<String, String>();
+	             
+	             // variables for checking if the datafile already exists
+	             
+	             
+	             jobDetailsMap = MvFileItems2HashMap(items);
+	             // Add the error checking later
+	             dataFileName = jobDetailsMap.get("dataFile");
+        		 dataFileName1 = jobDetailsMap.get("dataFile1");
+        		 for (FileItem item : items) 
                  {
-                	 List<FileItem> items = upload.parseRequest(request);
-                	 System.out.println("Item count: " + items.size());
-                	 HashMap<String, FileItem> fileMap = new HashMap<String, FileItem>();
-                     ArrayList<String> allowedFormats = new ArrayList<String>();
-                     String fileName = "";
-                     String validFileTypes = "";
-                     for (FileItem item : items) 
-                     {               	           	  
-                         if (item.isFormField()) 
-                         {                    	 
-                        	 System.out.println("Item: " + item.getFieldName() + " Value: " + item.getString());
-                        	 jobDetailsMap.put(item.getFieldName(), item.getString());
-                         } 
-                     }
-                     //jobDetailsMap.put("project", "plbp");
-                     
-                     if(jobDetailsMap.get("dataFile") != null)
-                     {
-                    	 if(jobDetailsMap.get("dataFile").length() > 0)
-                    	 {
-                    		 dataFileName = jobDetailsMap.get("dataFile");
-                    	 }
-                     }
-                     //dataFileName = jobDetailsMap.get("dataFile");
-                     //System.out.println("~~~~~dataFileName: " + dataFileName +  "###: " + jobDetailsMap.get("dataFile"));
-                     
-                     for (FileItem item : items) 
-                     {
-                         // process only file upload - discard other form item types                	           	  
-                         if (item.isFormField()) 
-                         {                    	 
-                        	 continue;
-                         }  
-                         else
-                         {
-                        	 fileName = item.getName();
-                        	 fileMap.put(item.getFieldName(), item);
-                        	 //if(item.getFieldName().equalsIgnoreCase("dataUpload"))
-                        	 if(item.getFieldName().equalsIgnoreCase("fileselect[]"))
-                        	 {
-                        		 if(dataFileName.length() > 0)
-                        		 {
-                        			 if (fileName != null) 
-                                     {
-                        				 //System.out.println("~~~fileName: " + fileName);
-                            			 validFileTypes = "";
-                                    	 fileName = FilenameUtils.getName(fileName);
-                                    	 if(fileName.length() > 0)
-                                    	 {
-                                    		 allowedFormats = getFileExtensions("data", jobDetailsMap.get("project"));
-                                        	 
-                                        	 boolean validFileExtension = false;
-                                        	 int count = allowedFormats.size();
-                                        	 for(int i = 0; i < count; i++)
-                                        	 {
-                                        		 String fileExtension = allowedFormats.get(i).trim();
-                                        		 if(i == (count - 1))
-                                        		 {
-                                        			 validFileTypes = validFileTypes + fileExtension;
-                                        		 }
-                                        		 else
-                                        		 {
-                                        			 validFileTypes = validFileTypes + fileExtension + ", ";
-                                        		 }
-                                        		 if(fileName.endsWith(fileExtension))
-                                        		 {
-                    								 validFileExtension = true;	
-                    								 break;
-                                        		 } 
-                                        	 }
-                                        	 //System.out.println("~~~validFileExtension: " + validFileExtension);
-                                        	 if(validFileExtension)
-                                    		 {   
-                                        		 String[] tokens = item.getName().split("\\.");
-                                    			 int cnt = tokens.length;
-                                    			 dataFileName = tokens[0] + "_" + String.format(sdf.format( new Date() )) +  "_" + jobDetailsMap.get("taskName") + "_Data" + "." + tokens[cnt-1];
-                                    			 jobFileName = tokens[0] + "_" + String.format(sdf.format( new Date() )) +  "_" + jobDetailsMap.get("taskName") + ".mat";
-                                    			 System.out.println("~~~dataFileName: " + dataFileName);
-                                    			 dataFileFlag = checkForDataFile(rootPath, dataFileName, item, jobDetailsMap.get("user"), jobDetailsMap.get("project"), jobDetailsMap.get("overwrite"), response);                                            		 
-                                        		 //dataFileFlag = checkForDataFile(rootPath, item.getName(), item, jobDetailsMap.get("user"), jobDetailsMap.get("projectName"), jobDetailsMap.get("overwrite"), response);
-                                    		 }
-                                    		 else
-                                    		 {
-                                    			 String msg = "2~Not a valid data file type. Please upload a file of following file types " + validFileTypes + ".";
-                                    			 response.getWriter().print(msg);
-                                    			 return;
-                                    		 }
-                                    	 }                                	                         	
-                                     }
-                        		 }                        		 
-                        	 }                                                 	 
-                         }                                                                  
-                     }
-                     
-                     
-                     
-                     /*SimpleDateFormat sdf = null;*/
-                     
-                     System.out.println(" DataFileFlag: " + dataFileFlag);
-                     System.out.println("Data message: " + dataMsg);
-                     /*if(dataFileFlag)
-                     {
-                    	 System.out.println("Data message: " + dataMsg);
-                    	 response.getWriter().print(dataMsg);
-                     }*/
-                     Set<Entry<String, FileItem>> entries = fileMap.entrySet();
-                     
-                     if(!dataFileFlag)
-                     {                       	 
-                    	 //sdf = new SimpleDateFormat("ddMMyyyy-hhmmss");
-                    	 File uploadedFile = null;
-                    	 
-                    	 for(Entry<String, FileItem> entry : entries)
-                    	 {
-                    		 String key = entry.getKey();
-                    		 FileItem item = entry.getValue();
-                    		 System.out.println("# Key: " + key);
-                    		 if(key.equals("fileselect[]"))
-                    		 //if(key.equals("dataUpload"))
-                    		 {
-                    			 String dir = rootPath + jobDetailsMap.get("user") + File.separator + constants.getString("projects") + File.separator + jobDetailsMap.get("project") + File.separator + constants.getString("Data");
-                    			 /*String[] tokens = item.getName().split("\\.");
-                    			 int cnt = tokens.length;
-                    			 System.out.println(" item.getName(): " + item.getName() + " dataFileName: " + dataFileName + " Tokens length: " + cnt);
-                    			 System.out.println(" # " + tokens[0] + " " + tokens[1]);
-                    			 System.out.println("SDF :" + String.format(sdf.format( new Date() )));
-                    			 dataFileName = tokens[0] + "_" + String.format(sdf.format( new Date() )) +  "_" + jobDetailsMap.get("taskName") + "." + tokens[cnt-1];*/
-                    			 System.out.println(" # DataFilename: " + dataFileName);
-                    			 uploadedFile = new File(dir, dataFileName);
-                    			 createFile(uploadedFile, item, response, 1);
-                    		 }
-                    	 }                    	 
-                     }
+                     // process only file upload - discard other form item types                	           	  
+                     if (item.isFormField()) 
+                     {                    	 
+                    	 continue;
+                     }  
                      else
                      {
-                    	 while(dataFileFlag)
-                    	 {
-                    		 System.out.println(" # DataFileFlag: " + dataFileFlag);
-                             System.out.println("# Data message: " + dataMsg);
-                    		 
-                        	 File uploadedFile = null;
-                        	 for(Entry<String, FileItem> entry : entries)
-                        	 {
-                        		 String key = entry.getKey();
-                        		 FileItem item = entry.getValue();
-                        		 
-                        		 if(key.equals("fileselect[]"))
-                        		 {
-                        			 
-                        			 dataFileFlag = checkForDataFile(rootPath, item.getName(), item, jobDetailsMap.get("user"), jobDetailsMap.get("project"), jobDetailsMap.get("overwrite"), response);
-                        			 if(!dataFileFlag)
-                        			 {
-                        				 String dir = rootPath + jobDetailsMap.get("user") + File.separator + constants.getString("projects") + File.separator + jobDetailsMap.get("project") + File.separator + constants.getString("Data");
-                            			 String[] tokens = item.getName().split("\\.");
-                            			 int cnt = tokens.length;
-                            			 System.out.println(" item.getName(): " + item.getName() + " dataFileName: " + dataFileName + " Tokens length: " + cnt);
-                            			 System.out.println(" # " + tokens[0] + " " + tokens[1]);
-                            			 System.out.println("SDF :" + String.format(sdf.format( new Date() )));
-                            			 dataFileName = tokens[0] + "_" + String.format(sdf.format( new Date() )) +  "_" + jobDetailsMap.get("taskName") + "_Data" + "." + tokens[cnt-1];                        			 
-                            			 uploadedFile = new File(dir, dataFileName);
-                            			 createFile(uploadedFile, item, response, 1);                        				 
-                        			 }                       			 
-                        		 }
-                        	 }
-                    	 }
-                     }
-                                         
-                     System.out.println("Data message: " + dataMsg);
-                     response.getWriter().print(dataMsg);
-                                       
-                     try
-                     {
-                    	 //sdf = new SimpleDateFormat("ddMMyyyy-hhmmss");                    	                      
-            			                     	 
-                         //System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                         /*String jobFileName = String.format(sdf.format( new Date() ) + "_%s" + "_" + jobDetailsMap.get("user") + "_" + jobDetailsMap.get("taskName") + ".mat", random.nextInt(9));*/
-                    	 //String[] tokens = dataFileName.split("\\.");    
-                         //String jobFileName = tokens[0] + ".mat";
                     	 
-                         if(jobDetailsMap.get("taskName").equalsIgnoreCase("Model"))
-                         {
-                        	 
-                        	 jobFileName = String.format(sdf.format( new Date() )) +  "_" + jobDetailsMap.get("taskName") + ".mat";
-                         }
-                         
-                         System.out.println("Task: " + jobDetailsMap.get("taskName") +  "job name: " + jobFileName);
-                         
-                         boolean jobFileFlag = checkForJobFile(rootPath, jobFileName, response);
-                         
-                         
-                                                
-                         if(!jobFileFlag)
-                         {
-                        	 //String jobDir = rootPath + jobDetailsMap.get("user") + File.separator + constants.getString("projects") + File.separator + jobDetailsMap.get("project") + File.separator + constants.getString("JobIn");
-                        	 String tempDirPath = rootPath + jobDetailsMap.get("user") + File.separator + constants.getString("projects") + File.separator + jobDetailsMap.get("project") + File.separator + constants.getString("Temp");
-                        	 File tempDir = new File(tempDirPath);
-                        	 
-                        	 if(!tempDir.exists())
-                        	 {
-                        		 tempDir.mkdir();
-                        	 }
-                        	 File tempJobFile  = new File(tempDir, jobFileName);
-                        	 boolean fileGenerated = generateJobFile(tempJobFile, dataFileName);
-                        	 String jobMsg = "";
-                             if(fileGenerated)
-                             {
-                            	 jobMsg = 1 + "~Job created and queued for execution.";	
-                             }
-                             else
-                             {
-                            	 jobMsg = 2 + "~Error in adding job file. Please try again later.";
-                             }
-                             Log.info("GenerateJobServlet: " + jobMsg);
-                             //response.getWriter().print(jobMsg);
-                         }
+                    	 
+                    	 
+                    	 fileName = item.getName();
+                    	 fileMap.put(item.getFieldName(), item);
+                    	
+                    	 if(item.getFieldName().equalsIgnoreCase("fileselect[]"))
+                    	 {
+                    		 if(dataFileName.length() > 0)
+                    		 {
+                    			 if (fileName != null) 
+                                 {
+                    				 //System.out.println("~~~fileName: " + fileName);
+                        			 
+                                	 fileName = FilenameUtils.getName(fileName);
+                                	 if(fileName.length() > 0)
+                                	 {
+                                		
+                                    	 //System.out.println("~~~validFileExtension: " + validFileExtension);
+                                    	
+                                		 
+                                    		 String[] tokens = item.getName().split("\\.");
+                                			 int cnt = tokens.length;
+                                			 dataFileName=tokens[0]+ "." + tokens[cnt-1];
+                                			// dataFileName = tokens[0] + "_" + String.format(sdf.format( new Date() )) +  "_" + jobDetailsMap.get("taskName") + "_Data" + "." + tokens[cnt-1];
+                                			 jobFileName = tokens[0] + "_" + String.format(sdf.format( new Date() )) +  "_" + jobDetailsMap.get("taskName") + ".mat";
+                                			 System.out.println("~~~dataFileName: " + dataFileName);
+                                			// dataFileFlag = checkForDataFile(rootPath, dataFileName, item, jobDetailsMap.get("user"), jobDetailsMap.get("project"), jobDetailsMap.get("overwrite"), response);                                            		 
+                                    		 //dataFileFlag = checkForDataFile(rootPath, item.getName(), item, jobDetailsMap.get("user"), jobDetailsMap.get("projectName"), jobDetailsMap.get("overwrite"), response);
+                                		 
+                                	
+                                	 }                                	                         	
+                                 }
+                    		 }                        		 
+                    	 }          
+                    	 if(item.getFieldName().equalsIgnoreCase("fileselect1[]"))
+                    	 {
+                    		 if(dataFileName1.length() > 0)
+                    		 {
+                    			 if (fileName != null) 
+                                 {
+                    				 //System.out.println("~~~fileName: " + fileName);
+                        			 
+                                	 fileName = FilenameUtils.getName(fileName);
+                                	 if(fileName.length() > 0)
+                                	 {
+                                		
+                                    	 //System.out.println("~~~validFileExtension: " + validFileExtension);
+                                    	
+                                		 
+                                    		 String[] tokens = item.getName().split("\\.");
+                                			 int cnt = tokens.length;
+                                			 dataFileName1=tokens[0]+ "." + tokens[cnt-1];
+                                			 //dataFileName1 = tokens[0] + "_" + String.format(sdf.format( new Date() )) +  "_" + jobDetailsMap.get("taskName") + "_Data" + "." + tokens[cnt-1];
+                                		//	 jobFileName = tokens[0] + "_" + String.format(sdf.format( new Date() )) +  "_" + jobDetailsMap.get("taskName") + ".mat";
+                                			 System.out.println("~~~dataFileName1: " + dataFileName1);
+                                			// dataFileFlag = checkForDataFile(rootPath, dataFileName, item, jobDetailsMap.get("user"), jobDetailsMap.get("project"), jobDetailsMap.get("overwrite"), response);                                            		 
+                                    		 //dataFileFlag = checkForDataFile(rootPath, item.getName(), item, jobDetailsMap.get("user"), jobDetailsMap.get("projectName"), jobDetailsMap.get("overwrite"), response);
+                                		 
+                                	
+                                	 }                                	                         	
+                                 }
+                    		 }                        		 
+                    	 }          
+        		 
+        		 
                      }
-                     catch(NumberFormatException e)
-                     {
-                    	 e.printStackTrace();
-                     }                     
-                 } 
-                 catch (Exception e) 
-                 {
-                     response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred while creating the file : " + e.getMessage());
-                 }           
-             } 
-             else 
+                 }
+        		 
+		/*	}  
+	             
+			 catch (FileUploadException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}*/
+        	 
+			
+			Set<Entry<String, FileItem>> entries = fileMap.entrySet();
+			 File uploadedFile = null;
+			 File uploadedFile1 = null;
+        	 
+        	 for(Entry<String, FileItem> entry : entries)
+        	 {
+        		 String key = entry.getKey();
+        		 FileItem item = entry.getValue();
+        		 System.out.println("# Key: " + key);
+        		 if(key.equals("fileselect[]"))
+        		 //if(key.equals("dataUpload"))
+        		 {
+        			 String dir = rootPath + jobDetailsMap.get("user") + File.separator + constants.getString("projects") + File.separator + jobDetailsMap.get("project") + File.separator + constants.getString("Data");
+        			 /*String[] tokens = item.getName().split("\\.");
+        			 int cnt = tokens.length;
+        			 System.out.println(" item.getName(): " + item.getName() + " dataFileName: " + dataFileName + " Tokens length: " + cnt);
+        			 System.out.println(" # " + tokens[0] + " " + tokens[1]);
+        			 System.out.println("SDF :" + String.format(sdf.format( new Date() )));
+        			 dataFileName = tokens[0] + "_" + String.format(sdf.format( new Date() )) +  "_" + jobDetailsMap.get("taskName") + "." + tokens[cnt-1];*/
+        			 System.out.println(" # DataFilename: " + dataFileName);
+        			 uploadedFile = new File(dir, dataFileName);
+        			 createFile(uploadedFile, item, response, 1);
+        		 }
+        		 if(key.equals("fileselect1[]"))
+            		 //if(key.equals("dataUpload"))
+            		 {
+            			 String dir = rootPath + jobDetailsMap.get("user") + File.separator + constants.getString("projects") + File.separator + jobDetailsMap.get("project") + File.separator + constants.getString("Data");
+            			 /*String[] tokens = item.getName().split("\\.");
+            			 int cnt = tokens.length;
+            			 System.out.println(" item.getName(): " + item.getName() + " dataFileName: " + dataFileName + " Tokens length: " + cnt);
+            			 System.out.println(" # " + tokens[0] + " " + tokens[1]);
+            			 System.out.println("SDF :" + String.format(sdf.format( new Date() )));
+            			 dataFileName = tokens[0] + "_" + String.format(sdf.format( new Date() )) +  "_" + jobDetailsMap.get("taskName") + "." + tokens[cnt-1];*/
+            			 System.out.println(" # DataFilename1: " + dataFileName1);
+            			 uploadedFile1 = new File(dir, dataFileName1);
+            			 createFile(uploadedFile1, item, response, 1);
+            		 }
+        	 }                
+        	// String tempDirPath = rootPath + jobDetailsMap.get("user") + File.separator + constants.getString("projects") + File.separator + jobDetailsMap.get("project") + File.separator + constants.getString("Temp");
+        	 String tempDirPath = rootPath + jobDetailsMap.get("user") + File.separator + constants.getString("projects") + File.separator + jobDetailsMap.get("project") + File.separator + constants.getString("JobIn");
+        	 File tempDir = new File(tempDirPath);
+        	 
+        	 if(!tempDir.exists())
+        	 {
+        		 tempDir.mkdir();
+        	 }
+        	 File tempJobFile  = new File(tempDir, jobFileName);
+        	 boolean fileGenerated = generateJobFile(tempJobFile, dataFileName,dataFileName1);
+        	 String jobMsg = "";
+             if(fileGenerated)
              {
-                 response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "Request contents type is not supported by the servlet.");
-             }  
-    	  }       
-     }    
+            	 jobMsg = 1 + "~Job created and queued for execution.";	
+             }
+             else
+             {
+            	 jobMsg = 2 + "~Error in adding job file. Please try again later.";
+             }
+             Log.info("GenerateJobServlet: " + jobMsg);
+         }
+             catch (FileUploadException e) {
+ 				// TODO Auto-generated catch block
+ 				e.printStackTrace();
+ 			}
+        	 
+         }
+    	 
+    	 
+    	 
+    	 
+		
+	}
+
      
-     private ArrayList<String> getFileExtensions(String str, String project)
+
+     private Map<String,String> MvFileItems2HashMap(List<FileItem> items ) 
+    		 {
+    	Map<String,String> jobDetailsMap = new HashMap<String, String>();
+    	 
+     for (FileItem item : items) 
+     {               	           	  
+         if (item.isFormField()) 
+         {                    	 
+        	 System.out.println("Item: " + item.getFieldName() + " Value: " + item.getString());
+        	 jobDetailsMap.put(item.getFieldName(), item.getString());
+         } 
+     }
+     return jobDetailsMap;
+    		 }
+
+     
+     
+/*	private ArrayList<String> getFileExtensions(String str, String project)
      {
     	 ArrayList<String> allowedFormats = new ArrayList<String>();
     	 DBConnection connection = new DBConnection();
@@ -363,9 +340,9 @@ import com.jmatio.types.MLStructure;
     		 }
     	 }
 		return allowedFormats;
-     }
+     }*/
           
-     private boolean generateJobFile(File jobFile, String dataFileName)
+     private boolean generateJobFile(File jobFile, String dataFileName,String dataFileName1)
      {
     	 System.out.println("In generateJobFile");
     	 boolean fileGenerated = false;
@@ -375,8 +352,8 @@ import com.jmatio.types.MLStructure;
 			 
 			 MLStructure mlParamStructure = new MLStructure("JobParam", dims);
 			 MLStructure mlStateStructure = new MLStructure("JobState", dims);
-			 String hashKey = "";
-    		 if(jobDetailsMap.get("taskName").equalsIgnoreCase("Model"))
+		//	 String hashKey = "";
+    	/*	 if(jobDetailsMap.get("taskName").equalsIgnoreCase("Model"))
     		 {
     			 //String modelTask = jobDetailsMap.get("modelTask");
     			 String galleryPath = constants.getString("datapath");
@@ -399,25 +376,35 @@ import com.jmatio.types.MLStructure;
     			 mlParamStructure.setField("TaskType", taskTypeName);
     			 //mlParamStructure.setField("ModelPath", modelPath);
     			 
-    		 }
-    		 else if(jobDetailsMap.get("taskName").equalsIgnoreCase("Identification"))
-    		 {
+    		 }*/
+    		//  if(jobDetailsMap.get("taskName").equalsIgnoreCase("Identification"))
+    		// {
     			 //String dataName = jobDetailsMap.get("dataFile");
-    			 String dataName = dataFileName;
-    			 String taskName = jobDetailsMap.get("taskName");
-    			 MasterKeyImpl keyImpl = new MasterKeyImpl();
-    			 hashKey = keyImpl.getHashKey();
+			     String dataName=rhomePath + jobDetailsMap.get("user") + File.separator + constants.getString("projects") + File.separator + jobDetailsMap.get("project") + File.separator + constants.getString("Data")+ File.separator +dataFileName;
+    			// String dataName = dataFileName;
+			     String dataName1=rhomePath + jobDetailsMap.get("user") + File.separator + constants.getString("projects") + File.separator + jobDetailsMap.get("project") + File.separator + constants.getString("Data")+ File.separator +dataFileName1;
+    		//	 String dataName1=dataFileName1;
+    			 String UserType="EndUser";
+    			 double[] MatchingScore1=new double[] {-9.9900};
+    		//	 String taskName = jobDetailsMap.get("taskName");
+    			 //MasterKeyImpl keyImpl = new MasterKeyImpl();
+    			// hashKey = keyImpl.getHashKey();
     			 
-    			 MLChar testDataFileName = new MLChar("DataFile", dataName);    
-    			 MLChar taskTypeName = new MLChar("TaskType", taskName);
+    			 MLChar testDataFileName = new MLChar("ImageOnePath", dataName); 
+    			 MLChar testDataFileName1 = new MLChar("ImageTwoPath", dataName1); 
+    			 MLChar taskUserType = new MLChar("UserType", UserType);
+    			 MLDouble MatchingScore=new MLDouble("MatchingScore",MatchingScore1,1);
     			 //MLChar key = new MLChar("Key", hashKey);
     			 
-    			 mlParamStructure.setField("DataFile", testDataFileName);
-    			 mlParamStructure.setField("TaskType", taskTypeName);
+    			 mlParamStructure.setField("ImageOnePath", testDataFileName);
+    			 mlParamStructure.setField("ImageTwoPath", testDataFileName1);
+    			 
+    			 mlParamStructure.setField("UserType", taskUserType);
+    			 mlStateStructure.setField("MatchingScore",MatchingScore);
     			 //mlParamStructure.setField("Key", key);
     			 
-    		 }
-    		 else if(jobDetailsMap.get("taskName").equalsIgnoreCase("Verification"))
+    		// }
+    	/*	 else if(jobDetailsMap.get("taskName").equalsIgnoreCase("Verification"))
     		 {
     			 //String dataName = jobDetailsMap.get("dataFile");
     			 String dataName = dataFileName;
@@ -439,7 +426,7 @@ import com.jmatio.types.MLStructure;
     			 //mlParamStructure.setField("Key", key);
     			 mlParamStructure.setField("TestClassID", testClassID);
     			 mlParamStructure.setField("TaskType", taskTypeName);
-    		 }    		 
+    		 }    		*/ 
     		 
     		 MatFileWriter fileWriter = new MatFileWriter();
     		 ArrayList<MLArray> list = new ArrayList<MLArray>();
@@ -455,18 +442,18 @@ import com.jmatio.types.MLStructure;
  			  */
  			 
  			String jobFilePath = rootPath + jobDetailsMap.get("user") + File.separator + constants.getString("projects") + File.separator + jobDetailsMap.get("project") + File.separator + constants.getString("JobIn") + File.separator + jobFile.getName(); 
- 			RandomProjection randomProjection = new RandomProjection();
- 			fileGenerated = randomProjection.getRandomProjection(jobFile.getPath(), jobFilePath, hashKey);
+ 		//	RandomProjection randomProjection = new RandomProjection();
+ 		//	fileGenerated = randomProjection.getRandomProjection(jobFile.getPath(), jobFilePath, hashKey);
  			
  			
  			 
  			 //fileGenerated = true;
  			 
- 			if(jobDetailsMap.get("taskName").equalsIgnoreCase("Model"))
+ 			/*if(jobDetailsMap.get("taskName").equalsIgnoreCase("Model"))
  			{
  				MasterKeyImpl keyImpl = new MasterKeyImpl();
  				keyImpl.addHashKeyToDB(hashKey, jobDetailsMap.get("user"));
- 			}
+ 			}*/
  			
     	 } 
     	 catch (IOException e) 
