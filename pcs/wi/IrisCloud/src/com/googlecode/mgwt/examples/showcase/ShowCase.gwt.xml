@@ -14,10 +14,26 @@
   <!--   <set-property name="mgwt.formfactor" value="phone" /> -->
   <!--   <set-property name="mgwt.density" value="xhigh" /> -->
   <!-- <set-property name="mgwt.user.agent" value="android_tablet, android" /> -->
-	<!-- <set-property name="mgwt.user.agent" value="iphone" />-->
+	<!-- <set-property name="mgwt.user.agent" value="iphone" /> -->
 
   <!--  <set-property name="user.agent" value="safari,gecko1_8,ie9" /> -->
+  
+  <!--  to debug client side code in chrome, need to set user.agent to only contain safari -->
+  <!--  
   <set-property name="user.agent" value="safari,gecko1_8,ie9" />
+   -->  
+  
+  
+<!--  needed for debugging -->  
+  <add-linker name="xsiframe"/>
+  <set-configuration-property name="devModeRedirectEnabled" value="true"/>
+  <set-property name="compiler.useSourceMaps" value="true" />
+  <set-property name="user.agent" value="safari" />
+  <collapse-all-properties />
+   
+   
+   
+  
   <!--   <set-property name="mgwt.user.agent" value="mobile" /> -->
   <!-- <set-configuration-property name="mgwt.css" value="pretty" /> -->
 
@@ -26,13 +42,15 @@
   <set-configuration-property name="CssResource.obfuscationPrefix" value=""/>
   <set-property name="compiler.stackMode" value="strip"/>
   <set-configuration-property name="compiler.enum.obfuscate.names" value="true"/>
-  <add-linker name="xsiframe"/>
+
   <!-- 	<set-configuration-property name="devModeRedirectEnabled" value="true"/> -->
   <!-- 	<set-configuration-property name="mgwt.superdevmode" value="on" /> -->
   <!-- 	<set-configuration-property name="mgwt.superdevmode_host" value="http://192.168.0.117:9876" /> -->
   <!-- 	<set-configuration-property name="devModeUrlWhitelistRegexp" value="http://127\.0\.0\.1(:\d+)?/(.|\.|/)*" /> -->
   <!-- 	<set-configuration-property name="devModeUrlWhitelistRegexp" value="http://192\.168\.0\.117(:\d+)?/(.|\.|/)*" /> -->
   <!-- 	<set-configuration-property name="devModeUrlWhitelistRegexp" value="(:|\d.|\.|/)*" /> -->
+
+
 	
   <source path="client" />
 </module>
