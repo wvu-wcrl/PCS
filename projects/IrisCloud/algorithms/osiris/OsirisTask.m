@@ -27,8 +27,6 @@ AlgorithmName=InputParam.AlgorithmParams.AlgorithmName;
 AlgorithmPath=fullfile(IrisCloudCodeRoot,'algorithms',AlgorithmName);
 
 
-% Create pcs temporary directory - move this somewhere else later
-mkdir('/tmp', 'pcs');
 % temporary directory --tmpdir hard coded for now, later generalize
 [status TempDir]=system('mktemp -d --tmpdir=/tmp/pcs');
 % Remove trailing carriage return from Linux command return
@@ -54,8 +52,8 @@ ConfigurationFile=fullfile(TempDir,'configuration.ini');
 file=fopen(MatchingResult,'w');
 fclose(file);
 
-ImageOneName=[ImageOneName '.tiff'];
-ImageTwoName=[ImageTwoName '.tiff'];
+ImageOneName=[ImageOneName ext];
+ImageTwoName=[ImageTwoName ext];
 
 % Saving the ImageNames in the ImageList
 file1=fopen(ImageList,'w');
@@ -102,8 +100,37 @@ if (success)
         C = textscan(fileID,formatSpec);
         fclose(fileID);
         score=C{1}{3};        
+   
+        % delete temporary directory
+        DelTemp(DEBUG, TempDir);     
         
+        OutputParam.MatchingScore=score;
         
+    catch
+        msg = sprintf( 'Error: OutputParam could not be created.\n' );
+        fprintf( msg );
+
+        msg = sprintf('File ID: %f', fileID);
+        fprintf( msg );
+
+        DelTemp(DEBUG, TempDir);     
+
+    end
+    
+    
+else
+    fprintf('Matching not successful.\n');
+    DelTemp(DEBUG, TempDir);     
+    
+end
+
+end
+
+
+
+
+% Delete temporary directory
+function DelTemp(DEBUG, TempDir)
         % If we are debugging, leave the temporary
         % directory in place, otherwise delete it.
         if( strcmp(DEBUG,'true') )
@@ -111,23 +138,6 @@ if (success)
         elseif( strcmp(DEBUG,'false') )
             % Delete temporary directory
             [status stdout] = rmdir(TempDir,'s');
-            fprintf(stdout);
+            fprintf(stdout); fprintf('\n');
         end
-        
-        OutputParam.MatchingScore=score;
-        
-    catch
-        msg = sprintf( 'Error: OutputParam could not be created\n' );
-        fprintf( msg );
-    end
-    
-    
-else
-    fprintf('Matching not successful.\n');
-    
 end
-
-end
-
-
-
