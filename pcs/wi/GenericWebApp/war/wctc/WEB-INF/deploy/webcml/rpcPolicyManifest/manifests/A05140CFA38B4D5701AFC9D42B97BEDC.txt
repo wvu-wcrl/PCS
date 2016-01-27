@@ -1,2 +1,0 @@
-serviceClass: com.wcrl.web.cml.client.loginService.ForgotPasswordService
-path: 4F297AF68A0F5C80B1B98FB387FF0F15.gwt.rpc

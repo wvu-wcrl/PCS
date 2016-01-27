@@ -1,2 +1,0 @@
-serviceClass: com.googlecode.mgwt.examples.showcase.client.custom.jobs.service.GetJobDetailsService
-path: EFB6AC584CC993E06BF4C1A90BAC4E4D.gwt.rpc

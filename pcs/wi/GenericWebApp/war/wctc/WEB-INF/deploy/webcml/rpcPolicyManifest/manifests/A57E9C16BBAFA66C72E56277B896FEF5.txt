@@ -1,2 +1,0 @@
-serviceClass: com.wcrl.web.cml.client.user.accountService.EditEmailService
-path: E6459772117198953F0F1E502777A152.gwt.rpc

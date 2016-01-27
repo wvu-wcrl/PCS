@@ -1,2 +1,0 @@
-serviceClass: com.wcrl.web.cml.client.admin.accountService.AddUsersService
-path: 65F1C7099D3D2659BDBCEDC06F7416CF.gwt.rpc

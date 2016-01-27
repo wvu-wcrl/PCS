@@ -1,2 +1,0 @@
-serviceClass: com.wcrl.web.cml.client.data.filesService.DeleteDataFilesService
-path: 4129AF133E70791F6DC51326415E38BD.gwt.rpc

@@ -1,2 +1,0 @@
-serviceClass: com.wcrl.web.cml.client.jobService.GetSubscribedProjectListService
-path: 7155D5D7C324A544DFC15583BE274D1A.gwt.rpc

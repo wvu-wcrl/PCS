@@ -1,2 +1,0 @@
-serviceClass: com.wcrl.web.cml.client.loginService.RegistrationRequestEmailService
-path: CD3697955D0A850F34D1A43A9211A73B.gwt.rpc

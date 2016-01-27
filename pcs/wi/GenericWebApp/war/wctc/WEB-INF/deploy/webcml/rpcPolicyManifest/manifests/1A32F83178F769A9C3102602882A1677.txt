@@ -1,2 +1,0 @@
-serviceClass: com.wcrl.web.cml.client.admin.accountService.UnSubscribeUserProjectService
-path: C442E5F7458DFE3B076F44FCB5D22214.gwt.rpc

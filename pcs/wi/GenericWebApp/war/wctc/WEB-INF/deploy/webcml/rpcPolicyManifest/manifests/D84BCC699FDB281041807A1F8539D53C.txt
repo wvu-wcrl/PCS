@@ -1,2 +1,0 @@
-serviceClass: com.wcrl.web.cml.client.admin.accountService.UserProcessDurationUsageService
-path: 3040B5EC763931E16E9E6A401EC7EFDA.gwt.rpc
