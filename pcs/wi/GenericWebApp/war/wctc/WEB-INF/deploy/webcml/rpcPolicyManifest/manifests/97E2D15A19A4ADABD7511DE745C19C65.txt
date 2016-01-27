@@ -1,0 +1,2 @@
+serviceClass: com.wcrl.web.cml.client.admin.accountService.UpdateUserService
+path: EAA3B8AF026C56A9A65ABED10D65A656.gwt.rpc

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><permutations>
+<permutation name="2D8EE432E8408AE10AE774C51FD78AC6">
+<mobile.user.agent>mobilesafari</mobile.user.agent>
+<user.agent>safari</user.agent>
+<log_level>INFO</log_level>
+</permutation>
+<permutation name="FBC43B6911AA649B916F1BBEC0ECDB76">
+<mobile.user.agent>not_mobile</mobile.user.agent>
+<log_level>DEBUG</log_level>
+<user.agent>ie9</user.agent>
+</permutation>
+<permutation name="5D5BB807110DC3CCFA0D5F73E5454EB3">
+<user.agent>gecko1_8</user.agent>
+<mobile.user.agent>not_mobile</mobile.user.agent>
+<log_level>DEBUG</log_level>
+</permutation>
+<permutation name="4FF2D0E447ED3A22FE0E38F38ECAD715">
+<mobile.user.agent>mobilesafari</mobile.user.agent>
+<user.agent>safari</user.agent>
+<log_level>DEBUG</log_level>
+</permutation>
+<permutation name="A931D2D4190BF3BB6E0BF4EEC950D844">
+<user.agent>gecko1_8</user.agent>
+<mobile.user.agent>not_mobile</mobile.user.agent>
+<log_level>INFO</log_level>
+</permutation>
+<permutation name="67A345AFE18FE2C8D22A47F5357BCEE9">
+<mobile.user.agent>not_mobile</mobile.user.agent>
+<log_level>INFO</log_level>
+<user.agent>ie9</user.agent>
+</permutation>
+<permutation name="1FB73A937249D60A40AB452D750B843A">
+<user.agent>safari</user.agent>
+<mobile.user.agent>not_mobile</mobile.user.agent>
+<log_level>INFO</log_level>
+</permutation>
+<permutation name="EDBA5EA64FA906B850926D591BE0BBA9">
+<user.agent>safari</user.agent>
+<mobile.user.agent>not_mobile</mobile.user.agent>
+<log_level>DEBUG</log_level>
+</permutation>
+</permutations>

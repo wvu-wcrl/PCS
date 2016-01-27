@@ -1,0 +1,48 @@
+#!/bin/bash
+# unsub_user
+#
+# Unsubscribe user from PCS project by removing the user's project configuration file.
+#  This prevents the corresponding job manager from servicing the user.ed project.
+#
+# Inputs
+#  1. User home directory
+#  2. Username
+#  3. Project name
+#
+# Calling Example
+#  > ./unsub_user /home/testuser testuser cml
+
+
+# process command line arguments
+DONTCARE=$1  # DEPRECATED
+
+UN=$2           # username
+UHD=/home/$UN   # user home directory
+
+PN=$3  # project name
+
+
+# set paths to configuration file
+CFN=$PN\_cfg                       # config filename
+UCLP=$UHD/$CFN                     # user configuration local file path
+
+# remove configuration file
+rm $UCLP
+
+
+#     This library is free software;                                                                          
+#     you can redistribute it and/or modify it under the terms of                                             
+#     the GNU Lesser General Public License as published by the                                               
+#     Free Software Foundation; either version 2.1 of the License,                                            
+#     or (at your option) any later version.                                                                  
+#                                                                                                             
+#     This library is distributed in the hope that it will be useful,                                         
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of                                          
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU                                       
+#     Lesser General Public License for more details.                                                         
+#                                                                                                             
+#     You should have received a copy of the GNU Lesser General Public                                        
+#     License along with this library; if not, write to the Free Software                                     
+#     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  US                               
+
+

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER/gwt-2.5.1"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/activation-1.0.2.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/commons-fileupload-1.2.1.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/commons-io-2.0.1.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/eventservice-1.2.0.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/eventservice-rpc-1.2.0.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/gwteventservice-1.2.0.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/gwt-log-3.1.2.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/gwt-log-3.1.8.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/gwtphonegap-2.0.0.0.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/gwtupload-0.6.6.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/jamtio-1.0.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/json-20090211.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/mail-1.4.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/mgwt-1.1.2.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/mysql-connector-java-5.1.10.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/slf4j-api-1.5.10.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/slf4j-simple-1.5.10.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/validation-api-1.0.0.GA.jar"/>
+	<classpathentry kind="lib" path="/home/tferrett/iscml/pcs/wi/FRI/war/WEB-INF/lib/validation-api-1.0.0.GA-sources.jar"/>
+	<classpathentry kind="output" path="war/WEB-INF/classes"/>
+</classpath>

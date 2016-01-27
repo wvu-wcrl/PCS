@@ -1,0 +1,45 @@
+[GeneralSpec]
+
+% Name and fuLL path to user's project code directory.
+  CodeRoot = /home/pcs/projects/IrisCloud
+
+% Name and FULL path to user's job queue root directory.
+  JobQueueRoot = <user_lhome>/Projects/IrisCloud
+
+% Name and full path of project-specific worker function.
+% Default is to use IrisCloud stored on cluster under pcs user account.
+  FunctionName = IrisCloud
+  FunctionPath = /rhome/pcs/projects/IrisCloud/algorithms/osiris
+
+
+
+
+[TasksInSpec]
+
+% Maximum number of input tasks in TaskIn queue/directory.
+MaxInputTasks = 350
+
+% Number of input tasks in TaskIn queue/directory beyond which generation of new tasks is slowed down until it reaches the maximum of MaxInputTasks.
+TaskGenDecelerate = 300
+
+% Maximum number of input tasks to be submitted to TaskIn at a time/each step.
+MaxTaskGenStep = 50
+
+% Number of new input tasks saved in temporary directory (TempJMDir) that should be moved to TaskIn directory of user at a time.
+TaskInFlushRate = 10
+
+% Maximum number of parallel jobs running at a time.
+MaxRunningJobs = 3
+
+
+
+[RunTimeSpec]
+
+% Quick initial running time of each task to quickly get initial results back.
+InitialRunTime = 60
+
+% Longer running time of each task in the long term.
+MaxRunTime = 300
+
+% Pause time to wait between task submissions.
+PauseTime = 0.05

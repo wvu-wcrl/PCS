@@ -1,0 +1,2 @@
+serviceClass: com.wcrl.web.cml.client.loginService.UserValidationService
+path: 8C34B1495B62A8FCE1CE4486D539F0E0.gwt.rpc
