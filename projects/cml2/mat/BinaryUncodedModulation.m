@@ -22,7 +22,8 @@ classdef BinaryUncodedModulation < UncodedModulation
         end
         
         function DataSymbols = GenMarySymbols(obj, DataBits)
-            obj.DataBits = cast(DataBits,'uint8');            % The type of DataBits should be 'uint8'.
+       obj.DataBits = cast(DataBits,'uint8');  % The type of DataBits should be 'uint8'.
+%         obj.DataBits=DataBits;
             obj.DataSymbols = obj.Mapper.Map(obj.DataBits);   % The Map method of Mapping class maps obj.DataBits to a vector of M-ary symbols.
             DataSymbols = obj.DataSymbols;
         end
