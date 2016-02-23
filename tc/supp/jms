@@ -92,11 +92,11 @@ screen -S plbp_$Q -m -d matlab -r "cd $PATH_JM; plbp_jm_startup('$JM_CFG','$QCfg
 
 
 # BEC job manager
-jm_BEC(){
+jm_LDPC-BEC(){
 QCfg=$1
 
 PATH_JM=/home/pcs/jm/LDPC-BEC/src               	  # path to BEC JM startup script
 JM_CFG=/home/pcs/jm/LDPC-BEC/cfg/LDPC-BECJobManager_cfg   # path to configuration file
 
-screen -S BEC_$Q -m -d matlab -r "cd $PATH_JM; LDPCBEC_jm_startup('$JM_CFG','$QCfg')"
+screen -S LDPC-BEC_$Q -m -d matlab -r "cd $PATH_JM; LDPCBEC_jm_startup('$JM_CFG','$QCfg')"
 }
