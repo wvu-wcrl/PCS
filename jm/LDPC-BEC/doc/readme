@@ -1,0 +1,81 @@
+
+  Introduction
+
+    The purpose of this readme is to present a test procedure for verifying that the EE 567 (LDPC-BEC) job
+    manager is working properly.  This job manager is used in Dr. Valenti's EE 567 course and enables
+    students to simulate LDPC codes using the WCRL computing cluster.
+
+
+  Prerequisites
+
+    Administrative access to the WCRL WCTC web application and PCS account on the cluster
+       If you don't have access to these accounts, contact Dr. Valenti and request them.
+ 
+ 
+    
+    
+
+  Procedure
+
+    1. Start the job manager.
+
+       Log in to the cluster as the pcs user
+         
+         > ssh pcs@wcrl.csee.wvu.edu
+
+       Start the LDPC-BEC job manager in the short queue.
+ 
+         > pcs short start LDPC-BEC
+
+
+
+    2. Log in to the WCTC web interface at URL
+   
+        http://wcrl.csee.wvu.edu/wctc
+
+       if you can't log in, contact Dr. Valenti for an account.  
+
+  
+
+    3. Ensure that your user account is enrolled in the LDPC-BEC project
+        Users > click on your username > Add project "LDPC-BEC" to subscribed projects
+
+
+
+    4. Create a test project
+
+         Click the "Jobs" tabs
+  
+         Click the "Add job" button
+
+         Select project "LDPC-BEC" 
+
+         Select job file
+ 	   TESTn1000IRA.mat
+         stored in the directory containing this readme.
+  
+         The job should beging executing.
+
+  
+     5. Wait for the job to complete.
+
+        Select the "Jobs" tab and select project "LDPC-BEC".
+
+	The job should appear as an item in this window and will
+	update its status as results accumulate.
+
+        If no other jobs are executing on the cluster, the test job
+	should take 10-15 minutes to complete.
+
+        Once complete, click the job.  Under the item "Files",
+	the following files should be displayed
+ 	   TESTn1000IRA.mat
+           TESTn1000IRA_Fig1.pdf
+           TESTn1000IRA_Fig2.pdf
+       
+        Download the files and verify that their contents are correct.
+	
+	If an error occurs, troubleshoot.
+
+
+    
