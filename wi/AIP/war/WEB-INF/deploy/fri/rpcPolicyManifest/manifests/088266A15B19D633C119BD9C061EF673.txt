@@ -1,0 +1,2 @@
+serviceClass: com.googlecode.mgwt.examples.showcase.client.activities.elements.service.UserValidationService
+path: 46FD5EB0C7D3BB34B4BCF212B5F9C2BC.gwt.rpc

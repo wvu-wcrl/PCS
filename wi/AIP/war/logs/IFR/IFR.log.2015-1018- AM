@@ -1,0 +1,5 @@
+Oct/18/2015 03:14:09 EDT DEBUG org.apache.jasper.compiler.JspRuntimeContext.<init>(JspRuntimeContext.java:104): Parent class loader is: ContextLoader@null
+Oct/18/2015 03:14:09 EDT DEBUG org.apache.jasper.servlet.JspServlet.init(JspServlet.java:80): Scratch dir for the JSP engine is: /tmp/Jetty_127_0_0_1_8888_war____-g0qk00/jsp
+Oct/18/2015 03:14:09 EDT DEBUG org.apache.jasper.servlet.JspServlet.init(JspServlet.java:82): IMPORTANT: Do not modify the generated servlets
+Oct/18/2015 03:14:10 EDT INFO com.googlecode.mgwt.examples.showcase.server.Log4JInitServlet.init(Log4JInitServlet.java:27): logger configured.
+Oct/18/2015 03:15:48 EDT DEBUG org.apache.jasper.servlet.JspServlet.destroy(JspServlet.java:251): JspServlet.destroy()

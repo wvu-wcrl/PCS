@@ -1,0 +1,41 @@
+4DBDE03BCB32E36A6CACCF0678A9E1D5.cache.js
+log_level INFO
+mobile.user.agent not_mobile
+user.agent ie9
+
+647762359A03B5848822242AB5A51809.cache.js
+log_level DEBUG
+mobile.user.agent not_mobile
+user.agent ie9
+
+651A1334494B91310B39C40D3016CD0F.cache.js
+log_level DEBUG
+mobile.user.agent not_mobile
+user.agent gecko1_8
+
+947FA4B5392F8250B1313B7F5CA9F65E.cache.js
+log_level INFO
+mobile.user.agent not_mobile
+user.agent safari
+
+A976CB19321CD5755317A7265EF7DF68.cache.js
+log_level DEBUG
+mobile.user.agent mobilesafari
+user.agent safari
+
+C4FEE0CF4C16D80D93118A439578CCA2.cache.js
+log_level INFO
+mobile.user.agent mobilesafari
+user.agent safari
+
+CA70D37919F772E2AC2DA2848755F7CE.cache.js
+log_level INFO
+mobile.user.agent not_mobile
+user.agent gecko1_8
+
+F477EF3397648AC01E0CE2A730387082.cache.js
+log_level DEBUG
+mobile.user.agent not_mobile
+user.agent safari
+
+Devmode:devmode.js

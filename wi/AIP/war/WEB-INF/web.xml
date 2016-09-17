@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+    
+   <context-param>
+    <!-- max size of the upload request -->
+    <param-name>maxSize</param-name>
+    <param-value>3145728</param-value>
+  </context-param>
+  <context-param>
+    <!-- Useful in development mode to slow down the uploads in fast networks.
+         Put the number of milliseconds to sleep in each block received in the server.
+         false or 0, means don't use slow uploads  -->
+    <param-name>slowUploads</param-name>
+    <param-value>200</param-value>
+  </context-param>
+  
+ 
+  
+  
+  
+  <servlet>
+  	<servlet-name>gwt-log-remote-logger-servlet</servlet-name>
+  	<servlet-class>com.allen_sauer.gwt.log.server.RemoteLoggerServiceImpl</servlet-class>
+  	
+  	<init-param>
+    <!-- This value assumes a GWT compile with '-deploy war/WEB-INF/deploy/' -->
+    <param-name>symbolMaps</param-name>
+    <!--
+       Modify the param-value based on your server environment. Some web servers
+       use your `war` directory as the 'current working dir', while other
+       vendors will do something different. You may use trial and error. Specify the
+       relative path you think should work, then check the server log after forwarding
+       the first client log message to the server. If the directory cannot be found,
+       gwt-log will report the full path which it tried.
+     -->
+    <param-value>WEB-INF/deploy/fri/symbolMaps/</param-value>
+  </init-param>
+  </servlet>
+
+  <servlet-mapping>
+  	<servlet-name>gwt-log-remote-logger-servlet</servlet-name>
+  	<url-pattern>/fri/gwt-log</url-pattern>
+  </servlet-mapping>
+
+
+
+
+
+
+
+  <servlet>
+    <servlet-name>Log4JInitServlet</servlet-name>
+    <servlet-class>com.googlecode.mgwt.examples.showcase.server.Log4JInitServlet</servlet-class>
+    <init-param>
+      <param-name>log4j-properties</param-name>
+      <param-value>/WEB-INF/classes/log4j.properties</param-value>
+     </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+
+
+
+
+
+  
+  <servlet>
+		<servlet-name>ChangePasswordService</servlet-name>
+		<servlet-class>com.googlecode.mgwt.examples.showcase.server.settings.ChangePasswordImpl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+		<servlet-name>ChangePasswordService</servlet-name>
+		<url-pattern>/fri/changePasswordService</url-pattern>
+  </servlet-mapping>
+
+
+
+
+  
+  <servlet>
+    <servlet-name>enrollServlet</servlet-name>
+    <servlet-class>com.googlecode.mgwt.examples.showcase.server.enroll.EnrollmentServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>enrollServlet</servlet-name>
+    <!-- <url-pattern>*.gupld</url-pattern> -->
+    <url-pattern>/fri/eupld</url-pattern>
+  </servlet-mapping>  
+
+
+
+
+  
+  <servlet>
+        <servlet-name>EventService</servlet-name>
+        <servlet-class>de.novanic.eventservice.service.EventServiceImpl</servlet-class>
+   </servlet>
+   <servlet-mapping>
+        <servlet-name>EventService</servlet-name>
+        <url-pattern>/fri/gwteventservice</url-pattern>
+   </servlet-mapping>
+
+
+
+
+  
+  <servlet>
+    <servlet-name>generateJobServlet</servlet-name>
+    <servlet-class>com.googlecode.mgwt.examples.showcase.server.job.GenerateJobServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>generateJobServlet</servlet-name>
+    <!-- <url-pattern>*.gupld</url-pattern> -->
+    <url-pattern>/fri/gupld</url-pattern>
+  </servlet-mapping>
+
+
+
+
+  
+  <servlet>
+		<servlet-name>GetJobDetailsService</servlet-name>
+		<servlet-class>com.googlecode.mgwt.examples.showcase.server.jobs.GetJobDetailsImpl</servlet-class>
+  </servlet>	
+  <servlet-mapping>
+		<servlet-name>GetJobDetailsService</servlet-name>
+		<url-pattern>/fri/getJobDetails</url-pattern>
+  </servlet-mapping>
+
+
+
+  
+  <servlet>
+		<servlet-name>GetPageService</servlet-name>
+		<servlet-class>com.googlecode.mgwt.examples.showcase.server.jobs.GetPageImpl</servlet-class>
+ </servlet>	
+ <servlet-mapping>
+		<servlet-name>GetPageService</servlet-name>
+		<url-pattern>/fri/getPage</url-pattern>
+ </servlet-mapping>
+
+
+
+
+  
+  <servlet>
+		<servlet-name>MasterKeyService</servlet-name>
+		<servlet-class>com.googlecode.mgwt.examples.showcase.server.job.MasterKeyImpl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+		<servlet-name>MasterKeyService</servlet-name>
+		<url-pattern>/fri/masterkeyservice</url-pattern>
+  </servlet-mapping>
+  
+
+
+
+
+  <servlet>
+        <servlet-name>ServerMessageGeneratorService</servlet-name>
+        <servlet-class>com.googlecode.mgwt.examples.showcase.server.jobs.ServerMessageGeneratorImpl</servlet-class>
+   </servlet>
+   <servlet-mapping>
+        <servlet-name>ServerMessageGeneratorService</servlet-name>
+        <url-pattern>/fri/ServerMessageGeneratorService</url-pattern>
+   </servlet-mapping>
+
+
+
+
+
+
+  
+  <servlet>
+		<servlet-name>UserValidationService</servlet-name>
+		<servlet-class>com.googlecode.mgwt.examples.showcase.server.elements.UserValidationImpl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+		<servlet-name>UserValidationService</servlet-name>
+		<url-pattern>/fri/uservalidationservice</url-pattern>
+  </servlet-mapping>
+  
+  
+  
+ 
+
+  
+  <!-- Default page to serve -->
+  <welcome-file-list>
+    <welcome-file>FRI.html</welcome-file>
+  </welcome-file-list>
+
+</web-app>

@@ -1,0 +1,82 @@
+Nov/23/2015 12:03:34 EST DEBUG org.apache.jasper.compiler.JspRuntimeContext.<init>(JspRuntimeContext.java:104): Parent class loader is: ContextLoader@null
+Nov/23/2015 12:03:34 EST DEBUG org.apache.jasper.servlet.JspServlet.init(JspServlet.java:80): Scratch dir for the JSP engine is: /tmp/Jetty_127_0_0_1_8888_war____-g0qk00/jsp
+Nov/23/2015 12:03:34 EST DEBUG org.apache.jasper.servlet.JspServlet.init(JspServlet.java:82): IMPORTANT: Do not modify the generated servlets
+Nov/23/2015 12:03:34 EST INFO com.googlecode.mgwt.examples.showcase.server.Log4JInitServlet.init(Log4JInitServlet.java:27): logger configured.
+Nov/23/2015 12:06:23 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Session: undefined
+Nov/23/2015 12:06:23 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Session: undefined
+Nov/23/2015 12:06:36 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: project Value: IrisCloud
+Nov/23/2015 12:06:36 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: user Value: vtalreja
+Nov/23/2015 12:06:36 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: taskName Value: Matching
+Nov/23/2015 12:06:36 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: overwrite Value: 1
+Nov/23/2015 12:06:36 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: SelectionList Value: Intra-Class
+Nov/23/2015 12:06:36 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: AlgorithmList Value: 3
+Nov/23/2015 12:06:36 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: AlgorithmList1 Value: Select the 2nd Database 
+Nov/23/2015 12:06:36 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Selection: Intra-Class
+Nov/23/2015 12:06:36 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): AlgorithmSelected: 3
+Nov/23/2015 12:06:36 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): AlgorithmSelected1: null
+Nov/23/2015 12:06:36 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Done ArrayList
+Nov/23/2015 12:06:36 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Done JobParam
+Nov/23/2015 12:06:36 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Done JobState
+Nov/23/2015 12:06:36 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Matlab file name: /home/vtalreja/AIP/osiris/AIP.mat
+Nov/23/2015 12:06:36 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Writing File 
+Nov/23/2015 12:30:50 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: project Value: IrisCloud
+Nov/23/2015 12:30:50 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: user Value: vtalreja
+Nov/23/2015 12:30:50 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: taskName Value: Matching
+Nov/23/2015 12:30:50 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: overwrite Value: 1
+Nov/23/2015 12:30:50 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: SelectionList Value: Intra-Class
+Nov/23/2015 12:30:50 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: AlgorithmList Value: 2
+Nov/23/2015 12:30:50 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: AlgorithmList1 Value: Select the 2nd Database 
+Nov/23/2015 12:30:50 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Selection: Intra-Class
+Nov/23/2015 12:30:50 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): AlgorithmSelected: 2
+Nov/23/2015 12:30:50 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): AlgorithmSelected1: null
+Nov/23/2015 12:30:50 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Done ArrayList
+Nov/23/2015 12:30:50 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Done JobParam
+Nov/23/2015 12:30:50 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Done JobState
+Nov/23/2015 12:30:50 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Matlab file name: /home/vtalreja/AIP/osiris/AIP.mat
+Nov/23/2015 12:30:50 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Writing File 
+Nov/23/2015 12:34:53 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: project Value: IrisCloud
+Nov/23/2015 12:34:53 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: user Value: vtalreja
+Nov/23/2015 12:34:53 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: taskName Value: Matching
+Nov/23/2015 12:34:53 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: overwrite Value: 1
+Nov/23/2015 12:34:53 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: SelectionList Value: Intra-Class
+Nov/23/2015 12:34:53 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: AlgorithmList Value: 7
+Nov/23/2015 12:34:53 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: AlgorithmList1 Value: Select the 2nd Database 
+Nov/23/2015 12:34:53 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Selection: Intra-Class
+Nov/23/2015 12:34:53 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): AlgorithmSelected: 7
+Nov/23/2015 12:34:53 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): AlgorithmSelected1: null
+Nov/23/2015 12:34:53 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Done ArrayList
+Nov/23/2015 12:34:53 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Done JobParam
+Nov/23/2015 12:34:53 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Done JobState
+Nov/23/2015 12:34:53 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Matlab file name: /home/vtalreja/AIP/osiris/AIP.mat
+Nov/23/2015 12:34:53 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Writing File 
+Nov/23/2015 12:55:11 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: project Value: IrisCloud
+Nov/23/2015 12:55:11 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: user Value: vtalreja
+Nov/23/2015 12:55:11 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: taskName Value: Matching
+Nov/23/2015 12:55:11 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: overwrite Value: 1
+Nov/23/2015 12:55:11 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: SelectionList Value: Intra-Class
+Nov/23/2015 12:55:11 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: AlgorithmList Value: 1
+Nov/23/2015 12:55:11 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: AlgorithmList1 Value: Select the 2nd Database 
+Nov/23/2015 12:55:11 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Selection: Intra-Class
+Nov/23/2015 12:55:11 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): AlgorithmSelected: 1
+Nov/23/2015 12:55:11 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): AlgorithmSelected1: null
+Nov/23/2015 12:55:11 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Done ArrayList
+Nov/23/2015 12:55:11 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Done JobParam
+Nov/23/2015 12:55:11 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Done JobState
+Nov/23/2015 12:55:11 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Matlab file name: /home/vtalreja/AIP/osiris/AIP.mat
+Nov/23/2015 12:55:11 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Writing File 
+Nov/23/2015 13:00:39 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: project Value: IrisCloud
+Nov/23/2015 13:00:39 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: user Value: vtalreja
+Nov/23/2015 13:00:39 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: taskName Value: Matching
+Nov/23/2015 13:00:39 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: overwrite Value: 1
+Nov/23/2015 13:00:39 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: SelectionList Value: Inter-Class
+Nov/23/2015 13:00:39 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: AlgorithmList Value: 2
+Nov/23/2015 13:00:39 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Item: AlgorithmList1 Value: 5
+Nov/23/2015 13:00:39 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Selection: Inter-Class
+Nov/23/2015 13:00:39 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): AlgorithmSelected: 2
+Nov/23/2015 13:00:39 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): AlgorithmSelected1: 5
+Nov/23/2015 13:00:39 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Done ArrayList
+Nov/23/2015 13:00:39 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Done JobParam
+Nov/23/2015 13:00:39 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Done JobState
+Nov/23/2015 13:00:39 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Matlab file name: /home/vtalreja/AIP/osiris/AIP.mat
+Nov/23/2015 13:00:39 EST INFO com.allen_sauer.gwt.log.server.ServerLogImplLog4J.log(ServerLogImplLog4J.java:72): Writing File 
+Nov/23/2015 13:05:56 EST DEBUG org.apache.jasper.servlet.JspServlet.destroy(JspServlet.java:251): JspServlet.destroy()

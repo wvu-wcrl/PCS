@@ -1,0 +1,2 @@
+serviceClass: com.googlecode.mgwt.examples.showcase.client.custom.jobs.service.GetPageService
+path: AC4AFFFEBFB0ABE9813961ED37DAA426.gwt.rpc
