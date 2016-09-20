@@ -31,36 +31,4 @@
 		<nature>com.google.gwt.eclipse.core.gwtNature</nature>
 		<nature>org.eclipse.wst.common.project.facet.core.nature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>src/DBConnectionConstants.properties</name>
-			<type>1</type>
-			<location>/home/tferrett/iscml/pcs/wi/FRI/src/DBConnectionConstants.properties</location>
-		</link>
-		<link>
-			<name>src/EmailContent.properties</name>
-			<type>1</type>
-			<location>/home/tferrett/iscml/pcs/wi/FRI/src/EmailContent.properties</location>
-		</link>
-		<link>
-			<name>src/Paths.properties</name>
-			<type>1</type>
-			<location>/home/tferrett/iscml/pcs/wi/FRI/src/Paths.properties</location>
-		</link>
-		<link>
-			<name>src/Scripts.properties</name>
-			<type>1</type>
-			<location>/home/tferrett/iscml/pcs/wi/FRI/src/Scripts.properties</location>
-		</link>
-		<link>
-			<name>src/UpdateFrequency.properties</name>
-			<type>1</type>
-			<location>/home/tferrett/iscml/pcs/wi/FRI/src/UpdateFrequency.properties</location>
-		</link>
-		<link>
-			<name>src/log4j.properties</name>
-			<type>1</type>
-			<location>/home/tferrett/iscml/pcs/wi/FRI/src/log4j.properties</location>
-		</link>
-	</linkedResources>
 </projectDescription>

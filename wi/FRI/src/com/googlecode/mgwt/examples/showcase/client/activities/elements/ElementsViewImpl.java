@@ -23,6 +23,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.googlecode.mgwt.dom.client.event.tap.TapEvent;
 import com.googlecode.mgwt.dom.client.event.tap.TapHandler;
@@ -41,6 +43,9 @@ import com.googlecode.mgwt.ui.client.widget.Button;
 import com.googlecode.mgwt.ui.client.widget.MPasswordTextBox;
 import com.googlecode.mgwt.ui.client.widget.MTextBox;
 import com.googlecode.mgwt.ui.client.widget.WidgetList;
+//import com.googlecode.mgwt.ui.client.widget.panel.flex.FlexPanel;
+//import com.googlecode.mgwt.ui.client.widget.panel.flex.FlexPropertyHelper.Alignment;
+//import com.googlecode.mgwt.ui.client.widget.panel.flex.FlexPropertyHelper.Orientation;
 
 /**
  * @author Daniel Kurka
@@ -51,6 +56,12 @@ public class ElementsViewImpl extends DetailViewGwtImpl implements ElementsView 
    private ClientContext ctx;
    private ClientFactory clientFactory;
    private Label lblWarning;
+
+   private Label lb1;
+   private Label lb2;
+   private Label lb3;
+   private Label lb4;
+   private Label lb5;
 		
    public ElementsViewImpl(ClientFactory clientFactory) {
 	//public ElementsViewImpl() {
@@ -77,10 +88,48 @@ public class ElementsViewImpl extends DetailViewGwtImpl implements ElementsView 
 		hPanel.removeFromParent();
 	    scrollPanel.setScrollingEnabledX(false);
 	    final FlowPanel container = new FlowPanel();
-
+	   final Image image=new Image("fly_wv.svg");
+	   final Image image1=new Image("helmet_black_70_81.svg");
+	  
+	   image.addStyleName("Imagewv");
+	   image1.addStyleName("Imagemsu");
+	    lb1= new Label("OCULAR CLOUD-Using CLoud to Match Ocular Images");
+	    lb1.addStyleName(MGWTStyle.getTheme().getMGWTClientBundle().getListCss().listHeader());
+	    lb1.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+	    lb2= new Label("A Joint Research By West Virginia University and Michigan State University");
+	    lb2.addStyleName(MGWTStyle.getTheme().getMGWTClientBundle().getListCss().listHeader());
+	    lb2.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER); 
+	    
+	    lb4= new Label("User Interface Login");
+	    lb4.addStyleName(MGWTStyle.getTheme().getMGWTClientBundle().getListCss().listHeader());
+	    lb4.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+	   // lb5=new Label(HTML("<br/><br/><a target='_blank' href='https://wcrl.csee.wvu.edu/wiki/Introduction'>WCRL.CSEE.WVU.EDU</a><br/><br/>"));
+	//    Anchor wcrl = new Anchor("WCRL");
+	 //   wcrl.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+	  /*  container.add(widgetList2);
+	    widgetList2.add(lb1);
+	    widgetList2.add(lb2);
+	    widgetList2.add(lb3);
+	    widgetList2.add(lb4);
+	    widgetList2.add(wcrl);*/
+	   container.add(image);
+	   container.add(image1);
+	    container.add(lb1);
+	   container.add(new HTML("<br/><br/>"));
+	    container.add(lb2);
+	    container.add(new HTML("<br/><br/>"));
+	  //  container.add(lb3);
+	 //   container.add(lb4);
+	  //  container.add(new HTML("<br/><br/>"));
+	   // container.add(wcrl);
+	    
 	    WidgetList widgetList = new WidgetList();
 	    widgetList.setRound(true);
-	    HTML header = new HTML("Login");
+	 //   if (MGWT.getOsDetection().isDesktop())
+	   // {
+	    //	widgetList.addStyleName("widgetlist1");
+	  //  }
+	    HTML header = new HTML("User Interface Login");
 	    header.addStyleName(MGWTStyle.getTheme().getMGWTClientBundle().getListCss().listHeader());
 	    container.add(header);
 	    container.add(widgetList);
@@ -95,12 +144,21 @@ public class ElementsViewImpl extends DetailViewGwtImpl implements ElementsView 
 	    widgetList.add(lblWarning);
 	    
 	    final MTextBox mTextBox = new MTextBox();
+	    if (MGWT.getOsDetection().isDesktop())
+	    {
+	    	mTextBox.addStyleName("widgetlist1");
+	    }
+	   
 	    mTextBox.setPlaceHolder("Username");
 	    widgetList.add(mTextBox);
 	    
 	    mTextBox.setText("");
 
 	    final MPasswordTextBox mPasswordTextBox = new MPasswordTextBox();
+	    if (MGWT.getOsDetection().isDesktop())
+	    {
+	    	mPasswordTextBox.addStyleName("widgetlist1");
+	    }
 	    mPasswordTextBox.setPlaceHolder("Password");
 	    widgetList.add(mPasswordTextBox);
 	    
@@ -139,10 +197,11 @@ public class ElementsViewImpl extends DetailViewGwtImpl implements ElementsView 
 	        	System.out.println((username.matches(usernameRegex))  + " " +  (password.matches(passwordRegex)));
 	        	if((username.matches(usernameRegex)) && (password.matches(passwordRegex)))
 				{
-	        		RPCClientContext.set(null);
-	        		lblWarning.setText("");
-	        		UserValidationServiceAsync service = UserValidationService.Util.getInstance();			
-					service.validateUser(username, password, loginCallback);
+	        		clientFactory.getPlaceController().goTo(new BCFunctionButtonPlace());
+	        		//RPCClientContext.set(null);
+	        		//lblWarning.setText("");
+	        		//UserValidationServiceAsync service = UserValidationService.Util.getInstance();			
+					//service.validateUser(username, password, loginCallback);
 				}
 	        	else
 	        	{

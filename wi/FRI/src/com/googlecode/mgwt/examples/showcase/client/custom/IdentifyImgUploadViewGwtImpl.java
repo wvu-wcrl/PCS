@@ -8,7 +8,9 @@ import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
@@ -66,6 +68,16 @@ public class IdentifyImgUploadViewGwtImpl extends DetailViewGwtImpl implements I
   private void identifyImg() {
 	  headerPanel.setLeftWidget(headerBackButton);
 	  FlowPanel container = new FlowPanel();
+	  final Image image=new Image("fly_wv.svg");
+	  final Image image1=new Image("helmet_black_70_81.svg");
+	//  final Image image2=new Image();
+	  
+	 
+		  
+	   image.addStyleName("Imagewv");
+	   image1.addStyleName("Imagemsu");
+	  final Label lb1;
+	  
 	  container.getElement().getStyle().setMarginTop(20, Unit.PX);
 
       scrollPanel.setScrollingEnabledX(false);
@@ -76,9 +88,18 @@ public class IdentifyImgUploadViewGwtImpl extends DetailViewGwtImpl implements I
 
       ChromeWorkaround.maybeUpdateScroller(scrollPanel);
       
-      HTML header = new HTML("Identify subject");
-	  header.addStyleName(MGWTStyle.getTheme().getMGWTClientBundle().getListCss().listHeader());
-	  container.add(header);
+      lb1= new Label("OCULAR CLOUD-Using Cloud to Match Ocular Images");
+ 	  lb1.addStyleName(MGWTStyle.getTheme().getMGWTClientBundle().getListCss().listHeader());
+ 	  lb1.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+       HTML header = new HTML("Upload Two Images and Get the Matching Score");
+ 	  header.addStyleName(MGWTStyle.getTheme().getMGWTClientBundle().getListCss().listHeader());
+ 	  container.add(image);
+ 	  container.add(image1);
+ 	  container.add(lb1);
+ 	  container.add(new HTML("<br/><br/>"));
+ 	//  container.add(new HTML("<br/><br/>"));
+ 	  
+ 	  container.add(header);
 	  
 	  final Label lblWarning = new Label();
       

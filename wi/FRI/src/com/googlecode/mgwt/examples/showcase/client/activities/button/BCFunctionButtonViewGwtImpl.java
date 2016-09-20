@@ -23,6 +23,9 @@ import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
 import com.googlecode.mgwt.dom.client.event.tap.TapEvent;
 import com.googlecode.mgwt.dom.client.event.tap.TapHandler;
 import com.googlecode.mgwt.examples.showcase.client.ChromeWorkaround;
@@ -41,6 +44,7 @@ import com.googlecode.mgwt.examples.showcase.client.custom.jobs.JobHistoryPlace;
 import com.googlecode.mgwt.examples.showcase.client.custom.jobs.ServerGeneratedMessageEventService;
 import com.googlecode.mgwt.examples.showcase.client.settings.ChangePasswordPlace;
 import com.googlecode.mgwt.ui.client.MGWT;
+import com.googlecode.mgwt.ui.client.MGWTStyle;
 import com.googlecode.mgwt.ui.client.widget.Button;
 import com.googlecode.mgwt.ui.client.widget.WidgetList;
 
@@ -55,22 +59,35 @@ public class BCFunctionButtonViewGwtImpl extends DetailViewGwtImpl implements Bu
 	private ClientContext ctx;
 	private User currentUser;
 	private ClientFactory clientFactory;
+	private Label lb1;
+	private Label lb2;
 
   public BCFunctionButtonViewGwtImpl(final ClientFactory clientFactory) {
 	  this.clientFactory = clientFactory;
-	  ctx = (ClientContext) RPCClientContext.get();	
-	  String sessionID = Cookies.getCookie("sid");
-	  Log.info("sessionID: " + sessionID + " ctx: " + ctx); 
-	  if(sessionID != null)
-	  {
-		  if(ctx != null)
-		  {
+	//  ctx = (ClientContext) RPCClientContext.get();	
+	 // String sessionID = Cookies.getCookie("sid");
+	  //Log.info("sessionID: " + sessionID + " ctx: " + ctx); 
+	 // if(sessionID != null)
+	  //{
+		//  if(ctx != null)
+		 // {
 			    //Set the current user context
-			    currentUser = ctx.getCurrentUser();
+		//	    currentUser = ctx.getCurrentUser();
 			    
 			    headerBackButton.removeFromParent();
 			    FlowPanel content = new FlowPanel();
+			    final Image image=new Image("fly_wv.svg");
+				final Image image1=new Image("helmet_black_70_81.svg");
+				  
+				 image.addStyleName("Imagewv");
+				 image1.addStyleName("Imagemsu");
 			    content.getElement().getStyle().setMargin(20, Unit.PX);
+			    lb1= new Label("OCULAR CLOUD-Using Cloud To Match Ocular Images");
+			    lb1.addStyleName(MGWTStyle.getTheme().getMGWTClientBundle().getListCss().listHeader());
+			    lb1.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+			    HTML header = new HTML("User Functions");
+			    header.addStyleName(MGWTStyle.getTheme().getMGWTClientBundle().getListCss().listHeader());
+			    
 
 			    scrollPanel.setScrollingEnabledX(false);
 			    scrollPanel.setWidget(content);    
@@ -79,11 +96,16 @@ public class BCFunctionButtonViewGwtImpl extends DetailViewGwtImpl implements Bu
 			    scrollPanel.setUsePos(MGWT.getOsDetection().isAndroid());
 
 			    ChromeWorkaround.maybeUpdateScroller(scrollPanel);
-			    
+			    content.add(image);
+			    content.add(image1);
+			    content.add(lb1);
+			    content.add(new HTML("<br/><br/>"));
+			 // content.add(new HTML("<br/><br/>"));
+			    content.add(header);
 			    WidgetList widgetList = new WidgetList();
 			    content.add(widgetList);
 
-			    Button identifyButton = new Button("Identify");    
+			    Button identifyButton = new Button("Ocular Matching");    
 			    widgetList.add(identifyButton);
 			    		    
 			    identifyButton.addTapHandler(new TapHandler() 
@@ -96,7 +118,7 @@ public class BCFunctionButtonViewGwtImpl extends DetailViewGwtImpl implements Bu
 			    }) ;
 			    
 			    Button historyButton = new Button("History");    
-			    widgetList.add(historyButton);
+			   widgetList.add(historyButton);
 			    		    
 			    historyButton.addTapHandler(new TapHandler() 
 			    {
@@ -107,7 +129,7 @@ public class BCFunctionButtonViewGwtImpl extends DetailViewGwtImpl implements Bu
 			        	             
 			    }) ;
 			    
-			    Button enrollButton = new Button("Enroll");
+			 /*   Button enrollButton = new Button("Enroll");
 			    widgetList.add(enrollButton);
 			    enrollButton.addTapHandler(new TapHandler() {
 			        @Override
@@ -123,10 +145,10 @@ public class BCFunctionButtonViewGwtImpl extends DetailViewGwtImpl implements Bu
 			        public void onTap(TapEvent event) {        	
 			        	clientFactory.getPlaceController().goTo(new GenerateModelPlace());      	
 			        }                   
-			    });
+			    });*/
 			    
-			    Button changePasswordButton = new Button("Change password");    
-			    widgetList.add(changePasswordButton);
+			/*    Button changePasswordButton = new Button("Change password");    
+			   // widgetList.add(changePasswordButton);
 			    		    
 			    changePasswordButton.addTapHandler(new TapHandler() 
 			    {
@@ -135,7 +157,7 @@ public class BCFunctionButtonViewGwtImpl extends DetailViewGwtImpl implements Bu
 			        	clientFactory.getPlaceController().goTo(new ChangePasswordPlace());
 			        }
 			        	             
-			    }) ;
+			    }) ;*/
 			    
 			    Button signOutButton = new Button("Sign out");
 			    widgetList.add(signOutButton);
@@ -147,16 +169,16 @@ public class BCFunctionButtonViewGwtImpl extends DetailViewGwtImpl implements Bu
 						service.clearSession(sessionCallback);      	
 			        }                   
 			    }) ;
-		  }
-		  else
-		  {
-			  clientFactory.getPlaceController().goTo(new ElementsPlace());
-		  }
-	  }
-	  else
-	  {
-		  clientFactory.getPlaceController().goTo(new ElementsPlace());
-	  }
+	//	  }
+	//	  else
+	//	  {
+		//	  clientFactory.getPlaceController().goTo(new ElementsPlace());
+		//  }
+	//  }
+//	  else
+	//  {
+	//	  clientFactory.getPlaceController().goTo(new ElementsPlace());
+	 // }
   }
   
   private void resetContext() 
