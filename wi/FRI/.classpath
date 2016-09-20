@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER/gwt-2.5.1"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="paths/activation-1.0.2.jar"/>
+	<classpathentry kind="lib" path="paths/commons-fileupload-1.2.1.jar"/>
+	<classpathentry kind="lib" path="paths/commons-io-2.0.1.jar"/>
+	<classpathentry kind="lib" path="paths/eventservice-1.2.0.jar"/>
+	<classpathentry kind="lib" path="paths/eventservice-rpc-1.2.0.jar"/>
+	<classpathentry kind="lib" path="paths/gwt-log-3.3.2.jar"/>
+	<classpathentry kind="lib" path="paths/gwt-servlet.jar"/>
+	<classpathentry kind="lib" path="paths/gwteventservice-1.2.0.jar"/>
+	<classpathentry kind="lib" path="paths/gwtphonegap-2.0.0.0.jar"/>
+	<classpathentry kind="lib" path="paths/gwtupload-0.6.6.jar"/>
+	<classpathentry kind="lib" path="paths/jamtio-1.0.jar"/>
+	<classpathentry kind="lib" path="paths/json-20090211.jar"/>
+	<classpathentry kind="lib" path="paths/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="paths/mail-1.4.jar"/>
+	<classpathentry kind="lib" path="paths/mgwt-1.1.2.jar"/>
+	<classpathentry kind="lib" path="paths/mysql-connector-java-5.1.10.jar"/>
+	<classpathentry kind="lib" path="paths/slf4j-api-1.5.10.jar"/>
+	<classpathentry kind="lib" path="paths/slf4j-simple-1.5.10.jar"/>
+	<classpathentry kind="lib" path="paths/validation-api-1.0.0.GA-sources.jar"/>
+	<classpathentry kind="lib" path="paths/validation-api-1.0.0.GA.jar"/>
+	<classpathentry kind="output" path="war/WEB-INF/classes"/>
+</classpath>
