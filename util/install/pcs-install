@@ -1,0 +1,53 @@
+#!/bin/bash
+#  pcs-install
+#  Installs the PCS system by
+#   1. Checking out the source code from Github
+#   2. Copying the code into the directory paths required
+#       for PCS.
+# 
+#  This operation requires cluster sudo access.
+
+# copy latest version into production (clvip)
+function clvip(){
+
+SCCT=$1  # Source code checkout temporary directory
+
+mkdir -p /home/pcs/acctm
+cp -r $SCCT/pcs/acctm/* /home/pcs/acctm
+
+mkdir -p /home/pcs/jm
+cp -r $SCCT/pcs/jm/* /home/pcs/jm
+
+mkdir -p /home/pcs/projects
+cp -r $SCCT/pcs/projects/* /home/pcs/projects
+
+mkdir -p /home/pcs/supp
+cp -r $SCCT/pcs/supp/* /home/pcs/supp
+
+mkdir -p /home/pcs/tc
+cp -r $SCCT/pcs/tc/* /home/pcs/tc
+
+mkdir -p /home/pcs/util
+cp -r $SCCT/pcs/util/* /home/pcs/util
+
+}
+
+
+
+## Main execution begins here
+
+# Create a temporary directory for source code checkout
+SCCT=$(mktemp -d)
+# SCCT is Source Code Checkout Temp
+
+# Check out latest version from Github
+git clone https://github.com/wvu-wcrl/iscml.git $SCCT
+
+# copy latest version into production (clvip)
+clvip $SCCT
+
+# Change file ownerships in production to pcs
+chown -R pcs:pcs /home/pcs
+
+# Remove temporary directory
+rm -rf $SCCT
