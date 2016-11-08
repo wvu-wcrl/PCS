@@ -36,12 +36,26 @@ cp -r $SCCT/pcs/util/* /home/pcs/util
 
 ## Main execution begins here
 
+# First argument is requested branch. If null, assume master.
+if [ -z "$1" ]
+then 
+printf "No branch specified. Checking out from master.\n"
+branch="master"
+else
+printf "Checkout from branch $1.\n"
+branch="$1"
+fi
+
 # Create a temporary directory for source code checkout
 SCCT=$(mktemp -d)
 # SCCT is Source Code Checkout Temp
 
 # Check out latest version from Github
 git clone https://github.com/wvu-wcrl/iscml.git $SCCT
+
+# Switch to request Git branch
+cd $SCCT
+git checkout $branch
 
 # copy latest version into production (clvip)
 clvip $SCCT
