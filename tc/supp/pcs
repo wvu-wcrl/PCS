@@ -5,12 +5,13 @@
 # 
 #
 # Command syntax
-# > pcs {short|long|testing} {start|stop|restart} {job manager}
+# > pcs {short|long|testing} {start|stop|restart}  {cluster|aws} {job manager}
 #
 # where 
 #   Argument 1     Queue Type
 #   Argument 2     Daemon action
-#   Arguments 3-N  Optional. Specify job manager to associate with this queue.
+#   Argument 3     Processing location: "aws" or "cluster"
+#   Arguments 4-N  Optional. Specify job manager to associate with this queue.
 #
 #   = Queue Type =
 #   
@@ -37,6 +38,13 @@
 #   restart   execute stop and start operations
 #
 #
+#   = Processing Location =
+# 
+#   cluster     process tasks on cluster
+#
+#   aws         process tasks on AWS
+#
+#
 #   = Job Manager =
 #   
 #   cml       CML Job Manager
@@ -44,17 +52,17 @@
 #
 #   = Examples =
 # 
-#   Start the short queue and long queue daemons with no job managers
-#   > pcs short start
-#   > pcs long start
+#   Start the short queue and long queue daemons with no job managers on the cluster
+#   > pcs short start cluster
+#   > pcs long start cluster
 #
 #    
 #   Start the short queue daemon with CML job manager and stop
-#   > pcs short start cml
-#   > pcs short stop
+#   > pcs short start cluster cml
+#   > pcs short stop cluster
 #   
 #
-#     Copyright (C) 2012, Terry Ferrett and Matthew C. Valenti
+#     Copyright (C) 2016, Terry Ferrett and Matthew C. Valenti
 #     For full copyright information see the bottom of this file.
 #####
 
@@ -67,10 +75,10 @@ source jms
 eie_ret(){
     echo "Improper input arguments."
     echo "Usage:"
-    echo "pcs {short|long|testing} {stop|start|restart} {job manager(s)}"
+    echo "pcs {short|long|testing} {stop|start|restart} {cluster|aws} {job manager(s)}"
     echo 
-    echo "Example: Start short queue and CML Job Manager"
-    echo " > pcs short start cml "
+    echo "Example: Start short queue on cluster with CML Job Manager"
+    echo " > pcs short start cluster cml "
 }
 
 # check input action
@@ -91,7 +99,6 @@ cia(){
     esac
 }
 
-
 # check queue parameter
 cq(){
     case $1 in
@@ -109,47 +116,59 @@ cq(){
 	    ;;
     esac
 }
-#####################################
+
+# check processing location
+cpl(){
+    case $1 in
+	cluster)
+	    echo "cluster"
+	    ;;
+	aws)
+	    echo "aws"
+	    ;;
+	*)
+	    echo "error"
+	    ;;
+    esac
+}
 
 
-
-
-###process input arguments #########
+##process input arguments
 
 #check for proper number of input arguments
 # number inputs
 
-if [ $# -lt 2 ]
+if [ $# -lt 3 ]
 then
     eie_ret
     exit 1
 fi
 
-
 Q=$(cq $1)    # read requested queue
 IA=$(cia $2)  # read input argument
+PL=$(cpl $3)  # read processing location
+
 
 # exit only terminates calling shell so use
 #  the following syntax for checking command line args
 [[ "${Q:0:5}" == "error" ]] && eie_ret && exit
 [[ "${IA:0:5}" == "error" ]] && eie_ret && exit
+[[ "${PL:0:5}" == "error" ]] && eie_ret && exit
 
 
-# every input argument past 2 is assumed to be a jm name
+
+# every input argument past 3 is assumed to be a jm name
 n_jms=0
-for i in ${@:3}
+for i in ${@:4}
 do
     JMS[$n_jms]=$i
     n_jms=$n_jms+1
 done
 # now have n_jms and JMS
-##########################
 
-
-
-#### Special case: CML JM can only start in short queue
-#### Check for this condition
-#### Remove this code once CML JM can start in any queue
+## Special case: CML JM can only start in short queue
+## Check for this condition
+## Remove this code once CML JM can start in any queue
 # exit if not short queue                                                                                     
 #for i in ${@:3}
 #do
@@ -167,8 +186,6 @@ done
 #fi
 
 #done
-#############
-#############
 
 
 
@@ -176,56 +193,80 @@ done
 ### paths to daemons can be hard coded
 ## paths
 
-# task and worker controllers
-PATH_TC=/home/pcs/tc/ctc/src
-PATH_WC=/home/pcs/tc/cwc/src
+case $PL in
+    cluster)
+        # task and worker controllers
+	PATH_TC=/home/pcs/tc/ctc/src
+	PATH_WC=/home/pcs/tc/cwc/src
+        # job managers
+        #PATH_CML_JM=/home/pcs/jm/cml/src
 
-# job managers
-#PATH_CML_JM=/home/pcs/jm/cml/src
+        # Worker controlling scripts
+        #  commands used: slay_worker.sh
+        ## AWS: add path to AWS controlling scripts
+	PATH=$PATH:/home/pcs/tc/cwc/src/bs
+	CFGP=/home/pcs/tc/cfg
+	;;
+    aws)
+        # task and worker controllers
+	PATH_TC=/home/pcs/tc/atc/src
+	PATH_WC=/home/pcs/tc/awc/src
 
-# Worker controlling scripts
-#  commands used: slay_worker.sh
-PATH=$PATH:/home/pcs/tc/cwc/src/bs
-
-CFGP=/home/pcs/tc/cfg
-#####################
+        # Worker controlling scripts
+        #  commands used: slay_worker.sh
+        ## AWS: add path to AWS controlling scripts
+	PATH=$PATH:/home/pcs/tc/awc/src/bs
+	CFGP=/home/pcs/tc/cfg
+	;;
+esac
 
 
 # configuration files                                                                                                                             
 scfg='short.cfg'   # short queue
 lcfg='long.cfg'    # long queue
-tcfg='short_test.cfg'        # testing queue
-#####################                                                                                                                             
+tcfg='short_test.cfg'  # testing queue
+acfg='aws.cfg'   # AWS queue              
 
 
 # based on queue assign names
-case $Q in
-    short)
-	TC=stc
-	WC=swc
+case $PL in
+    cluster)
+	case $Q in
+	    short)
+		TC=stc
+		WC=swc
 #JM=CmlJm
-	cfg=$scfg
+		cfg=$scfg
 #jmcfg='/home/pcs/jm/cml/cfg/CmlJobManager_cfg'
-	LOCKFILE=/home/pcs/tc/supp/lock/spcs_lock
-	;;
-    long)
-	TC=ltc
-	WC=lwc
+		LOCKFILE=/home/pcs/tc/supp/lock/spcs_lock
+		;;
+	    long)
+		TC=ltc
+		WC=lwc
 #JM=
-	cfg=$lcfg
+		cfg=$lcfg
 #jmcfg=
-	LOCKFILE=/home/pcs/tc/supp/lock/lpcs_lock
-	;;
-    testing)
-	TC=ttc
-	WC=twc
+		LOCKFILE=/home/pcs/tc/supp/lock/lpcs_lock
+		;;
+	    testing)
+		TC=ttc
+		WC=twc
 #JM=TCmlJm
-	cfg=$tcfg
+		cfg=$tcfg
 #jmcfg='/home/pcs/jm/cml/cfg/TCmlJobManager_cfg'
-	LOCKFILE=/home/pcs/tc/supp/lock/tpcs_lock
+		LOCKFILE=/home/pcs/tc/supp/lock/tpcs_lock
+		;;
+	esac
+	;;
+    aws)
+	TC=atc
+	WC=awc
+#JM=CmlJm
+	cfg=$acfg
+#jmcfg='/home/pcs/jm/cml/cfg/CmlJobManager_cfg'
+	LOCKFILE=/home/pcs/tc/supp/lock/apcs_lock	
 	;;
 esac
-
 
 # read config files
 ### read queues from config files
@@ -237,22 +278,17 @@ get_cfg_val(){
 }
 
 
+# AWS: modify for remote queue path
 file=$CFGP/$cfg
 PATH_IQ=$(get_cfg_val $file input_queue)
 PATH_RQ=$(get_cfg_val $file run_queue)
 PATH_OQ=$(get_cfg_val $file output_queue)
 
-
-
 # error messages
 LOCKFILE_EXISTS_ERR="PCS $Q is already running."
 LOCKFILE_DOESNOTEXIST_ERR="PCS $Q is not running.  Execute 'pcs $Q {start|restart}' to start the service."
-##########################
 
-
-
-
-#### functions                                                                                                
+## functions                                                                                                
 start_job_managers(){
     JMS=$1
     n_jms=$2
@@ -264,18 +300,15 @@ start_job_managers(){
     done
 }
 
-
 start_workers(){
     WC=$1
     CFG=$2
     screen -S $WC -m -d matlab -nosplash -nodesktop -r "cd $PATH_WC; cwcobj = startup_wc('$CFG'); cwcobj.cSta"
 }
 
-
 stop_screen_session(){
     screen -ls |grep $1 | awk -F . '{print $1}' |xargs kill >/dev/null
 }
-
 
 stop_workers(){
     WC=$1
@@ -325,6 +358,7 @@ does_lockfile_exist(){
 # if statement for testing
 lockfile_exists=$(does_lockfile_exist $LOCKFILE)
 
+
 case $IA in
     start)
 
@@ -336,6 +370,7 @@ case $IA in
 	sleep 10
             #####
 
+	# Modify for AWS
 	start_workers $WC $cfg  
 
             # loop and start jms
@@ -357,6 +392,7 @@ case $IA in
 	stop_screen_session $TC
 	stop_screen_session \_$Q   # stop all JM's associated with this queue     
 	
+	# Modify for AWS
 	stop_workers $WC $Q
             # give workers time to die before manipulating
             #  queues

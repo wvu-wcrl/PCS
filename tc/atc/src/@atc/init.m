@@ -2,11 +2,11 @@
 %
 % initialization routine for ctc
 %
-% Version 2
-% 5/2014
+% Version 1
+% 11/2016
 % Terry Ferrett
 %
-%     Copyright (C) 2014, Terry Ferrett and Matthew C. Valenti
+%     Copyright (C) 2016, Terry Ferrett and Matthew C. Valenti
 %     For full copyright information see the bottom of this file.
 
 

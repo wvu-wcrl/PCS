@@ -3,10 +3,10 @@
 % initialize miscellaneous parameters
 %
 % Version 1
-% 5/2014
+% 11/2016
 % Terry Ferrett
 %
-%     Copyright (C) 2014, Terry Ferrett and Matthew C. Valenti
+%     Copyright (C) 2016, Terry Ferrett and Matthew C. Valenti
 %     For full copyright information see the bottom of this file.
 
 
@@ -22,7 +22,6 @@ obj.bu.tu = 1;
 obj.bu.isbl = 0;
 
 end
-
 
 %     This library is free software;
 %     you can redistribute it and/or modify it under the terms of

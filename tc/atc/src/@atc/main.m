@@ -2,8 +2,8 @@
 %
 % main task controller loop
 %
-% Version 4
-% 5/2014
+% Version 1
+% 11/2016
 % Terry Ferrett
 %
 % outline
@@ -11,7 +11,7 @@
 % 2. decide which user to service
 % 3. launch tasks for the user with the least active tasks
 %
-%     Copyright (C) 2014, Terry Ferrett and Matthew C. Valenti
+%     Copyright (C) 2016, Terry Ferrett and Matthew C. Valenti
 %     For full copyright information see the bottom of this file.
 %
 %  POTENTIAL CAVEAT
@@ -33,7 +33,6 @@
 function main(obj, ss)
 
 %%% main-specific initialization
-
 % task controller running states
 IS_START = strcmp(ss, 'start');
 IS_RESUME = strcmp(ss, 'resume');
@@ -43,7 +42,7 @@ IS_SHUTDOWN = strcmp(ss, 'shutdown');
 timer_users = tic;       % user list update timer
 timer_heartbeat = tic;   % heartbeat timer
 heartbeat_oneshot=1;     % touch the heartbeat file
-
+ 
 
 % initialize previously executing user file so that the task controller
 %  begins execution from the user who was executing tasks prior to
@@ -56,13 +55,11 @@ heartbeat_oneshot=1;     % touch the heartbeat file
 %       restore peu file and delete
 %       save currently executing user in every user loop iteration
 init_peu( obj );
-
+% AWS ignore for now
 
 % primary execution loop
 while(1)
     
-    % perform these actions while task controller is running
-    %  or resuming
     if IS_START || IS_RESUME
         
         % get user priorities
@@ -76,9 +73,7 @@ while(1)
     % scan global output queue and place completed tasks in user output
     %  directory
     if IS_START || IS_RESUME || IS_SHUTDOWN
-        
         consume_output(obj);
-        
     end
     
     % Pause for tsp seconds before making another pass
@@ -228,15 +223,15 @@ for k = fu:nu,
     %  Na - number of active users
     %  Pm - Priority value for the m-th user
     
-    
     % save the name of the currently executing user so that the
     % task controller can return to the user in the event of a crash
     save_cur_exec_user( obj, k );
     
-    %% determine the number of queue slots available to execute user tasks
+    % determine the number of queue slots available to execute user tasks
     %wa = get_workers_available(obj);
     qslots = get_queue_slots_available(obj);
-
+    % AWS possible change
+    
     % iterate over tasks and launch as workers become available
     for m = 1:tu(k),
         
@@ -255,7 +250,7 @@ for k = fu:nu,
             % set blocked state to 1
             obj.bu.isbl = 1;
             
-            fprintf('Waiting for workers t become free\n');
+            fprintf('Waiting for workers to become free\n');
             fprintf('to launch tasks for user \n %s.', obj.users{k}.username);
             
             % return to main loop
@@ -266,6 +261,7 @@ for k = fu:nu,
         %   obj.users,
         % launch the m-th available task in task list
         %   tl
+        % AWS: modify task transfer
         launch_user_tasks(obj, k, tl, m);
         
         % decrement number of user tasks available
@@ -454,8 +450,9 @@ puif = strcat(obj.users{k}.iq, '/', tl(m).name);
 % path to user running task file
 purf = strcat(obj.users{k}.rq, '/', tl(m).name);
 
-% path to global input queue
+% path to global (AWS) input queue
 pgiq = obj.gq.iq;
+% AWS: set input queue path in configuration file to global AWS input queue
 
 % append username to task file
 fn = tl(m).name;
@@ -463,19 +460,14 @@ afn = [obj.users{k}.username '_' obj.users{k}.user_location '_' fn];
 
 %REMOVED AMPERSAND
 % copy user input file into user running queue
-%op = ['sudo cp' ' ' puif{1} ' ' purf{1} ' ' '&'];
 op = ['sudo cp' ' ' puif{1} ' ' purf{1}];
 perform_fs_op(op);
 
-
 %REMOVED AMPERSAND
 % change user running queue file ownership from root to user
-%op = ['sudo chown' ' ' obj.users{k}.username ':' ...
-%    obj.users{k}.username ' ' purf{1} ' ' '&'];
 op = ['sudo chown' ' ' obj.users{k}.username ':' ...
     obj.users{k}.username ' ' purf{1}];
 perform_fs_op(op);
-
 
 %REMOVED AMPERSAND
 % change user input file ownership to pcs user
@@ -483,13 +475,12 @@ perform_fs_op(op);
 op = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1}];
 perform_fs_op(op);
 
-
 %REMOVED AMPERSAND
 % move user file into input queue
-%op = ['sudo mv -f' ' ' puif{1} ' ' pgiq{1} '/' afn ' ' '&'];
 op = ['sudo mv -f' ' ' puif{1} ' ' pgiq{1} '/' afn];
 perform_fs_op(op);
 
+% AWS: possibly copy tasks to AWS instance queue
 end
 
 
@@ -536,26 +527,6 @@ qslots = ( nw + qbuf ) - ( nfrq + nfiq );
 
 end
 
-
-%function wa = get_workers_available(obj)
-%
-%% perform directory listing in global running and input queues,
-%% and count the number of files in each
-%ext_in = '/*.mat';
-%[fl nfrq] = get_files_in_dir(obj.gq.rq{1}, ext_in);
-%[fl nfiq] = get_files_in_dir(obj.gq.iq{1}, ext_in);
-%
-%% total number of workers available
-%nw = obj.nw;
-%
-%% to determine workers available, subtract number of files in global
-%%  running and input queues from total workers available
-%%  from total cores available
-%wa = nw - ( nfrq + nfiq );
-%
-%end
-
-
 % touch heartbeat file indicate that TC has not crashed
 function heartbeat(obj)
 
@@ -566,7 +537,6 @@ hb_file = [ obj.hb_path filesep 'tc_' obj.gq_name ];
 fid = fopen(hb_file, 'w+'); fclose(fid);
 
 end
-
 
 % Move completed tasks from the global output queue to the owning user's
 %  output queue
@@ -631,8 +601,6 @@ end
 
 end
 
-
-
 % move completed task file from global to user output queue
 function consume_output_file(obj, output_task_filename, user_ind)
 
@@ -663,7 +631,6 @@ clear_from_user_running_queue( on, purq );
 
 end
 
-
 % this code is deprecated, only one location exists. web users directory is gone
 function [ownership_name ownership_group] = get_file_ownership( username, ...
     user_location )
@@ -671,7 +638,6 @@ ownership_name = username;           % shorten the name
 ownership_group = username;
 
 end
-
 
 % remove username and location from task filename
 function [on] = remove_username_loc_from_filename( name )
@@ -684,14 +650,12 @@ on = suffix(2:end);
 
 end
 
-
 % get path to user output queue
 function puoq = get_path_user_output_queue( oq )
 
 puoq = oq;
 
 end
-
 
 % get path to user running queue
 function purq = get_path_user_running_queue( oq )
@@ -723,8 +687,6 @@ perform_fs_op(op);
 
 end
 
-
-
 % Get a list of files in the given path having the given extension
 %  dir_in: Linux filesystem path of form
 %      /n1/n2/...
@@ -743,8 +705,6 @@ nf = length(fl);
 
 end
 
-
-
 % concatenate two structs having identical fields
 function bqf = struct_cat(rqf,iqf)
 
@@ -760,19 +720,6 @@ for k = 1:l2,
 end
 
 end
-
-
-%function delete_output_file( obj, output_task_filename )
-%
-%[ pgoq ] = get_path_global_output_queue( obj.gq.oq{1} );
-%
-%cmd_str = ['sudo rm' ' ' pgoq '/'  output_task_filename ' ' '&'];
-%[st res] = system(cmd_str); % delete file from output queue
-%fprintf('\n');
-%pause(0.05);
-%
-%end
-
 
 %     This library is free software;
 %     you can redistribute it and/or modify it under the terms of
