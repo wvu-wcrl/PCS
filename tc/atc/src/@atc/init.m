@@ -30,6 +30,9 @@ init_hb(obj)
 % initialize miscellaneous parameters
 init_misc(obj)
 
+% Initialize AWS parameters
+init_aws(obj)
+
 end
 
 

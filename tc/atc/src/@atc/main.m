@@ -436,7 +436,6 @@ fclose(user_fid);
 
 end
 
-
 % for the k-th user in
 %   obj.users,
 % launch the m-th available task in task list
@@ -526,14 +525,13 @@ perform_fs_op(op);
 op = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1}];
 perform_fs_op(op);
 
-
 % AWS - use scp
 % copy user input file into AWS temporary directory
-op = ['scp' ' ' puif{1} ' ' ahh{1} ':' patd{1} '/' afn];
+op = ['rsync' ' ' puif{1} ' ' ahh{1} ':' patd{1} '/' afn];
 [rc dc] = perform_fs_op(op); 
 if rc ~= 0,
-  fprintf(['An error occurred SCPing input file' ' ' afn]);
-  exit
+  fprintf(['An error occurred rsyncing input file' ' ' afn]);
+  pause
 end
 
 % move user input file from AWS temporary directory to AWS input
@@ -541,7 +539,10 @@ end
 op = ['ssh' ' ' ahh{1} ' ' 'mv' ' ' patd{1} '/' afn ' '  pgiq{1} '/'];
 perform_fs_op(op);
 
-% AWS: possibly copy tasks to AWS instance queue
+% remove user input file from user input queue
+op = ['sudo rm' ' ' puif{1}];
+perform_fs_op(op);
+
 end
 
 
@@ -552,7 +553,7 @@ function [st res] = perform_fs_op(op)
 % log operation being executed
 %fprintf('%s\n', op);
 
-[st res] = system(op);
+[st res] = system(op)
 
 %fprintf('\n');
 

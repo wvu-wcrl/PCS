@@ -22,7 +22,7 @@ switch lower(ss)
    
     case 'start'   % clear global queues and user running queues
         msg = ['Task controller starting.  Clearing global queues.'];
-        PrintOut(msg, 0, obj.ctc_logfile{1}, 1);
+        PrintOut(msg, 0, obj.atc_logfile{1}, 1);
         
         clear_global_queues( obj );
         move_u_rq_iq( obj.users )
@@ -30,9 +30,9 @@ switch lower(ss)
     case 'stop'      % move running queue files to input queue
         % move global running queue .mat files to input queue
         msg = ['Task controller stopping.'];
-        PrintOut(msg, 0, obj.ctc_logfile{1}, 1);
+        PrintOut(msg, 0, obj.atc_logfile{1}, 1);
         msg = ['Moving contents of global running queue to input queue.'];
-        PrintOut(msg, 0, obj.ctc_logfile{1}, 1);
+        PrintOut(msg, 0, obj.atc_logfile{1}, 1);
         
         clear_global_queues( obj );
         move_u_rq_iq( obj.users );

@@ -58,7 +58,7 @@ addpath(obj.lfup{1});
 heading = '[paths]';
 key = 'atc_logfile';
 out = util.fp(obj.cfp, heading, key);
-obj.ctc_logfile = out{1};
+obj.atc_logfile = out{1};
 
 % user priority file path
 heading = '[paths]';

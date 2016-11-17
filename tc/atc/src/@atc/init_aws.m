@@ -16,13 +16,13 @@ function init_aws(obj)
   heading = '[aws]';
   key = 'ahh';
   out = util.fp(obj.cfp, heading, key);
-  obj.ahh = str2double(out{1}{1});
+  obj.ahh = out{1};
 
   % Path to AWS temporary directory.
   heading = '[aws]';
   key = 'patd';
   out = util.fp(obj.cfp, heading, key);
-  obj.patd = str2double(out{1}{1});
+  obj.patd = out{1};
   
 end
 
