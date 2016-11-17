@@ -9,7 +9,6 @@
 %     Copyright (C) 2016, Terry Ferrett and Matthew C. Valenti
 %     For full copyright information see the bottom of this file.
 
-
 function init_hb(obj)
 
 % heartbeat path

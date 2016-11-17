@@ -262,7 +262,9 @@ for k = fu:nu,
         % launch the m-th available task in task list
         %   tl
         % AWS: modify task transfer
-        launch_user_tasks(obj, k, tl, m);
+        %launch_user_tasks(obj, k, tl, m);
+        launch_user_tasks_aws(obj, k, tl, m);
+
         
         % decrement number of user tasks available
         nt = nt - 1;
@@ -458,25 +460,21 @@ pgiq = obj.gq.iq;
 fn = tl(m).name;
 afn = [obj.users{k}.username '_' obj.users{k}.user_location '_' fn];
 
-%REMOVED AMPERSAND
 % copy user input file into user running queue
 op = ['sudo cp' ' ' puif{1} ' ' purf{1}];
 perform_fs_op(op);
 
-%REMOVED AMPERSAND
 % change user running queue file ownership from root to user
 op = ['sudo chown' ' ' obj.users{k}.username ':' ...
     obj.users{k}.username ' ' purf{1}];
 perform_fs_op(op);
 
-%REMOVED AMPERSAND
 % change user input file ownership to pcs user
 % op = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1} ' ' '&'];
 op = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1}];
 perform_fs_op(op);
 
-%REMOVED AMPERSAND
-% move user file into input queue
+% move user input file into global input queue
 op = ['sudo mv -f' ' ' puif{1} ' ' pgiq{1} '/' afn];
 perform_fs_op(op);
 
@@ -484,8 +482,72 @@ perform_fs_op(op);
 end
 
 
+% AWS
+% for the k-th user in
+%   obj.users,
+% launch the m-th available task in task list
+%   tl
+function launch_user_tasks_aws(obj, k, tl, m)
+
+% define PCS system user
+PCSUSER = 'pcs';
+
+% path to user input task file
+puif = strcat(obj.users{k}.iq, '/', tl(m).name);
+
+% path to user running task file
+purf = strcat(obj.users{k}.rq, '/', tl(m).name);
+
+% path to global (AWS) input queue
+pgiq = obj.gq.iq;
+% AWS: set input queue path in configuration file to global AWS input queue
+
+% AWS head node hostname.
+ahh = obj.ahh;
+
+% Path to AWS head node temporary directory.
+patd = obj.patd;
+
+% append username to task file
+fn = tl(m).name;
+afn = [obj.users{k}.username '_' obj.users{k}.user_location '_' fn];
+
+% copy user input file into user running queue
+op = ['sudo cp' ' ' puif{1} ' ' purf{1}];
+perform_fs_op(op);
+
+% change user running queue file ownership from root to user
+op = ['sudo chown' ' ' obj.users{k}.username ':' ...
+    obj.users{k}.username ' ' purf{1}];
+perform_fs_op(op);
+
+% change user input file ownership to pcs user
+% op = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1} ' ' '&'];
+op = ['sudo chown' ' ' PCSUSER ':' PCSUSER ' ' puif{1}];
+perform_fs_op(op);
+
+
+% AWS - use scp
+% copy user input file into AWS temporary directory
+op = ['scp' ' ' puif{1} ' ' ahh{1} ':' patd{1} '/' afn];
+[rc dc] = perform_fs_op(op); 
+if rc ~= 0,
+  fprintf(['An error occurred SCPing input file' ' ' afn]);
+  exit
+end
+
+% move user input file from AWS temporary directory to AWS input
+% queue
+op = ['ssh' ' ' ahh{1} ' ' 'mv' ' ' patd{1} '/' afn ' '  pgiq{1} '/'];
+perform_fs_op(op);
+
+% AWS: possibly copy tasks to AWS instance queue
+end
+
+
+
 % execute shell command to manipulate filesystem
-function perform_fs_op(op)
+function [st res] = perform_fs_op(op)
 
 % log operation being executed
 %fprintf('%s\n', op);

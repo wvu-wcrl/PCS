@@ -1,42 +1,30 @@
-% tc_startup.m
-% Startup script for AWS task controller.
+% init_aws.m
 %
-% Inputs
-%  cfg_file         full path to task controller configuration file
-%  ss               Startup state, taking one value from {start, stop, resume, shutdown}
-% 
-% Outputs
-%  ctcobj           task controller object
+% initialize AWS parameters from configuration file
 %
-%
-%     Last updated on 11/9/2016
+% Version 1
+% 11/2016
+% Terry Ferrett
 %
 %     Copyright (C) 2016, Terry Ferrett and Matthew C. Valenti
 %     For full copyright information see the bottom of this file.
 
 
-function atcobj = tc_startup(cfg_file, ss)
+function init_aws(obj)
 
-rootdir = pwd;              % make the current directory the root
-addpath(rootdir);
+  % AWS head node hostname.
+  heading = '[aws]';
+  key = 'ahh';
+  out = util.fp(obj.cfp, heading, key);
+  obj.ahh = str2double(out{1}{1});
 
-cd ..; cd ..; cd ..;
-cd util/; addpath(pwd);  % add file parser code to path
-
-cd(rootdir);
-cd ..; cd ..; cd cfg/; cfg_file = strcat(pwd,'/', cfg_file);     % current config file
-
-cd(rootdir);
-atcobj = atc(cfg_file, ss);     % create task controller object
-
-
-if strcmp(ss, 'stop') || strcmp(ss, 'shutdown')
-exit;
+  % Path to AWS temporary directory.
+  heading = '[aws]';
+  key = 'patd';
+  out = util.fp(obj.cfp, heading, key);
+  obj.patd = str2double(out{1}{1});
+  
 end
-
-end
-
-
 
 
 %     This library is free software;

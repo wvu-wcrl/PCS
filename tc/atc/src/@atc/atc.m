@@ -104,7 +104,12 @@ classdef atc < handle
         qp
         
     end
-    
+
+    % AWS properties
+    properties
+        ahh      % Head node hostname.
+        patd     % Path to AWS temporary directory.
+    end
     
     % Logging 
     properties   
