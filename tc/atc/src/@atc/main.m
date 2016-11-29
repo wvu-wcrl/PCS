@@ -527,10 +527,10 @@ perform_fs_op(op);
 
 % AWS - use scp
 % copy user input file into AWS temporary directory
-op = ['rsync' ' ' puif{1} ' ' ahh{1} ':' patd{1} '/' afn];
+op = ['scp' ' ' puif{1} ' ' ahh{1} ':' patd{1} '/' afn];
 [rc dc] = perform_fs_op(op); 
 if rc ~= 0,
-  fprintf(['An error occurred rsyncing input file' ' ' afn]);
+  fprintf(['An error occurred scp''ing input file' ' ' afn]);
   pause
 end
 
@@ -607,7 +607,9 @@ function consume_output(obj)
 
 % get files in global output queue
 ext_in = '/*.mat';
-[fl nf] = get_files_in_dir(obj.gq.oq{1}, ext_in);
+% potentially need new function - get files in AWS dir
+%[fl nf] = get_files_in_dir(obj.gq.oq{1}, ext_in);
+[fl nf] = get_files_in_aws_dir(obj.ahh{1}, obj.gq.oq{1}, ext_in);
 
 % iterate over all files in output queue, moving to owning user output
 % queue
@@ -619,9 +621,10 @@ for k = 1:nf,
     % get user structure index corresponding to this username
     user_ind = get_user_index(obj, username);
     
+    % Modify for AWS
     % perform move operation
-    consume_output_file(obj, fl(k).name, user_ind);
-    
+    %consume_output_file(obj, fl(k).name, user_ind);
+    consume_output_file_aws(obj, fl(k).name, user_ind);
 end
 
 end
@@ -664,6 +667,8 @@ end
 
 end
 
+
+
 % move completed task file from global to user output queue
 function consume_output_file(obj, output_task_filename, user_ind)
 
@@ -693,6 +698,60 @@ perform_fs_op(op);
 clear_from_user_running_queue( on, purq );
 
 end
+
+
+% move completed task file from global to user output queue assuming AWS output queue
+function consume_output_file_aws(obj, output_task_filename, user_ind)
+
+% AWS head node hostname.
+ahh = obj.ahh{1};
+
+% Path to temporary directory.
+patd = obj.patd{1};
+
+[ownership_name ownership_group] = ...
+    get_file_ownership( obj.users{user_ind}.username,...
+    obj.users{user_ind}.user_location );
+
+% username and location are no longer needed as part of filename -
+%  moving back to user's own output queue
+[on] = remove_username_loc_from_filename( output_task_filename );
+
+% get paths to output queues
+[ puoq ] = get_path_user_output_queue( obj.users{user_ind}.oq{1});
+[ pgoq ] = get_path_global_output_queue( obj.gq.oq{1} );
+
+% Copy output task file from AWS to cluster temporary queue.
+op = ['scp' ' ' ahh ':' pgoq '/' output_task_filename ' ' patd];
+[rc dc] = perform_fs_op(op); 
+if rc ~= 0,
+  fprintf(['An error occurred scp''ing file' ' ' output_task_filename]);
+  pause
+end
+
+% return ownership of task file to user
+op = ['sudo chown' ' ' ownership_name ':' ownership_group ...
+    ' ' patd '/' output_task_filename ' ' '&'];
+perform_fs_op(op);
+
+% move task file from global output queue to user output queue
+op = ['sudo mv -f' ' ' patd '/'  output_task_filename ' ' puoq '/' on ' ' '&'];
+perform_fs_op(op);
+
+% remove task file from AWS global output queue.
+op = ['ssh' ' ' ahh ' ' 'rm' ' ' pgoq '/' output_task_filename];
+[rc dc] = perform_fs_op(op); 
+if rc ~= 0,
+  fprintf(['An error occurred scp''ing file' ' ' output_task_filename]);
+  pause
+end
+
+% remove task file from user's running queue - execution complete
+[ purq ] = get_path_user_running_queue( obj.users{user_ind}.rq{1} );
+clear_from_user_running_queue( on, purq );
+
+end
+
 
 % this code is deprecated, only one location exists. web users directory is gone
 function [ownership_name ownership_group] = get_file_ownership( username, ...
@@ -767,6 +826,36 @@ fl = dir( srch );
 nf = length(fl);
 
 end
+
+% Get a list of files in the given path having the given extension
+% residing in AWS.
+%   dir_in: Linux filesystem path of form
+%      /n1/n2/...
+%    where n1, n2 ... are directory names
+%  note that dir_in must not be terminated with '/'
+function [fl nf] = get_files_in_aws_dir(ahh, dir_in, ext_in)
+
+% Need to get file list using ssh command.
+cmd = ['ssh' ' ' ahh ' ' '''find' ' ' dir_in ' ' '-maxdepth 1 -printf "%f\n"'''];
+[DC fl_unparsed] = system(cmd);
+fl_parsed = strsplit(fl_unparsed, '\n');
+
+% Remove first and last entries in cell array, they contain unused
+% information returned by the find command.
+fl_parsed = fl_parsed(2:end-1);
+
+% number of files found.  The first and last entries are not used.
+nf = length(fl_parsed);
+
+% Convert to structure format used by MATLAB's command 'dir'.
+%  This is for compatibility with previous code.
+fl = struct;
+for k=1:nf,
+fl(k).name = fl_parsed{k};
+end
+
+end
+
 
 % concatenate two structs having identical fields
 function bqf = struct_cat(rqf,iqf)
